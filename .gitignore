@@ -1,0 +1,9 @@
+# Personal candidate documents or screenshots should not be committed.
+private/
+user-provided/
+candidate-screenshots/
+
+# Local scratch exports.
+.DS_Store
+tmp/
+scratch/

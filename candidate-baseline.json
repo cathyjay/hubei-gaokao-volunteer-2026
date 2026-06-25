@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "candidate_alias": "hubei_2026_physics_515",
+  "privacy_note": "No name, ID number, admission ticket number, registration number, or other direct identifiers are stored here.",
+  "exam": {
+    "year": 2026,
+    "province": "湖北",
+    "category": "普通类",
+    "first_choice_subject": "物理",
+    "elective_subjects": ["化学", "地理"],
+    "target_batch": "本科普通批"
+  },
+  "project_goal": {
+    "decision_deadline": "2026-07-01",
+    "official_undergraduate_regular_deadline": "2026-07-02 17:00",
+    "goal": "在保证录取成功率的前提下，尽量把 515 分、91723 位次利用到极致，形成学校、院校专业组、专业排序和是否服从调剂的完整方案。"
+  },
+  "initial_preferences": {
+    "cities": ["成都", "西安", "武汉", "北京"],
+    "note": "城市偏好是初始输入，可继续增加；所有筛选脚本和候选池需要可重复生成。"
+  },
+  "scores": {
+    "语文": 107,
+    "数学": 88,
+    "英语": 122,
+    "物理": 50,
+    "化学": 67,
+    "地理": 81,
+    "总分": 515
+  },
+  "rank_2026": {
+    "score": 515,
+    "same_score_count": 829,
+    "rank_range": "90895-91723",
+    "cumulative_rank": 91723,
+    "batch_name": "本科批"
+  },
+  "control_lines_2026": {
+    "普通本科_首选物理": 435,
+    "本科特殊招生线_首选物理": 529,
+    "普通本科_首选历史": 443,
+    "本科特殊招生线_首选历史": 532
+  },
+  "equivalent_scores": {
+    "method": "Same-rank appositive fraction from static-data.gaokao.cn section data, cross-checked against official Hubei one-score-one-rank table.",
+    "source_score": 515,
+    "source_rank_range": "90895-91723",
+    "2025": {
+      "score": 494,
+      "rank_range": "90979-91841"
+    },
+    "2024": {
+      "score": 497,
+      "rank_range": "91113-91965"
+    },
+    "2023": {
+      "score": 481,
+      "rank_range": "91236-91884"
+    }
+  },
+  "volunteer_rules_2026": {
+    "本科普通批院校专业组上限": 45,
+    "每个院校专业组专业上限": 6,
+    "本科提前批截止时间": "2026-06-30 17:00",
+    "本科普通批集中填报截止时间": "2026-07-02 17:00"
+  },
+  "source_refs": [
+    {
+      "name": "湖北省教育考试院 2026 普通高考总分一分一段统计表",
+      "url": "https://www.hbea.edu.cn/html/2026-06/15962.html",
+      "local_copy": "data/official/hubei-2026-one-score-one-rank-physics/source-page.html"
+    },
+    {
+      "name": "湖北省教育考试院 2026 普通高校招生录取控制分数线",
+      "url": "https://www.hbea.edu.cn/html/2026-06/15961.html",
+      "local_copy": "data/official/hubei-2026-control-lines/source-page.html"
+    },
+    {
+      "name": "湖北省教育厅 2025 本科普通批首选物理平行志愿投档分数线",
+      "url": "https://jyt.hubei.gov.cn/bmdt/ztzl/gxzs/zszy/zsfw/202507/t20250721_5727304.shtml",
+      "local_copy": "data/official/hubei-2025-physics-toudang/source-page.html"
+    },
+    {
+      "name": "湖北省教育厅 2024 本科普通批首选物理平行志愿投档线",
+      "url": "https://jyt.hubei.gov.cn/bmdt/ztzl/gxzs/zszy/zsfw/202407/t20240721_5274253.shtml",
+      "local_copy": "data/official/hubei-2024-physics-toudang/source-page.html"
+    },
+    {
+      "name": "湖北省 2023 本科普通批首选物理平行志愿投档线 PDF",
+      "url": "https://jyt.hubei.gov.cn/bmdt/ztzl/gxzs/xxgs/202307/P020250627347122820023.pdf",
+      "local_copy": "data/official/hubei-2023-physics-toudang/hubei-2023-physics-toudang.pdf"
+    },
+    {
+      "name": "static-data.gaokao.cn 2026 湖北物理一分一段等位分 JSON",
+      "url": "https://static-data.gaokao.cn/www/2.0/section2021/2026/42/2073/3/lists.json",
+      "local_copy": "data/derived/hubei-2026-physics-section-static-gaokao-cn.json"
+    }
+  ],
+  "last_verified_at": "2026-06-25 Asia/Shanghai"
+}
