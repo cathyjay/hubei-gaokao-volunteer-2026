@@ -1,62 +1,89 @@
-# Goal And Analysis Framework
+# 目标与决策框架
 
-## Primary Goal
+最后更新：2026-06-25
 
-Within the next few days, choose suitable majors and school professional groups
-for the 2026 Hubei physics-track applicant with total score 515 and cumulative
-rank 91723.
+## 一、项目目标
 
-The strategy has two priorities:
+在 2026-06-30 前，为湖北 2026 普通类首选物理考生形成最终志愿方案。考生总分 515，累计位次 91723，位次区间 90895-91723。
 
-1. Keep admission probability high enough to avoid滑档 or被不合适专业锁定.
-2. Use the existing score/rank as fully as possible, instead of choosing only
-   overly conservative options.
+核心目标有两个：
 
-## Data Strategy
+1. 保证录取成功率，避免滑档、退档，避免被明显不能接受的专业锁定。
+2. 尽量用足 515 分和 91723 位次，不因为不了解学校和专业而过度保守。
 
-Do not rely on a single year.
+2026-07-02 12:00 前只保留应急修改缓冲；官方本科普通批集中填报截止时间是 2026-07-02 17:00。
 
-- 2025 data: closest current reference, with 2026 equivalent score 494.
-- 2024 data: second-year stability check, with 2026 equivalent score 497.
-- 2023 data: third-year trend check, with 2026 equivalent score 481.
+## 二、数据策略
 
-For any candidate院校专业组, look at:
+不能只看 2025 年，也不能用裸分直觉判断。每个候选院校专业组都要尽量看 2023、2024、2025 三年数据，并转换到 2026 位次语境下比较。
 
-- Three-year score/rank trend when available.
-- Whether the professional group code or major composition changed.
-- Whether the group is普通类, 中外合作, 预科, 护理类, 国家专项, 地方专项, or other special type.
-- 2026湖北招生计划 and subject requirements.
+当前等位参照：
 
-## School Dimensions
+| 年份 | 等位分 | 等位位次区间 | 用途 |
+| --- | ---: | --- | --- |
+| 2025 | 494 | 90979-91841 | 最近一年主要参照 |
+| 2024 | 497 | 91113-91965 | 第二年稳定性校验 |
+| 2023 | 481 | 91236-91884 | 第三年趋势校验 |
 
-- City and commute: 武汉, 成都, 西安, 北京 are initial preferences; other cities can be added.
-- Public/private/independent/职业本科 status.
-- School level and discipline fit: master's/doctoral authorization, applied strength, industry links.
-- Campus and fees: location, tuition, accommodation, branch campus, cooperative program.
-- Local opportunity: internships, public-sector exams, teacher/medical licensing path, regional employment.
-- Stability: enrollment plan size, historical volatility, and退档/专业调剂 risk.
+候选项必须核验：
 
-## Major Dimensions
+- 近三年投档线和位次趋势。
+- 专业组代码是否变化，组内专业组成是否变化。
+- 是否属于普通类、中外合作、预科、民族班、国家专项、地方专项、护理类、校企合作、联合培养等特殊类别。
+- 2026 湖北招生计划、选科要求、专业备注和招生章程。
 
-- Fit with current scores: math 88 and physics 50 suggest caution for heavily theoretical engineering or physics-heavy majors unless interest is strong.
-- Career clarity: teacher track, accounting/finance operations, health technology, applied computing/data, GIS/geography, pharmacy/rehab/medical technology.
-- Difficulty and progression: whether postgraduate study is almost required, licensing exam pressure, transfer options.
-- Employment market: local demand, salary ceiling/floor, automation risk, civil-service compatibility.
-- Family preference and student interest: must be discussed before final sorting.
+## 三、学校分析维度
 
-## Risk Buckets
+- 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。
+- 属性：公办、民办、独立学院、职业本科、中外合作要分开看。
+- 平台：硕士点、博士点、优势学科、行业资源、实习机会。
+- 校区：实际就读校区、交通、生活成本、是否异地校区或联合培养。
+- 费用：学费、住宿费、中外合作费用、民办费用。
+- 稳定性：招生计划人数、历史波动、是否小计划专业组。
+- 风险：退档、调剂、体检限报、单科要求、专业备注。
 
-- 冲: historical equivalent score slightly above current band, but acceptable major/group and no critical risk.
-- 稳: historical equivalent score near current band, group quality acceptable.
-- 保: historical equivalent score clearly below current band, public/acceptable major preferred.
+## 四、专业分析维度
 
-Every final choice must include:
+当前先记录三个可能方向：
 
-- Why it is included.
-- Risk bucket.
-- Professional group code.
-- Acceptable majors in the group.
-- Unacceptable majors in the group.
-- Whether服从调剂 is acceptable.
-- Verification status.
+- 数字媒体技术
+- 师范类专业
+- 计算机类相关专业
 
+这些只是初始方向，不是结论。后续每个专业都要按以下维度判断：
+
+- 课程难度：数学、物理、编程、设计、表达、实习强度。
+- 与成绩匹配：数学 88、物理 50 提示对强理论、强硬件、强物理方向要谨慎；英语 122 是明显优势。
+- 就业出口：本科就业、考研必要性、考编考证、地域依赖、行业周期。
+- 转换空间：能否转向数据、教育、运营、产品、考公、考编或考研。
+- 调剂后果：同一专业组里是否有明显不能接受的专业。
+- 家庭和考生偏好：兴趣、禁忌、城市接受度、费用承受度。
+
+## 五、冲稳保定义
+
+冲、稳、保不是按感觉分，而是按位次、专业组风险和可接受度共同判断。
+
+| 风险桶 | 定义 | 使用原则 |
+| --- | --- | --- |
+| 冲 | 历史等位分或位次略高于当前水平，但专业组可接受，退档和调剂风险可控 | 数量不能过多，不能放不能接受的组 |
+| 稳 | 历史等位分和当前水平接近，学校/专业/城市综合可接受 | 志愿表中部主力 |
+| 保 | 历史等位分明显低于当前水平，录取概率更高，且能接受专业组内调剂 | 必须足够可靠，不能只保学校不保专业 |
+
+最终表中每个候选院校专业组都必须记录：
+
+- 年份数据：2023、2024、2025 投档线和位次。
+- 2026 计划：专业组代码、专业、人数、选科、备注。
+- 可接受专业、勉强接受专业、不能接受专业。
+- 是否服从调剂，以及服从调剂的前提。
+- 风险桶：冲、稳、保。
+- 入选理由或排除理由。
+- 复核状态：CSV 核、原件核、2026 计划核、章程核、最终核。
+
+## 六、最终决策原则
+
+1. 官方来源优先，第三方平台只用于发现和交叉校验。
+2. 位次优先于裸分，等位分优先于跨年直接比分数。
+3. 不把不能接受的院校专业组放进志愿表。
+4. 服从调剂前必须默认接受组内所有可能被调剂到的专业。
+5. 保底项必须同时保学校属性、专业可接受度和录取概率。
+6. 任何临时修改都要记录原因、来源和影响范围。

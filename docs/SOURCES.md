@@ -31,6 +31,21 @@
    - 本地 PDF：`data/official/hubei-2023-physics-toudang/hubei-2023-physics-toudang.pdf`
    - 用途：第三年趋势校验。
 
+6. 湖北教育考试网 / 湖北招生数智综合平台，2026 志愿填报通知与政策问答
+   - 志愿填报时间页面：http://www.hbccks.cn/html/gkzytb/2026-06/142885.html
+   - 政策问答页面：http://gaokao.hbccks.cn/zkzc/2026-06/143020.html
+   - 政策问答页面：http://gaokao.hbccks.cn/zkzc/2026-06/143021.html
+   - 政策问答页面：http://gaokao.hbccks.cn/zkzc/2026-06/143040.html
+   - 本地网页：`data/official/hubei-2026-volunteer-policy/*.html`
+   - 用途：确认 2026 湖北志愿结构、填报时间、平行志愿规则、保存确认要求和操作风险。
+   - 备注：本地留存使用 HTTP 地址抓取；同路径 HTTPS 抓取时曾返回 404 或证书域名不匹配。
+
+7. 教育部 / 阳光高考，普通高等学校本科专业目录（2026 年）
+   - 页面 URL：https://gaokao.chsi.com.cn/gkxx/zcdh/202604/20260428/2293468784.html
+   - 本地网页：`data/official/moe-major-catalog/2026-major-catalog-page.html`
+   - 本地 PDF：`data/official/moe-major-catalog/2026-major-catalog.pdf`
+   - 用途：核验专业名称、专业代码、专业类归属，避免第三方平台专业分类误导。
+
 ## 交叉校验来源
 
 1. static-data.gaokao.cn 一分一段 JSON
@@ -42,10 +57,21 @@
    - 用途：确认各科成绩和总分。
    - 处理方式：不复制进项目，因为截图包含直接个人身份信息。
 
-3. 湖北教育考试网 / 湖北招生数智综合平台相关通知
-   - 志愿填报时间页面：https://www.hbccks.cn/html/gkzytb/2026-06/142885.html
-   - 志愿填报政策问答：https://gaokao.hbccks.cn/zkzc/2026-06/143021.html
-   - 用途：确认填报时间、平台入口、平行志愿规则和操作风险。
+3. 阳光高考招生章程入口
+   - URL：https://gaokao.chsi.com.cn/zsgs/zhangcheng/
+   - 本地网页：`data/external/chsi/admission-regulations-index.html`
+   - 用途：后续逐校核验招生章程、专业录取规则、体检限报、语种、单科要求、收费和校区。
+
+4. 千问高考
+   - 首页 URL：https://p.qianwen.com/gaokaopc/index
+   - 本地首页：`data/external/qianwen-gaokao/index.html`
+   - 本地前端资源：`data/external/qianwen-gaokao/assets/*.js`
+   - 可复现公开接口：`https://gk.qianwen.com/api/gaokaoChoice/v1/getUserFilters?need=major`
+   - 本地接口副本：`data/external/qianwen-gaokao/api/getUserFilters-need-major.json`
+   - 当前可用内容：专业分类和专业代码；已看到 `计算机类 0809`、`计算机科学与技术 080901`、`软件工程 080902`、`数字媒体技术 080906`、`教育学类 0401` 等。
+   - 已发现但暂不能直接稳定使用的接口：`api/scorerank/pc/data`、`api/gaokaoChoice/pc/getFilters`、`api/userPage/pc/index`、`api/user/pc/setUserInfoV3` 等。
+   - 复现命令：`curl -L 'https://gk.qianwen.com/api/gaokaoChoice/v1/getUserFilters?need=major' -o data/external/qianwen-gaokao/api/getUserFilters-need-major.json`
+   - 限制：部分接口需要签名、客户端场景参数或登录态；直接请求会返回参数错误或验签失败。千问高考只能作为“发现候选项、理解专业分类、辅助交叉校验”的第三方数据源，不能覆盖湖北官方投档线、2026 招生计划和高校招生章程。
 
 ## 派生数据说明
 
@@ -54,3 +80,12 @@
 - `data/derived/hubei-2024-physics-toudang-parsed.csv`：2024 投档线解析行，2800 条数据。
 - `data/derived/hubei-2023-physics-toudang-parsed.csv`：2023 投档线解析行，2874 条数据。
 - `data/derived/initial-city-pool-2023-2025.tsv`：按初始城市关键词生成的初筛池，不是最终志愿表。
+
+## 使用优先级
+
+1. 最终录取判断：湖北官方投档线、2026 湖北招生计划、高校招生章程。
+2. 分数位次换算：湖北官方一分一段为主，static-data.gaokao.cn 作为交叉校验。
+3. 专业名称和代码：教育部 2026 本科专业目录为准。
+4. 候选发现和辅助理解：千问高考、阳光高考页面、其他第三方工具。
+
+第三方工具的推荐概率、预测分和默认排序均不得直接进入最终方案，除非已用官方原件和招生章程复核。

@@ -1,8 +1,8 @@
 # 2026 湖北高考志愿项目
 
 这个项目用于持续记录、复核和讨论 2026 年湖北普通类首选物理考生的高考志愿填报方案。
-核心目标是在 2026-07-01 前形成可执行的学校/专业组/专业排序方案，并为 2026-07-02
-17:00 本科普通批正式截止留出缓冲。
+核心目标是在 2026-06-30 前形成可执行的学校/专业组/专业排序最终方案。2026-07-02
+12:00 前只保留应急修改缓冲；官方本科普通批集中填报截止时间仍为 2026-07-02 17:00。
 
 ## 项目规则
 
@@ -30,16 +30,19 @@
 
 ## 关键文档
 
-- `docs/BACKGROUND_REQUIREMENTS_AND_PLAN.md`：背景、目标、缺口、7 月 1 日前计划。
+- `docs/BACKGROUND_REQUIREMENTS_AND_PLAN.md`：背景、目标、缺口、6 月 30 日前计划。
 - `docs/SOURCES.md`：所有数据源、年份、文件路径和用途。
 - `docs/VERIFICATION.md`：复核方法和不可省略的人工核验点。
 - `docs/GOAL_AND_FRAMEWORK.md`：冲稳保和学校/专业分析框架。
+- `docs/VOLUNTEER_FILLING_GUIDE.md`：志愿填报阶段、专业名词和注意事项。
+- `docs/MAJOR_DIRECTIONS.md`：当前可能专业方向和后续调研问题。
 - `docs/DECISIONS.md`：每天的决策日志。
 
 ## 数据目录
 
 - `data/official/`：官方网页、PDF、图片原件。
 - `data/derived/`：OCR 文本、解析 CSV、等位分 JSON 和筛选池。
+- `data/external/`：第三方辅助数据源本地留存，只用于发现和交叉校验。
 - `scripts/`：可重复运行的核验和筛选脚本。
 - `CHECKSUMS.sha256`：项目文件哈希清单。
 
@@ -47,5 +50,5 @@
 
 ```bash
 python3 scripts/verify_baseline.py
-python3 scripts/filter_toudang.py --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
+python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```

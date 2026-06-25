@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "candidate_alias": "hubei_2026_physics_515",
-  "privacy_note": "No name, ID number, admission ticket number, registration number, or other direct identifiers are stored here.",
+  "privacy_note": "本文件不保存姓名、身份证号、准考证号、报名号、截图原件或其他直接身份标识。",
   "exam": {
     "year": 2026,
     "province": "湖北",
@@ -11,12 +11,14 @@
     "target_batch": "本科普通批"
   },
   "project_goal": {
-    "decision_deadline": "2026-07-01",
+    "decision_deadline": "2026-06-30",
+    "emergency_buffer_until": "2026-07-02 12:00",
     "official_undergraduate_regular_deadline": "2026-07-02 17:00",
-    "goal": "在保证录取成功率的前提下，尽量把 515 分、91723 位次利用到极致，形成学校、院校专业组、专业排序和是否服从调剂的完整方案。"
+    "goal": "在保证录取成功率的前提下，尽量把 515 分、91723 位次利用到极致，形成学校、院校专业组、专业排序和是否服从调剂的完整方案。2026-07-02 12:00 后原则上不再做方向性修改，只处理官方系统、信息误差或不可抗因素导致的应急修改。"
   },
   "initial_preferences": {
     "cities": ["成都", "西安", "武汉", "北京"],
+    "possible_major_directions": ["数字媒体技术", "师范类专业", "计算机类相关专业"],
     "note": "城市偏好是初始输入，可继续增加；所有筛选脚本和候选池需要可重复生成。"
   },
   "scores": {
@@ -42,7 +44,7 @@
     "本科特殊招生线_首选历史": 532
   },
   "equivalent_scores": {
-    "method": "Same-rank appositive fraction from static-data.gaokao.cn section data, cross-checked against official Hubei one-score-one-rank table.",
+    "method": "使用 static-data.gaokao.cn 一分一段数据按同位次区间寻找等位分，并与湖北官方一分一段表交叉校验。",
     "source_score": 515,
     "source_rank_range": "90895-91723",
     "2025": {
@@ -62,7 +64,8 @@
     "本科普通批院校专业组上限": 45,
     "每个院校专业组专业上限": 6,
     "本科提前批截止时间": "2026-06-30 17:00",
-    "本科普通批集中填报截止时间": "2026-07-02 17:00"
+    "本科普通批集中填报截止时间": "2026-07-02 17:00",
+    "项目内部应急修改缓冲截止时间": "2026-07-02 12:00"
   },
   "source_refs": [
     {
@@ -94,6 +97,22 @@
       "name": "static-data.gaokao.cn 2026 湖北物理一分一段等位分 JSON",
       "url": "https://static-data.gaokao.cn/www/2.0/section2021/2026/42/2073/3/lists.json",
       "local_copy": "data/derived/hubei-2026-physics-section-static-gaokao-cn.json"
+    },
+    {
+      "name": "湖北教育考试网 2026 志愿填报通知与政策问答",
+      "url": "http://gaokao.hbccks.cn/zkzc/2026-06/143020.html",
+      "local_copy": "data/official/hubei-2026-volunteer-policy/143020-policy.html"
+    },
+    {
+      "name": "教育部 / 阳光高考 普通高等学校本科专业目录（2026 年）",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zcdh/202604/20260428/2293468784.html",
+      "local_copy": "data/official/moe-major-catalog/2026-major-catalog.pdf"
+    },
+    {
+      "name": "千问高考公开专业分类接口",
+      "url": "https://gk.qianwen.com/api/gaokaoChoice/v1/getUserFilters?need=major",
+      "local_copy": "data/external/qianwen-gaokao/api/getUserFilters-need-major.json",
+      "use_limit": "第三方辅助数据源，仅用于专业分类和候选发现，不作为最终录取依据。"
     }
   ],
   "last_verified_at": "2026-06-25 Asia/Shanghai"

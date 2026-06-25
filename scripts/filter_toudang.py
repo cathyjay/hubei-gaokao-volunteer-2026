@@ -13,12 +13,12 @@ CSV_PATHS = {
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Filter 2025 Hubei physics-track投档线 rows.")
-    parser.add_argument("--year", nargs="*", default=["2025"], choices=sorted(CSV_PATHS), help="Data years to search.")
-    parser.add_argument("--keywords", nargs="*", default=[], help="School/city keywords, e.g. 武汉 成都 西安")
+    parser = argparse.ArgumentParser(description="筛选湖北首选物理本科普通批投档线解析行。")
+    parser.add_argument("--year", nargs="*", default=["2025"], choices=sorted(CSV_PATHS), help="要检索的数据年份。")
+    parser.add_argument("--keywords", nargs="*", default=[], help="学校或城市关键词，例如：武汉 成都 西安。")
     parser.add_argument("--min-score", type=int, default=0)
     parser.add_argument("--max-score", type=int, default=750)
-    parser.add_argument("--exclude", nargs="*", default=[], help="Text snippets to exclude.")
+    parser.add_argument("--exclude", nargs="*", default=[], help="需要排除的文本片段。")
     args = parser.parse_args()
 
     rows = []
