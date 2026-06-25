@@ -36,6 +36,8 @@
 - `docs/GOAL_AND_FRAMEWORK.md`：冲稳保和学校/专业分析框架。
 - `docs/VOLUNTEER_FILLING_GUIDE.md`：志愿填报阶段、专业名词和注意事项。
 - `docs/MAJOR_DIRECTIONS.md`：当前可能专业方向和后续调研问题。
+- `docs/FAMILY_PREFERENCES_AND_CONSTRAINTS.md`：家庭偏好、预算、体检和筛选硬底线。
+- `docs/2026_ADMISSION_PLAN_ACQUISITION.md`：2026 招生计划获取来源、接口状态和下一步动作。
 - `docs/DECISIONS.md`：每天的决策日志。
 
 ## 数据目录
@@ -43,6 +45,7 @@
 - `data/official/`：官方网页、PDF、图片原件。
 - `data/derived/`：OCR 文本、解析 CSV、等位分 JSON 和筛选池。
 - `data/external/`：第三方辅助数据源本地留存，只用于发现和交叉校验。
+- `data/working/`：当前偏好、招生计划导入模板和阶段性工作数据。
 - `scripts/`：可重复运行的核验和筛选脚本。
 - `CHECKSUMS.sha256`：项目文件哈希清单。
 

@@ -1,0 +1,34 @@
+{
+  "last_updated": "2026-06-26",
+  "school_attribute": {
+    "preferred": ["公办本科"],
+    "not_regular_options": ["民办本科", "独立学院", "职业本科"],
+    "note": "民办、独立学院、职业本科暂不进入主方案；如保底压力不足再单独讨论。"
+  },
+  "budget": {
+    "preference": "正常学费预算",
+    "preferred": ["普通公办学费"],
+    "not_regular_options": ["中外合作", "高收费专业组", "民办高学费"],
+    "annual_upper_limit_yuan": null,
+    "note": "具体年学费上限待家庭补充。"
+  },
+  "major_preference": {
+    "current_understanding": "目前不了解专业，需要继续研究",
+    "known_interest_directions": ["数字媒体技术", "师范类专业", "计算机类相关专业"],
+    "decision_principle": "专业组内所有专业可接受优先于城市偏好。"
+  },
+  "priority_order": [
+    "不滑档、不退档",
+    "专业组内所有专业可接受",
+    "公办和普通学费",
+    "学校和专业质量",
+    "城市偏好"
+  ],
+  "city_preference_order": ["成都", "西安", "武汉", "北京"],
+  "physical_constraints": {
+    "color_blindness": "无色盲",
+    "color_weakness": "未提供",
+    "myopia": "有近视，度数待补充",
+    "medical_exam_result": "待高考体检结论"
+  }
+}

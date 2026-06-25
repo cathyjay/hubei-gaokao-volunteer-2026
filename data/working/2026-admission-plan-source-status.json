@@ -1,0 +1,39 @@
+{
+  "last_updated": "2026-06-26",
+  "official_plan_page": {
+    "url": "http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html",
+    "local_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html",
+    "status": "页面已公开，但正文显示“持续更新中，敬请期待”。",
+    "checked_note": "2026-06-26 使用 HTTP 复核；HTTPS 抓取存在证书主机名不匹配。"
+  },
+  "official_plan_index": {
+    "url": "http://www.hbccks.cn/html/gkgzzt/gkzsjh/",
+    "local_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html",
+    "status": "已留存索引页。"
+  },
+  "zspt_platform": {
+    "url": "https://zspt.hubzs.com.cn",
+    "local_copy": "data/official/hubei-2026-admission-plan-platform/index.html",
+    "frontend_asset": "data/official/hubei-2026-admission-plan-platform/assets/index-cIDuPUOY.js",
+    "frontend_asset_dir": "data/official/hubei-2026-admission-plan-platform/assets",
+    "unauthenticated_probe_files": [
+      "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-nfs-no-token.json",
+      "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-yxList-2026-wuhan-no-token.json"
+    ],
+    "status": "已发现计划查询接口，但无登录请求返回 401。",
+    "unauthenticated_probe_result": {
+      "endpoint": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/nfs",
+      "response": {"code": 401, "msg": "令牌不能为空"}
+    }
+  },
+  "interim_working_pool": {
+    "path": "data/working/historical-preferred-city-pool-2023-2025.tsv",
+    "status": "已按成都、西安、武汉、北京和 470-535 分历史投档范围生成过渡候选池。",
+    "warning": "该文件只能用于发现候选，不能替代 2026 招生计划、官方投档线原件和招生章程。"
+  },
+  "required_next_action": [
+    "使用考生账号登录湖北招生数智综合平台查询或导出关注院校专业组。",
+    "获取《湖北招生考试》杂志第 19 期，本科普通批首选物理招生计划。",
+    "等待湖北教育考试网招生计划专题更新完整 2026 计划。"
+  ]
+}

@@ -48,6 +48,8 @@ python3 scripts/verify_baseline.py
 
 任何没有完成“官方计划 + 历史投档线 + 招生章程”核验的专业组，都必须保留 `needs_verification` 状态，不能进入最终表。
 
+当前 2026 招生计划获取状态见 `docs/2026_ADMISSION_PLAN_ACQUISITION.md`。在完整计划导入前，所有院校专业组只能停留在候选池或待核验状态。
+
 ## 四、第三方数据核验
 
 千问高考、static-data.gaokao.cn、阳光高考页面和其他工具只能作为辅助来源。

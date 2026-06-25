@@ -46,6 +46,23 @@
    - 本地 PDF：`data/official/moe-major-catalog/2026-major-catalog.pdf`
    - 用途：核验专业名称、专业代码、专业类归属，避免第三方平台专业分类误导。
 
+8. 湖北教育考试网，2026 普通高等学校招生计划专题
+   - 招生计划索引：http://www.hbccks.cn/html/gkgzzt/gkzsjh/
+   - 2026 招生计划页面：http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html
+   - 本地网页：`data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html`
+   - 本地网页：`data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html`
+   - 当前状态：2026 页面已公开，但正文显示“持续更新中，敬请期待”。
+   - 用途：等待官方公开完整 2026 招生计划。
+
+9. 湖北省招生数智综合平台
+   - URL：https://zspt.hubzs.com.cn
+   - 本地首页：`data/official/hubei-2026-admission-plan-platform/index.html`
+   - 本地前端资源：`data/official/hubei-2026-admission-plan-platform/assets/*.js`
+   - 已发现接口：`/prod-api/planQuery/plan/nfs`、`/prod-api/planQuery/plan/yxList`、`/prod-api/planQuery/plan/group` 等。
+   - 无登录探测留存：`data/official/hubei-2026-admission-plan-platform/api-probes/*.json`
+   - 当前状态：无登录请求返回 `{"code":401,"msg":"令牌不能为空"}`。
+   - 用途：登录后查询或导出 2026 招生计划；未登录状态不能作为完整数据来源。
+
 ## 交叉校验来源
 
 1. static-data.gaokao.cn 一分一段 JSON
@@ -80,6 +97,10 @@
 - `data/derived/hubei-2024-physics-toudang-parsed.csv`：2024 投档线解析行，2800 条数据。
 - `data/derived/hubei-2023-physics-toudang-parsed.csv`：2023 投档线解析行，2874 条数据。
 - `data/derived/initial-city-pool-2023-2025.tsv`：按初始城市关键词生成的初筛池，不是最终志愿表。
+- `data/working/family-preferences.json`：当前家庭偏好和筛选底线。
+- `data/working/2026-admission-plan-source-status.json`：2026 招生计划来源状态。
+- `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
+- `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 
 ## 使用优先级
 
