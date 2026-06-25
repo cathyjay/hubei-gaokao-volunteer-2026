@@ -35,6 +35,7 @@
    - 志愿填报时间页面：http://www.hbccks.cn/html/gkzytb/2026-06/142885.html
    - 政策问答页面：http://gaokao.hbccks.cn/zkzc/2026-06/143020.html
    - 政策问答页面：http://gaokao.hbccks.cn/zkzc/2026-06/143021.html
+   - 政策问答页面：http://gaokao.hbccks.cn/zkzc/2026-06/143022.html
    - 政策问答页面：http://gaokao.hbccks.cn/zkzc/2026-06/143040.html
    - 本地网页：`data/official/hubei-2026-volunteer-policy/*.html`
    - 用途：确认 2026 湖北志愿结构、填报时间、平行志愿规则、保存确认要求和操作风险。
@@ -90,6 +91,13 @@
    - 复现命令：`curl -L 'https://gk.qianwen.com/api/gaokaoChoice/v1/getUserFilters?need=major' -o data/external/qianwen-gaokao/api/getUserFilters-need-major.json`
    - 限制：部分接口需要签名、客户端场景参数或登录态；直接请求会返回参数错误或验签失败。千问高考只能作为“发现候选项、理解专业分类、辅助交叉校验”的第三方数据源，不能覆盖湖北官方投档线、2026 招生计划和高校招生章程。
 
+5. 高校官网招生计划交叉校验
+   - 说明文档：`docs/SCHOOL_CROSSCHECK_SOURCES.md`
+   - 本地样例：`data/external/school-plan-crosschecks/`
+   - 当前样例：武汉科技大学 2026 湖北院校专业组及招生计划、2026 各专业招生计划及学费标准。
+   - 用途：辅助核验学校官网公布的专业、计划、学费、选科和专业组线索。
+   - 限制：高校官网不能替代湖北省招办 2026 招生计划；若高校官网与省招办计划不一致，以省招办渠道为准。
+
 ## 派生数据说明
 
 - `data/derived/hubei-2025-physics-toudang-ocr.txt`：由 2025 官方图片 OCR 生成。
@@ -101,6 +109,7 @@
 - `data/working/2026-admission-plan-source-status.json`：2026 招生计划来源状态。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
+- `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。
 
 ## 使用优先级
 

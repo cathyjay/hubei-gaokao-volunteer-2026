@@ -76,6 +76,7 @@ def main():
         ROOT / "data/official/hubei-2026-volunteer-policy/142885-volunteer-time.html",
         ROOT / "data/official/hubei-2026-volunteer-policy/143020-policy.html",
         ROOT / "data/official/hubei-2026-volunteer-policy/143021-policy.html",
+        ROOT / "data/official/hubei-2026-volunteer-policy/143022-policy.html",
         ROOT / "data/official/hubei-2026-volunteer-policy/143040-policy.html",
     ]
     checks.append(ok("2026 湖北志愿填报政策页均已留存", all(p.exists() and p.stat().st_size > 1000 for p in policy_files)))
@@ -89,6 +90,21 @@ def main():
     checks.append(ok("千问高考专业分类接口返回成功", qianwen.get("status") == 0 and qianwen.get("code") == "00000"))
     checks.append(ok("千问高考专业分类包含数字媒体技术 080906", "数字媒体技术" in qianwen_text and "080906" in qianwen_text))
     checks.append(ok("千问高考专业分类包含教育学类 0401", "教育学类" in qianwen_text and "0401" in qianwen_text))
+
+    candidate_pool_path = ROOT / "data/working/candidate-pool-v1.csv"
+    with candidate_pool_path.open(newline="") as f:
+        candidate_rows = list(csv.DictReader(f))
+    checks.append(ok("第一版候选池共 20 条", len(candidate_rows) == 20, str(len(candidate_rows))))
+    checks.append(ok(
+        "第一版候选池全部标记待核验",
+        all("needs_2026_plan_verification" in row.get("复核状态", "") for row in candidate_rows),
+    ))
+
+    school_crosscheck_files = [
+        ROOT / "data/external/school-plan-crosschecks/wust-2026-hubei-major-groups.html",
+        ROOT / "data/external/school-plan-crosschecks/wust-2026-major-plan-fees.html",
+    ]
+    checks.append(ok("高校官网交叉校验样例已留存", all(p.exists() and p.stat().st_size > 1000 for p in school_crosscheck_files)))
 
     checksum_path = ROOT / "CHECKSUMS.sha256"
     if checksum_path.exists():

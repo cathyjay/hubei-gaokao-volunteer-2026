@@ -31,9 +31,25 @@
     "status": "已按成都、西安、武汉、北京和 470-535 分历史投档范围生成过渡候选池。",
     "warning": "该文件只能用于发现候选，不能替代 2026 招生计划、官方投档线原件和招生章程。"
   },
+  "candidate_pool_v1": {
+    "csv": "data/working/candidate-pool-v1.csv",
+    "doc": "docs/CANDIDATE_POOL_V1.md",
+    "row_count": 20,
+    "status": "第一版可讨论候选池，全部需要 2026 招生计划、官方投档原件和招生章程复核。"
+  },
+  "official_policy_notes": {
+    "volunteer_reference_system_page": "data/official/hubei-2026-volunteer-policy/143022-policy.html",
+    "plan_issue_numbers": ["13", "16", "19", "22"],
+    "important_note": "湖北官方政策问答要求志愿代号以 2026 年省招办通过《湖北招生考试》第 13、16、19、22 期公布的招生计划为准，不能使用往年资料代号。"
+  },
+  "school_crosscheck_sources": {
+    "doc": "docs/SCHOOL_CROSSCHECK_SOURCES.md",
+    "local_dir": "data/external/school-plan-crosschecks",
+    "status": "高校官网只作为交叉校验来源，不能替代湖北省招办 2026 招生计划。"
+  },
   "required_next_action": [
     "使用考生账号登录湖北招生数智综合平台查询或导出关注院校专业组。",
-    "获取《湖北招生考试》杂志第 19 期，本科普通批首选物理招生计划。",
+    "获取《湖北招生考试》杂志第 16 期和第 19 期，本科普通批招生计划。",
     "等待湖北教育考试网招生计划专题更新完整 2026 计划。"
   ]
 }
