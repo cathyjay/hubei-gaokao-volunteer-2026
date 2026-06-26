@@ -45,8 +45,10 @@ final_allowed
 
 - 高优先级 7 校摘要：`data/working/issue19-high-priority-double-check-summary.csv`
 - 第一批逐组复核种子公开摘要：`data/working/issue19-first-batch-review-seed-summary.json`
+- 第一批专业组/专业 OCR 初稿公开摘要：`data/working/issue19-first-batch-group-major-draft-summary.json`
 - 生成脚本：`scripts/build_issue19_double_check_summary.py`
 - 第一批复核种子脚本：`scripts/build_issue19_first_batch_review_seed.py`
+- 第一批专业组/专业初稿脚本：`scripts/build_issue19_first_batch_group_major_draft.py`
 
 注意：公开 CSV 只保留摘要指标，不保存整页 OCR 文本、长段 OCR 摘录、原始 PDF、渲染图片或个人身份信息。
 
@@ -83,6 +85,21 @@ data/working/issue19-first-batch-review-seed-summary.json
 ```
 
 该私有表只作为人工回看第 19 期原 PDF 页的任务清单，不能直接作为最终招生计划。
+
+第一批 4 校专业组/专业 OCR 初稿已生成：
+
+```text
+private/derived/issue19-first-batch-structure-trial/院校专业组汇总OCR初稿.csv
+private/derived/issue19-first-batch-structure-trial/院校专业组专业清单OCR初稿.csv
+```
+
+公开摘要见：
+
+```text
+data/working/issue19-first-batch-group-major-draft-summary.json
+```
+
+本轮自动切组结果：44 个院校专业组、220 条专业行。摘要显示第一批 4 校里已经出现医学/护理、中外合作/高收费、语种或单科、体检限制等风险标签。所有专业行仍是 OCR 初稿，必须回看第 19 期原 PDF 页和学校官网后才能用于志愿决策。
 
 ## 四、字段可信度
 

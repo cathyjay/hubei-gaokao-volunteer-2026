@@ -1,0 +1,82 @@
+{
+  "status": "ocr_group_major_draft_needs_manual_pdf_review",
+  "schools": [
+    {
+      "学校名称": "武汉科技大学",
+      "院校代码": "C102",
+      "OCR专业组数": 10,
+      "OCR专业行数": 58,
+      "PDF OCR页码": [
+        64,
+        65
+      ],
+      "偏好和风险标签": [
+        "high_fee_or_coop",
+        "language_or_single_subject",
+        "priority_2_computer",
+        "priority_3_teacher",
+        "rejected_medical"
+      ],
+      "状态": "ocr_group_major_draft_needs_manual_pdf_review"
+    },
+    {
+      "学校名称": "湖北大学",
+      "院校代码": "C103",
+      "OCR专业组数": 17,
+      "OCR专业行数": 71,
+      "PDF OCR页码": [
+        66,
+        67
+      ],
+      "偏好和风险标签": [
+        "high_fee_or_coop",
+        "language_or_single_subject",
+        "priority_2_computer",
+        "priority_3_teacher",
+        "rejected_medical"
+      ],
+      "状态": "ocr_group_major_draft_needs_manual_pdf_review"
+    },
+    {
+      "学校名称": "湖北理工学院",
+      "院校代码": "C138",
+      "OCR专业组数": 12,
+      "OCR专业行数": 56,
+      "PDF OCR页码": [
+        79
+      ],
+      "偏好和风险标签": [
+        "body_or_exam_limit",
+        "high_fee_or_coop",
+        "language_or_single_subject",
+        "priority_2_computer",
+        "priority_3_teacher",
+        "rejected_medical"
+      ],
+      "状态": "ocr_group_major_draft_needs_manual_pdf_review"
+    },
+    {
+      "学校名称": "武汉商学院",
+      "院校代码": "C150",
+      "OCR专业组数": 5,
+      "OCR专业行数": 35,
+      "PDF OCR页码": [
+        80,
+        81
+      ],
+      "偏好和风险标签": [
+        "high_fee_or_coop",
+        "language_or_single_subject",
+        "priority_2_computer",
+        "priority_3_teacher"
+      ],
+      "状态": "ocr_group_major_draft_needs_manual_pdf_review"
+    }
+  ],
+  "notes": [
+    "公开摘要不含 OCR 原文、逐专业明细、原始文件路径或个人信息。",
+    "本表由 OCR 行级数据自动切组，人数、学费、选科只作为候选，必须回看第19期原 PDF 页确认。",
+    "完整专业组边界和组内全部专业均未人工复核，不得用于最终志愿。",
+    "若高校官网或原 PDF 显示还有 OCR 未命中的专业组，应补录并标记来源。"
+  ]
+}

@@ -220,6 +220,84 @@ def main():
         str(sum(row.get("专业组标题候选数", 0) for row in first_batch_seed.get("schools", []))),
     ))
 
+    first_batch_draft_path = ROOT / "data/working/issue19-first-batch-group-major-draft-summary.json"
+    first_batch_draft_text = first_batch_draft_path.read_text()
+    first_batch_draft = json.loads(first_batch_draft_text)
+    draft_group_count = sum(row.get("OCR专业组数", 0) for row in first_batch_draft.get("schools", []))
+    draft_major_count = sum(row.get("OCR专业行数", 0) for row in first_batch_draft.get("schools", []))
+    draft_tags = {
+        tag
+        for row in first_batch_draft.get("schools", [])
+        for tag in row.get("偏好和风险标签", [])
+    }
+    expected_first_batch_schools = {
+        "C102": "武汉科技大学",
+        "C103": "湖北大学",
+        "C138": "湖北理工学院",
+        "C150": "武汉商学院",
+    }
+    allowed_first_batch_summary_keys = {"status", "schools", "notes"}
+    allowed_first_batch_school_keys = {
+        "学校名称",
+        "院校代码",
+        "OCR专业组数",
+        "OCR专业行数",
+        "PDF OCR页码",
+        "偏好和风险标签",
+        "状态",
+    }
+    first_batch_public_forbidden_tokens = [
+        "private/",
+        "private\\",
+        "private_outputs",
+        "\"source\"",
+        "ocr-runs",
+        "rendered-pages",
+        "derived/",
+        ".jpg",
+        ".jpeg",
+        ".png",
+        "专业名称及备注OCR",
+        "专业代号OCR",
+        "专业组标题OCR原文",
+        "专业起始行号",
+        "身份证",
+        "准考证",
+        "报名号",
+        "姓名",
+        "序列号",
+    ]
+    first_batch_public_schools = first_batch_draft.get("schools", [])
+    checks.append(ok(
+        "第 19 期第一批 4 校专业组/专业 OCR 初稿公开摘要不含私有路径和敏感明细",
+        set(first_batch_draft.keys()) <= allowed_first_batch_summary_keys
+        and not any(token in first_batch_draft_text for token in first_batch_public_forbidden_tokens),
+    ))
+    checks.append(ok(
+        "第 19 期第一批 4 校专业组/专业 OCR 初稿公开摘要字段和学校范围正确",
+        len(first_batch_public_schools) == 4
+        and all(set(row.keys()) <= allowed_first_batch_school_keys for row in first_batch_public_schools)
+        and {
+            row.get("院校代码"): row.get("学校名称")
+            for row in first_batch_public_schools
+        } == expected_first_batch_schools
+        and all(row.get("状态") == "ocr_group_major_draft_needs_manual_pdf_review" for row in first_batch_public_schools)
+        and all(
+            isinstance(page, int) and 1 <= page <= 240
+            for row in first_batch_public_schools
+            for page in row.get("PDF OCR页码", [])
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期第一批 4 校专业组/专业 OCR 初稿摘要已生成",
+        first_batch_draft.get("status") == "ocr_group_major_draft_needs_manual_pdf_review"
+        and draft_group_count == 44
+        and draft_major_count >= 200
+        and "rejected_medical" in draft_tags
+        and "priority_2_computer" in draft_tags,
+        f"{draft_group_count} groups, {draft_major_count} majors",
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
