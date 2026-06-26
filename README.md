@@ -31,6 +31,7 @@
 ## 关键文档
 
 - `docs/BACKGROUND_REQUIREMENTS_AND_PLAN.md`：背景、目标、缺口、6 月 30 日前计划。
+- `docs/EXECUTION_PLAN.md`：从数据底座到最终志愿方案的推进计划和当前阶段。
 - `docs/SOURCES.md`：所有数据源、年份、文件路径和用途。
 - `docs/VERIFICATION.md`：复核方法和不可省略的人工核验点。
 - `docs/GOAL_AND_FRAMEWORK.md`：冲稳保和学校/专业分析框架。
