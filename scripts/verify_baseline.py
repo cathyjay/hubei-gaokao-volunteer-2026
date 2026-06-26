@@ -1287,6 +1287,195 @@ def main():
         and not any(token in candidate_v2_verification_public_text for token in candidate_v2_forbidden_tokens),
     ))
 
+    candidate_v2_evidence_summary_path = ROOT / "data/working/issue19-candidate-v2-evidence-ledger-summary.json"
+    candidate_v2_field_ledger_csv = ROOT / "data/working/issue19-candidate-v2-field-review-ledger.csv"
+    candidate_v2_triangulation_csv = ROOT / "data/working/issue19-candidate-v2-triangulation-matrix.csv"
+    candidate_v2_evidence_summary = json.loads(candidate_v2_evidence_summary_path.read_text())
+    with candidate_v2_field_ledger_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v2_field_ledger_reader = csv.DictReader(f)
+        candidate_v2_field_ledger_rows = list(candidate_v2_field_ledger_reader)
+        candidate_v2_field_ledger_fields = set(candidate_v2_field_ledger_reader.fieldnames or [])
+    with candidate_v2_triangulation_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v2_triangulation_reader = csv.DictReader(f)
+        candidate_v2_triangulation_rows = list(candidate_v2_triangulation_reader)
+        candidate_v2_triangulation_fields = set(candidate_v2_triangulation_reader.fieldnames or [])
+
+    required_candidate_v2_field_ledger_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "复核状态",
+        "复核任务ID",
+        "复核对象类型",
+        "字段类别",
+        "字段名称",
+        "关联类型",
+        "关联原候选",
+        "院校代码",
+        "院校名称",
+        "2026院校专业组代码",
+        "专业组出现ID",
+        "专业行ID",
+        "组内序号",
+        "专业代号",
+        "专业名称及备注",
+        "来源页码",
+        "证据来源",
+        "OCR原值",
+        "OCR风险提示",
+        "原PDF人工确认值",
+        "湖北官方系统确认值",
+        "高校官网/章程确认值",
+        "家庭确认值",
+        "私有证据编号",
+        "字段核验状态",
+        "是否阻断候选升级",
+        "复核优先级",
+    }
+    required_candidate_v2_triangulation_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "证据矩阵ID",
+        "关联类型",
+        "关联原候选",
+        "院校代码",
+        "院校名称",
+        "2026院校专业组代码",
+        "来源页码",
+        "专业明细行数",
+        "字段复核任务数",
+        "字段P0任务数",
+        "原PDF页证据状态",
+        "湖北官方系统证据状态",
+        "高校官网/章程证据状态",
+        "家庭接受度证据状态",
+        "调剂结论状态",
+        "三年历史线证据状态",
+        "第19期PDF底座状态",
+        "组内调剂机器初判",
+        "历史投档线可沿用",
+        "候选闸门状态",
+        "可进入最终候选",
+        "升级缺口",
+    }
+    candidate_v2_field_rows_by_group = {}
+    candidate_v2_p0_field_rows_by_group = {}
+    for row in candidate_v2_field_ledger_rows:
+        group_code = row.get("2026院校专业组代码")
+        candidate_v2_field_rows_by_group[group_code] = candidate_v2_field_rows_by_group.get(group_code, 0) + 1
+        if row.get("复核优先级") == "P0-字段必须优先核":
+            candidate_v2_p0_field_rows_by_group[group_code] = (
+                candidate_v2_p0_field_rows_by_group.get(group_code, 0) + 1
+            )
+    candidate_v2_triangulation_by_code = {
+        row.get("2026院校专业组代码"): row for row in candidate_v2_triangulation_rows
+    }
+    candidate_v2_evidence_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            candidate_v2_evidence_summary_path,
+            candidate_v2_field_ledger_csv,
+            candidate_v2_triangulation_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期候选V2证据总账摘要和行数正确",
+        candidate_v2_evidence_summary.get("status")
+        == "candidate_v2_evidence_ledgers_pending_manual_review"
+        and candidate_v2_evidence_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and candidate_v2_evidence_summary.get("group_count") == 23
+        and candidate_v2_evidence_summary.get("major_count") == 82
+        and candidate_v2_evidence_summary.get("field_review_task_count") == 840
+        and candidate_v2_evidence_summary.get("group_field_review_task_count") == 184
+        and candidate_v2_evidence_summary.get("major_field_review_task_count") == 656
+        and candidate_v2_evidence_summary.get("triangulation_matrix_count") == 23
+        and candidate_v2_evidence_summary.get("field_review_status_counts") == {"pending": 840}
+        and candidate_v2_evidence_summary.get("field_review_priority_counts") == {
+            "P0-字段必须优先核": 494,
+            "P1-字段高优先核": 296,
+            "P2-字段常规核": 42,
+            "P3-字段常规核": 8,
+        }
+        and candidate_v2_evidence_summary.get("major_full_workbench_match_status_counts") == {
+            "exact_full_major_match": 75,
+            "not_in_full_major_workbench": 7,
+        }
+        and candidate_v2_evidence_summary.get("final_available_count") == 0
+        and candidate_v2_evidence_summary.get("candidate_can_enter_final_count") == 0
+        and len(candidate_v2_field_ledger_rows) == 840
+        and len(candidate_v2_triangulation_rows) == 23,
+        f"{len(candidate_v2_field_ledger_rows)} field tasks, {len(candidate_v2_triangulation_rows)} matrix rows",
+    ))
+    checks.append(ok(
+        "第 19 期候选V2证据总账字段、主键和待核状态正确",
+        required_candidate_v2_field_ledger_fields.issubset(candidate_v2_field_ledger_fields)
+        and required_candidate_v2_triangulation_fields.issubset(candidate_v2_triangulation_fields)
+        and len({row.get("复核任务ID") for row in candidate_v2_field_ledger_rows})
+        == len(candidate_v2_field_ledger_rows)
+        and len({row.get("证据矩阵ID") for row in candidate_v2_triangulation_rows})
+        == len(candidate_v2_triangulation_rows)
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("字段核验状态") == "pending"
+            and row.get("是否阻断候选升级") == "是"
+            and row.get("私有证据编号") == ""
+            for row in candidate_v2_field_ledger_rows
+        )
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("候选闸门状态") == "pending_verification"
+            and row.get("可进入最终候选") == "false"
+            and row.get("原PDF页证据状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统证据状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网/章程证据状态") == "pending_school_charter_review"
+            and row.get("家庭接受度证据状态") == "pending_family_acceptance_review"
+            and row.get("调剂结论状态") == "pending_transfer_decision"
+            for row in candidate_v2_triangulation_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2证据矩阵与字段总账聚合一致",
+        all(
+            as_int(row.get("字段复核任务数"))
+            == candidate_v2_field_rows_by_group.get(row.get("2026院校专业组代码"), 0)
+            and as_int(row.get("字段P0任务数"))
+            == candidate_v2_p0_field_rows_by_group.get(row.get("2026院校专业组代码"), 0)
+            for row in candidate_v2_triangulation_rows
+        )
+        and candidate_v2_triangulation_by_code.get("C10702", {}).get("字段复核任务数") == "8"
+        and candidate_v2_triangulation_by_code.get("K15123", {}).get("字段复核任务数") == "8"
+        and candidate_v2_triangulation_by_code.get("C10704", {}).get("专业明细行数") == "3"
+        and candidate_v2_triangulation_by_code.get("K15114", {}).get("三年历史线证据状态")
+        == "pending_new_group_evidence",
+    ))
+    checks.append(ok(
+        "第 19 期候选V2证据总账专业行ID匹配口径正确",
+        sum(
+            row.get("复核对象类型") == "专业字段"
+            and "exact_full_major_match" in row.get("证据来源", "")
+            and bool(row.get("专业行ID"))
+            for row in candidate_v2_field_ledger_rows
+        )
+        == 75 * 8
+        and sum(
+            row.get("复核对象类型") == "专业字段"
+            and "not_in_full_major_workbench" in row.get("证据来源", "")
+            and not row.get("专业行ID")
+            for row in candidate_v2_field_ledger_rows
+        )
+        == 7 * 8,
+    ))
+    checks.append(ok(
+        "第 19 期候选V2证据总账公开文件不含本地路径、身份信息和最终可用结论",
+        "final_allowed" not in candidate_v2_evidence_public_text
+        and "ready_for_discussion" not in candidate_v2_evidence_public_text
+        and "已确认" not in candidate_v2_evidence_public_text
+        and not any(token in candidate_v2_evidence_public_text for token in candidate_v2_forbidden_tokens),
+    ))
+
     full_quality_summary_path = ROOT / "data/working/issue19-full-quality-tier-summary.json"
     full_quality_group_csv = ROOT / "data/working/issue19-full-quality-group-tiers.csv"
     full_quality_queue_csv = ROOT / "data/working/issue19-full-quality-review-queue.csv"

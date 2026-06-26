@@ -1,0 +1,72 @@
+{
+  "status": "candidate_v2_evidence_ledgers_pending_manual_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "candidate_v2_evidence_ledger",
+  "generated_by": "scripts/build_issue19_candidate_evidence_ledgers.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/family-preferences.json",
+      "sha256": "757aa12a0fc73cfd8b6074789921a3f8a8365f392cb3587e3df8ee63cd6abd62"
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-verification-group-workbench.csv",
+      "sha256": "19f2a864129d762ffc86c5dfe25a8981dec926929e20f81ba289cd39803f9de0",
+      "row_count": 23
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-verification-major-workbench.csv",
+      "sha256": "81747e0c00bbd2b942a3d1999d840889fbbbb823a805b69f8f94cde8bc38b0e3",
+      "row_count": 82
+    },
+    {
+      "path": "data/working/issue19-full-major-detail-quality-workbench.csv",
+      "sha256": "1de3fd3d8db50fbb78175198604ca9d2eb6582c4d4d36cbe8b59f4ab18a6db02",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-foundation-audit-summary.json",
+      "sha256": "46b705c15d233515e549efa1b4b1b1da7c598df13f17fc9772dbda869110a465"
+    },
+    {
+      "path": "data/working/issue19-foundation-page-audit.csv",
+      "sha256": "9c537d300a377843c8fa2ce08d3232fbeb639b26eb20b0174329f4a650216ad7",
+      "row_count": 231
+    }
+  ],
+  "group_count": 23,
+  "major_count": 82,
+  "field_review_task_count": 840,
+  "group_field_review_task_count": 184,
+  "major_field_review_task_count": 656,
+  "triangulation_matrix_count": 23,
+  "field_review_status_counts": {
+    "pending": 840
+  },
+  "field_review_priority_counts": {
+    "P0-字段必须优先核": 494,
+    "P1-字段高优先核": 296,
+    "P2-字段常规核": 42,
+    "P3-字段常规核": 8
+  },
+  "major_full_workbench_match_status_counts": {
+    "exact_full_major_match": 75,
+    "not_in_full_major_workbench": 7
+  },
+  "final_available_count": 0,
+  "candidate_can_enter_final_count": 0,
+  "tuition_limit_yuan": 15000,
+  "outputs": [
+    "data/working/issue19-candidate-v2-field-review-ledger.csv",
+    "data/working/issue19-candidate-v2-triangulation-matrix.csv"
+  ],
+  "notes": [
+    "字段复核总账是回填模板，不代表已核准结果。",
+    "原PDF、湖北官方系统、高校官网/章程和家庭接受度都必须留证后才能升级候选。",
+    "公开表不保存私有截图或账号信息，只保存私有证据编号占位。"
+  ]
+}
