@@ -2809,6 +2809,8 @@ def main():
         "官网学费",
         "官网来源文件",
         "保真处理状态",
+        "保真诊断",
+        "计划数候选引用方式",
         "核页重点",
         "下一步",
     }
@@ -2825,6 +2827,7 @@ def main():
         "OCR计划数候选",
         "官网来源状态",
         "官网证据覆盖结论",
+        "专业名称匹配方式",
         "仍需核验",
         "核页重点",
         "下一步",
@@ -3217,23 +3220,23 @@ def main():
         }
         and b0_b1_official_evidence_match_summary.get("match_status_counts") == {
             "no_school_source": 191,
-            "matched": 124,
-            "unmatched": 9,
+            "matched": 109,
+            "unmatched": 24,
         }
         and b0_b1_official_evidence_match_summary.get("plan_check_status_counts") == {
-            "not_covered": 200,
-            "ocr_plan_missing_official_available": 52,
-            "mismatch": 25,
-            "match": 47,
+            "not_covered": 215,
+            "ocr_plan_missing_official_available": 47,
+            "mismatch": 17,
+            "match": 45,
         }
         and b0_b1_official_evidence_match_summary.get("fidelity_status_counts") == {
             "有官网线索但未结构化匹配": 80,
             "待补高校官网计划源": 66,
-            "官网可补OCR计划数-优先核页": 52,
-            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 47,
+            "官网可补OCR计划数-优先核页": 47,
+            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 45,
             "仅章程规则线索-无结构化计划证据": 43,
-            "官网专业名匹配但计划数冲突-优先核页": 25,
-            "官网未匹配-专业名或OCR待核": 9,
+            "官网未匹配-专业名或OCR待核": 24,
+            "官网专业名匹配但计划数冲突-优先核页": 17,
             "占位行-不是真实招生明细": 2,
         }
         and b0_b1_official_evidence_match_summary.get("matched_school_counts") == {
@@ -3246,11 +3249,11 @@ def main():
             "南宁学院": 5,
             "成都信息工程大学": 19,
             "西安邮电大学": 19,
-            "喀什大学": 7,
-            "山东大学": 6,
+            "喀什大学": 6,
+            "山东大学": 3,
             "兰州大学": 7,
             "西北民族大学": 3,
-            "江汉大学": 18,
+            "江汉大学": 7,
             "天津外国语大学": 1,
         }
         and required_b0_b1_retained_official_fields.issubset(b0_b1_retained_official_fields)
@@ -3363,12 +3366,12 @@ def main():
     checks.append(ok(
         "B0/B1保真复核队列摘要、行数和类型分布正确",
         b0_b1_fidelity_summary.get("status") == "b0_b1_fidelity_review_queues_not_final"
-        and b0_b1_fidelity_summary.get("plan_conflict_row_count") == 25
-        and b0_b1_fidelity_summary.get("unmatched_major_row_count") == 9
+        and b0_b1_fidelity_summary.get("plan_conflict_row_count") == 17
+        and b0_b1_fidelity_summary.get("unmatched_major_row_count") == 24
         and b0_b1_fidelity_summary.get("source_gap_school_count") == 21
         and b0_b1_fidelity_summary.get("plan_conflict_type_counts") == {
             "OCR计划数疑似误取学费": 13,
-            "OCR计划数与官网计划数不一致": 12,
+            "OCR计划数与官网计划数不一致": 4,
         }
         and b0_b1_fidelity_summary.get("plan_conflict_school_counts") == {
             "江苏理工学院": 10,
@@ -3376,11 +3379,11 @@ def main():
             "南宁学院": 3,
             "成都信息工程大学": 2,
             "山东大学": 1,
-            "江汉大学": 8,
         }
         and b0_b1_fidelity_summary.get("unmatched_major_type_counts") == {
             "专业代号非数字疑似OCR噪声": 3,
             "官网留存证据未匹配该专业": 6,
+            "官网留存证据未覆盖关键限定词专业": 15,
         }
         and b0_b1_fidelity_summary.get("source_gap_type_counts") == {
             "需继续寻找高校官网湖北2026计划": 8,
@@ -3393,8 +3396,8 @@ def main():
         and required_b0_b1_plan_conflict_fields.issubset(b0_b1_plan_conflict_fields)
         and required_b0_b1_unmatched_major_fields.issubset(b0_b1_unmatched_major_fields)
         and required_b0_b1_source_gap_fields.issubset(b0_b1_source_gap_fields)
-        and len(b0_b1_plan_conflict_rows) == 25
-        and len(b0_b1_unmatched_major_rows) == 9
+        and len(b0_b1_plan_conflict_rows) == 17
+        and len(b0_b1_unmatched_major_rows) == 24
         and len(b0_b1_source_gap_rows) == 21
         and b0_b1_plan_conflict_type_counts == Counter(
             b0_b1_fidelity_summary.get("plan_conflict_type_counts", {})

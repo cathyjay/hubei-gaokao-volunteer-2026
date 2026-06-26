@@ -205,9 +205,9 @@
 - `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-summary.json`：B0/B1 官方交叉校验摘要，记录 36 校、49 组、324 个逐专业任务、逐专业招生明细主表行数、官网来源状态分布、`final_available_count=0` 和 `major_final_available_count=0`。
 - `data/working/issue19-b0-b1-retained-official-plan-normalized.csv`：B0/B1 已留存官网/API/HTML/XLSX/PDF/图片抽取证据标准化表，当前 367 条；字段包括学校、来源文件、证据类型、年份、省份、科类、专业、计划数、学费、校区、选科和来源局限。
 - `data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv`：B0/B1 逐专业官网证据匹配表，覆盖 324 条招生明细；一行一个招生专业，带出页码、专业组、专业代号、OCR 专业名、OCR 计划数、官网匹配专业、官网计划数、匹配状态、计划数核验状态和仍需核验项。
-- `data/working/issue19-candidate-v3-b0-b1-official-evidence-match-summary.json`：B0/B1 逐专业官网证据匹配摘要；当前 124 条专业名匹配，其中 47 条计划数与 OCR 一致，52 条为 OCR 缺失但官网可补，25 条计划数存在差异，全部保持非最终结论。
-- `data/working/issue19-b0-b1-plan-conflict-review-queue.csv`：B0/B1 计划数冲突复核队列，25 条；按 OCR 疑似误取学费、计划数不一致等类型安排核页顺序。
-- `data/working/issue19-b0-b1-unmatched-major-review-queue.csv`：B0/B1 官网证据未匹配专业复核队列，9 条；用于定位 OCR 噪声、串行或官网表未覆盖问题。
+- `data/working/issue19-candidate-v3-b0-b1-official-evidence-match-summary.json`：B0/B1 逐专业官网证据匹配摘要；当前 109 条专业名匹配，其中 45 条计划数与 OCR 一致，47 条为 OCR 缺失但官网可补，17 条计划数存在差异，全部保持非最终结论。
+- `data/working/issue19-b0-b1-plan-conflict-review-queue.csv`：B0/B1 计划数冲突复核队列，17 条；按 OCR 疑似误取学费、计划数不一致等类型安排核页顺序，并记录保真诊断和计划数候选引用方式。
+- `data/working/issue19-b0-b1-unmatched-major-review-queue.csv`：B0/B1 官网证据未匹配专业复核队列，24 条；用于定位 OCR 噪声、串行、官网表未覆盖和关键限定词未覆盖问题。
 - `data/working/issue19-b0-b1-official-source-gap-priority.csv`：B0/B1 学校补源缺口优先表，21 所；区分 8 所 P0 待补官方计划源和 13 所已有官网线索但尚未结构化到逐专业证据的学校。
 - `data/working/issue19-b0-b1-fidelity-review-summary.json`：B0/B1 保真复核队列摘要；只用于安排核页/补源，不是最终候选或填报方案。
 - `data/external/issue19-b0-b1-official-sources/xztu-2026-hubei-physics-plan-extracted.csv`：忻州师范学院官网 PDF 宽表抽取出的湖北物理类逐专业证据，15 条；作为 PDF 原件的可复跑抽取结果，不替代第 19 期原页和湖北官方系统。

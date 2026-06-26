@@ -235,6 +235,27 @@ def normalize_major_name(value):
     return re.sub(r"[^\u4e00-\u9fffA-Za-z0-9]", "", text).lower()
 
 
+KEY_MAJOR_QUALIFIERS = [
+    "面向武汉",
+    "面向武",
+    "中外合作",
+    "英才班",
+    "卓越班",
+    "实验班",
+    "智能与软件实验",
+    "游戏科学",
+    "师范",
+]
+
+
+def missing_key_qualifiers(target, official_name):
+    return [
+        qualifier
+        for qualifier in KEY_MAJOR_QUALIFIERS
+        if qualifier in target and qualifier not in official_name
+    ]
+
+
 def clean_cell(row, index):
     if index >= len(row):
         return ""
@@ -718,13 +739,20 @@ def best_match(detail, official_rows_by_school):
     best = None
     best_score = 0
     best_method = "unmatched"
+    blocked_best_score = 0
     for official in school_rows:
         official_name = normalize_major_name(official["专业名称"])
         if not official_name:
             continue
+        if missing_key_qualifiers(target, official_name):
+            if official_name in target:
+                blocked_best_score = max(blocked_best_score, 55)
+            continue
         if official_name == target:
             score, method = 100, "exact_after_normalization"
-        elif official_name in target or target in official_name:
+        elif target in official_name:
+            score, method = 92, "ocr_prefix_of_official_name"
+        elif official_name in target:
             score, method = 85, "contains_after_normalization"
         elif len(official_name) >= 4 and official_name[:4] in target:
             score, method = 65, "prefix_possible_match"
@@ -732,7 +760,7 @@ def best_match(detail, official_rows_by_school):
             score, method = 65, "prefix_possible_match"
         else:
             score, method = 0, "unmatched"
-        if score > best_score:
+        if score > best_score or (score == best_score and best and len(official_name) > len(normalize_major_name(best["专业名称"]))):
             best = official
             best_score = score
             best_method = method
@@ -740,6 +768,8 @@ def best_match(detail, official_rows_by_school):
         return best, best_method, best_score
     if best_score >= 60:
         return best, "possible_" + best_method, best_score
+    if blocked_best_score:
+        return None, "unmatched_missing_key_qualifier", blocked_best_score
     return None, "unmatched", best_score
 
 
@@ -913,6 +943,7 @@ def main():
             "本结果只是高校官网/API对第19期OCR底座的交叉校验证据，不是最终志愿方案。",
             "默认讨论表是一行一个招生明细的合并表；学校和专业组表只作为索引、调剂和补源辅助。",
             "计划数只有在OCR数字和官网数字一致时才记为match；OCR空缺但官网有数时只用于补缺提示。",
+            "专业名称含面向武汉、实验班、英才班、中外合作等关键限定词时，不用泛化专业名的官网计划数替代。",
             "所有可用结论仍必须回到PDF原页、湖北官方系统、招生章程、专业组边界、调剂范围和家庭接受度。",
         ],
         "outputs": [

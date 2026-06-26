@@ -68,8 +68,8 @@
 | `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-summary.json` | B0/B1 官方交叉校验摘要 | 看 36 校、49 组、324 个逐专业任务、官网来源状态分布和最终可用边界 |
 | `data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv` | B0/B1 逐专业官网证据匹配表 | 覆盖 324 条招生明细；一行一个专业，记录官网/API/HTML/XLSX/PDF/计划图抽取匹配状态、官网计划数和仍需核验项 |
 | `data/working/issue19-b0-b1-retained-official-plan-normalized.csv` | B0/B1 留存官网证据标准化表 | 覆盖 367 条官网/API/HTML/XLSX/PDF/计划图抽取证据；只作交叉校验来源，不是最终事实表 |
-| `data/working/issue19-b0-b1-plan-conflict-review-queue.csv` | B0/B1 计划数冲突复核队列 | 覆盖 25 条计划数冲突；用于优先核 PDF 原页计划数列、学费列和湖北官方系统 |
-| `data/working/issue19-b0-b1-unmatched-major-review-queue.csv` | B0/B1 官网未匹配专业复核队列 | 覆盖 9 条官网证据未匹配专业；用于定位 OCR 噪声、串行或官网表未覆盖问题 |
+| `data/working/issue19-b0-b1-plan-conflict-review-queue.csv` | B0/B1 计划数冲突复核队列 | 覆盖 17 条计划数冲突；带保真诊断和计划数候选引用方式，用于优先核 PDF 原页计划数列、学费列和湖北官方系统 |
+| `data/working/issue19-b0-b1-unmatched-major-review-queue.csv` | B0/B1 官网未匹配专业复核队列 | 覆盖 24 条官网证据未匹配专业；区分 OCR 噪声、普通未匹配和关键限定词未覆盖问题 |
 | `data/working/issue19-b0-b1-official-source-gap-priority.csv` | B0/B1 学校补源缺口优先表 | 覆盖 21 所学校；区分 P0 待补官方计划源和 P1 已有线索待结构化 |
 
 当前自动识别结果：
@@ -136,12 +136,12 @@
 | B0/B1 待补高校官网计划源学校 | 8 |
 | B0/B1 仅章程/规则或不可用计划线索学校 | 5 |
 | B0/B1 留存官网/API/HTML/XLSX/PDF/计划图抽取证据标准化行 | 367 |
-| B0/B1 逐专业官网证据专业名匹配 | 124 |
-| B0/B1 逐专业计划数与 OCR 一致 | 47 |
-| B0/B1 逐专业 OCR 缺失但官网可补计划数 | 52 |
-| B0/B1 逐专业计划数存在差异 | 25 |
-| B0/B1 计划数冲突复核队列 | 25 |
-| B0/B1 官网未匹配专业复核队列 | 9 |
+| B0/B1 逐专业官网证据专业名匹配 | 109 |
+| B0/B1 逐专业计划数与 OCR 一致 | 45 |
+| B0/B1 逐专业 OCR 缺失但官网可补计划数 | 47 |
+| B0/B1 逐专业计划数存在差异 | 17 |
+| B0/B1 计划数冲突复核队列 | 17 |
+| B0/B1 官网未匹配专业复核队列 | 24 |
 | B0/B1 学校补源缺口优先表 | 21 |
 | B0/B1 P0 待补官方计划源学校 | 8 |
 | B0/B1 官方交叉校验最终可用 | 0 |

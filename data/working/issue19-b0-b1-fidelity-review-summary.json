@@ -6,23 +6,23 @@
     "data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv",
     "data/working/issue19-b0-b1-retained-official-plan-normalized.csv"
   ],
-  "plan_conflict_row_count": 25,
+  "plan_conflict_row_count": 17,
   "plan_conflict_type_counts": {
     "OCR计划数疑似误取学费": 13,
-    "OCR计划数与官网计划数不一致": 12
+    "OCR计划数与官网计划数不一致": 4
   },
   "plan_conflict_school_counts": {
     "江苏理工学院": 10,
     "中国传媒大学": 1,
     "南宁学院": 3,
     "成都信息工程大学": 2,
-    "山东大学": 1,
-    "江汉大学": 8
+    "山东大学": 1
   },
-  "unmatched_major_row_count": 9,
+  "unmatched_major_row_count": 24,
   "unmatched_major_type_counts": {
     "专业代号非数字疑似OCR噪声": 3,
-    "官网留存证据未匹配该专业": 6
+    "官网留存证据未匹配该专业": 6,
+    "官网留存证据未覆盖关键限定词专业": 15
   },
   "source_gap_school_count": 21,
   "source_gap_type_counts": {
@@ -36,7 +36,8 @@
   "notes": [
     "本摘要只用于安排人工核页和补源，不是最终志愿方案。",
     "计划数冲突必须先回看第19期PDF原页，再核湖北官方系统；高校官网只作交叉校验。",
-    "source_gap 中的 P1 代表已有官网线索但尚未结构化，不等于完全没有官网来源。"
+    "source_gap 中的 P1 代表已有官网线索但尚未结构化，不等于完全没有官网来源。",
+    "带面向武汉、实验班、英才班、中外合作等关键限定词的专业，不得用泛化专业官网计划数替代。"
   ],
   "outputs": [
     "data/working/issue19-b0-b1-plan-conflict-review-queue.csv",
