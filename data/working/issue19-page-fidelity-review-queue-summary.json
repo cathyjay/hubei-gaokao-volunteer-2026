@@ -1,0 +1,49 @@
+{
+  "status": "issue19_page_fidelity_review_queue_not_final",
+  "generated_by": "build_issue19_page_fidelity_review_queue.py",
+  "source_page_manifest": "data/working/issue19-page-manifest.csv",
+  "source_foundation_page_audit": "data/working/issue19-foundation-page-audit.csv",
+  "source_full_major_fidelity_ledger": "data/working/issue19-full-major-field-fidelity-ledger.csv",
+  "output_table": "data/working/issue19-page-fidelity-review-queue.csv",
+  "page_range": [
+    10,
+    240
+  ],
+  "page_count": 231,
+  "total_major_detail_count": 13736,
+  "total_group_count": 3329,
+  "total_high_risk_fidelity_rows": 13486,
+  "total_low_risk_rows": 250,
+  "total_f0_rows": 3998,
+  "total_f1_rows": 8240,
+  "total_f2_rows": 1248,
+  "total_f3_rows": 250,
+  "total_p0_rows": 2864,
+  "total_p1_rows": 7272,
+  "total_p2_rows": 1183,
+  "total_p3_rows": 1951,
+  "total_p4_rows": 70,
+  "total_p5_rows": 146,
+  "total_p6_rows": 250,
+  "total_empty_major_name_rows": 2,
+  "total_high_structure_anomaly_major_rows": 2862,
+  "total_plan_count_risk_rows": 6347,
+  "total_tuition_risk_rows": 1262,
+  "total_preference_major_rows": 1726,
+  "total_family_bottom_line_rows": 3516,
+  "priority_counts": {
+    "P0-必须优先核页": 230,
+    "P1-字段高风险核页": 1
+  },
+  "block_level_counts": {
+    "F0-本页存在阻断级专业行": 230,
+    "F1-本页存在高优先字段风险": 1
+  },
+  "auto_final_page_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "notes": [
+    "本表是第19期按页保真复核队列，只安排人工核页顺序，不产生最终志愿结论。",
+    "第1-9页为前置说明页，不进入招生计划明细核页队列；仍在page manifest中留存。",
+    "所有页均需回看PDF原页，并最终接湖北官方系统和高校官网/章程闭环。"
+  ]
+}

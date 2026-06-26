@@ -4997,6 +4997,279 @@ def main():
         "第 19 期公开页级 manifest 逐页回推到结构化底座和候选总账",
         manifest_page_distribution_ok,
     ))
+
+    page_fidelity_summary_path = ROOT / "data/working/issue19-page-fidelity-review-queue-summary.json"
+    page_fidelity_csv = ROOT / "data/working/issue19-page-fidelity-review-queue.csv"
+    page_fidelity_summary = json.loads(page_fidelity_summary_path.read_text())
+    with page_fidelity_csv.open(newline="", encoding="utf-8-sig") as f:
+        page_fidelity_reader = csv.DictReader(f)
+        page_fidelity_rows = list(page_fidelity_reader)
+        page_fidelity_fields = set(page_fidelity_reader.fieldnames or [])
+    required_page_fidelity_fields = {
+        "页级保真队列ID",
+        "来源页级manifest",
+        "来源底座按页审计",
+        "来源全量逐专业保真总账",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "PDF页码",
+        "页码范围角色",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "OCR识别行数",
+        "OCR_QC_P0数",
+        "OCR_QC_P1数",
+        "页面复核优先级",
+        "页面阻断等级",
+        "页面审计状态",
+        "页面专业组数",
+        "页面专业明细数",
+        "页面结构异常数",
+        "页面高严重结构异常数",
+        "高风险保真行数",
+        "低风险行数",
+        "F0阻断行数",
+        "F1高优先行数",
+        "F2待补证行数",
+        "F3低风险非最终行数",
+        "P0结构串行行数",
+        "P1计划数保真行数",
+        "P2家庭费用行数",
+        "P3选科限制行数",
+        "P4调剂风险行数",
+        "P5偏好或普通待核行数",
+        "P6暂未触发机器高风险行数",
+        "空专业名行数",
+        "高严重结构异常专业行数",
+        "结构异常专业行数",
+        "计划数字段风险行数",
+        "学费字段风险行数",
+        "再选科目字段风险行数",
+        "家庭底线风险行数",
+        "偏好专业行数",
+        "风险字段Top",
+        "风险规则Top",
+        "必须核验字段",
+        "是否可进入最终页级结论",
+        "可进入下一阶段",
+        "下一步",
+    }
+    page_fidelity_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [page_fidelity_summary_path, page_fidelity_csv]
+    )
+    page_fidelity_priority_counts = Counter(row.get("页面复核优先级") for row in page_fidelity_rows)
+    page_fidelity_block_counts = Counter(row.get("页面阻断等级") for row in page_fidelity_rows)
+    page_manifest_by_page = {as_int(row.get("PDF页码")): row for row in page_manifest_rows}
+    page_fidelity_by_page = {as_int(row.get("PDF页码")): row for row in page_fidelity_rows}
+    fidelity_major_count_by_page = Counter()
+    fidelity_high_risk_by_page = Counter()
+    fidelity_low_risk_by_page = Counter()
+    fidelity_f0_by_page = Counter()
+    fidelity_f1_by_page = Counter()
+    fidelity_f2_by_page = Counter()
+    fidelity_f3_by_page = Counter()
+    fidelity_p0_by_page = Counter()
+    fidelity_p1_by_page = Counter()
+    fidelity_p2_by_page = Counter()
+    fidelity_p3_by_page = Counter()
+    fidelity_p4_by_page = Counter()
+    fidelity_p5_by_page = Counter()
+    fidelity_p6_by_page = Counter()
+    fidelity_empty_major_by_page = Counter()
+    fidelity_high_structure_by_page = Counter()
+    fidelity_structure_by_page = Counter()
+    fidelity_plan_risk_by_page = Counter()
+    fidelity_tuition_risk_by_page = Counter()
+    fidelity_subject_risk_by_page = Counter()
+    fidelity_family_by_page = Counter()
+    fidelity_preference_by_page = Counter()
+    for row in full_major_fidelity_rows:
+        page = as_int(row.get("来源页码"))
+        if page is None:
+            continue
+        fidelity_major_count_by_page[page] += 1
+        fidelity_high_risk_by_page[page] += row.get("是否高风险保真行") == "true"
+        fidelity_low_risk_by_page[page] += row.get("是否高风险保真行") == "false"
+        block_level = row.get("风险阻断等级", "")
+        fidelity_f0_by_page[page] += block_level.startswith("F0")
+        fidelity_f1_by_page[page] += block_level.startswith("F1")
+        fidelity_f2_by_page[page] += block_level.startswith("F2")
+        fidelity_f3_by_page[page] += block_level.startswith("F3")
+        priority = row.get("全量保真复核优先级", "")
+        fidelity_p0_by_page[page] += priority.startswith("P0")
+        fidelity_p1_by_page[page] += priority.startswith("P1")
+        fidelity_p2_by_page[page] += priority.startswith("P2")
+        fidelity_p3_by_page[page] += priority.startswith("P3")
+        fidelity_p4_by_page[page] += priority.startswith("P4")
+        fidelity_p5_by_page[page] += priority.startswith("P5")
+        fidelity_p6_by_page[page] += priority.startswith("P6")
+        categories = set(split_cn_semicolon(row.get("高风险字段集合")))
+        rules = set(split_cn_semicolon(row.get("风险触发规则")))
+        fidelity_empty_major_by_page[page] += "empty_major_name" in rules
+        fidelity_high_structure_by_page[page] += as_int(row.get("专业行高严重结构异常数")) > 0
+        fidelity_structure_by_page[page] += as_int(row.get("专业行结构异常数")) > 0
+        fidelity_plan_risk_by_page[page] += "计划数字段" in categories
+        fidelity_tuition_risk_by_page[page] += "学费字段" in categories
+        fidelity_subject_risk_by_page[page] += "再选科目字段" in categories
+        fidelity_family_by_page[page] += "家庭底线" in categories
+        fidelity_preference_by_page[page] += "偏好专业" in categories
+    page_fidelity_distribution_ok = True
+    for page in range(10, 241):
+        row = page_fidelity_by_page.get(page)
+        manifest_row = page_manifest_by_page.get(page)
+        foundation_row = foundation_page_by_page.get(page)
+        page_fidelity_distribution_ok = page_fidelity_distribution_ok and bool(row) and bool(manifest_row) and bool(foundation_row)
+        if not row or not manifest_row or not foundation_row:
+            continue
+        page_fidelity_distribution_ok = page_fidelity_distribution_ok and (
+            row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("页码范围角色") == "招生计划明细页"
+            and row.get("页码范围角色") == manifest_row.get("页码范围角色")
+            and row.get("页面审计状态") == foundation_row.get("页面审计状态")
+            and row.get("私有页图证据编号") == manifest_row.get("私有页图证据编号")
+            and row.get("私有OCR文本证据编号") == manifest_row.get("私有OCR文本证据编号")
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有页图SHA256", "")) is not None
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有OCR文本SHA256", "")) is not None
+            and row.get("私有页图SHA256") == manifest_row.get("私有页图SHA256")
+            and row.get("私有OCR文本SHA256") == manifest_row.get("私有OCR文本SHA256")
+            and as_int(row.get("OCR识别行数")) == as_int(manifest_row.get("OCR识别行数"))
+            and as_int(row.get("OCR_QC_P0数")) == as_int(manifest_row.get("OCR_QC_P0数"))
+            and as_int(row.get("OCR_QC_P1数")) == as_int(manifest_row.get("OCR_QC_P1数"))
+            and as_int(row.get("页面专业组数")) == as_int(foundation_row.get("页面专业组数"))
+            and as_int(row.get("页面专业明细数")) == as_int(foundation_row.get("页面专业明细数"))
+            and as_int(row.get("页面专业明细数")) == fidelity_major_count_by_page.get(page, 0)
+            and as_int(row.get("页面结构异常数")) == as_int(foundation_row.get("页面结构异常数"))
+            and as_int(row.get("页面高严重结构异常数")) == as_int(foundation_row.get("页面高严重结构异常数"))
+            and as_int(row.get("高风险保真行数")) == fidelity_high_risk_by_page.get(page, 0)
+            and as_int(row.get("低风险行数")) == fidelity_low_risk_by_page.get(page, 0)
+            and as_int(row.get("F0阻断行数")) == fidelity_f0_by_page.get(page, 0)
+            and as_int(row.get("F1高优先行数")) == fidelity_f1_by_page.get(page, 0)
+            and as_int(row.get("F2待补证行数")) == fidelity_f2_by_page.get(page, 0)
+            and as_int(row.get("F3低风险非最终行数")) == fidelity_f3_by_page.get(page, 0)
+            and as_int(row.get("P0结构串行行数")) == fidelity_p0_by_page.get(page, 0)
+            and as_int(row.get("P1计划数保真行数")) == fidelity_p1_by_page.get(page, 0)
+            and as_int(row.get("P2家庭费用行数")) == fidelity_p2_by_page.get(page, 0)
+            and as_int(row.get("P3选科限制行数")) == fidelity_p3_by_page.get(page, 0)
+            and as_int(row.get("P4调剂风险行数")) == fidelity_p4_by_page.get(page, 0)
+            and as_int(row.get("P5偏好或普通待核行数")) == fidelity_p5_by_page.get(page, 0)
+            and as_int(row.get("P6暂未触发机器高风险行数")) == fidelity_p6_by_page.get(page, 0)
+            and as_int(row.get("空专业名行数")) == fidelity_empty_major_by_page.get(page, 0)
+            and as_int(row.get("高严重结构异常专业行数")) == fidelity_high_structure_by_page.get(page, 0)
+            and as_int(row.get("结构异常专业行数")) == fidelity_structure_by_page.get(page, 0)
+            and as_int(row.get("计划数字段风险行数")) == fidelity_plan_risk_by_page.get(page, 0)
+            and as_int(row.get("学费字段风险行数")) == fidelity_tuition_risk_by_page.get(page, 0)
+            and as_int(row.get("再选科目字段风险行数")) == fidelity_subject_risk_by_page.get(page, 0)
+            and as_int(row.get("家庭底线风险行数")) == fidelity_family_by_page.get(page, 0)
+            and as_int(row.get("偏好专业行数")) == fidelity_preference_by_page.get(page, 0)
+        )
+    checks.append(ok(
+        "第 19 期页级保真复核队列摘要和行数正确",
+        page_fidelity_summary.get("status") == "issue19_page_fidelity_review_queue_not_final"
+        and page_fidelity_summary.get("generated_by") == "build_issue19_page_fidelity_review_queue.py"
+        and page_fidelity_summary.get("source_page_manifest") == "data/working/issue19-page-manifest.csv"
+        and page_fidelity_summary.get("source_foundation_page_audit")
+        == "data/working/issue19-foundation-page-audit.csv"
+        and page_fidelity_summary.get("source_full_major_fidelity_ledger")
+        == "data/working/issue19-full-major-field-fidelity-ledger.csv"
+        and page_fidelity_summary.get("output_table")
+        == "data/working/issue19-page-fidelity-review-queue.csv"
+        and page_fidelity_summary.get("page_range") == [10, 240]
+        and page_fidelity_summary.get("page_count") == 231
+        and page_fidelity_summary.get("total_major_detail_count") == 13736
+        and page_fidelity_summary.get("total_group_count") == 3329
+        and page_fidelity_summary.get("total_high_risk_fidelity_rows") == 13486
+        and page_fidelity_summary.get("total_low_risk_rows") == 250
+        and page_fidelity_summary.get("total_f0_rows") == 3998
+        and page_fidelity_summary.get("total_f1_rows") == 8240
+        and page_fidelity_summary.get("total_f2_rows") == 1248
+        and page_fidelity_summary.get("total_f3_rows") == 250
+        and page_fidelity_summary.get("total_p0_rows") == 2864
+        and page_fidelity_summary.get("total_p1_rows") == 7272
+        and page_fidelity_summary.get("total_p2_rows") == 1183
+        and page_fidelity_summary.get("total_p3_rows") == 1951
+        and page_fidelity_summary.get("total_p4_rows") == 70
+        and page_fidelity_summary.get("total_p5_rows") == 146
+        and page_fidelity_summary.get("total_p6_rows") == 250
+        and page_fidelity_summary.get("total_empty_major_name_rows") == 2
+        and page_fidelity_summary.get("total_high_structure_anomaly_major_rows") == 2862
+        and page_fidelity_summary.get("total_plan_count_risk_rows") == 6347
+        and page_fidelity_summary.get("total_tuition_risk_rows") == 1262
+        and page_fidelity_summary.get("total_preference_major_rows") == 1726
+        and page_fidelity_summary.get("total_family_bottom_line_rows") == 3516
+        and page_fidelity_summary.get("auto_final_page_allowed_count") == 0
+        and page_fidelity_summary.get("next_stage_allowed_count") == 0
+        and len(page_fidelity_rows) == 231,
+        f"{len(page_fidelity_rows)} page rows",
+    ))
+    checks.append(ok(
+        "第 19 期页级保真复核队列字段、主键和门禁正确",
+        required_page_fidelity_fields.issubset(page_fidelity_fields)
+        and len({row.get("页级保真队列ID") for row in page_fidelity_rows}) == len(page_fidelity_rows)
+        and len(page_fidelity_by_page) == 231
+        and [as_int(row.get("PDF页码")) for row in page_fidelity_rows] == list(range(10, 241))
+        and page_fidelity_priority_counts == Counter(page_fidelity_summary.get("priority_counts", {}))
+        and page_fidelity_block_counts == Counter(page_fidelity_summary.get("block_level_counts", {}))
+        and page_fidelity_summary.get("priority_counts") == {"P0-必须优先核页": 230, "P1-字段高风险核页": 1}
+        and page_fidelity_summary.get("block_level_counts")
+        == {"F0-本页存在阻断级专业行": 230, "F1-本页存在高优先字段风险": 1}
+        and all(
+            row.get("来源页级manifest") == "data/working/issue19-page-manifest.csv"
+            and row.get("来源底座按页审计") == "data/working/issue19-foundation-page-audit.csv"
+            and row.get("来源全量逐专业保真总账")
+            == "data/working/issue19-full-major-field-fidelity-ledger.csv"
+            and row.get("数据阶段") == "issue19_page_fidelity_review_queue"
+            and row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_page_fidelity_review"
+            and row.get("是否可进入最终页级结论") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and all(
+                token in row.get("必须核验字段", "")
+                for token in ["PDF原页", "专业组边界", "湖北官方系统", "高校官网/章程"]
+            )
+            for row in page_fidelity_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期页级保真复核队列逐页回推到manifest、页级审计和全量明细总账",
+        page_fidelity_distribution_ok
+        and sum(as_int(row.get("页面专业明细数")) for row in page_fidelity_rows) == 13736
+        and sum(as_int(row.get("页面专业组数")) for row in page_fidelity_rows) == 3329
+        and sum(as_int(row.get("高风险保真行数")) for row in page_fidelity_rows) == 13486
+        and sum(as_int(row.get("低风险行数")) for row in page_fidelity_rows) == 250
+        and sum(as_int(row.get("F0阻断行数")) for row in page_fidelity_rows) == 3998
+        and sum(as_int(row.get("F1高优先行数")) for row in page_fidelity_rows) == 8240
+        and sum(as_int(row.get("F2待补证行数")) for row in page_fidelity_rows) == 1248
+        and sum(as_int(row.get("F3低风险非最终行数")) for row in page_fidelity_rows) == 250
+        and sum(as_int(row.get("P0结构串行行数")) for row in page_fidelity_rows) == 2864
+        and sum(as_int(row.get("P1计划数保真行数")) for row in page_fidelity_rows) == 7272
+        and sum(as_int(row.get("P2家庭费用行数")) for row in page_fidelity_rows) == 1183
+        and sum(as_int(row.get("P3选科限制行数")) for row in page_fidelity_rows) == 1951
+        and sum(as_int(row.get("P4调剂风险行数")) for row in page_fidelity_rows) == 70
+        and sum(as_int(row.get("P5偏好或普通待核行数")) for row in page_fidelity_rows) == 146
+        and sum(as_int(row.get("P6暂未触发机器高风险行数")) for row in page_fidelity_rows) == 250,
+    ))
+    checks.append(ok(
+        "第 19 期页级保真复核队列公开文件不含本地路径、私有文件路径、图片扩展名、身份信息和最终可用结论",
+        "private/" not in page_fidelity_public_text
+        and "/Users/" not in page_fidelity_public_text
+        and "ocr-runs" not in page_fidelity_public_text
+        and "rendered-pages" not in page_fidelity_public_text
+        and ".png" not in page_fidelity_public_text
+        and ".jpg" not in page_fidelity_public_text
+        and ".jpeg" not in page_fidelity_public_text
+        and "final_allowed" not in page_fidelity_public_text
+        and "ready_for_discussion" not in page_fidelity_public_text
+        and "已确认" not in page_fidelity_public_text
+        and "最终推荐" not in page_fidelity_public_text
+        and "最终方案" not in page_fidelity_public_text
+        and not any(token in page_fidelity_public_text for token in shared_forbidden_tokens),
+    ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
         "final_allowed" not in page_manifest_public_text

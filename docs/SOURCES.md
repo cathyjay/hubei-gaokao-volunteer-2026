@@ -191,6 +191,8 @@
 - `data/working/issue19-candidate-v2-evidence-ledger-summary.json`：候选 V2 证据总账摘要，记录字段任务数、P0/P1/P2/P3 分布、专业行 ID 匹配和当前不可进入最终候选状态。
 - `data/working/issue19-page-manifest.csv`：第 19 期公开页级 manifest，覆盖 PDF 1-240 页，记录私有页图/文本证据编号、哈希、OCR 行数、QC 数、结构化专业组/专业明细和候选字段任务数。
 - `data/working/issue19-page-manifest-summary.json`：第 19 期页级 manifest 摘要，记录 240 页渲染/OCR 完整性、10-240 页结构化覆盖、OCR/QC 总量和候选字段任务页码归属。
+- `data/working/issue19-page-fidelity-review-queue.csv`：第 19 期按页保真复核队列，覆盖 PDF 第 10-240 页 231 个招生计划明细页；逐页对齐 manifest、底座页级审计和全量逐专业字段保真总账，只安排核页顺序，不替代逐专业明细。
+- `data/working/issue19-page-fidelity-review-queue-summary.json`：按页保真复核队列摘要；记录 13736 条专业明细、3329 个专业组、F0/F1/F2/F3 和 P0-P6 汇总，以及全部不可进入最终结论的门禁。
 - `data/working/issue19-family-fit-group-screen.csv`：第 19 期家庭底线专业组筛选表，覆盖 3329 个院校专业组；每行展开组内全部招生明细，并给出医学护理、超预算、偏好方向和调剂初判。
 - `data/working/issue19-family-fit-major-detail.csv`：第 19 期家庭底线逐专业筛选表，覆盖 13736 条专业明细；一行一个专业，记录机器接受度初判、阻断或待核原因和家庭接受度待确认状态。
 - `data/working/issue19-family-fit-screen-summary.json`：家庭底线筛选摘要，记录专业组/专业行数、机器家庭匹配分布、调剂初判分布和下一轮复核优先级分布。
@@ -247,6 +249,7 @@
 - `scripts/build_issue19_foundation_audit.py`：根据全量 OCR 初稿、质量分层、逐专业工作台、结构异常和候选覆盖生成底座审计表；用于证明机器层面的行数、页码、主键、异常和发布边界闭环。
 - `scripts/build_issue19_candidate_evidence_ledgers.py`：根据候选 V2 升级工作台、全量逐专业工作台和底座审计生成字段复核总账与三方证据矩阵；用于后续人工回填和候选升级。
 - `scripts/build_issue19_page_manifest.py`：根据私有 OCR 运行目录和公开结构化表生成 240 页公开页级 manifest；只输出页级元数据和哈希，不输出私有页图、整页 OCR 文本或本机路径。
+- `scripts/build_issue19_page_fidelity_review_queue.py`：根据页级 manifest、底座按页审计和全量逐专业字段保真总账生成 231 页按页保真复核队列；用于排核页顺序和逐页对账，不生成候选或可报结论。
 - `scripts/build_issue19_family_fit_screen.py`：根据全量专业组质量索引、逐专业质量工作台和家庭偏好生成家庭底线筛选表；只做 OCR 草案初筛，办学属性、字段和家庭接受度仍全部待核。
 - `scripts/build_issue19_candidate_v3_review_intake.py`：根据家庭底线筛选、候选 V2、页级 manifest、三年历史投档线和全量 OCR 覆盖表生成候选 V3 复核入口；用于下一轮逐组核页和补证，不产生最终建议。
 - `scripts/build_issue19_candidate_v3_admission_detail.py`：把候选 V3 复核入口展开为全量逐专业招生明细主表；优先使用候选 V2 逐专业种子和家庭底线逐专业表，不从长文本硬切专业。
