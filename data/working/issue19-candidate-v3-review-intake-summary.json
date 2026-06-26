@@ -1,0 +1,101 @@
+{
+  "status": "issue19_candidate_v3_review_intake_pending_manual_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "issue19_candidate_v3_review_intake",
+  "generated_by": "scripts/build_issue19_candidate_v3_review_intake.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "candidate-baseline.json",
+      "sha256": "7e9d9b66aa0cfe632eb8d174b46d0bc3179ed00058980764912664816aa42d74"
+    },
+    {
+      "path": "data/working/issue19-family-fit-group-screen.csv",
+      "sha256": "b84709b7a9de9a0632607eaeb9f7021219d25ed7f70b72880673fc046b2d033a",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-group-review-seed.csv",
+      "sha256": "79a82f1665b7baa99903ca740d3231a5dcff1c3a1525239f39714145ce74be7e",
+      "row_count": 23
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-major-review-seed.csv",
+      "sha256": "ad3dd80eb2d180b36006093cf4bcbef63dcf99fe7d3d206f06b33a20ca831f30",
+      "row_count": 82
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-candidate-coverage.csv",
+      "sha256": "6355146fd6bf01c147b6e5a340b77e8d8b396b2eca7524d7ee206477a0f3a217",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-candidate-page-code-audit.csv",
+      "sha256": "d2626290790108da765a51d3d3685bb81dbb819daf0fc6f69a24a27d0c5d3c42",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-page-manifest.csv",
+      "sha256": "abc78676bcf8ea471616bd4e4c5d4bee361678909c3f85722cbf2c935eae3c0c",
+      "row_count": 240
+    },
+    {
+      "path": "data/derived/hubei-2023-physics-toudang-parsed.csv",
+      "sha256": "85cf42f6a687138fcacab437069f96073f4390a597a94b43e007148aa2c21378",
+      "row_count": 2874
+    },
+    {
+      "path": "data/derived/hubei-2024-physics-toudang-parsed.csv",
+      "sha256": "196dadc021893a62e234a3ea0cdc33c87571f1ce4297b30d68a30461a53ebbfc",
+      "row_count": 2800
+    },
+    {
+      "path": "data/derived/hubei-2025-physics-toudang-parsed.csv",
+      "sha256": "663ddcab515158507ce98e08dc44986bf634a31591e63cfa4039660fe00dd68f",
+      "row_count": 3147
+    }
+  ],
+  "intake_count": 1327,
+  "batch_counts": {
+    "B0-历史候选和组号问题优先核页": 20,
+    "B1-数字媒体技术优先核页": 29,
+    "B2-偏好专业未自动阻断核页": 763,
+    "B3-偏好专业硬风险先核风险": 514,
+    "B4-同页边界风险组核页": 1
+  },
+  "relation_counts": {
+    "历史候选": 20,
+    "同校偏好专业补充组": 2,
+    "同页相邻风险组": 1,
+    "家庭筛选扩展": 1304
+  },
+  "major_source_counts": {
+    "candidate_v2_review_seed": 23,
+    "family_fit_full_ocr": 1304
+  },
+  "history_exact_code_hit_count_distribution": {
+    "0": 267,
+    "1": 227,
+    "2": 365,
+    "3": 468
+  },
+  "historical_candidate_count": 20,
+  "r0_r1_r2_family_fit_source_count": 1323,
+  "candidate_v2_group_count": 23,
+  "candidate_v2_group_not_in_family_fit_priority_count": 4,
+  "final_available_count": 0,
+  "notes": [
+    "本表是候选V3人工复核入口，不是最终志愿建议。",
+    "R0/R1/R2 来自家庭底线筛选表，另补入候选V2的未定位、页图补种和同页边界组。",
+    "候选V2有页图重切或补种证据时，专业明细优先使用 candidate_v2_review_seed。",
+    "历史投档线按同组代码精确匹配，仅作线索；2026组号变化、专业组变化或组内专业变化时不得直接沿用。",
+    "所有行保持可进入最终候选=false，必须完成PDF原页、湖北官方系统、高校章程、家庭接受度和调剂结论核验后才能升级。"
+  ],
+  "outputs": [
+    "data/working/issue19-candidate-v3-review-intake.csv"
+  ]
+}

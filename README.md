@@ -62,8 +62,8 @@
 ```bash
 python3 scripts/update_checksums.py
 python3 scripts/verify_baseline.py
-python3 scripts/ocr_magazine_pages.py --input private/raw/hubei-admission-magazine-2026-issue-19
-python3 scripts/ocr_pdf_pages.py --pdf private/raw/hubei-admission-magazine-2026-issue-19/issue19.pdf --pages 1-20
+python3 scripts/ocr_magazine_pages.py --input "<第19期照片目录本地私有副本>"
+python3 scripts/ocr_pdf_pages.py --pdf "<第19期PDF本地私有副本>" --pages 1-20
 python3 scripts/build_issue19_full_admission_plan_ocr_draft.py
 python3 scripts/build_issue19_candidate_review_workbench.py
 python3 scripts/build_issue19_priority_review_queues.py
@@ -77,7 +77,8 @@ python3 scripts/build_issue19_foundation_audit.py
 python3 scripts/build_issue19_candidate_evidence_ledgers.py
 python3 scripts/build_issue19_page_manifest.py
 python3 scripts/build_issue19_family_fit_screen.py
+python3 scripts/build_issue19_candidate_v3_review_intake.py
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```
 
-注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级只用于安排复核顺序，不是最终报考建议。
+注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级、候选 V3 批次只用于安排复核顺序，不是最终报考建议。

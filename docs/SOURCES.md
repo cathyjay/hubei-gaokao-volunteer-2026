@@ -107,12 +107,12 @@
    - 限制：学校片段和第三方 Excel 线索不能替代官方杂志或平台。
 
 7. 《湖北招生考试》2026 年第 19 期 PDF
-   - 本地私有路径：`private/raw/hubei-admission-magazine-2026-issue-19/issue19.pdf`
+   - 私有证据编号：`issue19-pdf-local-copy`，具体本地路径不写入公开仓库。
    - PDF 元数据：`data/working/issue19-pdf-source.json`
    - 提取方案：`docs/ISSUE19_PDF_EXTRACTION_PLAN.md`
    - SHA256：`ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d`
    - 当前判断：240 页，无可抽取文本层，需要渲染为图片后 OCR。
-   - 限制：原始 PDF、渲染页图片、整页 OCR 文本和全量抽取结果默认只保存在 `private/`，不提交公开仓库。
+   - 限制：原始 PDF、渲染页图片、整页 OCR 文本和全量抽取结果默认只做本地私有留存，不提交公开仓库。
 
 8. 第 19 期样本学校官网交叉校验源
    - 来源状态表：`data/working/issue19-sample-school-official-sources.csv`
@@ -182,12 +182,14 @@
 - `data/working/issue19-family-fit-group-screen.csv`：第 19 期家庭底线专业组筛选表，覆盖 3329 个院校专业组；每行展开组内全部招生明细，并给出医学护理、超预算、偏好方向和调剂初判。
 - `data/working/issue19-family-fit-major-detail.csv`：第 19 期家庭底线逐专业筛选表，覆盖 13736 条专业明细；一行一个专业，记录机器接受度初判、阻断或待核原因和家庭接受度待确认状态。
 - `data/working/issue19-family-fit-screen-summary.json`：家庭底线筛选摘要，记录专业组/专业行数、机器家庭匹配分布、调剂初判分布和下一轮复核优先级分布。
+- `data/working/issue19-candidate-v3-review-intake.csv`：候选 V3 复核入口表，覆盖家庭筛选 R0/R1/R2 与候选 V2 补充组，每行都带完整组内招生明细、页码哈希、候选批次、历史同组投档线线索和升级缺口；全部 `最终可用=false`。
+- `data/working/issue19-candidate-v3-review-intake-summary.json`：候选 V3 摘要，记录 1327 条复核入口、批次分布、历史线命中分布、专业明细来源和最终可用边界。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
 - `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座初稿说明和保真机制。
 - `scripts/build_issue19_double_check_summary.py`：根据私有 OCR 定位和公开官网来源表生成高优先级 7 校摘要。
 - `scripts/build_issue19_first_batch_review_seed.py`：根据私有 OCR 定位生成第一批 4 校逐组复核种子表，公开仓库只保留摘要 JSON。
-- `scripts/build_issue19_first_batch_group_major_draft.py`：根据全量 OCR 行级数据生成第一批 4 校专业组/专业 OCR 初稿，专业明细只写入 `private/`。
+- `scripts/build_issue19_first_batch_group_major_draft.py`：根据全量 OCR 行级数据生成第一批 4 校专业组/专业 OCR 初稿，专业明细只写入本地私有留存区。
 - `scripts/build_issue19_full_admission_plan_ocr_draft.py`：根据全量 OCR 行级数据生成第 19 期全量公开招生明细初稿和候选池命中表。
 - `scripts/build_issue19_candidate_review_workbench.py`：根据全量 OCR 底座和家庭偏好生成 20 条历史候选的候选组级复核工作台。
 - `scripts/build_issue19_priority_review_queues.py`：根据全量 OCR 底座生成偏好专业检索队列和硬风险专业组队列。
@@ -201,6 +203,7 @@
 - `scripts/build_issue19_candidate_evidence_ledgers.py`：根据候选 V2 升级工作台、全量逐专业工作台和底座审计生成字段复核总账与三方证据矩阵；用于后续人工回填和候选升级。
 - `scripts/build_issue19_page_manifest.py`：根据私有 OCR 运行目录和公开结构化表生成 240 页公开页级 manifest；只输出页级元数据和哈希，不输出私有页图、整页 OCR 文本或本机路径。
 - `scripts/build_issue19_family_fit_screen.py`：根据全量专业组质量索引、逐专业质量工作台和家庭偏好生成家庭底线筛选表；只做 OCR 草案初筛，办学属性、字段和家庭接受度仍全部待核。
+- `scripts/build_issue19_candidate_v3_review_intake.py`：根据家庭底线筛选、候选 V2、页级 manifest、三年历史投档线和全量 OCR 覆盖表生成候选 V3 复核入口；用于下一轮逐组核页和补证，不产生最终建议。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

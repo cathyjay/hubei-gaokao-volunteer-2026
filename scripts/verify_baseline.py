@@ -2092,6 +2092,194 @@ def main():
         and not any(token in family_fit_public_text for token in shared_forbidden_tokens),
     ))
 
+    candidate_v3_summary_path = ROOT / "data/working/issue19-candidate-v3-review-intake-summary.json"
+    candidate_v3_csv = ROOT / "data/working/issue19-candidate-v3-review-intake.csv"
+    candidate_v3_summary = json.loads(candidate_v3_summary_path.read_text())
+    with candidate_v3_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v3_reader = csv.DictReader(f)
+        candidate_v3_rows = list(candidate_v3_reader)
+        candidate_v3_fields = set(candidate_v3_reader.fieldnames or [])
+    required_candidate_v3_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "候选V3入口ID",
+        "入口类型",
+        "复核批次",
+        "候选闸门状态",
+        "可进入最终候选",
+        "院校代码",
+        "院校名称OCR",
+        "2026院校专业组代码",
+        "专业组出现ID",
+        "来源页码",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "办学属性核验状态",
+        "专业明细来源",
+        "专业明细行数",
+        "组内招生明细",
+        "机器家庭匹配初判",
+        "调剂初判",
+        "历史候选匹配",
+        "2023同组投档线",
+        "2024同组投档线",
+        "2025同组投档线",
+        "三年同组命中数",
+        "历史线使用口径",
+        "PDF原页核验状态",
+        "湖北官方系统核验状态",
+        "高校官网章程核验状态",
+        "家庭接受度核验状态",
+        "调剂结论状态",
+        "历史线核验状态",
+        "核验缺口",
+    }
+    candidate_v3_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [candidate_v3_summary_path, candidate_v3_csv]
+    )
+    candidate_v3_batch_counts = Counter(row.get("复核批次") for row in candidate_v3_rows)
+    candidate_v3_relation_counts = Counter(row.get("入口类型") for row in candidate_v3_rows)
+    candidate_v3_major_source_counts = Counter(row.get("专业明细来源") for row in candidate_v3_rows)
+    candidate_v3_history_hit_counts = Counter(row.get("三年同组命中数") for row in candidate_v3_rows)
+    candidate_v2_group_codes = {row.get("2026院校专业组代码") for row in candidate_v2_group_rows}
+    candidate_v3_v2_codes = {
+        row.get("2026院校专业组代码")
+        for row in candidate_v3_rows
+        if row.get("专业明细来源") == "candidate_v2_review_seed"
+    }
+    candidate_v3_zero_detail_codes = {
+        row.get("2026院校专业组代码")
+        for row in candidate_v3_rows
+        if as_int(row.get("专业明细行数")) == 0
+    }
+    candidate_v3_nonzero_blank_detail_count = sum(
+        (as_int(row.get("专业明细行数")) or 0) > 0
+        and not row.get("组内招生明细", "").strip()
+        for row in candidate_v3_rows
+    )
+
+    def expected_candidate_v2_major_detail(group_code):
+        pieces = []
+        for item in sorted(
+            candidate_v2_majors_by_group.get(group_code, []),
+            key=lambda row: as_int(row.get("组内序号")) or 999,
+        ):
+            pieces.append(
+                "{seq}. {code} {name}｜计划:{plan}｜学费:{tuition}｜选科:{subject}｜偏好:{pref}｜风险:{risk}".format(
+                    seq=item.get("组内序号", ""),
+                    code=item.get("专业代号", ""),
+                    name=item.get("专业名称及备注", ""),
+                    plan=item.get("专业计划数候选", ""),
+                    tuition=item.get("学费候选", ""),
+                    subject=item.get("再选科目候选", ""),
+                    pref=item.get("偏好方向", "") or "无",
+                    risk=item.get("风险类型", "") or "无",
+                )
+            )
+        return "；".join(pieces)
+
+    candidate_v3_v2_detail_matches = all(
+        row.get("组内招生明细") == expected_candidate_v2_major_detail(row.get("2026院校专业组代码"))
+        for row in candidate_v3_rows
+        if row.get("专业明细来源") == "candidate_v2_review_seed"
+    )
+    checks.append(ok(
+        "第 19 期候选V3复核入口摘要和行数正确",
+        candidate_v3_summary.get("status") == "issue19_candidate_v3_review_intake_pending_manual_review"
+        and candidate_v3_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and candidate_v3_summary.get("intake_count") == 1327
+        and candidate_v3_summary.get("batch_counts") == {
+            "B0-历史候选和组号问题优先核页": 20,
+            "B1-数字媒体技术优先核页": 29,
+            "B2-偏好专业未自动阻断核页": 763,
+            "B3-偏好专业硬风险先核风险": 514,
+            "B4-同页边界风险组核页": 1,
+        }
+        and candidate_v3_summary.get("relation_counts") == {
+            "历史候选": 20,
+            "同校偏好专业补充组": 2,
+            "同页相邻风险组": 1,
+            "家庭筛选扩展": 1304,
+        }
+        and candidate_v3_summary.get("major_source_counts") == {
+            "candidate_v2_review_seed": 23,
+            "family_fit_full_ocr": 1304,
+        }
+        and candidate_v3_summary.get("history_exact_code_hit_count_distribution") == {
+            "0": 267,
+            "1": 227,
+            "2": 365,
+            "3": 468,
+        }
+        and candidate_v3_summary.get("historical_candidate_count") == 20
+        and candidate_v3_summary.get("r0_r1_r2_family_fit_source_count") == 1323
+        and candidate_v3_summary.get("candidate_v2_group_count") == 23
+        and candidate_v3_summary.get("candidate_v2_group_not_in_family_fit_priority_count") == 4
+        and candidate_v3_summary.get("final_available_count") == 0
+        and len(candidate_v3_rows) == 1327,
+        f"{len(candidate_v3_rows)} intake rows",
+    ))
+    checks.append(ok(
+        "第 19 期候选V3复核入口字段、状态和证据链正确",
+        required_candidate_v3_fields.issubset(candidate_v3_fields)
+        and len({row.get("候选V3入口ID") for row in candidate_v3_rows}) == len(candidate_v3_rows)
+        and candidate_v3_batch_counts == Counter(candidate_v3_summary.get("batch_counts", {}))
+        and candidate_v3_relation_counts == Counter(candidate_v3_summary.get("relation_counts", {}))
+        and candidate_v3_major_source_counts == Counter(candidate_v3_summary.get("major_source_counts", {}))
+        and candidate_v3_history_hit_counts
+        == Counter(candidate_v3_summary.get("history_exact_code_hit_count_distribution", {}))
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_v3_manual_review"
+            and row.get("候选闸门状态") == "pending_verification"
+            and row.get("可进入最终候选") == "false"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("私有页图SHA256")
+            and row.get("PDF原页核验状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网章程核验状态") == "pending_school_charter_review"
+            and row.get("家庭接受度核验状态") == "pending_family_acceptance_review"
+            and row.get("调剂结论状态") == "pending_transfer_decision"
+            for row in candidate_v3_rows
+        )
+        and sum(row.get("专业明细来源") == "candidate_v2_review_seed" for row in candidate_v3_rows) == 23
+        and sum(row.get("专业明细行数") == "0" for row in candidate_v3_rows) == 2
+        and candidate_v3_zero_detail_codes == {"C10702", "K15123"}
+        and candidate_v3_nonzero_blank_detail_count == 0
+        and candidate_v3_v2_codes == candidate_v2_group_codes
+        and candidate_v3_v2_detail_matches
+        and any(
+            row.get("2026院校专业组代码") == "K15123"
+            and row.get("来源页码") == "208；209"
+            and "page-208" in row.get("私有页图证据编号", "")
+            and "page-209" in row.get("私有页图证据编号", "")
+            and "历史线不得直接沿用" in row.get("历史线使用口径", "")
+            for row in candidate_v3_rows
+        )
+        and any(
+            row.get("2026院校专业组代码") == "C10704"
+            and row.get("入口类型") == "历史候选"
+            and row.get("专业明细来源") == "candidate_v2_review_seed"
+            and row.get("专业明细行数") == "3"
+            and "历史线不得直接沿用" in row.get("历史线使用口径", "")
+            for row in candidate_v3_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3复核入口公开文件不含本地路径、图片扩展名、身份信息和最终可用结论",
+        "final_allowed" not in candidate_v3_public_text
+        and "ready_for_discussion" not in candidate_v3_public_text
+        and "已确认" not in candidate_v3_public_text
+        and "最终推荐" not in candidate_v3_public_text
+        and "最终方案" not in candidate_v3_public_text
+        and not any(token in candidate_v3_public_text for token in shared_forbidden_tokens),
+    ))
+
     foundation_audit_summary_path = ROOT / "data/working/issue19-foundation-audit-summary.json"
     foundation_audit_findings_csv = ROOT / "data/working/issue19-foundation-audit-findings.csv"
     foundation_page_audit_csv = ROOT / "data/working/issue19-foundation-page-audit.csv"
