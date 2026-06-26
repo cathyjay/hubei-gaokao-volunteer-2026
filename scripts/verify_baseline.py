@@ -2456,6 +2456,374 @@ def main():
         and not any(token in v3_b0_b1_public_text for token in shared_forbidden_tokens),
     ))
 
+    b0_b1_official_summary_path = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-crosscheck-summary.json"
+    b0_b1_school_source_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv"
+    b0_b1_group_official_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv"
+    b0_b1_major_official_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv"
+    b0_b1_official_seed_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv"
+    b0_b1_official_summary = json.loads(b0_b1_official_summary_path.read_text())
+    with b0_b1_school_source_csv.open(newline="", encoding="utf-8-sig") as f:
+        b0_b1_school_source_reader = csv.DictReader(f)
+        b0_b1_school_source_rows = list(b0_b1_school_source_reader)
+        b0_b1_school_source_fields = set(b0_b1_school_source_reader.fieldnames or [])
+    with b0_b1_group_official_csv.open(newline="", encoding="utf-8-sig") as f:
+        b0_b1_group_official_reader = csv.DictReader(f)
+        b0_b1_group_official_rows = list(b0_b1_group_official_reader)
+        b0_b1_group_official_fields = set(b0_b1_group_official_reader.fieldnames or [])
+    with b0_b1_major_official_csv.open(newline="", encoding="utf-8-sig") as f:
+        b0_b1_major_official_reader = csv.DictReader(f)
+        b0_b1_major_official_rows = list(b0_b1_major_official_reader)
+        b0_b1_major_official_fields = set(b0_b1_major_official_reader.fieldnames or [])
+    with b0_b1_official_seed_csv.open(newline="", encoding="utf-8-sig") as f:
+        b0_b1_official_seed_rows = list(csv.DictReader(f))
+
+    required_b0_b1_school_source_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "学校官方来源队列ID",
+        "院校代码",
+        "院校名称OCR",
+        "B0B1专业组数",
+        "逐专业核验任务数",
+        "涉及专业组代码",
+        "官网来源状态",
+        "官网URL",
+        "本地留存状态",
+        "官方源缺口",
+        "补源优先级",
+        "高校官网计划检索式",
+        "招生章程检索式",
+    }
+    required_b0_b1_group_official_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "官方交叉校验任务ID",
+        "候选V3入口ID",
+        "复核批次",
+        "院校代码",
+        "院校名称OCR",
+        "2026院校专业组代码",
+        "逐专业核验任务数",
+        "官网来源状态",
+        "官网URL",
+        "官方源缺口",
+        "必须核验字段",
+        "湖北官方系统核验状态",
+        "高校官网计划核验状态",
+        "招生章程核验状态",
+        "PDF原页核验状态",
+        "家庭接受度核验状态",
+        "调剂结论状态",
+        "交叉校验结论",
+        "可进入下一阶段",
+    }
+    required_b0_b1_major_official_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "官方逐专业校验任务ID",
+        "官方交叉校验任务ID",
+        "专业核验任务ID",
+        "候选V3入口ID",
+        "院校代码",
+        "院校名称OCR",
+        "2026院校专业组代码",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "专业风险类型",
+        "机器专业接受度初判",
+        "官网来源状态",
+        "官方源缺口",
+        "PDF字段核验状态",
+        "湖北官方系统字段核验状态",
+        "高校官网/章程字段核验状态",
+        "家庭接受度人工结论状态",
+        "调剂影响人工结论状态",
+        "字段核验状态",
+        "是否阻断组升级",
+        "可进入最终专业列表",
+        "可进入下一阶段",
+    }
+    b0_b1_school_source_counts = Counter(row.get("官网来源状态") for row in b0_b1_school_source_rows)
+    b0_b1_group_official_source_counts = Counter(row.get("官网来源状态") for row in b0_b1_group_official_rows)
+    b0_b1_major_official_source_counts = Counter(row.get("官网来源状态") for row in b0_b1_major_official_rows)
+    b0_b1_major_official_source_row_counts = Counter(row.get("专业行来源") for row in b0_b1_major_official_rows)
+    b0_b1_school_priority_counts = Counter(row.get("补源优先级") for row in b0_b1_school_source_rows)
+    b0_b1_group_count_by_school = Counter(
+        (row.get("院校代码"), row.get("院校名称OCR")) for row in b0_b1_group_official_rows
+    )
+    b0_b1_major_count_by_school = Counter(
+        (row.get("院校代码"), row.get("院校名称OCR")) for row in b0_b1_major_official_rows
+    )
+    b0_b1_group_batch_count_by_school = Counter(
+        (row.get("院校代码"), row.get("院校名称OCR"), row.get("复核批次"))
+        for row in b0_b1_group_official_rows
+    )
+    b0_b1_school_status_by_name = {
+        row.get("院校名称OCR"): row.get("官网来源状态") for row in b0_b1_school_source_rows
+    }
+    b0_b1_group_official_by_entry = {
+        row.get("候选V3入口ID"): row for row in b0_b1_group_official_rows
+    }
+    b0_b1_major_official_by_task = {
+        row.get("专业核验任务ID"): row for row in b0_b1_major_official_rows
+    }
+    b0_b1_major_review_by_task = {
+        row.get("专业核验任务ID"): row for row in v3_b0_b1_major_rows
+    }
+    b0_b1_major_official_tasks_by_entry = Counter(
+        row.get("候选V3入口ID") for row in b0_b1_major_official_rows
+    )
+    b0_b1_school_source_by_name = {
+        row.get("院校名称OCR"): row for row in b0_b1_school_source_rows
+    }
+    b0_b1_official_seed_school_names = {row.get("学校名称") for row in b0_b1_official_seed_rows}
+    allowed_b0_b1_official_source_statuses = {
+        "charter_or_rules_only_no_plan",
+        "has_partial_source_needs_followup",
+        "has_reusable_2026_hubei_plan_source",
+        "needs_official_plan_source_search",
+    }
+    required_b0_b1_crosscheck_field_names = {
+        "院校代码",
+        "院校名称",
+        "院校专业组代码",
+        "专业组边界和组内全部专业",
+        "专业代号",
+        "专业名称及备注",
+        "专业计划数",
+        "学费",
+        "学制",
+        "校区",
+        "再选科目",
+        "特殊备注",
+        "招生章程录取规则",
+        "体检/语种/单科限制",
+        "办学性质和高收费/中外合作",
+    }
+    b0_b1_major_official_placeholder_rows = [
+        row
+        for row in b0_b1_major_official_rows
+        if row.get("专业行来源") == "zero_detail_group_placeholder"
+    ]
+    b0_b1_major_official_real_rows = [
+        row
+        for row in b0_b1_major_official_rows
+        if row.get("专业行来源") != "zero_detail_group_placeholder"
+    ]
+    b0_b1_official_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            b0_b1_official_summary_path,
+            b0_b1_school_source_csv,
+            b0_b1_group_official_csv,
+            b0_b1_major_official_csv,
+            b0_b1_official_seed_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期候选V3 B0/B1官方交叉校验队列摘要和行数正确",
+        b0_b1_official_summary.get("status") == "issue19_candidate_v3_b0_b1_official_crosscheck_pending"
+        and b0_b1_official_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and b0_b1_official_summary.get("school_count") == 36
+        and b0_b1_official_summary.get("group_count") == 49
+        and b0_b1_official_summary.get("major_review_task_count") == 324
+        and b0_b1_official_summary.get("major_official_crosscheck_task_count") == 324
+        and b0_b1_official_summary.get("school_source_status_counts") == {
+            "charter_or_rules_only_no_plan": 2,
+            "has_partial_source_needs_followup": 3,
+            "has_reusable_2026_hubei_plan_source": 1,
+            "needs_official_plan_source_search": 30,
+        }
+        and b0_b1_official_summary.get("group_source_status_counts") == {
+            "charter_or_rules_only_no_plan": 5,
+            "has_partial_source_needs_followup": 4,
+            "has_reusable_2026_hubei_plan_source": 5,
+            "needs_official_plan_source_search": 35,
+        }
+        and b0_b1_official_summary.get("major_source_status_counts") == {
+            "charter_or_rules_only_no_plan": 13,
+            "has_partial_source_needs_followup": 6,
+            "has_reusable_2026_hubei_plan_source": 35,
+            "needs_official_plan_source_search": 270,
+        }
+        and b0_b1_official_summary.get("major_row_source_counts") == {
+            "candidate_v2_major_review_seed": 81,
+            "family_fit_major_detail": 241,
+            "zero_detail_group_placeholder": 2,
+        }
+        and b0_b1_official_summary.get("source_priority_counts") == {
+            "S0-B0历史候选学校优先补源": 11,
+            "S2-多组学校优先补源": 2,
+            "S3-B1单组学校按页码推进": 23,
+        }
+        and b0_b1_official_summary.get("schools_with_reusable_2026_hubei_plan_source") == ["武汉商学院"]
+        and b0_b1_official_summary.get("final_available_count") == 0
+        and b0_b1_official_summary.get("major_final_available_count") == 0
+        and len(b0_b1_school_source_rows) == 36
+        and len(b0_b1_group_official_rows) == 49
+        and len(b0_b1_major_official_rows) == 324
+        and len(b0_b1_official_seed_rows) == 3,
+        f"{len(b0_b1_school_source_rows)} schools, {len(b0_b1_group_official_rows)} groups, {len(b0_b1_major_official_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 B0/B1官方交叉校验字段、主键和来源状态正确",
+        required_b0_b1_school_source_fields.issubset(b0_b1_school_source_fields)
+        and required_b0_b1_group_official_fields.issubset(b0_b1_group_official_fields)
+        and required_b0_b1_major_official_fields.issubset(b0_b1_major_official_fields)
+        and len({row.get("学校官方来源队列ID") for row in b0_b1_school_source_rows}) == len(b0_b1_school_source_rows)
+        and len({row.get("官方交叉校验任务ID") for row in b0_b1_group_official_rows}) == len(b0_b1_group_official_rows)
+        and len({row.get("官方逐专业校验任务ID") for row in b0_b1_major_official_rows}) == len(b0_b1_major_official_rows)
+        and b0_b1_school_source_counts == Counter(b0_b1_official_summary.get("school_source_status_counts", {}))
+        and b0_b1_group_official_source_counts == Counter(b0_b1_official_summary.get("group_source_status_counts", {}))
+        and b0_b1_major_official_source_counts == Counter(b0_b1_official_summary.get("major_source_status_counts", {}))
+        and b0_b1_major_official_source_row_counts == Counter(b0_b1_official_summary.get("major_row_source_counts", {}))
+        and b0_b1_school_priority_counts == Counter(b0_b1_official_summary.get("source_priority_counts", {}))
+        and b0_b1_official_seed_school_names == {"北京语言大学", "成都理工大学", "西安建筑科技大学"}
+        and all(
+            b0_b1_school_source_by_name.get(name, {}).get("官网来源状态")
+            == "has_partial_source_needs_followup"
+            for name in b0_b1_official_seed_school_names
+        )
+        and all(
+            row.get("官网来源状态") in allowed_b0_b1_official_source_statuses
+            for row in b0_b1_school_source_rows + b0_b1_group_official_rows + b0_b1_major_official_rows
+        )
+        and all(
+            row.get("数据阶段") == "issue19_candidate_v3_b0_b1_official_crosscheck_queue"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            for row in b0_b1_school_source_rows + b0_b1_group_official_rows + b0_b1_major_official_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 B0/B1官方交叉校验逐专业招生明细与核验包一一对应",
+        set(b0_b1_major_official_by_task) == set(b0_b1_major_review_by_task)
+        and all(
+            b0_b1_major_official_by_task[task_id].get("候选V3入口ID") == review_row.get("候选V3入口ID")
+            and b0_b1_major_official_by_task[task_id].get("2026院校专业组代码") == review_row.get("2026院校专业组代码")
+            and b0_b1_major_official_by_task[task_id].get("专业代号OCR") == review_row.get("专业代号OCR")
+            and b0_b1_major_official_by_task[task_id].get("专业名称及备注OCR") == review_row.get("专业名称及备注OCR")
+            and b0_b1_major_official_by_task[task_id].get("专业计划数OCR候选") == review_row.get("专业计划数OCR候选")
+            and b0_b1_major_official_by_task[task_id].get("学费OCR候选") == review_row.get("学费OCR候选")
+            and b0_b1_major_official_by_task[task_id].get("机器专业接受度初判") == review_row.get("机器专业接受度初判")
+            for task_id, review_row in b0_b1_major_review_by_task.items()
+        )
+        and all(
+            row.get("逐专业核验任务数") == str(b0_b1_major_official_tasks_by_entry.get(row.get("候选V3入口ID"), 0))
+            and b0_b1_group_official_by_entry.get(row.get("候选V3入口ID"), {}).get("官方交叉校验任务ID")
+            for row in b0_b1_group_official_rows
+        )
+        and all(
+            row.get("官方交叉校验任务ID")
+            == b0_b1_group_official_by_entry.get(row.get("候选V3入口ID"), {}).get("官方交叉校验任务ID")
+            for row in b0_b1_major_official_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 B0/B1官方交叉校验学校聚合和来源状态传递一致",
+        all(
+            as_int(row.get("B0B1专业组数"))
+            == b0_b1_group_count_by_school[(row.get("院校代码"), row.get("院校名称OCR"))]
+            and as_int(row.get("逐专业核验任务数"))
+            == b0_b1_major_count_by_school[(row.get("院校代码"), row.get("院校名称OCR"))]
+            and as_int(row.get("B0组数"))
+            == b0_b1_group_batch_count_by_school[
+                (row.get("院校代码"), row.get("院校名称OCR"), "B0-历史候选和组号问题优先核页")
+            ]
+            and as_int(row.get("B1组数"))
+            == b0_b1_group_batch_count_by_school[
+                (row.get("院校代码"), row.get("院校名称OCR"), "B1-数字媒体技术优先核页")
+            ]
+            for row in b0_b1_school_source_rows
+        )
+        and all(
+            row.get("官网来源状态") == b0_b1_school_status_by_name.get(row.get("院校名称OCR"))
+            for row in b0_b1_group_official_rows
+        )
+        and all(
+            row.get("官网来源状态")
+            == b0_b1_group_official_by_entry.get(row.get("候选V3入口ID"), {}).get("官网来源状态")
+            for row in b0_b1_major_official_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 B0/B1官方交叉校验0明细占位不可冒充真实招生明细",
+        len(b0_b1_major_official_placeholder_rows) == 2
+        and len(b0_b1_major_official_real_rows) == 322
+        and {
+            row.get("2026院校专业组代码")
+            for row in b0_b1_major_official_placeholder_rows
+        } == {"C10702", "K15123"}
+        and all(
+            row.get("是否阻断组升级") == "是"
+            and row.get("可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("专业名称及备注OCR") == ""
+            for row in b0_b1_major_official_placeholder_rows
+        )
+        and all(row.get("专业行来源") != "zero_detail_group_placeholder" for row in b0_b1_major_official_real_rows)
+        and all(
+            required_b0_b1_crosscheck_field_names.issubset(
+                set(row.get("必须核验字段", "").split("；"))
+            )
+            for row in b0_b1_group_official_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 B0/B1官方交叉校验默认闸门保持不可升级",
+        all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_school_official_source_review"
+            for row in b0_b1_school_source_rows
+        )
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_group_official_crosscheck"
+            and row.get("湖北官方系统核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网计划核验状态") == "pending_school_plan_review"
+            and row.get("招生章程核验状态") == "pending_school_charter_review"
+            and row.get("PDF原页核验状态") == "pending_original_pdf_page_review"
+            and row.get("家庭接受度核验状态") == "pending_family_acceptance_review"
+            and row.get("调剂结论状态") == "pending_transfer_decision"
+            and row.get("交叉校验结论") == "pending"
+            and row.get("可进入下一阶段") == "false"
+            for row in b0_b1_group_official_rows
+        )
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_major_official_crosscheck"
+            and row.get("PDF字段核验状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网/章程字段核验状态") == "pending_school_plan_or_charter_review"
+            and row.get("家庭接受度人工结论状态") == "pending_family_acceptance_review"
+            and row.get("调剂影响人工结论状态") == "pending_transfer_decision"
+            and row.get("字段核验状态") == "pending"
+            and row.get("是否阻断组升级") == "是"
+            and row.get("可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            for row in b0_b1_major_official_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 B0/B1官方交叉校验公开文件不含本地路径、图片扩展名、身份信息和最终可用结论",
+        "final_allowed" not in b0_b1_official_public_text
+        and "ready_for_discussion" not in b0_b1_official_public_text
+        and "已确认" not in b0_b1_official_public_text
+        and "最终推荐" not in b0_b1_official_public_text
+        and "最终方案" not in b0_b1_official_public_text
+        and not any(token in b0_b1_official_public_text for token in shared_forbidden_tokens),
+    ))
+
     foundation_audit_summary_path = ROOT / "data/working/issue19-foundation-audit-summary.json"
     foundation_audit_findings_csv = ROOT / "data/working/issue19-foundation-audit-findings.csv"
     foundation_page_audit_csv = ROOT / "data/working/issue19-foundation-page-audit.csv"

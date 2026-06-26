@@ -187,6 +187,11 @@
 - `data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv`：候选 V3 B0/B1 组级核验包，覆盖 49 个优先专业组，逐组列出页码证据、组内招生明细、历史线口径、核页重点和升级闸门；这是复核工作台，不是可填报清单。
 - `data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv`：候选 V3 B0/B1 逐专业核验包，覆盖 324 个逐专业核验任务；一行一个专业或 0 明细占位任务，用于回填 PDF、官方系统、章程、家庭接受度和调剂结论；这是复核工作台，不是可填报清单。
 - `data/working/issue19-candidate-v3-b0-b1-review-pack-summary.json`：候选 V3 B0/B1 核验包摘要，记录组数、专业任务数、页码覆盖、0 明细组和发布边界。
+- `data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv`：B0/B1 官方来源补充线索种子，记录已发现但尚未完全本地留存的高校官网入口；只作补源线索。
+- `data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv`：B0/B1 学校官方来源队列，覆盖 36 所学校，记录官网来源状态、补源优先级、检索式和逐专业任务数；这是补源工作台，不是学校已核准结论。
+- `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv`：B0/B1 组级官方交叉校验队列，覆盖 49 个优先专业组，逐组记录 PDF、湖北官方系统、高校官网/章程、家庭接受度和调剂结论待核状态；全部 `可进入下一阶段=false`。
+- `data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv`：B0/B1 逐专业官方交叉校验队列，覆盖 324 个逐专业任务；一行一个专业或 0 明细占位任务，记录专业代号、专业名称、计划数、学费、风险、官网来源状态和各字段待核状态。
+- `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-summary.json`：B0/B1 官方交叉校验摘要，记录 36 校、49 组、324 个逐专业任务、官网来源状态分布、`final_available_count=0` 和 `major_final_available_count=0`。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
 - `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座初稿说明和保真机制。
@@ -208,6 +213,7 @@
 - `scripts/build_issue19_family_fit_screen.py`：根据全量专业组质量索引、逐专业质量工作台和家庭偏好生成家庭底线筛选表；只做 OCR 草案初筛，办学属性、字段和家庭接受度仍全部待核。
 - `scripts/build_issue19_candidate_v3_review_intake.py`：根据家庭底线筛选、候选 V2、页级 manifest、三年历史投档线和全量 OCR 覆盖表生成候选 V3 复核入口；用于下一轮逐组核页和补证，不产生最终建议。
 - `scripts/build_issue19_candidate_v3_b0_b1_review_pack.py`：根据候选 V3 入口、家庭底线逐专业表、候选 V2 逐专业种子和页级 manifest 生成 B0/B1 组级和逐专业核验包；不从长文本拆专业，优先使用结构化来源。
+- `scripts/build_issue19_candidate_v3_b0_b1_official_crosscheck_queue.py`：根据 B0/B1 核验包和高校官网来源表生成学校来源、组级、逐专业三张官方交叉校验队列；三张表只是补证工作台，不代表官方核验完成。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

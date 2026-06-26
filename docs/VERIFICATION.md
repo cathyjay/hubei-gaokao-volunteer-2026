@@ -151,6 +151,17 @@ OCR 初稿 / 最终可用=false
 - `C10702`、`K15123` 仍是 0 明细组，只保留占位任务；不得因有占位任务而进入专业接受度或冲稳保排序。
 - B0/B1 包仍是复核工作台，不是可填报清单；所有组 `可进入下一阶段=false`，所有专业 `可进入最终专业列表=false`。
 
+B0/B1 官方交叉校验三表的使用方式：
+
+- `data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv` 是学校官网/章程补源队列，当前覆盖 36 所学校；它只说明“去哪里补源”和“补源优先级”，不是学校已核准。
+- `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv` 是组级官方交叉校验队列，当前覆盖 49 个专业组；每组必须补齐 PDF 原页、湖北官方系统或省招办计划、高校官网/章程、家庭接受度和调剂结论。
+- `data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv` 是逐专业官方交叉校验队列，当前覆盖 324 个任务；每条真实专业行都要确认专业代号、专业名称、计划数、学费、学制、校区、选科、备注、限制条件、家庭接受度和调剂影响。
+- 当前 324 个逐专业任务中，322 条是真实专业行，`C10702`、`K15123` 各有 1 条 `zero_detail_group_placeholder`；占位任务只防止专业组丢失，不能冒充真实招生明细。
+- `has_reusable_2026_hubei_plan_source` 只是“有可复用官网计划源线索”，不是最终通过；仍必须和湖北省招办渠道逐字段核对。
+- `needs_official_plan_source_search` 不能作为删除候选的理由，只说明还需要补高校官网计划或章程来源。
+- 高校官网/章程只能辅助核验。若高校官网与湖北官方系统、省招办计划或最终志愿系统不一致，以湖北省招办渠道为准，并记录差异。
+- 三表全部保持 `最终可用=false`，组级和逐专业全部 `可进入下一阶段=false`；在全部证据闭环前，不得据此进入冲稳保排序或最终志愿表。
+
 底座审计表的使用方式：
 
 - `data/working/issue19-foundation-audit-summary.json` 是第 19 期招生计划底座的机器审计摘要；当前状态为 `issue19_foundation_machine_checks_passed_need_pdf_official_review`。

@@ -1,0 +1,113 @@
+{
+  "status": "issue19_candidate_v3_b0_b1_official_crosscheck_pending",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "issue19_candidate_v3_b0_b1_official_crosscheck_queue",
+  "generated_by": "scripts/build_issue19_candidate_v3_b0_b1_official_crosscheck_queue.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv",
+      "sha256": "bab2a9e58085f14f7283f525958411f7818f19fea4a43334c597373aaa94aa5e",
+      "row_count": 49
+    },
+    {
+      "path": "data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv",
+      "sha256": "4aba68744bf83b5c2d45e20f3fc5553e9f53da4915e5930e7c016d1cdd3af3e9",
+      "row_count": 324
+    },
+    {
+      "path": "data/working/issue19-sample-school-official-sources.csv",
+      "sha256": "30ba98bcc218ab8dcdc2b3aeebf8ca96972d95c65e527e061dd40c39bccee6bc",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv",
+      "sha256": "c9ca5358c6b3581c663958f79aecd71e17e5c48ddc474e21d515c944303a21e3",
+      "row_count": 3
+    }
+  ],
+  "school_count": 36,
+  "group_count": 49,
+  "major_review_task_count": 324,
+  "major_official_crosscheck_task_count": 324,
+  "school_source_status_counts": {
+    "charter_or_rules_only_no_plan": 2,
+    "has_partial_source_needs_followup": 3,
+    "has_reusable_2026_hubei_plan_source": 1,
+    "needs_official_plan_source_search": 30
+  },
+  "group_source_status_counts": {
+    "charter_or_rules_only_no_plan": 5,
+    "has_partial_source_needs_followup": 4,
+    "has_reusable_2026_hubei_plan_source": 5,
+    "needs_official_plan_source_search": 35
+  },
+  "major_source_status_counts": {
+    "charter_or_rules_only_no_plan": 13,
+    "has_partial_source_needs_followup": 6,
+    "has_reusable_2026_hubei_plan_source": 35,
+    "needs_official_plan_source_search": 270
+  },
+  "major_row_source_counts": {
+    "candidate_v2_major_review_seed": 81,
+    "family_fit_major_detail": 241,
+    "zero_detail_group_placeholder": 2
+  },
+  "source_priority_counts": {
+    "S0-B0历史候选学校优先补源": 11,
+    "S2-多组学校优先补源": 2,
+    "S3-B1单组学校按页码推进": 23
+  },
+  "schools_with_reusable_2026_hubei_plan_source": [
+    "武汉商学院"
+  ],
+  "schools_needing_official_plan_source_search": [
+    "中国传媒大学",
+    "云南大学",
+    "兰州大学",
+    "北京林业大学",
+    "北方工业大学",
+    "南宁学院",
+    "喀什大学",
+    "天津外国语大学",
+    "山东大学",
+    "山东工商学院",
+    "山东财经大学",
+    "忻州师范学院",
+    "成都信息工程大学",
+    "成都师范学院",
+    "新疆天山职业技术大学",
+    "杭州电子科技大学",
+    "武汉轻工大学",
+    "江汉大学",
+    "江苏理工学院",
+    "浙江传媒学院",
+    "浙江工业大学",
+    "湖北师范大学",
+    "西北民族大学",
+    "西安医学院",
+    "西安工商学院",
+    "西安航空学院",
+    "西安财经大学",
+    "西安邮电大学",
+    "长春工业大学",
+    "韶关学院"
+  ],
+  "final_available_count": 0,
+  "major_final_available_count": 0,
+  "notes": [
+    "本队列用于补齐B0/B1优先组的高校官网/章程交叉校验证据，不是最终报考建议。",
+    "高校官网只能辅助核专业、计划、学费、选科、校区和章程规则；若与省招办计划不一致，以湖北省招办渠道为准。",
+    "没有官网湖北2026计划页的学校不删除，标为needs_official_plan_source_search并保留检索式。",
+    "所有专业组和逐专业任务仍保持可进入下一阶段=false，必须完成PDF原页、湖北官方系统、高校官网/章程、家庭接受度和调剂结论后才能升级。"
+  ],
+  "outputs": [
+    "data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv",
+    "data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv",
+    "data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv"
+  ]
+}

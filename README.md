@@ -79,7 +79,8 @@ python3 scripts/build_issue19_page_manifest.py
 python3 scripts/build_issue19_family_fit_screen.py
 python3 scripts/build_issue19_candidate_v3_review_intake.py
 python3 scripts/build_issue19_candidate_v3_b0_b1_review_pack.py
+python3 scripts/build_issue19_candidate_v3_b0_b1_official_crosscheck_queue.py
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```
 
-注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级、候选 V3 批次和 B0/B1 核验包只用于安排复核顺序，不是最终报考建议；B0/B1 包是复核工作台，不是可填报清单。
+注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级、候选 V3 批次、B0/B1 核验包和 B0/B1 官方交叉校验三表只用于安排复核与补证，不是最终报考建议；B0/B1 包和官方交叉校验表都是工作台，不是可填报清单。
