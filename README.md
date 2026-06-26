@@ -74,6 +74,7 @@ python3 scripts/build_issue19_candidate_v2_review_seed.py
 python3 scripts/build_issue19_candidate_v2_verification_workbench.py
 python3 scripts/build_issue19_full_quality_tiers.py
 python3 scripts/build_issue19_major_detail_quality_workbench.py
+python3 scripts/build_issue19_full_major_field_fidelity_ledger.py
 python3 scripts/build_issue19_foundation_audit.py
 python3 scripts/build_issue19_candidate_evidence_ledgers.py
 python3 scripts/build_issue19_page_manifest.py

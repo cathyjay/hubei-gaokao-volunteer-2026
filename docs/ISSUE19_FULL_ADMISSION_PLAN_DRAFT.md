@@ -44,6 +44,8 @@
 | `data/working/issue19-full-major-detail-quality-workbench.csv` | 全量逐专业明细质量工作台 | 一行一个专业，带 `专业行ID`、`专业组出现ID`、组级质量、专业行异常、偏好/风险和字段完整性 |
 | `data/working/issue19-full-major-detail-review-queue.csv` | 全量逐专业明细复核队列 | 按逐专业 P0/P1/P3 排序，后续候选讨论必须从这里展开完整专业明细 |
 | `data/working/issue19-full-major-detail-quality-summary.json` | 逐专业质量摘要 | 看 13736 条专业行的 ID 唯一性、异常闭环、候选/样本命中和字段缺失统计 |
+| `data/working/issue19-full-major-field-fidelity-ledger.csv` | 全量逐专业字段保真总账 | 覆盖 13736 条招生专业行，是新增城市、学校或专业方向时的全量底座入口 |
+| `data/working/issue19-full-major-field-fidelity-ledger-summary.json` | 全量保真总账摘要 | 看高风险保真行、暂未触发机器高风险行、主键唯一性和风险计数 |
 | `data/working/issue19-foundation-audit-summary.json` | 底座审计摘要 | 看机器阻断项是否通过、人工复核风险、页码覆盖、回退归属和重复专业代号 |
 | `data/working/issue19-foundation-audit-findings.csv` | 底座审计发现 | 区分机器阻断检查和人工复核风险，避免把 OCR 风险误当最终事实 |
 | `data/working/issue19-foundation-page-audit.csv` | 按页审计表 | 覆盖第 10-240 页，记录每页专业组、专业明细、结构异常、候选命中和复核优先级 |

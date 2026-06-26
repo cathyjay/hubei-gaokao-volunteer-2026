@@ -1914,6 +1914,214 @@ def main():
         and not any(token in major_quality_public_text for token in shared_forbidden_tokens),
     ))
 
+    full_major_fidelity_summary_path = ROOT / "data/working/issue19-full-major-field-fidelity-ledger-summary.json"
+    full_major_fidelity_csv = ROOT / "data/working/issue19-full-major-field-fidelity-ledger.csv"
+    full_major_fidelity_summary = json.loads(full_major_fidelity_summary_path.read_text())
+    with full_major_fidelity_csv.open(newline="", encoding="utf-8-sig") as f:
+        full_major_fidelity_reader = csv.DictReader(f)
+        full_major_fidelity_rows = list(full_major_fidelity_reader)
+        full_major_fidelity_fields = set(full_major_fidelity_reader.fieldnames or [])
+    required_full_major_fidelity_fields = {
+        "全量保真总账ID",
+        "来源主表",
+        "来源家庭底线逐专业表",
+        "来源家庭底线专业组表",
+        "专业行ID",
+        "专业组出现ID",
+        "主表粒度",
+        "全量保真复核优先级",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "是否高风险保真行",
+        "风险阻断等级",
+        "高风险字段集合",
+        "风险触发规则",
+        "阻断原因",
+        "调剂影响等级",
+        "必须核验字段",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业组号OCR",
+        "专业组标题OCR原文",
+        "来源页码",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "再选科目OCR候选",
+        "专业计划数OCR候选",
+        "专业计划数是否纯数字",
+        "学费OCR候选",
+        "学费OCR数字候选",
+        "学费是否纯数字",
+        "专业偏好方向",
+        "专业风险类型",
+        "专业字段完整性标记",
+        "专业行结构异常数",
+        "专业行高严重结构异常数",
+        "结构异常规则ID列表",
+        "逐专业复核优先级",
+        "机器专业接受度初判",
+        "同组真实招生明细数",
+        "同组医学护理排除专业数",
+        "同组高收费或超预算专业数",
+        "同组特殊限制待核专业数",
+        "PDF字段核验状态",
+        "湖北官方系统字段核验状态",
+        "高校官网/章程字段核验状态",
+        "是否可进入最终专业列表",
+        "可进入下一阶段",
+    }
+    def split_cn_semicolon(value):
+        return [part for part in str(value or "").split("；") if part]
+    full_major_fidelity_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [full_major_fidelity_summary_path, full_major_fidelity_csv]
+    )
+    full_major_fidelity_ids = {row.get("专业行ID") for row in full_major_fidelity_rows}
+    full_major_quality_ids = {row.get("专业行ID") for row in major_quality_rows}
+    full_major_fidelity_priority_counts = Counter(
+        row.get("全量保真复核优先级") for row in full_major_fidelity_rows
+    )
+    full_major_fidelity_block_counts = Counter(row.get("风险阻断等级") for row in full_major_fidelity_rows)
+    full_major_fidelity_category_counts = Counter()
+    full_major_fidelity_rule_counts = Counter()
+    for row in full_major_fidelity_rows:
+        full_major_fidelity_category_counts.update(split_cn_semicolon(row.get("高风险字段集合")))
+        full_major_fidelity_rule_counts.update(split_cn_semicolon(row.get("风险触发规则")))
+    full_major_required_core_tokens = [
+        "PDF原页",
+        "湖北官方系统",
+        "高校官网/章程",
+        "专业组边界",
+        "调剂范围",
+        "家庭接受度",
+    ]
+    checks.append(ok(
+        "第 19 期全量逐专业字段保真总账摘要和行数正确",
+        full_major_fidelity_summary.get("status") == "issue19_full_major_field_fidelity_ledger_not_final"
+        and full_major_fidelity_summary.get("source_major_quality_table")
+        == "data/working/issue19-full-major-detail-quality-workbench.csv"
+        and full_major_fidelity_summary.get("source_family_major_table")
+        == "data/working/issue19-family-fit-major-detail.csv"
+        and full_major_fidelity_summary.get("source_family_group_table")
+        == "data/working/issue19-family-fit-group-screen.csv"
+        and full_major_fidelity_summary.get("output_table")
+        == "data/working/issue19-full-major-field-fidelity-ledger.csv"
+        and full_major_fidelity_summary.get("major_quality_row_count") == 13736
+        and full_major_fidelity_summary.get("family_major_row_count") == 13736
+        and full_major_fidelity_summary.get("family_group_row_count") == 3329
+        and full_major_fidelity_summary.get("ledger_row_count") == 13736
+        and full_major_fidelity_summary.get("unique_major_line_id_count") == 13736
+        and full_major_fidelity_summary.get("unique_group_occurrence_id_count") == 3289
+        and full_major_fidelity_summary.get("high_risk_row_count") == 13486
+        and full_major_fidelity_summary.get("low_risk_row_count") == 250
+        and full_major_fidelity_summary.get("empty_major_name_row_count") == 2
+        and full_major_fidelity_summary.get("high_structure_anomaly_row_count") == 2862
+        and full_major_fidelity_summary.get("plan_count_untrusted_row_count") == 6347
+        and full_major_fidelity_summary.get("tuition_untrusted_row_count") == 1262
+        and full_major_fidelity_summary.get("family_bottom_line_row_count") == 3516
+        and full_major_fidelity_summary.get("preference_major_candidate_row_count") == 1726
+        and full_major_fidelity_summary.get("auto_final_list_allowed_count") == 0
+        and full_major_fidelity_summary.get("next_stage_allowed_count") == 0
+        and len(full_major_fidelity_rows) == 13736,
+        f"{len(full_major_fidelity_rows)} full major rows",
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业字段保真总账字段、主键和粒度正确",
+        required_full_major_fidelity_fields.issubset(full_major_fidelity_fields)
+        and len({row.get("全量保真总账ID") for row in full_major_fidelity_rows})
+        == len(full_major_fidelity_rows)
+        and len(full_major_fidelity_ids) == len(full_major_fidelity_rows)
+        and full_major_fidelity_ids == full_major_quality_ids
+        and all(
+            row.get("主表粒度") == "逐专业招生明细"
+            and row.get("来源主表") == "data/working/issue19-full-major-detail-quality-workbench.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_full_major_field_fidelity_ledger"
+            and row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_full_major_field_fidelity_review"
+            and row.get("PDF字段核验状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网/章程字段核验状态") == "pending_school_plan_or_charter_review"
+            and row.get("是否可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and all(token in row.get("必须核验字段", "") for token in full_major_required_core_tokens)
+            for row in full_major_fidelity_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业字段保真总账优先级和风险计数闭环正确",
+        full_major_fidelity_priority_counts == Counter(full_major_fidelity_summary.get("priority_counts", {}))
+        and full_major_fidelity_block_counts == Counter(full_major_fidelity_summary.get("block_level_counts", {}))
+        and full_major_fidelity_category_counts == Counter(full_major_fidelity_summary.get("category_counts", {}))
+        and full_major_fidelity_summary.get("priority_counts") == {
+            "P0-结构/空专业名/串校串行": 2864,
+            "P1-计划数保真": 7272,
+            "P2-家庭底线与费用": 1183,
+            "P3-选科与特殊限制": 1951,
+            "P4-调剂风险": 70,
+            "P5-偏好专业待研究": 81,
+            "P5-普通待核": 65,
+            "P6-暂未触发机器高风险": 250,
+        }
+        and full_major_fidelity_summary.get("block_level_counts") == {
+            "F0-阻断级：不得进入候选排序": 3998,
+            "F1-高优先：必须逐字段核验": 8240,
+            "F2-待补证：字段需核验": 1248,
+            "F3-暂未触发机器高风险但仍非最终": 250,
+        }
+        and full_major_fidelity_rule_counts.get("empty_major_name") == 2
+        and full_major_fidelity_rule_counts.get("high_structure_anomaly") == 2862
+        and full_major_fidelity_rule_counts.get("missing_subject_candidate") == 11456
+        and full_major_fidelity_rule_counts.get("group_has_plan_count_untrusted") == 9259
+        and full_major_fidelity_rule_counts.get("preference_major_candidate") == 1726,
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业字段保真总账高低风险边界和非最终状态正确",
+        all(
+            row.get("是否高风险保真行") == "true"
+            and row.get("高风险字段集合")
+            and row.get("风险触发规则")
+            for row in full_major_fidelity_rows
+            if row.get("全量保真复核优先级") != "P6-暂未触发机器高风险"
+        )
+        and all(
+            row.get("是否高风险保真行") == "false"
+            and row.get("风险阻断等级") == "F3-暂未触发机器高风险但仍非最终"
+            and row.get("高风险字段集合") == ""
+            and row.get("风险触发规则") == ""
+            and "仍需按最终志愿门禁" in row.get("阻断原因", "")
+            for row in full_major_fidelity_rows
+            if row.get("全量保真复核优先级") == "P6-暂未触发机器高风险"
+        )
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("是否可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            for row in full_major_fidelity_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业字段保真总账公开文件不含本地路径、图片扩展名、身份信息和最终可用结论",
+        "private/" not in full_major_fidelity_public_text
+        and "/Users/" not in full_major_fidelity_public_text
+        and "ocr-runs" not in full_major_fidelity_public_text
+        and "rendered-pages" not in full_major_fidelity_public_text
+        and ".png" not in full_major_fidelity_public_text
+        and ".jpg" not in full_major_fidelity_public_text
+        and ".jpeg" not in full_major_fidelity_public_text
+        and "final_allowed" not in full_major_fidelity_public_text
+        and "ready_for_discussion" not in full_major_fidelity_public_text
+        and "已确认" not in full_major_fidelity_public_text
+        and "最终推荐" not in full_major_fidelity_public_text
+        and "最终方案" not in full_major_fidelity_public_text
+        and not any(token in full_major_fidelity_public_text for token in ["身份证", "准考证", "报名号", "姓名"]),
+    ))
+
     family_fit_summary_path = ROOT / "data/working/issue19-family-fit-screen-summary.json"
     family_fit_group_csv = ROOT / "data/working/issue19-family-fit-group-screen.csv"
     family_fit_major_csv = ROOT / "data/working/issue19-family-fit-major-detail.csv"
