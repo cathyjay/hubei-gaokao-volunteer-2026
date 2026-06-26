@@ -18,20 +18,20 @@
     "成都信息工程大学": 2,
     "山东大学": 1
   },
-  "unmatched_major_row_count": 24,
+  "unmatched_major_row_count": 26,
   "unmatched_major_type_counts": {
+    "官网留存证据未匹配该专业": 8,
     "专业代号非数字疑似OCR噪声": 3,
-    "官网留存证据未匹配该专业": 6,
     "官网留存证据未覆盖关键限定词专业": 15
   },
-  "source_gap_school_count": 21,
+  "source_gap_school_count": 20,
   "source_gap_type_counts": {
     "需继续寻找高校官网湖北2026计划": 8,
-    "有官网线索但尚未结构化到逐专业证据": 13
+    "有官网线索但尚未结构化到逐专业证据": 12
   },
   "source_gap_priority_counts": {
     "P0-待补官方计划源": 8,
-    "P1-已有线索待结构化": 13
+    "P1-已有线索待结构化": 12
   },
   "notes": [
     "本摘要只用于安排人工核页和补源，不是最终志愿方案。",

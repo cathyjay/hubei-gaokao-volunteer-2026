@@ -3187,7 +3187,7 @@ def main():
     checks.append(ok(
         "第 19 期候选V3 B0/B1官网/API留存证据匹配表为逐专业明细且不是最终方案",
         b0_b1_official_evidence_match_summary.get("status") == "official_evidence_match_not_final"
-        and b0_b1_official_evidence_match_summary.get("normalized_official_row_count") == 367
+        and b0_b1_official_evidence_match_summary.get("normalized_official_row_count") == 410
         and b0_b1_official_evidence_match_summary.get("admission_detail_row_count") == 324
         and b0_b1_official_evidence_match_summary.get("admission_detail_evidence_ledger_row_count") == 324
         and b0_b1_official_evidence_match_summary.get("default_discussion_table")
@@ -3202,6 +3202,7 @@ def main():
             "忻州师范学院",
             "成都信息工程大学",
             "杭州电子科技大学",
+            "武汉商学院",
             "江汉大学",
             "江苏理工学院",
             "西北民族大学",
@@ -3217,31 +3218,37 @@ def main():
             "official_attachment_xlsx_row_plan": 21,
             "official_pdf_table_extracted_csv": 15,
             "official_image_table_extracted_csv": 15,
+            "official_static_html_joined_tables": 43,
         }
         and b0_b1_official_evidence_match_summary.get("match_status_counts") == {
-            "no_school_source": 191,
-            "matched": 109,
-            "unmatched": 24,
+            "no_school_source": 156,
+            "matched": 142,
+            "unmatched": 25,
+            "possible_match": 1,
         }
         and b0_b1_official_evidence_match_summary.get("plan_check_status_counts") == {
-            "not_covered": 215,
+            "not_covered": 181,
             "ocr_plan_missing_official_available": 47,
+            "official_plan_missing": 20,
             "mismatch": 17,
-            "match": 45,
+            "match": 59,
         }
         and b0_b1_official_evidence_match_summary.get("fidelity_status_counts") == {
-            "有官网线索但未结构化匹配": 80,
+            "有官网线索但未结构化匹配": 45,
+            "占位行-不是真实招生明细": 2,
+            "仅章程规则线索-无结构化计划证据": 43,
             "待补高校官网计划源": 66,
             "官网可补OCR计划数-优先核页": 47,
-            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 45,
-            "仅章程规则线索-无结构化计划证据": 43,
-            "官网未匹配-专业名或OCR待核": 24,
+            "待人工复核": 19,
+            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 59,
+            "官网未匹配-专业名或OCR待核": 25,
+            "疑似匹配-人工确认": 1,
             "官网专业名匹配但计划数冲突-优先核页": 17,
-            "占位行-不是真实招生明细": 2,
         }
         and b0_b1_official_evidence_match_summary.get("matched_school_counts") == {
             "西安财经大学": 1,
             "西安医学院": 2,
+            "武汉商学院": 33,
             "忻州师范学院": 4,
             "江苏理工学院": 13,
             "杭州电子科技大学": 10,
@@ -3259,7 +3266,7 @@ def main():
         and required_b0_b1_retained_official_fields.issubset(b0_b1_retained_official_fields)
         and required_b0_b1_evidence_match_fields.issubset(b0_b1_official_evidence_match_fields)
         and required_b0_b1_detail_evidence_ledger_fields.issubset(b0_b1_detail_evidence_ledger_fields)
-        and len(b0_b1_retained_official_rows) == 367
+        and len(b0_b1_retained_official_rows) == 410
         and len(b0_b1_official_evidence_match_rows) == 324
         and len(b0_b1_detail_evidence_ledger_rows) == 324
         and set(b0_b1_evidence_match_by_detail_id) == {row.get("招生明细主表行ID") for row in b0_b1_admission_detail_rows}
@@ -3343,6 +3350,37 @@ def main():
         ),
     ))
     checks.append(ok(
+        "武汉商学院官网双表已标准化为逐专业明细且保留物理类计划数边界",
+        sum(row.get("学校名称") == "武汉商学院" for row in b0_b1_retained_official_rows) == 43
+        and sum(
+            1
+            for row in b0_b1_retained_official_rows
+            if row.get("学校名称") == "武汉商学院" and row.get("计划数")
+        )
+        == 14
+        and sum(
+            1
+            for row in b0_b1_retained_official_rows
+            if row.get("学校名称") == "武汉商学院" and not row.get("计划数")
+        )
+        == 29
+        and retained_official_by_school_major.get(("武汉商学院", "软件工程"), {}).get("计划数") == "58"
+        and retained_official_by_school_major.get(("武汉商学院", "物联网工程(智能系统方向)"), {}).get("计划数") == "60"
+        and retained_official_by_school_major.get(("武汉商学院", "数据科学与大数据技术"), {}).get("计划数") == "67"
+        and retained_official_by_school_major.get(("武汉商学院", "数字经济"), {}).get("计划数") == "63"
+        and retained_official_by_school_major.get(("武汉商学院", "烹饪与营养教育"), {}).get("计划数") == "70"
+        and retained_official_by_school_major.get(("武汉商学院", "零售业管理（智慧运营方向）"), {}).get("计划数") == ""
+        and retained_official_by_school_major.get(("武汉商学院", "经济与金融"), {}).get("计划数") == ""
+        and all(
+            row.get("证据类型") == "official_static_html_joined_tables"
+            and row.get("年份") == "2026"
+            and row.get("省份") == "湖北"
+            and "第19期原页及湖北官方系统" in row.get("局限性", "")
+            for row in b0_b1_retained_official_rows
+            if row.get("学校名称") == "武汉商学院"
+        ),
+    ))
+    checks.append(ok(
         "B0/B1剩余官方来源并发检索日志已记录",
         len(b0_b1_source_search_log_rows) == 10
         and {
@@ -3367,8 +3405,8 @@ def main():
         "B0/B1保真复核队列摘要、行数和类型分布正确",
         b0_b1_fidelity_summary.get("status") == "b0_b1_fidelity_review_queues_not_final"
         and b0_b1_fidelity_summary.get("plan_conflict_row_count") == 17
-        and b0_b1_fidelity_summary.get("unmatched_major_row_count") == 24
-        and b0_b1_fidelity_summary.get("source_gap_school_count") == 21
+        and b0_b1_fidelity_summary.get("unmatched_major_row_count") == 26
+        and b0_b1_fidelity_summary.get("source_gap_school_count") == 20
         and b0_b1_fidelity_summary.get("plan_conflict_type_counts") == {
             "OCR计划数疑似误取学费": 13,
             "OCR计划数与官网计划数不一致": 4,
@@ -3382,23 +3420,23 @@ def main():
         }
         and b0_b1_fidelity_summary.get("unmatched_major_type_counts") == {
             "专业代号非数字疑似OCR噪声": 3,
-            "官网留存证据未匹配该专业": 6,
+            "官网留存证据未匹配该专业": 8,
             "官网留存证据未覆盖关键限定词专业": 15,
         }
         and b0_b1_fidelity_summary.get("source_gap_type_counts") == {
             "需继续寻找高校官网湖北2026计划": 8,
-            "有官网线索但尚未结构化到逐专业证据": 13,
+            "有官网线索但尚未结构化到逐专业证据": 12,
         }
         and b0_b1_fidelity_summary.get("source_gap_priority_counts") == {
             "P0-待补官方计划源": 8,
-            "P1-已有线索待结构化": 13,
+            "P1-已有线索待结构化": 12,
         }
         and required_b0_b1_plan_conflict_fields.issubset(b0_b1_plan_conflict_fields)
         and required_b0_b1_unmatched_major_fields.issubset(b0_b1_unmatched_major_fields)
         and required_b0_b1_source_gap_fields.issubset(b0_b1_source_gap_fields)
         and len(b0_b1_plan_conflict_rows) == 17
-        and len(b0_b1_unmatched_major_rows) == 24
-        and len(b0_b1_source_gap_rows) == 21
+        and len(b0_b1_unmatched_major_rows) == 26
+        and len(b0_b1_source_gap_rows) == 20
         and b0_b1_plan_conflict_type_counts == Counter(
             b0_b1_fidelity_summary.get("plan_conflict_type_counts", {})
         )

@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_SEEDS = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv"
 ADMISSION_DETAIL = ROOT / "data/working/issue19-candidate-v3-b0-b1-admission-detail-official-crosscheck.csv"
 EXTERNAL_DIR = ROOT / "data/external/issue19-b0-b1-official-sources"
+SAMPLE_OFFICIAL_DIR = ROOT / "data/external/issue19-sample-school-official"
 
 NORMALIZED_OUTPUT = ROOT / "data/working/issue19-b0-b1-retained-official-plan-normalized.csv"
 MATCH_OUTPUT = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv"
@@ -223,6 +224,9 @@ def normalize_major_name(value):
         "工得": "工程",
         "浓车": "汽车",
         "项自": "项目",
+        "南务": "商务",
+        "國译": "翻译",
+        "国译": "翻译",
         "〉": ")",
         "〈": "(",
     }
@@ -540,6 +544,127 @@ def parse_unn_html(path, school_name):
     return rows
 
 
+def html_table_rows(path):
+    parser = TableParser()
+    parser.feed(path.read_text(encoding="utf-8-sig", errors="ignore"))
+    return parser.tables[0] if parser.tables else []
+
+
+def normalize_wbu_plan_key(value):
+    return normalize_major_name(str(value or "").replace("(", "（").replace(")", "）"))
+
+
+def parse_wbu_undergraduate_info(path):
+    rows = html_table_rows(path)
+    info_by_major = {}
+    for raw in rows[1:]:
+        if not raw or raw[0] == "总计":
+            continue
+        if len(raw) == 7:
+            major = clean_cell(raw, 1)
+            subject = clean_cell(raw, 2)
+            requirement = clean_cell(raw, 3)
+            fee = clean_cell(raw, 4)
+            total_plan = clean_cell(raw, 5)
+            college = clean_cell(raw, 0)
+        elif len(raw) == 6:
+            major = clean_cell(raw, 0)
+            subject = clean_cell(raw, 1)
+            requirement = clean_cell(raw, 2)
+            fee = clean_cell(raw, 3)
+            total_plan = clean_cell(raw, 4)
+            college = ""
+        else:
+            continue
+        key = normalize_wbu_plan_key(major)
+        if key:
+            info_by_major[key] = {
+                "学院": college,
+                "科类": subject,
+                "考试科目要求": requirement,
+                "学费": fee,
+                "总计划数": total_plan,
+                "专业名称": major,
+            }
+    return info_by_major
+
+
+def parse_wbu_plan():
+    source_plan_path = SAMPLE_OFFICIAL_DIR / "wbu-2026-source-plan.html"
+    undergraduate_path = SAMPLE_OFFICIAL_DIR / "wbu-2026-undergraduate-plan.html"
+    if not source_plan_path.exists() or not undergraduate_path.exists():
+        return []
+
+    info_by_major = parse_wbu_undergraduate_info(undergraduate_path)
+    rows = html_table_rows(source_plan_path)
+    if not rows:
+        return []
+
+    header = rows[0]
+    if "专业及招考方向" not in header or "湖北" not in header or "计划数" not in header:
+        return []
+    major_index = header.index("专业及招考方向")
+    hubei_index = header.index("湖北")
+    total_index = header.index("计划数")
+
+    normalized = []
+    for raw in rows[1:]:
+        major = clean_cell(raw, major_index)
+        if not major or major == "总计":
+            continue
+        hubei_plan = as_int(clean_cell(raw, hubei_index))
+        if hubei_plan is None:
+            continue
+
+        info = info_by_major.get(normalize_wbu_plan_key(major), {})
+        subject = info.get("科类", "")
+        is_physics_only = subject == "物理"
+        comparable_plan = str(hubei_plan) if is_physics_only else ""
+        if is_physics_only:
+            verifiable_fields = "专业名称；湖北物理类计划数候选；学费；科类；选科；全校总计划数"
+            limitation = "官网分省表湖北列与本科计划表科类均支持物理类逐专业计划候选；仍未给湖北院校专业组代码和专业代号，需与第19期原页及湖北官方系统对齐。"
+        else:
+            verifiable_fields = "专业名称；湖北总计划线索；学费；科类；选科；全校总计划数"
+            limitation = "官网分省表湖北列未拆首选物理/历史，不能直接作为物理类计划数；本行只用于核专业名、学费、科类和选科线索；仍未给湖北院校专业组代码和专业代号，需与第19期原页及湖北官方系统对齐。"
+
+        notes = [f"湖北来源计划={hubei_plan}", f"全校计划={clean_cell(raw, total_index)}"]
+        for label, value in [("学院", info.get("学院", "")), ("本科计划表科类", subject)]:
+            if value:
+                notes.append(f"{label}={value}")
+
+        normalized.append(
+            {
+                "学校名称": "武汉商学院",
+                "官方来源文件": "；".join(
+                    [
+                        str(source_plan_path.relative_to(ROOT)),
+                        str(undergraduate_path.relative_to(ROOT)),
+                    ]
+                ),
+                "证据类型": "official_static_html_joined_tables",
+                "年份": "2026",
+                "省份": "湖北",
+                "科类": "物理类" if is_physics_only else subject,
+                "批次": "",
+                "类别": "",
+                "专业组": "",
+                "专业代号": "",
+                "专业代码": "",
+                "专业名称": info.get("专业名称", major),
+                "专业备注": "；".join(notes),
+                "计划数": comparable_plan,
+                "学制": "",
+                "学费": info.get("学费", ""),
+                "校区": "",
+                "选科": info.get("考试科目要求", ""),
+                "可核字段": verifiable_fields,
+                "局限性": limitation,
+                "年份证据说明": "武汉商学院招生网2026年分省分专业来源计划表和本科专业招生计划一览表联合留存。",
+            }
+        )
+    return normalized
+
+
 def xlsx_shared_strings(zf):
     path = "xl/sharedStrings.xml"
     if path not in zf.namelist():
@@ -726,6 +851,7 @@ def build_normalized_rows():
                     rows.extend(parse_unn_html(path, school_name))
                 else:
                     rows.extend(parse_table_html(path, school_name))
+    rows.extend(parse_wbu_plan())
     return rows
 
 

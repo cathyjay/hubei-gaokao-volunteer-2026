@@ -1,7 +1,7 @@
 {
   "status": "official_evidence_match_not_final",
   "generated_by": "scripts/build_issue19_b0_b1_official_evidence_match.py",
-  "normalized_official_row_count": 367,
+  "normalized_official_row_count": 410,
   "admission_detail_row_count": 324,
   "admission_detail_evidence_ledger_row_count": 324,
   "default_discussion_table": "data/working/issue19-candidate-v3-b0-b1-admission-detail-evidence-ledger.csv",
@@ -15,6 +15,7 @@
     "忻州师范学院",
     "成都信息工程大学",
     "杭州电子科技大学",
+    "武汉商学院",
     "江汉大学",
     "江苏理工学院",
     "西北民族大学",
@@ -29,32 +30,38 @@
     "official_attachment_xlsx_province_table": 31,
     "official_attachment_xlsx_row_plan": 21,
     "official_pdf_table_extracted_csv": 15,
-    "official_image_table_extracted_csv": 15
+    "official_image_table_extracted_csv": 15,
+    "official_static_html_joined_tables": 43
   },
   "match_status_counts": {
-    "no_school_source": 191,
-    "matched": 109,
-    "unmatched": 24
+    "no_school_source": 156,
+    "matched": 142,
+    "unmatched": 25,
+    "possible_match": 1
   },
   "plan_check_status_counts": {
-    "not_covered": 215,
+    "not_covered": 181,
     "ocr_plan_missing_official_available": 47,
-    "mismatch": 17,
-    "match": 45
+    "official_plan_missing": 20,
+    "match": 59,
+    "mismatch": 17
   },
   "fidelity_status_counts": {
-    "有官网线索但未结构化匹配": 80,
+    "有官网线索但未结构化匹配": 45,
     "占位行-不是真实招生明细": 2,
     "仅章程规则线索-无结构化计划证据": 43,
     "待补高校官网计划源": 66,
     "官网可补OCR计划数-优先核页": 47,
-    "官网专业名匹配但计划数冲突-优先核页": 17,
-    "官网未匹配-专业名或OCR待核": 24,
-    "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 45
+    "待人工复核": 19,
+    "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 59,
+    "官网未匹配-专业名或OCR待核": 25,
+    "疑似匹配-人工确认": 1,
+    "官网专业名匹配但计划数冲突-优先核页": 17
   },
   "matched_school_counts": {
     "西安财经大学": 1,
     "西安医学院": 2,
+    "武汉商学院": 33,
     "忻州师范学院": 4,
     "江苏理工学院": 13,
     "杭州电子科技大学": 10,
