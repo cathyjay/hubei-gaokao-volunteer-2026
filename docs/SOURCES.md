@@ -220,6 +220,8 @@
 - `data/working/issue19-b0-b1-unmatched-major-review-queue.csv`：B0/B1 官网证据未匹配专业复核队列，32 条；用于定位 OCR 噪声、串行、官网表未覆盖和关键限定词未覆盖问题。
 - `data/working/issue19-b0-b1-official-source-gap-priority.csv`：B0/B1 学校补源缺口优先表，19 所；区分 8 所 P0 待补官方计划源和 11 所已有官网线索但尚未结构化到逐专业证据的学校。
 - `data/working/issue19-b0-b1-fidelity-review-summary.json`：B0/B1 保真复核队列摘要；只用于安排核页/补源，不是最终候选或填报方案。
+- `data/working/issue19-candidate-v3-major-field-fidelity-ledger.csv`：候选 V3 全量逐专业字段保真总账，覆盖 8412 条招生明细；一行对应一个招生专业或 0 明细占位，合并 D0 原页证据、B0/B1 计划数冲突、官网未匹配、字段完整性、结构异常、费用底线、调剂风险和家庭底线，所有行均保持 `最终可用=false`。
+- `data/working/issue19-candidate-v3-major-field-fidelity-ledger-summary.json`：全量逐专业字段保真总账摘要；记录 8412 行总账、8234 条高风险保真行、178 条暂未触发机器高风险行、18 条 B0/B1 计划冲突覆盖和 32 条 B0/B1 官网未匹配覆盖。
 - `data/external/issue19-b0-b1-official-sources/xztu-2026-hubei-physics-plan-extracted.csv`：忻州师范学院官网 PDF 宽表抽取出的湖北物理类逐专业证据，15 条；作为 PDF 原件的可复跑抽取结果，不替代第 19 期原页和湖北官方系统。
 - `data/external/issue19-b0-b1-official-sources/sdtbu-2026-hubei-physics-plan-extracted.csv`：山东工商学院官网 PDF 抽取出的湖北物理类逐专业证据，24 条；专业名来自 PDF 渲染图 Apple Vision OCR 并带 OCR 原文、置信度和校正说明，湖北计划数来自 PDF 网格数字列，不替代第 19 期原页和湖北官方系统。
 - `data/external/issue19-b0-b1-official-sources/sdtbu-2026-pdf-ocr-grid-audit.csv`：山东工商学院官网 PDF 网格 OCR 审计表，42 条；保留每个有湖北计划数行的 PDF 表格行号、OCR 原文、校正说明、是否纳入湖北物理类匹配表。
@@ -254,6 +256,7 @@
 - `scripts/extract_sdtbu_official_pdf_plan.py`：将山东工商学院官网 PDF 渲染为图片，使用 Apple Vision OCR 识别专业名列，再用 PDF 表格网格抽湖北列计划数，输出湖北物理类抽取表和网格 OCR 审计表；需要使用 bundled Python 和 macOS Swift/Vision。
 - `scripts/extract_jsut_official_image_plan.py`：把江苏理工学院官方计划图人工转录并写成逐专业 CSV，同时保留来源图片和官网入口校验条件。
 - `scripts/build_issue19_b0_b1_official_evidence_match.py`：把已留存官网/API/HTML/XLSX/PDF/计划图抽取证据标准化，并与 B0/B1 逐专业招生明细主表逐条匹配；同时生成逐专业招生明细证据合并表，输出只用于保真交叉校验，不是最终志愿方案。
+- `scripts/build_issue19_candidate_v3_major_field_fidelity_ledger.py`：根据候选 V3 全量逐专业招生明细主表、逐专业复核队列、全量逐专业质量工作台、D0 原页证据和 B0/B1 保真队列生成全量字段保真总账；总账是逐专业明细粒度，不产生最终推荐。
 - `scripts/build_issue19_b0_b1_fidelity_review_queues.py`：从 B0/B1 逐专业证据合并表生成计划数冲突、专业未匹配和学校补源缺口三类保真复核队列；只安排人工核验顺序，不生成可填报结论。
 - `scripts/fetch_hubei_plan_platform.py`：湖北招生数智综合平台逐专业计划抓取脚手架；token 只从环境变量读取，原始分页响应默认保存在 Git 忽略的 `private/hubei-plan-platform/raw/`，公开输出为逐专业规范化 CSV 和摘要。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。

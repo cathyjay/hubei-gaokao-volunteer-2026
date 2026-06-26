@@ -4231,6 +4231,275 @@ def main():
         and not any(token in b0_b1_official_public_text for token in shared_forbidden_tokens),
     ))
 
+    v3_fidelity_ledger_summary_path = (
+        ROOT / "data/working/issue19-candidate-v3-major-field-fidelity-ledger-summary.json"
+    )
+    v3_fidelity_ledger_csv = ROOT / "data/working/issue19-candidate-v3-major-field-fidelity-ledger.csv"
+    v3_fidelity_ledger_summary = json.loads(v3_fidelity_ledger_summary_path.read_text())
+    with v3_fidelity_ledger_csv.open(newline="", encoding="utf-8-sig") as f:
+        v3_fidelity_ledger_reader = csv.DictReader(f)
+        v3_fidelity_ledger_rows = list(v3_fidelity_ledger_reader)
+        v3_fidelity_ledger_fields = set(v3_fidelity_ledger_reader.fieldnames or [])
+    required_v3_fidelity_ledger_fields = {
+        "保真总账ID",
+        "来源主表",
+        "来源复核队列",
+        "招生明细主表行ID",
+        "主表粒度",
+        "逐专业复核队列ID",
+        "复核优先级序号",
+        "保真复核优先级",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "候选V3入口ID",
+        "复核批次",
+        "最终可用",
+        "核验状态",
+        "是否高风险保真行",
+        "风险阻断等级",
+        "高风险字段集合",
+        "风险触发规则",
+        "异常类型列表",
+        "阻断原因",
+        "调剂影响等级",
+        "必须核验字段",
+        "院校代码",
+        "院校名称OCR",
+        "2026院校专业组代码",
+        "专业组出现ID",
+        "来源页码",
+        "专业行来源",
+        "是否真实招生明细",
+        "是否0明细占位",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "专业偏好方向",
+        "专业风险类型",
+        "同组调剂机器风险",
+        "同组真实招生明细数",
+        "同组0明细占位数",
+        "同组默认不能接受专业数",
+        "同组暂缓判断专业数",
+        "官网证据匹配状态",
+        "官网证据覆盖结论",
+        "B0B1计划冲突来源明细ID",
+        "B0B1计划冲突类型",
+        "B0B1未匹配专业来源明细ID",
+        "B0B1未匹配类型",
+        "最佳官网专业名称",
+        "最佳官网计划数",
+        "最佳官网学费",
+        "计划数核验状态",
+        "PDF字段核验状态",
+        "湖北官方系统字段核验状态",
+        "高校官网/章程字段核验状态",
+        "D0原页匹配方式",
+        "D0保守等级",
+        "是否可进入最终专业列表",
+        "可进入下一阶段",
+        "下一步",
+    }
+    v3_fidelity_ledger_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [v3_fidelity_ledger_summary_path, v3_fidelity_ledger_csv]
+    )
+    v3_fidelity_ledger_ids = {row.get("招生明细主表行ID") for row in v3_fidelity_ledger_rows}
+    v3_fidelity_ledger_priority_counts = Counter(
+        row.get("保真复核优先级") for row in v3_fidelity_ledger_rows
+    )
+    v3_fidelity_ledger_block_counts = Counter(row.get("风险阻断等级") for row in v3_fidelity_ledger_rows)
+    v3_fidelity_ledger_category_counts = Counter()
+    v3_fidelity_ledger_rule_counts = Counter()
+    for row in v3_fidelity_ledger_rows:
+        v3_fidelity_ledger_category_counts.update(split_semicolon(row.get("高风险字段集合")))
+        v3_fidelity_ledger_rule_counts.update(split_semicolon(row.get("风险触发规则")))
+    v3_fidelity_ledger_by_code = {}
+    for row in v3_fidelity_ledger_rows:
+        v3_fidelity_ledger_by_code.setdefault(row.get("2026院校专业组代码"), []).append(row)
+    v3_fidelity_ledger_plan_conflict_source_ids = {
+        row.get("B0B1计划冲突来源明细ID")
+        for row in v3_fidelity_ledger_rows
+        if row.get("B0B1计划冲突来源明细ID")
+    }
+    v3_fidelity_ledger_unmatched_source_ids = {
+        row.get("B0B1未匹配专业来源明细ID")
+        for row in v3_fidelity_ledger_rows
+        if row.get("B0B1未匹配专业来源明细ID")
+    }
+    b0_b1_plan_conflict_source_ids = {row.get("招生明细主表行ID") for row in b0_b1_plan_conflict_rows}
+    b0_b1_unmatched_major_source_ids = {row.get("招生明细主表行ID") for row in b0_b1_unmatched_major_rows}
+    v3_fidelity_required_core_tokens = [
+        "PDF原页",
+        "湖北官方系统",
+        "高校官网/章程",
+        "专业组边界",
+        "调剂范围",
+        "家庭接受度",
+    ]
+    checks.append(ok(
+        "第 19 期候选V3全量逐专业字段保真总账摘要和行数正确",
+        v3_fidelity_ledger_summary.get("status")
+        == "issue19_candidate_v3_major_field_fidelity_ledger_not_final"
+        and v3_fidelity_ledger_summary.get("source_detail_table")
+        == "data/working/issue19-candidate-v3-admission-detail.csv"
+        and v3_fidelity_ledger_summary.get("source_review_queue")
+        == "data/working/issue19-candidate-v3-admission-detail-review-queue.csv"
+        and v3_fidelity_ledger_summary.get("output_table")
+        == "data/working/issue19-candidate-v3-major-field-fidelity-ledger.csv"
+        and v3_fidelity_ledger_summary.get("candidate_detail_row_count") == 8412
+        and v3_fidelity_ledger_summary.get("candidate_real_detail_count") == 8410
+        and v3_fidelity_ledger_summary.get("candidate_zero_detail_count") == 2
+        and v3_fidelity_ledger_summary.get("ledger_row_count") == 8412
+        and v3_fidelity_ledger_summary.get("high_risk_row_count") == 8234
+        and v3_fidelity_ledger_summary.get("low_risk_row_count") == 178
+        and v3_fidelity_ledger_summary.get("unique_group_count") == 1327
+        and v3_fidelity_ledger_summary.get("zero_detail_row_count") == 2
+        and v3_fidelity_ledger_summary.get("b0_b1_plan_conflict_covered_count") == 18
+        and v3_fidelity_ledger_summary.get("b0_b1_unmatched_major_covered_count") == 32
+        and v3_fidelity_ledger_summary.get("b0_b1_plan_conflict_source_id_count") == 18
+        and v3_fidelity_ledger_summary.get("b0_b1_unmatched_major_source_id_count") == 32
+        and v3_fidelity_ledger_summary.get("auto_final_list_allowed_count") == 0
+        and v3_fidelity_ledger_summary.get("next_stage_allowed_count") == 0
+        and len(v3_fidelity_ledger_rows) == 8412,
+        f"{len(v3_fidelity_ledger_rows)} detail rows",
+    ))
+    checks.append(ok(
+        "第 19 期候选V3全量逐专业字段保真总账字段、主键和粒度正确",
+        required_v3_fidelity_ledger_fields.issubset(v3_fidelity_ledger_fields)
+        and len({row.get("保真总账ID") for row in v3_fidelity_ledger_rows})
+        == len(v3_fidelity_ledger_rows)
+        and len(v3_fidelity_ledger_ids) == len(v3_fidelity_ledger_rows)
+        and v3_fidelity_ledger_ids == candidate_v3_detail_ids
+        and all(
+            row.get("主表粒度") == "逐专业招生明细"
+            and row.get("来源主表") == "data/working/issue19-candidate-v3-admission-detail.csv"
+            and row.get("来源复核队列")
+            == "data/working/issue19-candidate-v3-admission-detail-review-queue.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_candidate_v3_major_field_fidelity_ledger"
+            and row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_major_field_fidelity_review"
+            and row.get("是否可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and all(token in row.get("必须核验字段", "") for token in v3_fidelity_required_core_tokens)
+            for row in v3_fidelity_ledger_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3全量逐专业字段保真总账优先级和风险计数闭环正确",
+        v3_fidelity_ledger_priority_counts == Counter(v3_fidelity_ledger_summary.get("priority_counts", {}))
+        and v3_fidelity_ledger_block_counts == Counter(v3_fidelity_ledger_summary.get("block_level_counts", {}))
+        and v3_fidelity_ledger_category_counts == Counter(v3_fidelity_ledger_summary.get("category_counts", {}))
+        and v3_fidelity_ledger_summary.get("priority_counts") == {
+            "P0-组边界/0明细/串校串行": 1810,
+            "P1-计划数保真": 2494,
+            "P2-关键限定词和官网未覆盖": 13,
+            "P3-费用与高收费": 1011,
+            "P4-限制条件": 2754,
+            "P5-调剂接受度": 152,
+            "P6-暂未触发机器高风险": 178,
+        }
+        and v3_fidelity_ledger_summary.get("block_level_counts") == {
+            "F0-阻断级：不得进入候选排序": 2121,
+            "F1-高优先：必须逐字段核验": 4617,
+            "F2-待补证：字段需核验": 1496,
+            "F3-暂未触发机器高风险但仍非最终": 178,
+        }
+        and v3_fidelity_ledger_rule_counts.get("b0_b1_plan_conflict") == 18
+        and v3_fidelity_ledger_rule_counts.get("b0_b1_unmatched_major") == 32
+        and v3_fidelity_ledger_rule_counts.get("d0_pdf_page_structure_anomaly") == 46,
+    ))
+    checks.append(ok(
+        "第 19 期候选V3全量逐专业字段保真总账覆盖B0/B1和D0硬风险",
+        v3_fidelity_ledger_plan_conflict_source_ids == b0_b1_plan_conflict_source_ids
+        and v3_fidelity_ledger_unmatched_source_ids == b0_b1_unmatched_major_source_ids
+        and all(
+            row.get("B0B1计划冲突类型")
+            and "b0_b1_plan_conflict" in row.get("风险触发规则", "")
+            and "PDF原页" in row.get("必须核验字段", "")
+            for row in v3_fidelity_ledger_rows
+            if row.get("B0B1计划冲突来源明细ID")
+        )
+        and all(
+            row.get("B0B1未匹配类型")
+            and "b0_b1_unmatched_major" in row.get("风险触发规则", "")
+            and "高校官网/章程" in row.get("必须核验字段", "")
+            for row in v3_fidelity_ledger_rows
+            if row.get("B0B1未匹配专业来源明细ID")
+        )
+        and {
+            row.get("2026院校专业组代码")
+            for row in v3_fidelity_ledger_rows
+            if row.get("是否0明细占位") == "true"
+        } == {"C10702", "K15123"}
+        and all(
+            len(v3_fidelity_ledger_by_code.get(code, [])) == 1
+            and v3_fidelity_ledger_by_code[code][0].get("保真复核优先级")
+            == "P0-组边界/0明细/串校串行"
+            and v3_fidelity_ledger_by_code[code][0].get("风险阻断等级")
+            == "F0-阻断级：不得进入候选排序"
+            and "zero_detail_group_placeholder" in v3_fidelity_ledger_by_code[code][0].get("风险触发规则", "")
+            and "d0_missing_in_page_and_structured" in v3_fidelity_ledger_by_code[code][0].get("风险触发规则", "")
+            and not v3_fidelity_ledger_by_code[code][0].get("专业名称及备注OCR")
+            for code in ["C10702", "K15123"]
+        )
+        and all(
+            "d0_normalized_o0_match" in row.get("风险触发规则", "")
+            and row.get("D0原页匹配方式") == "normalized_o0_match"
+            for code in ["P01202", "F01203"]
+            for row in v3_fidelity_ledger_by_code.get(code, [])
+        )
+        and "d0_major_text_embeds_other_school_marker"
+        in v3_fidelity_ledger_by_code.get("C10705", [{}])[0].get("风险触发规则", "")
+        and "d0_plan_count_number_ge_1000"
+        in v3_fidelity_ledger_by_code.get("C10705", [{}])[0].get("风险触发规则", ""),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3全量逐专业字段保真总账非最终状态和低风险行边界正确",
+        all(
+            row.get("是否高风险保真行") == "true"
+            and row.get("高风险字段集合")
+            and row.get("风险触发规则")
+            for row in v3_fidelity_ledger_rows
+            if row.get("保真复核优先级") != "P6-暂未触发机器高风险"
+        )
+        and all(
+            row.get("是否高风险保真行") == "false"
+            and row.get("风险阻断等级") == "F3-暂未触发机器高风险但仍非最终"
+            and row.get("高风险字段集合") == ""
+            and row.get("风险触发规则") == ""
+            and "仍需按最终志愿门禁" in row.get("阻断原因", "")
+            for row in v3_fidelity_ledger_rows
+            if row.get("保真复核优先级") == "P6-暂未触发机器高风险"
+        )
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("是否可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            for row in v3_fidelity_ledger_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3全量逐专业字段保真总账公开文件不含本地路径、图片扩展名、身份信息和最终可用结论",
+        "private/" not in v3_fidelity_ledger_public_text
+        and "/Users/" not in v3_fidelity_ledger_public_text
+        and "ocr-runs" not in v3_fidelity_ledger_public_text
+        and "rendered-pages" not in v3_fidelity_ledger_public_text
+        and ".png" not in v3_fidelity_ledger_public_text
+        and ".jpg" not in v3_fidelity_ledger_public_text
+        and ".jpeg" not in v3_fidelity_ledger_public_text
+        and "final_allowed" not in v3_fidelity_ledger_public_text
+        and "ready_for_discussion" not in v3_fidelity_ledger_public_text
+        and "已确认" not in v3_fidelity_ledger_public_text
+        and "最终推荐" not in v3_fidelity_ledger_public_text
+        and "最终方案" not in v3_fidelity_ledger_public_text
+        and not any(token in v3_fidelity_ledger_public_text for token in ["身份证", "准考证", "报名号", "姓名"]),
+    ))
+
     foundation_audit_summary_path = ROOT / "data/working/issue19-foundation-audit-summary.json"
     foundation_audit_findings_csv = ROOT / "data/working/issue19-foundation-audit-findings.csv"
     foundation_page_audit_csv = ROOT / "data/working/issue19-foundation-page-audit.csv"

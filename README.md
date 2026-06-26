@@ -88,8 +88,9 @@ python3 scripts/build_issue19_candidate_v3_b0_b1_official_crosscheck_queue.py
 python3 scripts/extract_jsut_official_image_plan.py
 python3 scripts/build_issue19_b0_b1_official_evidence_match.py
 python3 scripts/build_issue19_b0_b1_fidelity_review_queues.py
+python3 scripts/build_issue19_candidate_v3_major_field_fidelity_ledger.py
 python3 scripts/fetch_hubei_plan_platform.py --dry-run-contract
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```
 
-注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级、候选 V3 批次、候选 V3 全量逐专业复核队列、B0/B1 核验包、官方交叉校验表、逐专业证据合并表和保真复核队列只用于安排复核与补证，不是最终报考建议。候选讨论默认使用逐专业招生明细表，组级/学校级表只作索引、投档线、调剂范围和补源入口。
+注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级、候选 V3 批次、候选 V3 全量逐专业复核队列、B0/B1 核验包、官方交叉校验表、逐专业证据合并表和字段保真总账只用于安排复核与补证，不是最终报考建议。候选讨论默认使用逐专业招生明细表和逐专业字段保真总账，组级/学校级表只作索引、投档线、调剂范围和补源入口。
