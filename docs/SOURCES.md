@@ -127,10 +127,10 @@
 9. 候选 V3 B0/B1 官网/API 交叉校验源
    - 来源状态种子：`data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv`
    - 本地留存目录：`data/external/issue19-b0-b1-official-sources/`
-   - 已留存来源：成都信息工程大学静态招生计划页，江汉大学、西安邮电大学、西安财经大学、西安医学院、中国传媒大学、山东大学、兰州大学、西北民族大学、天津外国语大学等官网/API 返回，杭州电子科技大学 XLSX，忻州师范学院、山东工商学院 PDF 原件，喀什大学 XLSX，以及若干仅能作为入口或章程线索的页面。
-   - 当前状态：7 所学校为可复用高校官网湖北计划源，14 所为部分可核线索，10 所仍需继续补高校官网计划或章程来源，5 所目前只有章程/规则或不可用计划线索。
-   - 已结构化到逐专业证据匹配表的来源类型：官网 AJAX/API JSON、官网静态 HTML 表、官网 XLSX、PDF 表格抽取留存 CSV。
-   - 限制：高校官网/API 只作为交叉校验证据；没有湖北院校专业组边界的来源只能核专业、计划、学费、校区或备注，不能单独证明调剂范围。山东工商学院 PDF 当前表格抽取未稳定保留专业名列，已留原件但不进入自动逐专业匹配。
+   - 已留存来源：成都信息工程大学静态招生计划页，江汉大学、西安邮电大学、西安财经大学、西安医学院、中国传媒大学、山东大学、兰州大学、西北民族大学、天津外国语大学等官网/API 返回，杭州电子科技大学 XLSX，忻州师范学院、山东工商学院 PDF 原件，江苏理工学院官方计划图和转录表，南宁学院官网静态计划表，喀什大学 XLSX，以及若干仅能作为入口或章程线索的页面。
+   - 当前状态：7 所学校为可复用高校官网湖北计划源，16 所为部分可核线索，8 所仍需继续补高校官网计划或章程来源，5 所目前只有章程/规则或不可用计划线索。
+   - 已结构化到逐专业证据匹配表的来源类型：官网 AJAX/API JSON、官网静态 HTML 表、官网 XLSX、PDF 表格抽取留存 CSV、官方计划图转录 CSV。
+   - 限制：高校官网/API/计划图只作为交叉校验证据；没有湖北院校专业组边界的来源只能核专业、计划、学费、校区或备注，不能单独证明调剂范围。山东工商学院 PDF 当前表格抽取未稳定保留专业名列，已留原件但不进入自动逐专业匹配。
 
 ## 派生数据说明
 
@@ -195,16 +195,19 @@
 - `data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv`：候选 V3 B0/B1 组级核验包，覆盖 49 个优先专业组，逐组列出页码证据、组内招生明细、历史线口径、核页重点和升级闸门；这是复核工作台，不是可填报清单。
 - `data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv`：候选 V3 B0/B1 逐专业核验包，覆盖 324 个逐专业核验任务；一行一个专业或 0 明细占位任务，用于回填 PDF、官方系统、章程、家庭接受度和调剂结论；这是复核工作台，不是可填报清单。
 - `data/working/issue19-candidate-v3-b0-b1-review-pack-summary.json`：候选 V3 B0/B1 核验包摘要，记录组数、专业任务数、页码覆盖、0 明细组和发布边界。
-- `data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv`：B0/B1 官方来源补充线索种子，记录已发现的高校官网入口、动态接口和静态计划页；只作补源和交叉校验线索。
+- `data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv`：B0/B1 官方来源补充线索种子，记录已发现的高校官网入口、动态接口、静态计划页和官方计划图转录；只作补源和交叉校验线索。
+- `data/working/issue19-b0-b1-official-source-search-log.csv`：B0/B1 追加官方来源检索日志，记录武汉轻工大学、湖北师范大学、长春工业大学、浙江工业大学、浙江传媒学院、韶关学院、江苏理工学院、南宁学院、成都师范学院、西安航空学院的官网来源状态、局限性和下一步。
 - `data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv`：B0/B1 学校官方来源队列，覆盖 36 所学校，记录官网来源状态、补源优先级、检索式和逐专业任务数；这是补源工作台，不是学校已核准结论。
-- `data/working/issue19-candidate-v3-b0-b1-admission-detail-official-crosscheck.csv`：B0/B1 逐专业招生明细主表，覆盖 324 个逐专业任务；后续候选讨论默认使用这张表，组级信息只作索引字段下沉到每条专业行。
+- `data/working/issue19-candidate-v3-b0-b1-admission-detail-official-crosscheck.csv`：B0/B1 逐专业招生明细主表，覆盖 324 个逐专业任务；组级信息只作索引字段下沉到每条专业行。
+- `data/working/issue19-candidate-v3-b0-b1-admission-detail-evidence-ledger.csv`：B0/B1 逐专业招生明细证据合并表，覆盖 324 个任务；后续讨论默认使用这张表，一行一个招生专业或 0 明细占位，同时带出 OCR 字段、官网匹配字段、计划数核验状态、保真处理状态和仍需核验项。
 - `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv`：B0/B1 组级官方交叉校验索引，覆盖 49 个优先专业组，逐组记录 PDF、湖北官方系统、高校官网/章程、家庭接受度和调剂结论待核状态；全部 `可进入下一阶段=false`。
 - `data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv`：B0/B1 原逐专业官方交叉校验队列，覆盖 324 个逐专业任务；一行一个专业或 0 明细占位任务，记录专业代号、专业名称、计划数、学费、风险、官网来源状态和各字段待核状态。
 - `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-summary.json`：B0/B1 官方交叉校验摘要，记录 36 校、49 组、324 个逐专业任务、逐专业招生明细主表行数、官网来源状态分布、`final_available_count=0` 和 `major_final_available_count=0`。
-- `data/working/issue19-b0-b1-retained-official-plan-normalized.csv`：B0/B1 已留存官网/API/PDF 抽取证据标准化表，当前 332 条；字段包括学校、来源文件、证据类型、年份、省份、科类、专业、计划数、学费、校区、选科和来源局限。
+- `data/working/issue19-b0-b1-retained-official-plan-normalized.csv`：B0/B1 已留存官网/API/HTML/XLSX/PDF/图片抽取证据标准化表，当前 367 条；字段包括学校、来源文件、证据类型、年份、省份、科类、专业、计划数、学费、校区、选科和来源局限。
 - `data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv`：B0/B1 逐专业官网证据匹配表，覆盖 324 条招生明细；一行一个招生专业，带出页码、专业组、专业代号、OCR 专业名、OCR 计划数、官网匹配专业、官网计划数、匹配状态、计划数核验状态和仍需核验项。
-- `data/working/issue19-candidate-v3-b0-b1-official-evidence-match-summary.json`：B0/B1 逐专业官网证据匹配摘要；当前 106 条专业名匹配，其中 42 条计划数与 OCR 一致，52 条为 OCR 缺失但官网可补，12 条计划数存在差异，全部保持非最终结论。
+- `data/working/issue19-candidate-v3-b0-b1-official-evidence-match-summary.json`：B0/B1 逐专业官网证据匹配摘要；当前 124 条专业名匹配，其中 47 条计划数与 OCR 一致，52 条为 OCR 缺失但官网可补，25 条计划数存在差异，全部保持非最终结论。
 - `data/external/issue19-b0-b1-official-sources/xztu-2026-hubei-physics-plan-extracted.csv`：忻州师范学院官网 PDF 宽表抽取出的湖北物理类逐专业证据，15 条；作为 PDF 原件的可复跑抽取结果，不替代第 19 期原页和湖北官方系统。
+- `data/external/issue19-b0-b1-official-sources/jsut-2026-hubei-physics-plan-extracted.csv`：江苏理工学院官方计划图转录出的湖北物理类普通类逐专业证据，15 条；作为官方计划图的结构化转录结果，不替代第 19 期原页和湖北官方系统。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
 - `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座初稿说明和保真机制。
@@ -228,7 +231,8 @@
 - `scripts/build_issue19_candidate_v3_b0_b1_review_pack.py`：根据候选 V3 入口、家庭底线逐专业表、候选 V2 逐专业种子和页级 manifest 生成 B0/B1 组级和逐专业核验包；不从长文本拆专业，优先使用结构化来源。
 - `scripts/build_issue19_candidate_v3_b0_b1_official_crosscheck_queue.py`：根据 B0/B1 核验包和高校官网来源表生成学校来源、组级索引、逐专业招生明细主表和原逐专业官方交叉校验队列；这些表只是补证工作台，不代表官方核验完成。
 - `scripts/extract_xztu_official_pdf_plan.py`：使用 `pdfplumber` 从忻州师范学院官网 PDF 中抽取湖北物理类专业行，并写出可审计 CSV；需要使用 bundled Python 或本地安装 `pdfplumber`。
-- `scripts/build_issue19_b0_b1_official_evidence_match.py`：把已留存官网/API/HTML/XLSX/PDF 抽取证据标准化，并与 B0/B1 逐专业招生明细主表逐条匹配；输出只用于保真交叉校验，不是最终志愿方案。
+- `scripts/extract_jsut_official_image_plan.py`：把江苏理工学院官方计划图人工转录并写成逐专业 CSV，同时保留来源图片和官网入口校验条件。
+- `scripts/build_issue19_b0_b1_official_evidence_match.py`：把已留存官网/API/HTML/XLSX/PDF/计划图抽取证据标准化，并与 B0/B1 逐专业招生明细主表逐条匹配；同时生成逐专业招生明细证据合并表，输出只用于保真交叉校验，不是最终志愿方案。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

@@ -1,11 +1,14 @@
 {
   "status": "official_evidence_match_not_final",
   "generated_by": "scripts/build_issue19_b0_b1_official_evidence_match.py",
-  "normalized_official_row_count": 332,
+  "normalized_official_row_count": 367,
   "admission_detail_row_count": 324,
+  "admission_detail_evidence_ledger_row_count": 324,
+  "default_discussion_table": "data/working/issue19-candidate-v3-b0-b1-admission-detail-evidence-ledger.csv",
   "retained_official_schools": [
     "中国传媒大学",
     "兰州大学",
+    "南宁学院",
     "喀什大学",
     "天津外国语大学",
     "山东大学",
@@ -13,6 +16,7 @@
     "成都信息工程大学",
     "杭州电子科技大学",
     "江汉大学",
+    "江苏理工学院",
     "西北民族大学",
     "西安医学院",
     "西安财经大学",
@@ -21,28 +25,39 @@
   "evidence_type_counts": {
     "official_dynamic_ajax_json": 38,
     "official_dynamic_api_json": 189,
-    "official_static_html_table": 38,
+    "official_static_html_table": 58,
     "official_attachment_xlsx_province_table": 31,
     "official_attachment_xlsx_row_plan": 21,
-    "official_pdf_table_extracted_csv": 15
+    "official_pdf_table_extracted_csv": 15,
+    "official_image_table_extracted_csv": 15
   },
   "match_status_counts": {
-    "no_school_source": 211,
-    "matched": 106,
-    "unmatched": 7
+    "no_school_source": 191,
+    "matched": 124,
+    "unmatched": 9
   },
   "plan_check_status_counts": {
-    "not_covered": 218,
+    "not_covered": 200,
     "ocr_plan_missing_official_available": 52,
-    "match": 42,
-    "mismatch": 12
+    "mismatch": 25,
+    "match": 47
+  },
+  "fidelity_status_counts": {
+    "待补高校官网计划源": 189,
+    "占位行-不是真实招生明细": 2,
+    "官网可补OCR计划数-优先核页": 52,
+    "官网专业名匹配但计划数冲突-优先核页": 25,
+    "官网未匹配-专业名或OCR待核": 9,
+    "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 47
   },
   "matched_school_counts": {
     "西安财经大学": 1,
     "西安医学院": 2,
     "忻州师范学院": 4,
+    "江苏理工学院": 13,
     "杭州电子科技大学": 10,
     "中国传媒大学": 9,
+    "南宁学院": 5,
     "成都信息工程大学": 19,
     "西安邮电大学": 19,
     "喀什大学": 7,
@@ -54,11 +69,13 @@
   },
   "notes": [
     "本结果只是高校官网/API对第19期OCR底座的交叉校验证据，不是最终志愿方案。",
+    "默认讨论表是一行一个招生明细的合并表；学校和专业组表只作为索引、调剂和补源辅助。",
     "计划数只有在OCR数字和官网数字一致时才记为match；OCR空缺但官网有数时只用于补缺提示。",
     "所有可用结论仍必须回到PDF原页、湖北官方系统、招生章程、专业组边界、调剂范围和家庭接受度。"
   ],
   "outputs": [
     "data/working/issue19-b0-b1-retained-official-plan-normalized.csv",
-    "data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv"
+    "data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv",
+    "data/working/issue19-candidate-v3-b0-b1-admission-detail-evidence-ledger.csv"
   ]
 }

@@ -154,14 +154,16 @@ OCR 初稿 / 最终可用=false
 B0/B1 逐专业招生明细主表和官方交叉校验工作台的使用方式：
 
 - `data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv` 是学校官网/章程补源队列，当前覆盖 36 所学校；它只说明“去哪里补源”和“补源优先级”，不是学校已核准。
-- `data/working/issue19-candidate-v3-b0-b1-admission-detail-official-crosscheck.csv` 是默认使用的逐专业招生明细主表，当前覆盖 324 个任务；它把组级投档、调剂、历史线和补源字段下沉到每条专业行，后续讨论候选时优先看这张表。
+- `data/working/issue19-candidate-v3-b0-b1-admission-detail-official-crosscheck.csv` 是逐专业招生明细主表，当前覆盖 324 个任务；它把组级投档、调剂、历史线和补源字段下沉到每条专业行。
+- `data/working/issue19-candidate-v3-b0-b1-admission-detail-evidence-ledger.csv` 是后续讨论默认使用的逐专业招生明细证据合并表；它一行一个招生专业或 0 明细占位，同时带出 OCR 字段、官网匹配字段、计划数核验状态、保真处理状态和仍需核验项。
 - `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv` 是组级官方交叉校验索引，当前覆盖 49 个专业组；每组必须补齐 PDF 原页、湖北官方系统或省招办计划、高校官网/章程、家庭接受度和调剂结论，但不能作为候选讨论主表。
 - `data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv` 是原逐专业官方交叉校验队列，当前覆盖 324 个任务；每条真实专业行都要确认专业代号、专业名称、计划数、学费、学制、校区、选科、备注、限制条件、家庭接受度和调剂影响。
 - 当前 324 个逐专业任务中，322 条是真实专业行，`C10702`、`K15123` 各有 1 条 `zero_detail_group_placeholder`；占位任务只防止专业组丢失，不能冒充真实招生明细。
 - `data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv` 是逐专业官网证据匹配表，当前 324 行；它不是学校/专业组两层汇总，而是一行一个招生专业，用官网/API/PDF 抽取结果辅助核专业名和计划数。
-- 当前学校官网来源状态：7 所为 `has_reusable_2026_hubei_plan_source`，14 所为 `has_partial_source_needs_followup`，10 所仍为 `needs_official_plan_source_search`，5 所只有章程/规则或不可用计划线索。
-- 当前已标准化留存官网/API/PDF 抽取证据 332 条，覆盖 13 所学校；逐专业匹配表中 106 条专业名匹配，42 条计划数与 OCR 一致，52 条是 OCR 计划数缺失但官网可补，12 条计划数存在差异，全部仍需 PDF 原页和湖北官方系统复核。
-- 忻州师范学院官网 PDF 已通过 `pdfplumber` 抽取出 15 条湖北物理类专业行；山东工商学院 PDF 的表格抽取未稳定保留专业名列，因此只保留 PDF 原件和来源线索，暂不进入自动匹配。
+- 当前学校官网来源状态：7 所为 `has_reusable_2026_hubei_plan_source`，16 所为 `has_partial_source_needs_followup`，8 所仍为 `needs_official_plan_source_search`，5 所只有章程/规则或不可用计划线索。
+- 当前已标准化留存官网/API/HTML/XLSX/PDF/图片抽取证据 367 条，覆盖 15 所学校；逐专业匹配表中 124 条专业名匹配，47 条计划数与 OCR 一致，52 条是 OCR 计划数缺失但官网可补，25 条计划数存在差异，全部仍需 PDF 原页和湖北官方系统复核。
+- 忻州师范学院官网 PDF 已通过 `pdfplumber` 抽取出 15 条湖北物理类专业行；江苏理工学院官方计划图已转录出 15 条湖北物理类普通类专业行；南宁学院官网静态计划表已抽取出 20 条湖北物理类普通本科批专业行。山东工商学院 PDF 的表格抽取未稳定保留专业名列，因此只保留 PDF 原件和来源线索，暂不进入自动匹配。
+- `data/working/issue19-b0-b1-official-source-search-log.csv` 记录 10 所剩余/新增学校的官方来源检索结论；`未见` 或 `可能` 不能替代计划数证据，只用于安排继续补源。
 - `has_reusable_2026_hubei_plan_source` 只是“有可复用官网计划源线索”，不是最终通过；仍必须和湖北省招办渠道逐字段核对。
 - `needs_official_plan_source_search` 不能作为删除候选的理由，只说明还需要补高校官网计划或章程来源。
 - 高校官网/章程只能辅助核验。若高校官网与湖北官方系统、省招办计划或最终志愿系统不一致，以湖北省招办渠道为准，并记录差异。

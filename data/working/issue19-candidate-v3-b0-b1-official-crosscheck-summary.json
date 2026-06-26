@@ -26,8 +26,8 @@
     },
     {
       "path": "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv",
-      "sha256": "38aaa7ecf37145b407c82298d2bfba97d5488386ec2b051837d5e219ed28241d",
-      "row_count": 23
+      "sha256": "87f9b3e5bee81794252d06933c253eebb49aa3cc2e5ae4327bd03f76f507e395",
+      "row_count": 25
     }
   ],
   "school_count": 36,
@@ -37,29 +37,29 @@
   "major_official_crosscheck_task_count": 324,
   "school_source_status_counts": {
     "charter_or_rules_only_no_plan": 5,
-    "has_partial_source_needs_followup": 14,
+    "has_partial_source_needs_followup": 16,
     "has_reusable_2026_hubei_plan_source": 7,
-    "needs_official_plan_source_search": 10
+    "needs_official_plan_source_search": 8
   },
   "group_source_status_counts": {
     "charter_or_rules_only_no_plan": 8,
-    "has_partial_source_needs_followup": 17,
+    "has_partial_source_needs_followup": 19,
     "has_reusable_2026_hubei_plan_source": 12,
-    "needs_official_plan_source_search": 12
+    "needs_official_plan_source_search": 10
   },
   "admission_detail_source_status_counts": {
     "charter_or_rules_only_no_plan": 44,
-    "has_partial_source_needs_followup": 112,
+    "has_partial_source_needs_followup": 132,
     "has_reusable_2026_hubei_plan_source": 82,
-    "needs_official_plan_source_search": 86
+    "needs_official_plan_source_search": 66
   },
   "admission_detail_real_row_count": 322,
   "admission_detail_placeholder_row_count": 2,
   "major_source_status_counts": {
     "charter_or_rules_only_no_plan": 44,
-    "has_partial_source_needs_followup": 112,
+    "has_partial_source_needs_followup": 132,
     "has_reusable_2026_hubei_plan_source": 82,
-    "needs_official_plan_source_search": 86
+    "needs_official_plan_source_search": 66
   },
   "major_row_source_counts": {
     "candidate_v2_major_review_seed": 81,
@@ -82,10 +82,8 @@
     "西安邮电大学"
   ],
   "schools_needing_official_plan_source_search": [
-    "南宁学院",
     "成都师范学院",
     "武汉轻工大学",
-    "江苏理工学院",
     "浙江传媒学院",
     "浙江工业大学",
     "湖北师范大学",
