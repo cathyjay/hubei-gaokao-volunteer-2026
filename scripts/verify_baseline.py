@@ -260,6 +260,12 @@ def main():
         and issue19_source["source"]["pages"] == 240
         and issue19_source["source"]["text_layer"] == "none_detected",
     ))
+    issue19_source_public_text = (ROOT / "data/working/issue19-pdf-source.json").read_text(encoding="utf-8")
+    checks.append(ok(
+        "第 19 期 PDF 元数据公开文件不含用户本机绝对路径",
+        "/Users/" not in issue19_source_public_text
+        and "original_user_path\"" not in issue19_source_public_text,
+    ))
 
     issue19_template = ROOT / "data/working/issue19-admission-plan-template.csv"
     template_header = issue19_template.read_text(encoding="utf-8").splitlines()[0]
@@ -2646,6 +2652,161 @@ def main():
         and not any(token in candidate_v3_detail_queue_public_text for token in shared_forbidden_tokens),
     ))
 
+    candidate_v3_d0_summary_path = ROOT / "data/working/issue19-candidate-v3-d0-resolution-workbench-summary.json"
+    candidate_v3_d0_csv = ROOT / "data/working/issue19-candidate-v3-d0-resolution-workbench.csv"
+    candidate_v3_d0_summary = json.loads(candidate_v3_d0_summary_path.read_text())
+    with candidate_v3_d0_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v3_d0_reader = csv.DictReader(f)
+        candidate_v3_d0_rows = list(candidate_v3_d0_reader)
+        candidate_v3_d0_fields = set(candidate_v3_d0_reader.fieldnames or [])
+    required_candidate_v3_d0_fields = {
+        "D0工作台ID",
+        "来源逐专业复核队列ID",
+        "招生明细主表行ID",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "D0问题类型",
+        "核验结论状态",
+        "院校代码",
+        "院校名称OCR",
+        "建议完整院校名称",
+        "建议来源",
+        "建议证据强度",
+        "同代码专业组标题建议名称一致性",
+        "历年投档线命中年份",
+        "历年投档线院校名线索",
+        "历年投档线样例",
+        "是否需要历年代码校名佐证",
+        "代码冲突标记",
+        "疑似字符混淆",
+        "修正建议状态",
+        "2026院校专业组代码",
+        "专业组标题OCR原文",
+        "来源页码",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "页面OCR是否出现候选组号",
+        "同校第19期OCR专业组",
+        "同校第19期OCR页码",
+        "页面组号异常类型",
+        "专业行来源",
+        "是否真实招生明细",
+        "是否0明细占位",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "同组调剂机器风险",
+        "是否可自动写回主表",
+        "可进入下一阶段",
+        "下一步",
+    }
+    candidate_v3_d0_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [candidate_v3_d0_summary_path, candidate_v3_d0_csv]
+    )
+    candidate_v3_d0_issue_counts = Counter()
+    for row in candidate_v3_d0_rows:
+        for item in row.get("D0问题类型", "").split("；"):
+            if item:
+                candidate_v3_d0_issue_counts[item] += 1
+    candidate_v3_d0_by_code = {
+        row.get("2026院校专业组代码"): row for row in candidate_v3_d0_rows
+    }
+    candidate_v3_d0_zero_codes = {
+        row.get("2026院校专业组代码")
+        for row in candidate_v3_d0_rows
+        if row.get("是否0明细占位") == "true"
+    }
+    checks.append(ok(
+        "第 19 期候选V3 D0修正/核验工作台摘要和行数正确",
+        candidate_v3_d0_summary.get("status") == "issue19_candidate_v3_d0_resolution_workbench_not_final"
+        and candidate_v3_d0_summary.get("source_queue")
+        == "data/working/issue19-candidate-v3-admission-detail-review-queue.csv"
+        and candidate_v3_d0_summary.get("output_table")
+        == "data/working/issue19-candidate-v3-d0-resolution-workbench.csv"
+        and candidate_v3_d0_summary.get("row_count") == 58
+        and candidate_v3_d0_summary.get("unique_group_count") == 17
+        and candidate_v3_d0_summary.get("issue_counts") == {
+            "0明细占位": 2,
+            "专业组边界或明细缺失": 58,
+            "院校名称OCR疑似截断": 55,
+        }
+        and candidate_v3_d0_summary.get("school_ocr_counts") == {
+            "武汉体育学院": 2,
+            "湖北": 22,
+            "北京": 5,
+            "上海": 9,
+            "山东": 2,
+            "湖南": 17,
+            "成都理工大学": 1,
+        }
+        and candidate_v3_d0_summary.get("extracted_full_school_name_count") == 56
+        and candidate_v3_d0_summary.get("name_correction_needed_count") == 55
+        and candidate_v3_d0_summary.get("zero_detail_placeholder_count") == 2
+        and candidate_v3_d0_summary.get("history_supported_name_count") == 55
+        and candidate_v3_d0_summary.get("code_conflict_count") == 5
+        and candidate_v3_d0_summary.get("auto_writeback_allowed_count") == 0
+        and candidate_v3_d0_summary.get("next_stage_allowed_count") == 0
+        and len(candidate_v3_d0_rows) == 58,
+        f"{len(candidate_v3_d0_rows)} D0 rows",
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 D0工作台字段、建议和闸门正确",
+        required_candidate_v3_d0_fields.issubset(candidate_v3_d0_fields)
+        and len({row.get("D0工作台ID") for row in candidate_v3_d0_rows}) == len(candidate_v3_d0_rows)
+        and candidate_v3_d0_issue_counts == Counter(candidate_v3_d0_summary.get("issue_counts", {}))
+        and candidate_v3_d0_zero_codes == {"C10702", "K15123"}
+        and all(
+            row.get("数据阶段") == "issue19_candidate_v3_d0_resolution_workbench"
+            and row.get("最终可用") == "false"
+            and row.get("核验结论状态") == "pending_d0_manual_review"
+            and row.get("是否可自动写回主表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            for row in candidate_v3_d0_rows
+        )
+        and all(
+            row.get("建议完整院校名称")
+            and "仍需PDF原页和官方系统核验" in row.get("修正建议状态", "")
+            for row in candidate_v3_d0_rows
+            if "院校名称OCR疑似截断" in row.get("D0问题类型", "")
+        )
+        and candidate_v3_d0_by_code.get("C13709", {}).get("建议完整院校名称") == "湖北第二师范学院"
+        and candidate_v3_d0_by_code.get("F79701", {}).get("建议完整院校名称") == "上海第二工业大学"
+        and candidate_v3_d0_by_code.get("H68602", {}).get("建议完整院校名称") == "湖南第一师范学院"
+        and candidate_v3_d0_by_code.get("H42516", {}).get("建议完整院校名称") == "山东第一医科大学"
+        and candidate_v3_d0_by_code.get("F01203", {}).get("建议完整院校名称") == "北京第二外国语学院"
+        and candidate_v3_d0_by_code.get("P01202", {}).get("建议完整院校名称") == "北京第二外国语学院"
+        and candidate_v3_d0_by_code.get("C13709", {}).get("历年投档线院校名线索") == "湖北第二师范学院"
+        and candidate_v3_d0_by_code.get("F79701", {}).get("历年投档线院校名线索") == "上海第二工业大学"
+        and candidate_v3_d0_by_code.get("H68602", {}).get("历年投档线院校名线索") == "湖南第一师范学院"
+        and candidate_v3_d0_by_code.get("H42516", {}).get("历年投档线院校名线索") == "山东第一医科大学"
+        and candidate_v3_d0_by_code.get("P01202", {}).get("历年投档线命中年份") == ""
+        and "禁止自动修正" in candidate_v3_d0_by_code.get("P01202", {}).get("代码冲突标记", "")
+        and candidate_v3_d0_by_code.get("P01202", {}).get("疑似字符混淆") == "是"
+        and "OCR含F/O/P/0易混字符" in candidate_v3_d0_by_code.get("F01203", {}).get("代码冲突标记", "")
+        and all(
+            row.get("页面OCR是否出现候选组号") == "否"
+            and row.get("修正建议状态") == "未在全量结构化专业组表/页面OCR命中-需核2026组号是否变化或取消"
+            and "不得进入最终候选" in row.get("下一步", "")
+            for row in candidate_v3_d0_rows
+            if row.get("是否0明细占位") == "true"
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 D0工作台公开文件不含本地路径、身份信息和最终可用结论",
+        "private/" not in candidate_v3_d0_public_text
+        and "final_allowed" not in candidate_v3_d0_public_text
+        and "ready_for_discussion" not in candidate_v3_d0_public_text
+        and "已确认" not in candidate_v3_d0_public_text
+        and "最终推荐" not in candidate_v3_d0_public_text
+        and "最终方案" not in candidate_v3_d0_public_text
+        and not any(token in candidate_v3_d0_public_text for token in shared_forbidden_tokens),
+    ))
+
     v3_b0_b1_summary_path = ROOT / "data/working/issue19-candidate-v3-b0-b1-review-pack-summary.json"
     v3_b0_b1_group_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv"
     v3_b0_b1_major_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv"
@@ -4221,6 +4382,34 @@ def main():
         and issue19_ocr_summary["summary"]["ocr_line_count"] >= 60000
         and issue19_ocr_summary["summary"]["qc_issue_count"] >= 30000
         and issue19_ocr_summary["source_pdf_sha256"] == issue19_source["source"]["sha256"],
+    ))
+
+    group_index_files = [
+        ROOT / "data/working/issue19-candidate-v3-review-intake.csv",
+        ROOT / "data/working/issue19-family-fit-group-screen.csv",
+        ROOT / "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+        ROOT / "data/working/issue19-full-quality-group-tiers.csv",
+        ROOT / "data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv",
+        ROOT / "data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv",
+        ROOT / "data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv",
+    ]
+    group_index_misuse_ok = True
+    for path in group_index_files:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        group_index_misuse_ok = group_index_misuse_ok and (
+            "候选讨论主表" not in text and "默认讨论表" not in text
+        )
+        with path.open(newline="", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                group_index_misuse_ok = group_index_misuse_ok and all(
+                    row.get(field, "false") != "true"
+                    for field in ["最终可用", "可进入最终候选", "可进入下一阶段"]
+                    if field in (reader.fieldnames or [])
+                )
+    checks.append(ok(
+        "第 19 期组级索引/队列表不得冒充逐专业候选讨论主表",
+        group_index_misuse_ok,
     ))
 
     checksum_path = ROOT / "CHECKSUMS.sha256"

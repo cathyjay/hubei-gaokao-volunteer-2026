@@ -198,6 +198,8 @@
 - `data/working/issue19-candidate-v3-admission-detail-summary.json`：候选 V3 逐专业主表摘要，记录 1327 个组级入口、8410 条真实招生明细、2 条占位、来源行数闭环、主键唯一性和最终可用边界。
 - `data/working/issue19-candidate-v3-admission-detail-review-queue.csv`：候选 V3 全量逐专业复核队列，覆盖 8412 行；一行一个招生专业或 0 明细占位，记录核验优先级、必须核验字段、同组调剂机器风险、官方系统/高校官网证据落点和人工核验状态。
 - `data/working/issue19-candidate-v3-admission-detail-review-queue-summary.json`：候选 V3 全量逐专业复核队列摘要，记录 8410 条真实明细、2 条 0 明细占位、D0-D6 核验优先级分布、T0-T3 调剂机器风险分布和最终可用边界。
+- `data/working/issue19-candidate-v3-d0-resolution-workbench.csv`：候选 V3 D0 修正/核验工作台，覆盖 58 条 D0 任务；记录院校名称恢复建议、专业组标题 OCR 证据、历年投档线代码-校名佐证、代码冲突标记、疑似字符混淆和 0 明细占位处理口径。
+- `data/working/issue19-candidate-v3-d0-resolution-workbench-summary.json`：D0 工作台摘要，记录 17 个专业组、55 条院校名疑似截断、2 条 0 明细占位、5 条代码冲突/字符混淆风险和所有行不可自动写回的边界。
 - `data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv`：候选 V3 B0/B1 组级核验包，覆盖 49 个优先专业组，逐组列出页码证据、组内招生明细、历史线口径、核页重点和升级闸门；这是复核工作台，不是可填报清单。
 - `data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv`：候选 V3 B0/B1 逐专业核验包，覆盖 324 个逐专业核验任务；一行一个专业或 0 明细占位任务，用于回填 PDF、官方系统、章程、家庭接受度和调剂结论；这是复核工作台，不是可填报清单。
 - `data/working/issue19-candidate-v3-b0-b1-review-pack-summary.json`：候选 V3 B0/B1 核验包摘要，记录组数、专业任务数、页码覆盖、0 明细组和发布边界。
@@ -242,6 +244,7 @@
 - `scripts/build_issue19_candidate_v3_review_intake.py`：根据家庭底线筛选、候选 V2、页级 manifest、三年历史投档线和全量 OCR 覆盖表生成候选 V3 复核入口；用于下一轮逐组核页和补证，不产生最终建议。
 - `scripts/build_issue19_candidate_v3_admission_detail.py`：把候选 V3 复核入口展开为全量逐专业招生明细主表；优先使用候选 V2 逐专业种子和家庭底线逐专业表，不从长文本硬切专业。
 - `scripts/build_issue19_candidate_v3_admission_detail_review_queue.py`：根据候选 V3 逐专业招生明细主表生成全量逐专业复核队列；所有真实专业都必须核 PDF 原页、湖北官方系统、高校官网/章程、完整专业组边界、校区、特殊限制、家庭接受度和调剂影响，0 明细占位只用于补齐组内招生明细。
+- `scripts/build_issue19_candidate_v3_d0_resolution_workbench.py`：从 V3 逐专业复核队列的 D0 任务生成原页核验工作台；可提取 `专业组标题OCR原文` 中的完整院校名和历年投档线代码-校名线索，但不自动写回主表。
 - `scripts/build_issue19_candidate_v3_b0_b1_review_pack.py`：根据候选 V3 入口、家庭底线逐专业表、候选 V2 逐专业种子和页级 manifest 生成 B0/B1 组级和逐专业核验包；不从长文本拆专业，优先使用结构化来源。
 - `scripts/build_issue19_candidate_v3_b0_b1_official_crosscheck_queue.py`：根据 B0/B1 核验包和高校官网来源表生成学校来源、组级索引、逐专业招生明细主表和原逐专业官方交叉校验队列；这些表只是补证工作台，不代表官方核验完成。
 - `scripts/extract_xztu_official_pdf_plan.py`：使用 `pdfplumber` 从忻州师范学院官网 PDF 中抽取湖北物理类专业行，并写出可审计 CSV；需要使用 bundled Python 或本地安装 `pdfplumber`。

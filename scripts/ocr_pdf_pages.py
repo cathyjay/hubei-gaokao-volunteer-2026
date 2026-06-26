@@ -24,9 +24,11 @@ def resolve_path(value):
 
 
 def find_binary(name):
-    bundled = Path("/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin") / name
-    if bundled.exists():
-        return str(bundled)
+    deps_bin = os.environ.get("CODEX_DEPS_BIN")
+    if deps_bin:
+        bundled = Path(deps_bin).expanduser() / name
+        if bundled.exists():
+            return str(bundled)
     found = shutil.which(name)
     if found:
         return found

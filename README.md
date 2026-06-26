@@ -11,6 +11,7 @@
 - 最终志愿只允许使用已经回看官方原件、招生计划和招生章程复核过的逐专业招生明细及其所在院校专业组。
 - 以位次和等位分为主，不用裸分直觉做判断。
 - 所有候选必须展开到招生专业明细，记录“为什么选、有什么风险、是否能接受调剂”。
+- 对外讨论和候选方案不再只给学校/院校专业组两层摘要；默认一行一个招生专业明细，院校专业组只作为投档、调剂范围和证据索引字段。
 
 ## 固定考生基线
 
@@ -80,6 +81,7 @@ python3 scripts/build_issue19_family_fit_screen.py
 python3 scripts/build_issue19_candidate_v3_review_intake.py
 python3 scripts/build_issue19_candidate_v3_admission_detail.py
 python3 scripts/build_issue19_candidate_v3_admission_detail_review_queue.py
+python3 scripts/build_issue19_candidate_v3_d0_resolution_workbench.py
 python3 scripts/build_issue19_candidate_v3_b0_b1_review_pack.py
 python3 scripts/build_issue19_candidate_v3_b0_b1_official_crosscheck_queue.py
 python3 scripts/extract_jsut_official_image_plan.py

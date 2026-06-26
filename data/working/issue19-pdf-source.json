@@ -3,7 +3,7 @@
   "source": {
     "title": "湖北招生考试2026年19期·本科普通批（下）",
     "local_private_path": "private/raw/hubei-admission-magazine-2026-issue-19/issue19.pdf",
-    "original_user_path": "/Users/cathy07/Downloads/《湖北招生考试》2026年19期·本科普通批（下）.pdf",
+    "original_user_path_policy": "用户提供的原始文件路径只保留在私有证据记录中，公开仓库不写入本机绝对路径。",
     "sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
     "size_bytes": 144095796,
     "pages": 240,

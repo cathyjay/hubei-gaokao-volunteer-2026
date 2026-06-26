@@ -1,0 +1,67 @@
+{
+  "status": "issue19_candidate_v3_d0_resolution_workbench_not_final",
+  "generated_by": "build_issue19_candidate_v3_d0_resolution_workbench.py",
+  "source_queue": "data/working/issue19-candidate-v3-admission-detail-review-queue.csv",
+  "output_table": "data/working/issue19-candidate-v3-d0-resolution-workbench.csv",
+  "row_count": 58,
+  "unique_group_count": 17,
+  "issue_counts": {
+    "0明细占位": 2,
+    "专业组边界或明细缺失": 58,
+    "院校名称OCR疑似截断": 55
+  },
+  "school_ocr_counts": {
+    "武汉体育学院": 2,
+    "湖北": 22,
+    "北京": 5,
+    "上海": 9,
+    "山东": 2,
+    "湖南": 17,
+    "成都理工大学": 1
+  },
+  "extracted_full_school_name_count": 56,
+  "name_correction_needed_count": 55,
+  "zero_detail_placeholder_count": 2,
+  "history_supported_name_count": 55,
+  "code_conflict_count": 5,
+  "auto_writeback_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "fidelity_note": "该表只为 D0 原页核验和修正建议排序；建议完整院校名称来自OCR标题线索，不能替代PDF原页、湖北官方系统和高校官网/章程核验。",
+  "inputs": [
+    {
+      "path": "data/working/issue19-candidate-v3-admission-detail-review-queue.csv",
+      "sha256": "8c304ea2efcef20467b146d826c1ad168dd7d225439ce1d1533e80f95b16b463",
+      "row_count": 8412
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-candidate-page-code-audit.csv",
+      "sha256": "d2626290790108da765a51d3d3685bb81dbb819daf0fc6f69a24a27d0c5d3c42",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-page-manifest.csv",
+      "sha256": "abc78676bcf8ea471616bd4e4c5d4bee361678909c3f85722cbf2c935eae3c0c",
+      "row_count": 240
+    },
+    {
+      "path": "data/derived/hubei-2023-physics-toudang-parsed.csv",
+      "sha256": "85cf42f6a687138fcacab437069f96073f4390a597a94b43e007148aa2c21378",
+      "row_count": 2874
+    },
+    {
+      "path": "data/derived/hubei-2024-physics-toudang-parsed.csv",
+      "sha256": "196dadc021893a62e234a3ea0cdc33c87571f1ce4297b30d68a30461a53ebbfc",
+      "row_count": 2800
+    },
+    {
+      "path": "data/derived/hubei-2025-physics-toudang-parsed.csv",
+      "sha256": "663ddcab515158507ce98e08dc44986bf634a31591e63cfa4039660fe00dd68f",
+      "row_count": 3147
+    }
+  ]
+}
