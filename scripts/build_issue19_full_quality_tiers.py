@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import csv
+import hashlib
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -48,6 +49,79 @@ def write_csv(path, rows, fields):
 
 def labels_for(tags, mapping):
     return "；".join(mapping[tag] for tag in sorted(tags) if tag in mapping)
+
+
+def stable_id(prefix, parts):
+    text = "|".join(str(part) for part in parts)
+    return f"{prefix}-{hashlib.sha1(text.encode('utf-8')).hexdigest()[:16]}"
+
+
+def group_match_key(row):
+    return (
+        row.get("院校代码", ""),
+        row.get("院校专业组代码OCR规范化", ""),
+        row.get("来源页码", ""),
+        row.get("版面列", ""),
+        row.get("专业组标题行号", ""),
+        row.get("专业组标题OCR原文", ""),
+    )
+
+
+def major_match_key(row):
+    return (
+        row.get("院校代码", ""),
+        row.get("院校专业组代码OCR规范化", ""),
+        row.get("专业代号OCR", ""),
+        row.get("专业名称及备注OCR", ""),
+        row.get("来源页码", ""),
+        row.get("版面列", ""),
+        row.get("专业计划数OCR候选", ""),
+        row.get("学费OCR候选", ""),
+    )
+
+
+def assign_group_occurrence_ids(group_rows, major_rows, source_pdf_sha256):
+    group_ids_by_key = {}
+    groups_by_code = defaultdict(list)
+    group_id_by_row_index = {}
+    for index, row in enumerate(group_rows, start=1):
+        group_id = stable_id(
+            "G",
+            [
+                source_pdf_sha256,
+                index,
+                row.get("院校代码", ""),
+                row.get("院校专业组代码OCR规范化", ""),
+                row.get("来源页码", ""),
+                row.get("版面列", ""),
+                row.get("专业组标题行号", ""),
+                row.get("专业组标题OCR原文", ""),
+            ],
+        )
+        group_id_by_row_index[index] = group_id
+        group_ids_by_key[group_match_key(row)] = group_id
+        groups_by_code[row["院校专业组代码OCR规范化"]].append((group_id, row))
+
+    major_group_ids = {}
+    unmatched_major_count = 0
+    fallback_unique_group_code_count = 0
+    for index, row in enumerate(major_rows, start=1):
+        exact_group_id = group_ids_by_key.get(group_match_key(row))
+        if exact_group_id:
+            major_group_ids[index] = exact_group_id
+            continue
+        code_groups = groups_by_code.get(row["院校专业组代码OCR规范化"], [])
+        if len(code_groups) == 1:
+            major_group_ids[index] = code_groups[0][0]
+            fallback_unique_group_code_count += 1
+            continue
+        unmatched_major_count += 1
+    return (
+        group_id_by_row_index,
+        major_group_ids,
+        unmatched_major_count,
+        fallback_unique_group_code_count,
+    )
 
 
 def major_flags(majors):
@@ -137,23 +211,36 @@ def main():
     major_rows = read_csv(FULL_MAJORS)
     anomaly_rows = read_csv(STRUCTURE_ANOMALIES)
     group_code_counts = Counter(row["院校专业组代码OCR规范化"] for row in group_rows)
+    (
+        group_id_by_row_index,
+        major_group_ids,
+        unmatched_major_count,
+        fallback_unique_group_code_count,
+    ) = assign_group_occurrence_ids(group_rows, major_rows, source_pdf_sha256)
 
     majors_by_group = defaultdict(list)
-    for row in major_rows:
-        majors_by_group[row["院校专业组代码OCR规范化"]].append(row)
+    major_group_id_by_key = {}
+    for index, row in enumerate(major_rows, start=1):
+        group_id = major_group_ids.get(index)
+        if group_id:
+            majors_by_group[group_id].append(row)
+            major_group_id_by_key[major_match_key(row)] = group_id
 
     anomalies_by_group = defaultdict(list)
     for row in anomaly_rows:
-        anomalies_by_group[row["院校专业组代码OCR规范化"]].append(row)
+        group_id = major_group_id_by_key.get(major_match_key(row))
+        if group_id:
+            anomalies_by_group[group_id].append(row)
 
     quality_rows = []
     queue_rows = []
-    for row in group_rows:
+    for index, row in enumerate(group_rows, start=1):
         group_code = row["院校专业组代码OCR规范化"]
+        group_occurrence_id = group_id_by_row_index[index]
         duplicate_group_code_count = group_code_counts[group_code]
         duplicate_group_code = duplicate_group_code_count > 1
-        majors = majors_by_group.get(group_code, [])
-        anomalies = anomalies_by_group.get(group_code, [])
+        majors = majors_by_group.get(group_occurrence_id, [])
+        anomalies = anomalies_by_group.get(group_occurrence_id, [])
         anomaly_rule_counter = Counter(item["异常规则ID"] for item in anomalies)
         anomaly_type_counter = Counter(item["异常类型"] for item in anomalies)
         high_anomaly_count = sum(item["严重程度"] == "高" for item in anomalies)
@@ -228,6 +315,8 @@ def main():
             "来源PDF_SHA256": source_pdf_sha256,
             "数据阶段": "full_quality_tier_ocr_draft",
             "最终可用": "false",
+            "专业组出现ID": group_occurrence_id,
+            "专业组源行号": str(index + 1),
             "院校代码": row["院校代码"],
             "院校名称OCR": row["院校名称OCR"],
             "院校专业组代码OCR规范化": group_code,
@@ -296,6 +385,8 @@ def main():
         "数据阶段",
         "最终可用",
         "核验状态",
+        "专业组出现ID",
+        "专业组源行号",
         "院校代码",
         "院校名称OCR",
         "院校专业组代码OCR规范化",
@@ -361,6 +452,8 @@ def main():
         "groups_with_no_major_detail": sum(row["相对质量层级"] == "Q0-无专业明细" for row in quality_rows),
         "duplicate_normalized_group_code_count": sum(1 for count in group_code_counts.values() if count > 1),
         "duplicate_normalized_group_code_row_count": sum(count for count in group_code_counts.values() if count > 1),
+        "unmatched_major_group_occurrence_count": unmatched_major_count,
+        "fallback_unique_group_code_major_count": fallback_unique_group_code_count,
         "candidate_v1_hit_group_count": sum(row["候选池V1命中"] == "是" for row in quality_rows),
         "preference_hit_group_count": sum(bool(row["偏好方向列表"]) for row in quality_rows),
         "risk_hit_group_count": sum(row["硬风险命中"] == "是" for row in quality_rows),

@@ -72,7 +72,8 @@ python3 scripts/build_issue19_integrity_audit_queues.py
 python3 scripts/build_issue19_candidate_v2_review_seed.py
 python3 scripts/build_issue19_candidate_v2_verification_workbench.py
 python3 scripts/build_issue19_full_quality_tiers.py
+python3 scripts/build_issue19_major_detail_quality_workbench.py
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```
 
-注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细和复核队列，`机器初判`、质量分层和 P0/P1 优先级只用于安排复核顺序，不是最终报考建议。
+注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级只用于安排复核顺序，不是最终报考建议。

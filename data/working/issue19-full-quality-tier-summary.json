@@ -29,10 +29,10 @@
   "major_count": 13736,
   "review_queue_count": 3300,
   "quality_tier_counts": {
-    "Q1-高风险结构异常": 1554,
-    "Q4-结构相对完整待抽检": 244,
+    "Q1-高风险结构异常": 1552,
+    "Q4-结构相对完整待抽检": 245,
     "Q0-无专业明细": 40,
-    "Q3-字段待核": 943,
+    "Q3-字段待核": 944,
     "Q2-重点候选字段待核": 548
   },
   "review_priority_counts": {
@@ -40,11 +40,13 @@
     "P3-相对完整但仍需核页": 29,
     "P1-高优先核页": 4
   },
-  "groups_with_any_structure_anomaly": 2149,
-  "groups_with_high_structure_anomaly": 1554,
+  "groups_with_any_structure_anomaly": 2147,
+  "groups_with_high_structure_anomaly": 1552,
   "groups_with_no_major_detail": 40,
   "duplicate_normalized_group_code_count": 3,
   "duplicate_normalized_group_code_row_count": 6,
+  "unmatched_major_group_occurrence_count": 0,
+  "fallback_unique_group_code_major_count": 1838,
   "candidate_v1_hit_group_count": 17,
   "preference_hit_group_count": 1402,
   "risk_hit_group_count": 2962,

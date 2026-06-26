@@ -1,0 +1,70 @@
+{
+  "status": "full_major_detail_quality_need_manual_pdf_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "full_major_detail_quality_workbench",
+  "generated_by": "scripts/build_issue19_major_detail_quality_workbench.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-ocr-structure-anomaly-queue.csv",
+      "sha256": "edf71556c40a51c130e7ad8eac00067cc9c483b8cec8f136c266057402b4c6f5",
+      "row_count": 5129
+    },
+    {
+      "path": "data/working/issue19-full-quality-group-tiers.csv",
+      "sha256": "d02bcedcdb3189d0a2c123e91b28518420403b995e14e4ec91a64926e36c14bb",
+      "row_count": 3329
+    }
+  ],
+  "major_count": 13736,
+  "review_queue_count": 13705,
+  "matched_anomaly_count": 5129,
+  "unmatched_anomaly_count": 0,
+  "unmatched_group_quality_count": 0,
+  "unmatched_major_group_occurrence_count": 0,
+  "fallback_unique_group_code_major_count": 1838,
+  "unique_major_line_id_count": 13736,
+  "unique_group_occurrence_id_count": 3289,
+  "major_review_priority_counts": {
+    "P0-逐专业必须核页": 13701,
+    "P3-逐专业相对完整但仍需核页": 31,
+    "P1-逐专业高优先核页": 4
+  },
+  "major_attention_type_counts": {
+    "字段或结构异常待核验": 7678,
+    "明确排除方向待人工确认": 1499,
+    "偏好方向待研究": 2043,
+    "普通明细待核页": 533,
+    "费用或合作办学风险待确认": 702,
+    "限制条件待确认": 1281
+  },
+  "major_rows_with_structure_anomaly": 4409,
+  "major_rows_with_high_structure_anomaly": 2862,
+  "preference_major_row_count": 2499,
+  "risk_major_row_count": 3482,
+  "candidate_v1_major_row_count": 77,
+  "duplicate_group_code_major_row_count": 14,
+  "outputs": [
+    "data/working/issue19-full-major-detail-quality-workbench.csv",
+    "data/working/issue19-full-major-detail-review-queue.csv"
+  ],
+  "notes": [
+    "本工作台是逐专业明细派生表，用于后续展开完整招生明细和安排核页优先级。",
+    "逐专业复核优先级不是录取建议，不代表该专业或专业组可报。",
+    "所有行保持最终可用=false，必须回看第19期原PDF页和官方系统/章程。"
+  ]
+}
