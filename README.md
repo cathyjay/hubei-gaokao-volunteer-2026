@@ -43,6 +43,7 @@
 - `docs/OCR_WORKFLOW.md`：第 19 期纸质版照片 OCR、批量处理和人工复核流程。
 - `docs/ISSUE19_PDF_EXTRACTION_PLAN.md`：第 19 期 PDF 私有留存、OCR 提取和数据保存方案。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：第 19 期 OCR 样本学校与学校官网 double check 方案。
+- `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座初稿和保真机制。
 - `docs/CANDIDATE_POOL_V1.md`：第一版可讨论候选池，全部待 2026 计划核验。
 - `docs/SCHOOL_CROSSCHECK_SOURCES.md`：高校官网招生计划交叉校验来源。
 - `docs/DECISIONS.md`：每天的决策日志。
@@ -63,5 +64,6 @@ python3 scripts/update_checksums.py
 python3 scripts/verify_baseline.py
 python3 scripts/ocr_magazine_pages.py --input private/raw/hubei-admission-magazine-2026-issue-19
 python3 scripts/ocr_pdf_pages.py --pdf private/raw/hubei-admission-magazine-2026-issue-19/issue19.pdf --pages 1-20
+python3 scripts/build_issue19_full_admission_plan_ocr_draft.py
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```

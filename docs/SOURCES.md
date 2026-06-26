@@ -141,11 +141,18 @@
 - `data/working/issue19-high-priority-double-check-summary.csv`：第 19 期高优先级 7 校 OCR 定位和官网来源摘要，只保留统计指标与复核状态，不含整页 OCR 原文。
 - `data/working/issue19-first-batch-review-seed-summary.json`：第一批 4 校私有逐组复核种子表的公开摘要，不含 OCR 原文。
 - `data/working/issue19-first-batch-group-major-draft-summary.json`：第一批 4 校专业组/专业 OCR 初稿公开摘要，不含专业明细 OCR 原文。
+- `data/working/issue19-full-admission-plan-school-ocr-draft.csv`：第 19 期全量 OCR 院校汇总初稿，公开招生明细底座的一部分，仍需人工复核。
+- `data/working/issue19-full-admission-plan-group-ocr-draft.csv`：第 19 期全量 OCR 院校专业组汇总初稿，公开招生明细底座的一部分，仍需人工复核。
+- `data/working/issue19-full-admission-plan-major-ocr-draft.csv`：第 19 期全量 OCR 专业行明细初稿，公开招生明细底座的一部分，所有行 `最终可用=false`。
+- `data/working/issue19-full-admission-plan-candidate-coverage.csv`：第一版 20 条历史候选在第 19 期全量 OCR 初稿中的命中情况。
+- `data/working/issue19-full-admission-plan-ocr-draft-summary.json`：第 19 期全量 OCR 招生明细公开摘要、质量状态和保真闸门。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
 - `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
+- `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座初稿说明和保真机制。
 - `scripts/build_issue19_double_check_summary.py`：根据私有 OCR 定位和公开官网来源表生成高优先级 7 校摘要。
 - `scripts/build_issue19_first_batch_review_seed.py`：根据私有 OCR 定位生成第一批 4 校逐组复核种子表，公开仓库只保留摘要 JSON。
 - `scripts/build_issue19_first_batch_group_major_draft.py`：根据全量 OCR 行级数据生成第一批 4 校专业组/专业 OCR 初稿，专业明细只写入 `private/`。
+- `scripts/build_issue19_full_admission_plan_ocr_draft.py`：根据全量 OCR 行级数据生成第 19 期全量公开招生明细初稿和候选池命中表。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。
 

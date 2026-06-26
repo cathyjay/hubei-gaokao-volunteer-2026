@@ -46,9 +46,13 @@ final_allowed
 - 高优先级 7 校摘要：`data/working/issue19-high-priority-double-check-summary.csv`
 - 第一批逐组复核种子公开摘要：`data/working/issue19-first-batch-review-seed-summary.json`
 - 第一批专业组/专业 OCR 初稿公开摘要：`data/working/issue19-first-batch-group-major-draft-summary.json`
+- 全量招生明细 OCR 初稿：`data/working/issue19-full-admission-plan-major-ocr-draft.csv`
+- 全量院校专业组 OCR 初稿：`data/working/issue19-full-admission-plan-group-ocr-draft.csv`
+- 全量候选池命中表：`data/working/issue19-full-admission-plan-candidate-coverage.csv`
 - 生成脚本：`scripts/build_issue19_double_check_summary.py`
 - 第一批复核种子脚本：`scripts/build_issue19_first_batch_review_seed.py`
 - 第一批专业组/专业初稿脚本：`scripts/build_issue19_first_batch_group_major_draft.py`
+- 全量招生明细初稿脚本：`scripts/build_issue19_full_admission_plan_ocr_draft.py`
 
 注意：公开 CSV 只保留摘要指标，不保存整页 OCR 文本、长段 OCR 摘录、原始 PDF、渲染图片或个人身份信息。
 
@@ -100,6 +104,8 @@ data/working/issue19-first-batch-group-major-draft-summary.json
 ```
 
 本轮自动切组结果：44 个院校专业组、220 条专业行。摘要显示第一批 4 校里已经出现医学/护理、中外合作/高收费、语种或单科、体检限制等风险标签。所有专业行仍是 OCR 初稿，必须回看第 19 期原 PDF 页和学校官网后才能用于志愿决策。
+
+第 19 期全量 OCR 招生明细底座初稿也已生成，公开明细覆盖 1103 所院校、3329 个院校专业组、13736 条专业行。该底座范围是湖北省 2026 本科普通批首选物理在鄂招生计划，包含省内外院校在湖北招生专业组。所有行仍保持 `needs_manual_pdf_review` 和 `最终可用=false`。
 
 ## 四、字段可信度
 

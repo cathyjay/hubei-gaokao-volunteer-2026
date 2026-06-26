@@ -303,6 +303,117 @@ def main():
         f"{draft_group_count} groups, {draft_major_count} majors",
     ))
 
+    full_draft_summary_path = ROOT / "data/working/issue19-full-admission-plan-ocr-draft-summary.json"
+    full_draft_summary = json.loads(full_draft_summary_path.read_text())
+    full_school_path = ROOT / "data/working/issue19-full-admission-plan-school-ocr-draft.csv"
+    full_group_path = ROOT / "data/working/issue19-full-admission-plan-group-ocr-draft.csv"
+    full_major_path = ROOT / "data/working/issue19-full-admission-plan-major-ocr-draft.csv"
+    full_candidate_coverage_path = ROOT / "data/working/issue19-full-admission-plan-candidate-coverage.csv"
+    with full_school_path.open(newline="", encoding="utf-8-sig") as f:
+        full_school_rows = list(csv.DictReader(f))
+    with full_group_path.open(newline="", encoding="utf-8-sig") as f:
+        full_group_reader = csv.DictReader(f)
+        full_group_rows = list(full_group_reader)
+        full_group_fields = full_group_reader.fieldnames or []
+    with full_major_path.open(newline="", encoding="utf-8-sig") as f:
+        full_major_reader = csv.DictReader(f)
+        full_major_rows = list(full_major_reader)
+        full_major_fields = full_major_reader.fieldnames or []
+    with full_candidate_coverage_path.open(newline="", encoding="utf-8-sig") as f:
+        full_candidate_coverage_rows = list(csv.DictReader(f))
+
+    full_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            full_draft_summary_path,
+            full_school_path,
+            full_group_path,
+            full_major_path,
+            full_candidate_coverage_path,
+        ]
+    )
+    full_public_forbidden_tokens = [
+        "/Users/",
+        "private/",
+        "private\\",
+        "ocr-runs",
+        "rendered-pages",
+        ".jpg",
+        ".jpeg",
+        ".png",
+        "身份证",
+        "准考证",
+        "报名号",
+        "序列号",
+    ]
+    required_full_major_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "来源页码",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "字段完整性标记",
+        "核验状态",
+    }
+    required_full_group_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "OCR专业行数",
+        "偏好和风险标签",
+        "字段完整性标记",
+        "核验状态",
+    }
+    checks.append(ok(
+        "第 19 期全量招生明细 OCR 初稿摘要和范围正确",
+        full_draft_summary.get("status") == "full_ocr_draft_needs_manual_pdf_review"
+        and "湖北省 2026 本科普通批首选物理在鄂招生计划" in full_draft_summary.get("scope", "")
+        and full_draft_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and full_draft_summary.get("counts", {}).get("OCR院校数") == 1103
+        and full_draft_summary.get("counts", {}).get("OCR院校专业组数") == 3329
+        and full_draft_summary.get("counts", {}).get("OCR专业行数") == 13736
+        and full_draft_summary.get("major_field_completeness", {}).get("最终可用true专业行数") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期全量招生明细 OCR 初稿公开 CSV 行数正确",
+        len(full_school_rows) == 1103
+        and len(full_group_rows) == 3329
+        and len(full_major_rows) == 13736
+        and len(full_candidate_coverage_rows) == 20,
+        f"{len(full_school_rows)} schools, {len(full_group_rows)} groups, {len(full_major_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期全量招生明细 OCR 初稿公开 CSV 字段完整",
+        required_full_major_fields.issubset(set(full_major_fields))
+        and required_full_group_fields.issubset(set(full_group_fields)),
+    ))
+    checks.append(ok(
+        "第 19 期全量招生明细 OCR 初稿状态保持待人工复核",
+        all(row.get("最终可用") == "false" and row.get("核验状态") == "needs_manual_pdf_review" for row in full_major_rows)
+        and all(row.get("最终可用") == "false" and row.get("核验状态") == "needs_manual_pdf_review" for row in full_group_rows),
+    ))
+    checks.append(ok(
+        "第 19 期全量招生明细 OCR 初稿候选池覆盖已记录",
+        full_draft_summary.get("candidate_pool_v1_coverage", {}).get("候选专业组数") == 20
+        and full_draft_summary.get("candidate_pool_v1_coverage", {}).get("全量OCR命中候选专业组数") == 17
+        and set(full_draft_summary.get("candidate_pool_v1_coverage", {}).get("未命中候选专业组", [])) == {"C10702", "C10704", "K15123"},
+    ))
+    checks.append(ok(
+        "第 19 期全量招生明细 OCR 初稿公开文件不含本地路径和身份信息",
+        not any(token in full_public_text for token in full_public_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

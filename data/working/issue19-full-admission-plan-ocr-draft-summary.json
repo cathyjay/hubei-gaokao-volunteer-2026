@@ -1,0 +1,71 @@
+{
+  "status": "full_ocr_draft_needs_manual_pdf_review",
+  "scope": "湖北省 2026 本科普通批首选物理在鄂招生计划；包括省内外院校在湖北招生专业组，不等同于只看湖北省内高校。",
+  "source_issue": "《湖北招生考试》2026 年第 19 期·本科普通批首选物理",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "page_range_used": [
+    10,
+    240
+  ],
+  "public_detail_files": [
+    "data/working/issue19-full-admission-plan-school-ocr-draft.csv",
+    "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+    "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+    "data/working/issue19-full-admission-plan-candidate-coverage.csv"
+  ],
+  "public_data_policy": "招生明细 CSV 已公开；原始 PDF、渲染图片、OCR 行级源文件和本地路径不提交。所有明细仍为 OCR 初稿，必须人工复核。",
+  "counts": {
+    "OCR院校数": 1103,
+    "OCR院校专业组数": 3329,
+    "OCR专业行数": 13736,
+    "无专业行专业组数": 40
+  },
+  "major_field_completeness": {
+    "有再选科目候选专业行数": 2280,
+    "有专业计划数候选专业行数": 7997,
+    "专业计划数纯数字专业行数": 7957,
+    "有学费候选专业行数": 12696,
+    "学费纯数字专业行数": 12474,
+    "最终可用true专业行数": 0
+  },
+  "candidate_pool_v1_coverage": {
+    "候选专业组数": 20,
+    "全量OCR命中候选专业组数": 17,
+    "未命中候选专业组数": 3,
+    "未命中候选专业组": [
+      "C10702",
+      "C10704",
+      "K15123"
+    ]
+  },
+  "sample_school_coverage": {
+    "样本院校代码数": 20,
+    "全量OCR命中样本院校数": 19,
+    "未命中样本院校代码": [
+      "C156"
+    ]
+  },
+  "risk_and_preference_tag_counts": {
+    "body_or_exam_limit": 700,
+    "high_fee_or_coop": 444,
+    "language_or_single_subject": 289,
+    "priority_1_digital_media": 78,
+    "priority_2_computer": 1032,
+    "priority_3_teacher": 760,
+    "rejected_medical": 604,
+    "special_plan_or_direction": 70,
+    "tuition_over_15000": 2635
+  },
+  "quality_gates": [
+    "本表是 OCR 自动切组初稿，不能直接作为最终志愿表。",
+    "所有专业组须回看第 19 期原 PDF 页确认组边界和组内全部专业。",
+    "院校代码、专业组代码、专业代号、计划数、学费、选科和备注必须逐字段核验。",
+    "超过 15000 元/年、中外合作、医学护理、体检限制、语种单科、专项预科等风险标签必须优先人工复核。",
+    "进入最终志愿表前，必须与湖北官方计划或志愿系统、高校官网/招生章程交叉核验。"
+  ],
+  "notes": [
+    "全量底座先用于搜索、筛选、定位和生成复核任务。",
+    "省外高校只要在湖北招生，也属于本底座范围。",
+    "如后续官方系统与第 19 期存在调整，以官方系统公告和志愿填报系统为准。"
+  ]
+}
