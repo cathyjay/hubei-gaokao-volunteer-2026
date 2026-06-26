@@ -121,6 +121,7 @@ def main():
 
     family_preferences = json.loads((ROOT / "data/working/family-preferences.json").read_text())
     major_preference = family_preferences["major_preference"]
+    budget_preference = family_preferences["budget"]
     checks.append(ok(
         "家庭偏好已记录不学医",
         {"医学类", "护理类"}.issubset(set(major_preference.get("rejected_directions", []))),
@@ -128,6 +129,10 @@ def main():
     checks.append(ok(
         "家庭专业优先级已记录",
         major_preference.get("priority_order") == ["数字媒体技术", "计算机类相关专业", "师范类专业"],
+    ))
+    checks.append(ok(
+        "家庭费用上限已记录为 15000 元/年",
+        budget_preference.get("annual_upper_limit_yuan") == 15000,
     ))
 
     school_crosscheck_files = [
