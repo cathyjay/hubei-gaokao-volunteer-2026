@@ -112,8 +112,9 @@ OCR 字段不等于最终事实。
 动作：
 
 - 对已命中项，回看第 19 期 PDF 原页确认专业组边界和组内全部专业。
-- 对未命中项，判断是 OCR 漏识别、2026 组号变化、历史组取消，还是候选池历史 OCR 噪声。
+- 对未命中项，先看 `issue19-candidate-page-code-audit.csv`：`C10704` 属于页面有组号但结构化漏拆，`C10702`、`K15123` 更偏 2026 组号变化、历史组取消或候选池历史 OCR 噪声。
 - 优先打开候选池页面复核包的 10 页私有页图和页面 OCR 文本，先核候选专业组及同校相邻专业组。
+- 同步查看 `issue19-ocr-structure-anomaly-queue.csv`，命中串校、串组、页眉串入、计划数/学费错位的专业行不得直接用于判断调剂可接受。
 - 核对专业代号、专业名称、计划数、学费、选科、备注。
 - 标记风险：医学/护理、高收费、中外合作、体检限制、语种/单科、小计划、学费超过 15000 元。
 - 标记家庭接受度：可接受、勉强接受、不能接受。
@@ -124,6 +125,8 @@ OCR 字段不等于最终事实。
 候选池 2026 计划复核表：
 data/working/issue19-candidate-plan-review-summary.csv
 data/working/issue19-candidate-plan-review-major-detail.csv
+data/working/issue19-candidate-page-code-audit.csv
+data/working/issue19-ocr-structure-anomaly-queue.csv
 ```
 
 该表的目的不是马上定志愿，而是先把最可能进入方案的院校专业组从全量 OCR 初稿提升到可讨论状态。

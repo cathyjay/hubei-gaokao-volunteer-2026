@@ -1,0 +1,77 @@
+{
+  "status": "issue19_integrity_audit_queues_need_manual_pdf_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "issue19_integrity_audit",
+  "generated_by": "scripts/build_issue19_integrity_audit_queues.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-candidate-review-group-page-map.csv",
+      "sha256": "33c1ff9aed64c6240cff8acaa7f00ff213efb1920cb424a7d8bc849d91b72634",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
+      "row_count": 13736
+    }
+  ],
+  "candidate_page_code_audit_count": 20,
+  "candidate_page_code_anomaly_counts": {
+    "页面与结构化均命中": 16,
+    "结构化命中但页面OCR未检出组号": 1,
+    "复核页未见候选组号且结构化未命中": 2,
+    "页面有组号但结构化未拆出": 1
+  },
+  "candidate_page_code_rule_counts": {
+    "page_and_structured_match": 16,
+    "structured_hit_page_text_miss": 1,
+    "candidate_group_missing_in_page_and_structured": 2,
+    "candidate_group_page_hit_structured_miss": 1
+  },
+  "structure_anomaly_count": 5129,
+  "structure_anomaly_type_counts": {
+    "专业名称疑似串入下一院校": 1022,
+    "学费数字疑似吞入计划数或截断": 1241,
+    "学费字段非纯数字": 222,
+    "专业名称疑似串入专业组代码": 32,
+    "专业计划数疑似吞入学费或备注": 585,
+    "专业计划数字段非纯数字": 40,
+    "OCR置信度低": 1717,
+    "专业名称疑似串入页眉或栏目文字": 170,
+    "专业代号疑似漏位或误识别": 100
+  },
+  "structure_anomaly_rule_counts": {
+    "major_text_embeds_other_school_marker": 1022,
+    "tuition_number_le_500": 1241,
+    "tuition_not_plain_number": 222,
+    "major_text_embeds_group_code": 32,
+    "plan_count_number_ge_1000": 585,
+    "plan_count_not_plain_number": 40,
+    "low_ocr_confidence": 1717,
+    "major_text_embeds_page_header": 170,
+    "major_code_not_two_chars": 100
+  },
+  "structure_anomaly_severity_counts": {
+    "高": 3142,
+    "中": 1987
+  },
+  "outputs": [
+    "data/working/issue19-candidate-page-code-audit.csv",
+    "data/working/issue19-ocr-structure-anomaly-queue.csv"
+  ],
+  "notes": [
+    "候选页码审计用于发现页面OCR命中与结构化切组结果不一致的问题。",
+    "结构异常队列用于发现专业明细层面的串校、串组、页眉串入、专业代号异常、计划数/学费错位和低置信度。",
+    "所有输出仍为复核队列，不能作为最终填报依据。"
+  ]
+}

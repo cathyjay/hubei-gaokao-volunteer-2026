@@ -717,6 +717,111 @@ def main():
         not any(token in page_packet_public_text for token in page_packet_forbidden_tokens),
     ))
 
+    integrity_summary_path = ROOT / "data/working/issue19-integrity-audit-summary.json"
+    candidate_page_code_audit_csv = ROOT / "data/working/issue19-candidate-page-code-audit.csv"
+    structure_anomaly_queue_csv = ROOT / "data/working/issue19-ocr-structure-anomaly-queue.csv"
+    integrity_summary = json.loads(integrity_summary_path.read_text())
+    with candidate_page_code_audit_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_page_code_reader = csv.DictReader(f)
+        candidate_page_code_rows = list(candidate_page_code_reader)
+        candidate_page_code_fields = set(candidate_page_code_reader.fieldnames or [])
+    with structure_anomaly_queue_csv.open(newline="", encoding="utf-8-sig") as f:
+        structure_anomaly_reader = csv.DictReader(f)
+        structure_anomaly_rows = list(structure_anomaly_reader)
+        structure_anomaly_fields = set(structure_anomaly_reader.fieldnames or [])
+    required_candidate_code_audit_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "候选池学校专业组",
+        "候选专业组代码",
+        "页面OCR是否出现候选组号",
+        "全量专业组表是否出现",
+        "异常规则ID",
+        "异常类型",
+        "严重程度",
+        "核验状态",
+    }
+    required_structure_anomaly_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "源文件",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "字段完整性标记",
+        "异常规则ID",
+        "异常类型",
+        "严重程度",
+        "核验状态",
+    }
+    integrity_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [integrity_summary_path, candidate_page_code_audit_csv, structure_anomaly_queue_csv]
+    )
+    checks.append(ok(
+        "第 19 期完整性审计摘要和行数正确",
+        integrity_summary.get("status") == "issue19_integrity_audit_queues_need_manual_pdf_review"
+        and integrity_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and integrity_summary.get("candidate_page_code_audit_count") == 20
+        and integrity_summary.get("structure_anomaly_count") == 5129
+        and integrity_summary.get("candidate_page_code_anomaly_counts") == {
+            "页面与结构化均命中": 16,
+            "结构化命中但页面OCR未检出组号": 1,
+            "复核页未见候选组号且结构化未命中": 2,
+            "页面有组号但结构化未拆出": 1,
+        }
+        and integrity_summary.get("structure_anomaly_rule_counts") == {
+            "major_text_embeds_other_school_marker": 1022,
+            "tuition_number_le_500": 1241,
+            "tuition_not_plain_number": 222,
+            "major_text_embeds_group_code": 32,
+            "plan_count_number_ge_1000": 585,
+            "plan_count_not_plain_number": 40,
+            "low_ocr_confidence": 1717,
+            "major_text_embeds_page_header": 170,
+            "major_code_not_two_chars": 100,
+        }
+        and len(candidate_page_code_rows) == 20
+        and len(structure_anomaly_rows) == 5129,
+    ))
+    checks.append(ok(
+        "第 19 期完整性审计字段和关键异常正确",
+        required_candidate_code_audit_fields.issubset(candidate_page_code_fields)
+        and required_structure_anomaly_fields.issubset(structure_anomaly_fields)
+        and all(row.get("最终可用") == "false" and row.get("核验状态") == "needs_manual_pdf_review" for row in candidate_page_code_rows + structure_anomaly_rows)
+        and any(
+            row.get("候选专业组代码") == "C10704"
+            and row.get("异常规则ID") == "candidate_group_page_hit_structured_miss"
+            and row.get("页面OCR命中页码") == "69"
+            and row.get("严重程度") == "高"
+            for row in candidate_page_code_rows
+        )
+        and any(
+            row.get("候选专业组代码") == "K15123"
+            and row.get("异常规则ID") == "candidate_group_missing_in_page_and_structured"
+            for row in candidate_page_code_rows
+        )
+        and any(
+            row.get("院校专业组代码OCR规范化") == "C10705"
+            and row.get("专业代号OCR") == "15"
+            and row.get("异常规则ID") == "major_text_embeds_other_school_marker"
+            and "C108" in row.get("异常证据", "")
+            for row in structure_anomaly_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期完整性审计公开文件不含本地路径和身份信息",
+        not any(token in integrity_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
