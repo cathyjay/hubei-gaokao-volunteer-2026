@@ -97,6 +97,13 @@ OCR 初稿 / 最终可用=false
 - `最高学费候选` 只能作为 OCR 数字线索；如果 `学费候选` 非纯数字，或命中 `tuition_not_plain_number`、`tuition_number_le_500`，预算判断必须回看原页和高校章程。
 - 候选 V2 仍统一为 `candidate_v2_review_seed_needs_manual_pdf_review`，所有行 `最终可用=false`；只有完成原页、官方系统或湖北省招办计划、高校章程三方核验后，才能升级。
 
+候选 V2 升级工作台的使用方式：
+
+- `data/working/issue19-candidate-v2-verification-group-workbench.csv` 是专业组升级闸门表，默认 `候选闸门状态=pending_verification`、`可进入最终候选=false`。
+- `data/working/issue19-candidate-v2-verification-major-workbench.csv` 是逐专业接受度和字段核验表，默认 `专业闸门状态=pending_verification`、`是否允许进入最终专业列表=false`。
+- 一个专业组进入冲稳保排序前，必须补齐原 PDF 页、湖北官方系统或省招办计划、高校官网/招生章程、家庭逐专业接受度、组内调剂结论和三年投档稳定性。
+- 0 明细组必须先解决 2026 组号变化或补齐专业明细；同校补充组不得沿用原历史候选投档线。
+
 ## 四、第三方数据核验
 
 千问高考、static-data.gaokao.cn、阳光高考页面和其他工具只能作为辅助来源。

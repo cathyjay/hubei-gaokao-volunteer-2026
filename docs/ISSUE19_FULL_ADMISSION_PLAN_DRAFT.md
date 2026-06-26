@@ -35,6 +35,9 @@
 | `data/working/issue19-candidate-v2-group-review-seed.csv` | 候选 V2 专业组种子 | 在 20 条历史候选基础上补入页图重切组、同页相邻风险组和同校偏好专业补充组 |
 | `data/working/issue19-candidate-v2-major-review-seed.csv` | 候选 V2 逐专业明细种子 | 直接列出候选 V2 每个院校专业组下的招生专业明细，用于后续判断调剂是否可接受 |
 | `data/working/issue19-candidate-v2-review-seed-summary.json` | 候选 V2 摘要 | 看候选 V2 的行数、证据来源、重点发现和待复核状态 |
+| `data/working/issue19-candidate-v2-verification-group-workbench.csv` | 候选 V2 组级升级工作台 | 看每个候选专业组距离“可讨论/可排序”还缺哪些原页、官方系统、章程、家庭接受度和调剂证据 |
+| `data/working/issue19-candidate-v2-verification-major-workbench.csv` | 候选 V2 专业明细升级工作台 | 给每个专业记录机器接受度初判、阻断原因、字段核验状态和升级缺口 |
+| `data/working/issue19-candidate-v2-verification-workbench-summary.json` | 候选 V2 升级摘要 | 看升级闸门状态、0 明细组、专业接受度分布和待补证据 |
 
 当前自动识别结果：
 
@@ -54,6 +57,8 @@
 | 全量专业明细结构异常行数 | 5129 |
 | 候选 V2 专业组种子 | 23 |
 | 候选 V2 逐专业明细种子 | 82 |
+| 候选 V2 升级工作台专业组 | 23 |
+| 候选 V2 升级工作台专业明细 | 82 |
 
 当前全量优先专业关键词命中：
 
@@ -96,6 +101,14 @@
 
 特别注意：`最高学费候选` 只适用于学费字段 OCR 为清晰纯数字的情况。遇到 `10万`、`6`、`［50000` 这类非纯数字或疑似截断字段时，预算判断必须回看原页和学校章程，不能直接用数字候选值。
 
+候选 V2 升级工作台把“是否能进冲稳保排序”拆成硬闸门：
+
+- 当前 23 个专业组全部为 `候选闸门状态=pending_verification`，`可进入最终候选=false`。
+- 当前 82 条专业明细全部为 `专业闸门状态=pending_verification`，`是否允许进入最终专业列表=false`。
+- `C10702`、`K15123` 是 0 明细组，`零明细原因=group_not_found_or_code_changed`，不得进入排序。
+- `K15114`、`K17905` 等同校补充组默认 `历史投档线可沿用=false`，必须重新找 2026 组证据和历史参照。
+- `C10704` 虽然页图可见，但仍要求原页、湖北官方系统/省招办计划、高校章程、家庭接受度和调剂结论全部补齐后，才可能进入讨论。
+
 ## 三、当前可信度
 
 当前状态统一为：
@@ -105,6 +118,7 @@ full_ocr_draft_needs_manual_pdf_review
 candidate_review_workbench_needs_manual_pdf_review
 priority_review_queues_need_manual_pdf_review
 candidate_v2_review_seed_needs_manual_pdf_review
+candidate_v2_verification_workbench_pending_review
 ```
 
 所有明细行的 `最终可用` 均为：
@@ -154,9 +168,10 @@ OCR 字段不等于最终事实。
 8. **页面复核包**：候选池生成 10 页私有页图和页面 OCR 文本，公开仓库只保留页码、文件名和哈希。
 9. **完整性审计**：额外生成候选页码组号审计和全量专业明细结构异常队列，专门捕捉页面有组号但结构化漏拆、专业行串到下一院校、页眉串入、专业代号异常、计划数/学费错位等问题。
 10. **逐专业种子**：候选 V2 同时保留专业组级定位和逐专业明细，避免只看学校/专业组两层汇总就判断是否能服从调剂。
-11. **机器校验**：`scripts/verify_baseline.py` 会检查全量明细行数、来源 SHA、候选命中数、候选工作台、优先/风险队列、页面复核包、完整性审计、候选 V2 逐专业明细、`最终可用=false`、核验状态、敏感路径和哈希清单。
-12. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
-13. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
+11. **升级闸门**：候选 V2 升级工作台把原页核验、湖北官方系统/省招办计划、高校章程、家庭接受度、调剂结论、三年投档稳定性拆开记录；默认全部 pending，不能直接进入排序。
+12. **机器校验**：`scripts/verify_baseline.py` 会检查全量明细行数、来源 SHA、候选命中数、候选工作台、优先/风险队列、页面复核包、完整性审计、候选 V2 逐专业明细、候选 V2 升级工作台、`最终可用=false`、核验状态、敏感路径和哈希清单。
+13. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
+14. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
 
 ## 五、下一步复核优先级
 
@@ -202,6 +217,8 @@ OCR 初稿/最终可用=false
 - `data/working/issue19-hard-risk-group-review-queue.csv`
 - `data/working/issue19-candidate-v2-group-review-seed.csv`
 - `data/working/issue19-candidate-v2-major-review-seed.csv`
+- `data/working/issue19-candidate-v2-verification-group-workbench.csv`
+- `data/working/issue19-candidate-v2-verification-major-workbench.csv`
 
 这些文件只负责把“要复核什么”列清楚。只有完成 PDF 原页、湖北官方平台或志愿系统、学校官网/章程、家庭接受度、调剂风险、三年投档稳定性核验后，才允许从 `needs_manual_pdf_review` 升级为可进入冲稳保排序。
 

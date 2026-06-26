@@ -1032,6 +1032,174 @@ def main():
         not any(token in candidate_v2_public_text for token in candidate_v2_forbidden_tokens),
     ))
 
+    candidate_v2_verification_summary_path = ROOT / "data/working/issue19-candidate-v2-verification-workbench-summary.json"
+    candidate_v2_verification_group_csv = ROOT / "data/working/issue19-candidate-v2-verification-group-workbench.csv"
+    candidate_v2_verification_major_csv = ROOT / "data/working/issue19-candidate-v2-verification-major-workbench.csv"
+    candidate_v2_verification_summary = json.loads(candidate_v2_verification_summary_path.read_text())
+    with candidate_v2_verification_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v2_verification_group_reader = csv.DictReader(f)
+        candidate_v2_verification_group_rows = list(candidate_v2_verification_group_reader)
+        candidate_v2_verification_group_fields = set(candidate_v2_verification_group_reader.fieldnames or [])
+    with candidate_v2_verification_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v2_verification_major_reader = csv.DictReader(f)
+        candidate_v2_verification_major_rows = list(candidate_v2_verification_major_reader)
+        candidate_v2_verification_major_fields = set(candidate_v2_verification_major_reader.fieldnames or [])
+    required_candidate_v2_verification_group_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "2026院校专业组代码",
+        "专业明细行数",
+        "零明细原因",
+        "历史投档线可沿用",
+        "历史线基准来源",
+        "原PDF页人工核验状态",
+        "湖北官方系统/省招办计划核验状态",
+        "高校官网/招生章程核验状态",
+        "家庭接受度核验状态",
+        "调剂结论状态",
+        "全部专业已复核",
+        "候选闸门状态",
+        "可进入最终候选",
+        "升级缺口",
+    }
+    required_candidate_v2_verification_major_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "2026院校专业组代码",
+        "专业代号",
+        "专业名称及备注",
+        "专业接受度机器初判",
+        "专业接受度人工确认",
+        "专业闸门状态",
+        "专业字段复核状态",
+        "专业代号核验状态",
+        "专业名称核验状态",
+        "计划数核验状态",
+        "学费核验状态",
+        "选科核验状态",
+        "备注核验状态",
+        "是否允许进入最终专业列表",
+        "升级缺口",
+    }
+    candidate_v2_verification_groups_by_code = {
+        row.get("2026院校专业组代码"): row for row in candidate_v2_verification_group_rows
+    }
+    candidate_v2_verification_majors_by_group = {}
+    for row in candidate_v2_verification_major_rows:
+        candidate_v2_verification_majors_by_group.setdefault(row.get("2026院校专业组代码"), []).append(row)
+    candidate_v2_verification_zero_detail_groups = {
+        row.get("2026院校专业组代码")
+        for row in candidate_v2_verification_group_rows
+        if row.get("专业明细行数") == "0"
+    }
+    candidate_v2_verification_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            candidate_v2_verification_summary_path,
+            candidate_v2_verification_group_csv,
+            candidate_v2_verification_major_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期候选V2升级工作台摘要和行数正确",
+        candidate_v2_verification_summary.get("status") == "candidate_v2_verification_workbench_pending_review"
+        and candidate_v2_verification_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and candidate_v2_verification_summary.get("group_count") == 23
+        and candidate_v2_verification_summary.get("major_count") == 82
+        and candidate_v2_verification_summary.get("group_can_enter_final_count") == 0
+        and candidate_v2_verification_summary.get("major_can_enter_final_count") == 0
+        and set(candidate_v2_verification_summary.get("zero_detail_groups", [])) == {"C10702", "K15123"}
+        and candidate_v2_verification_summary.get("group_gate_status_counts") == {"pending_verification": 23}
+        and candidate_v2_verification_summary.get("major_gate_status_counts") == {"pending_verification": 82}
+        and len(candidate_v2_verification_group_rows) == 23
+        and len(candidate_v2_verification_major_rows) == 82,
+        f"{len(candidate_v2_verification_group_rows)} groups, {len(candidate_v2_verification_major_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期候选V2升级工作台字段和默认闸门状态正确",
+        required_candidate_v2_verification_group_fields.issubset(candidate_v2_verification_group_fields)
+        and required_candidate_v2_verification_major_fields.issubset(candidate_v2_verification_major_fields)
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("候选闸门状态") == "pending_verification"
+            and row.get("可进入最终候选") == "false"
+            and row.get("全部专业已复核") == "false"
+            and row.get("原PDF页人工核验状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统/省招办计划核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网/招生章程核验状态") == "pending_school_charter_review"
+            and row.get("家庭接受度核验状态") == "pending_family_acceptance_review"
+            and row.get("调剂结论状态") == "pending_transfer_decision"
+            for row in candidate_v2_verification_group_rows
+        )
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("专业闸门状态") == "pending_verification"
+            and row.get("是否允许进入最终专业列表") == "false"
+            and row.get("专业接受度人工确认") == "pending_family_acceptance_review"
+            and row.get("原PDF页字段核验状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校章程字段核验状态") == "pending_school_charter_review"
+            for row in candidate_v2_verification_major_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2升级工作台专业组明细一致且零明细组不可升级",
+        all(
+            as_int(row.get("专业明细行数"))
+            == len(candidate_v2_verification_majors_by_group.get(row.get("2026院校专业组代码"), []))
+            for row in candidate_v2_verification_group_rows
+        )
+        and candidate_v2_verification_zero_detail_groups == {"C10702", "K15123"}
+        and all(
+            row.get("零明细原因") == "group_not_found_or_code_changed"
+            and row.get("历史投档线可沿用") == "false"
+            and row.get("可进入最终候选") == "false"
+            for row in candidate_v2_verification_group_rows
+            if row.get("2026院校专业组代码") in {"C10702", "K15123"}
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2升级工作台重点组闸门正确",
+        candidate_v2_verification_groups_by_code.get("C10704", {}).get("证据来源") == "page_visual_review_seed"
+        and candidate_v2_verification_groups_by_code.get("C10704", {}).get("结构化命中") == "否"
+        and candidate_v2_verification_groups_by_code.get("C10704", {}).get("历史线基准来源") == "pending_structured_group_repair"
+        and candidate_v2_verification_groups_by_code.get("K15114", {}).get("历史投档线可沿用") == "false"
+        and candidate_v2_verification_groups_by_code.get("K15114", {}).get("历史线基准来源") == "pending_new_group_evidence"
+        and candidate_v2_verification_groups_by_code.get("K17905", {}).get("历史投档线可沿用") == "false"
+        and candidate_v2_verification_groups_by_code.get("K17905", {}).get("字段异常专业数") == "1"
+        and candidate_v2_verification_groups_by_code.get("K17905", {}).get("候选闸门状态") == "pending_verification"
+        and any(
+            row.get("2026院校专业组代码") == "K17905"
+            and row.get("专业闸门状态") == "pending_verification"
+            and row.get("专业接受度机器初判") == "字段异常待核验"
+            and "major_text_embeds_page_header" in row.get("结构异常规则ID", "")
+            for row in candidate_v2_verification_major_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2升级工作台专业接受度阻断原因完整",
+        all(row.get("专业接受度机器初判") for row in candidate_v2_verification_major_rows)
+        and all(
+            row.get("阻断原因")
+            for row in candidate_v2_verification_major_rows
+            if row.get("专业接受度机器初判") in {"默认不能接受", "默认不进主方案"}
+        )
+        and all(
+            row.get("风险说明")
+            for row in candidate_v2_verification_major_rows
+            if row.get("专业接受度机器初判") == "限制风险待核验"
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2升级工作台公开文件不含本地路径、身份信息和 final_allowed",
+        "final_allowed" not in candidate_v2_verification_public_text
+        and not any(token in candidate_v2_verification_public_text for token in candidate_v2_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

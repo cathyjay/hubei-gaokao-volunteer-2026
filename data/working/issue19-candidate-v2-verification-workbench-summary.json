@@ -1,0 +1,80 @@
+{
+  "status": "candidate_v2_verification_workbench_pending_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "candidate_v2_verification_workbench",
+  "generated_by": "scripts/build_issue19_candidate_v2_verification_workbench.py",
+  "inputs": [
+    {
+      "path": "data/working/family-preferences.json",
+      "sha256": "757aa12a0fc73cfd8b6074789921a3f8a8365f392cb3587e3df8ee63cd6abd62"
+    },
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-group-review-seed.csv",
+      "sha256": "79a82f1665b7baa99903ca740d3231a5dcff1c3a1525239f39714145ce74be7e",
+      "row_count": 23
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-major-review-seed.csv",
+      "sha256": "ad3dd80eb2d180b36006093cf4bcbef63dcf99fe7d3d206f06b33a20ca831f30",
+      "row_count": 82
+    }
+  ],
+  "group_count": 23,
+  "major_count": 82,
+  "group_can_enter_final_count": 0,
+  "major_can_enter_final_count": 0,
+  "group_gate_status_counts": {
+    "pending_verification": 23
+  },
+  "major_gate_status_counts": {
+    "pending_verification": 82
+  },
+  "zero_detail_groups": [
+    "C10702",
+    "K15123"
+  ],
+  "group_priority_counts": {
+    "P1-风险或字段异常": 18,
+    "P0-组号定位和页图边界": 3,
+    "P1-限制条件核验": 1,
+    "P3-常规复核": 1
+  },
+  "group_transfer_machine_counts": {
+    "默认不可服从：组内含高收费/中外合作/超预算风险": 5,
+    "不可判断：当前无专业明细，需先定位2026专业组或补齐组内专业": 2,
+    "默认不可服从：组内含当前明确不能接受专业": 8,
+    "暂不可判断：组内含体检、色觉、语种、单科或特殊类型限制": 3,
+    "暂不可判断：组内存在 OCR 字段或结构异常": 4,
+    "待家庭逐专业确认：当前未触发默认排除，但仍未完成调剂判断": 1
+  },
+  "major_machine_acceptance_counts": {
+    "默认不进主方案": 7,
+    "默认不能接受": 13,
+    "待了解": 43,
+    "重点了解": 7,
+    "字段异常待核验": 8,
+    "限制风险待核验": 4
+  },
+  "pending_gate_statuses": {
+    "原PDF页人工核验状态": "pending_original_pdf_page_review",
+    "湖北官方系统/省招办计划核验状态": "pending_hubei_official_plan_review",
+    "高校官网/招生章程核验状态": "pending_school_charter_review",
+    "家庭接受度核验状态": "pending_family_acceptance_review",
+    "调剂结论状态": "pending_transfer_decision"
+  },
+  "tuition_limit_yuan": 15000,
+  "outputs": [
+    "data/working/issue19-candidate-v2-verification-group-workbench.csv",
+    "data/working/issue19-candidate-v2-verification-major-workbench.csv"
+  ],
+  "notes": [
+    "本工作台是升级闸门，不是最终志愿表。",
+    "所有行保持最终可用=false，且可进入最终候选=false。",
+    "只有完成原PDF页、湖北官方计划/系统、高校章程、家庭接受度、调剂结论和三年投档稳定性复核后，才能另行升级。"
+  ]
+}
