@@ -7,3 +7,5 @@ candidate-screenshots/
 .DS_Store
 tmp/
 scratch/
+__pycache__/
+*.pyc

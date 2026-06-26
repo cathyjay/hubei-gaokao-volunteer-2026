@@ -114,6 +114,13 @@ def main():
     ]
     checks.append(ok("第 16/19 期专项检索证据已留存", all(p.exists() and p.stat().st_size > 1000 for p in magazine_search_files)))
 
+    ocr_workflow_files = [
+        ROOT / "docs/OCR_WORKFLOW.md",
+        ROOT / "scripts/ocr_magazine_pages.py",
+        ROOT / "scripts/vision_ocr.swift",
+    ]
+    checks.append(ok("第 19 期照片 OCR 工作流已就绪", all(p.exists() and p.stat().st_size > 1000 for p in ocr_workflow_files)))
+
     checksum_path = ROOT / "CHECKSUMS.sha256"
     if checksum_path.exists():
         manifest_ok = True
