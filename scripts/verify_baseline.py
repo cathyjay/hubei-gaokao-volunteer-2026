@@ -110,8 +110,24 @@ def main():
         candidate_rows = list(csv.DictReader(f))
     checks.append(ok("第一版候选池共 20 条", len(candidate_rows) == 20, str(len(candidate_rows))))
     checks.append(ok(
-        "第一版候选池全部标记待核验",
-        all("needs_2026_plan_verification" in row.get("复核状态", "") for row in candidate_rows),
+        "第一版候选池主方案项待核验且医学项已排除",
+        all(
+            "needs_2026_plan_verification" in row.get("复核状态", "")
+            or "excluded_medical" in row.get("复核状态", "")
+            for row in candidate_rows
+        )
+        and sum("excluded_medical" in row.get("复核状态", "") for row in candidate_rows) == 4,
+    ))
+
+    family_preferences = json.loads((ROOT / "data/working/family-preferences.json").read_text())
+    major_preference = family_preferences["major_preference"]
+    checks.append(ok(
+        "家庭偏好已记录不学医",
+        {"医学类", "护理类"}.issubset(set(major_preference.get("rejected_directions", []))),
+    ))
+    checks.append(ok(
+        "家庭专业优先级已记录",
+        major_preference.get("priority_order") == ["数字媒体技术", "计算机类相关专业", "师范类专业"],
     ))
 
     school_crosscheck_files = [

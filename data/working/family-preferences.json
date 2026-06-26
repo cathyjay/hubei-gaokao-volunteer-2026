@@ -6,15 +6,19 @@
     "note": "民办、独立学院、职业本科暂不进入主方案；如保底压力不足再单独讨论。"
   },
   "budget": {
-    "preference": "正常学费预算",
+    "preference": "公办、正常学费预算",
     "preferred": ["普通公办学费"],
     "not_regular_options": ["中外合作", "高收费专业组", "民办高学费"],
     "annual_upper_limit_yuan": null,
-    "note": "具体年学费上限待家庭补充。"
+    "note": "主方案按公办普通学费处理；具体年学费上限暂不单独设数值，遇到高收费或中外合作先排除或单独讨论。"
   },
   "major_preference": {
     "current_understanding": "目前不了解专业，需要继续研究",
-    "known_interest_directions": ["数字媒体技术", "师范类专业", "计算机类相关专业"],
+    "priority_order": ["数字媒体技术", "计算机类相关专业", "师范类专业"],
+    "known_interest_directions": ["数字媒体技术", "计算机类相关专业", "师范类专业"],
+    "rejected_directions": ["医学类", "护理类"],
+    "teacher_attitude": "可以了解",
+    "other_directions": "待了解",
     "decision_principle": "专业组内所有专业可接受优先于城市偏好。"
   },
   "priority_order": [

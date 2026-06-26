@@ -10,10 +10,10 @@
 武汉体育学院 C10704 第04组,武汉,2023/2025,509,,510,冲,公办倾向且武汉；两年分数都在冲档讨论区,2025 row 出现 T7 OCR 噪声；需核专业组性质和组内专业,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
 西安航空学院 K48703 第03组,西安,2024/2025,,515,497,稳偏冲/降分需核,公办倾向且西安；2025接近等位分，城市和普通本科属性匹配,2024为515、2025降至497，需核是否组别/专业组成变化，不宜直接当稳保,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
 西安航空学院 K48704 第04组,西安,2025,,,506,小冲/单年观察,公办倾向且西安；2025在可讨论区间，补充西安公办选项,只有2025同代码命中，缺少趋势；需核2026计划和专业组构成,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
-西安医学院 K48805 第05组,西安,2023/2024/2025,539,534,496,高波动观察,公办倾向且西安；2025分数贴近等位分，可作为医学类是否接受的讨论样本,2024备注为护理类且2023/2024显著高，2025低分可能来自组别变化；医学/护理方向非当前起点,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
-西安医学院 K48804 第04组,西安,2023/2024/2025,558,564,507,高波动观察,公办倾向且西安；2025进入可讨论上界,2023/2024极高、2025明显下探，强烈提示组别/专业变化；医学方向和体检要求需谨慎,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
-成都医学院 K17802 第02组,成都,2023/2024/2025,514,517,512,冲,公办倾向且成都；三年覆盖完整，城市匹配,医学类方向非当前起点，2025较等位分高约18分；需核专业、体检、学制和调剂风险,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
-成都医学院 K17801 第01组,成都,2023/2024/2025,514,521,514,冲/OCR待核,公办倾向且成都；三年均在冲档讨论区,2025解析代码为 KI7801，疑似 K17801 OCR 误识；医学类方向和体检要求需谨慎,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
+西安医学院 K48805 第05组,西安,2023/2024/2025,539,534,496,主方案排除/历史样本,2025分数贴近等位分，但家庭已明确不学医，不进入主方案,2024备注为护理类且2023/2024显著高，2025低分可能来自组别变化；仅作历史风险样本,excluded_medical; needs_original_row_verification
+西安医学院 K48804 第04组,西安,2023/2024/2025,558,564,507,主方案排除/历史样本,2025进入可讨论上界，但家庭已明确不学医，不进入主方案,2023/2024极高、2025明显下探，强烈提示组别/专业变化；仅作历史风险样本,excluded_medical; needs_original_row_verification
+成都医学院 K17802 第02组,成都,2023/2024/2025,514,517,512,主方案排除/历史样本,成都公办且三年覆盖完整，但家庭已明确不学医，不进入主方案,2025较等位分高约18分；仅作医学/体检/调剂风险样本,excluded_medical; needs_original_row_verification
+成都医学院 K17801 第01组,成都,2023/2024/2025,514,521,514,主方案排除/OCR待核,成都公办但家庭已明确不学医，不进入主方案,2025解析代码为 KI7801，疑似 K17801 OCR 误识；仅作历史风险样本,excluded_medical; needs_original_row_verification
 成都师范学院 K17903 第03组,成都,2023/2024/2025,522,536,516,高冲观察,公办倾向且成都；师范方向与家庭初始专业方向匹配,三年都高于等位分且2024很高，只能作为高冲观察；需核是否有可接受师范/非师范专业,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
 成都理工大学 K15123 第23组,成都,2025,,,503,小冲/单年观察,公办倾向且成都；2025分数处于可讨论区，学校和城市吸引力较强,仅2025命中且 req 为地；需核是否普通组、组内专业是否可接受，不能凭校名直接入表,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
 西安建筑科技大学 K46505 第05组,西安,2023/2024/2025,561,545,505,高波动观察,公办倾向且西安；2025分数进入小冲区，学校和城市可讨论,2023/2024远高于当前等位，2025可能是低位新组或专业组成变化；不作稳项,needs_2026_plan_verification; needs_original_row_verification; needs_major_group_verification
