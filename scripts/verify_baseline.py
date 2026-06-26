@@ -2807,6 +2807,159 @@ def main():
         and not any(token in candidate_v3_d0_public_text for token in shared_forbidden_tokens),
     ))
 
+    candidate_v3_d0_pdf_summary_path = ROOT / "data/working/issue19-candidate-v3-d0-pdf-page-evidence-summary.json"
+    candidate_v3_d0_pdf_csv = ROOT / "data/working/issue19-candidate-v3-d0-pdf-page-evidence.csv"
+    candidate_v3_d0_pdf_summary = json.loads(candidate_v3_d0_pdf_summary_path.read_text())
+    with candidate_v3_d0_pdf_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v3_d0_pdf_reader = csv.DictReader(f)
+        candidate_v3_d0_pdf_rows = list(candidate_v3_d0_pdf_reader)
+        candidate_v3_d0_pdf_fields = set(candidate_v3_d0_pdf_reader.fieldnames or [])
+    required_candidate_v3_d0_pdf_fields = {
+        "D0原页证据ID",
+        "来源D0工作台文件",
+        "来源D0任务数",
+        "真实招生明细行数",
+        "0明细占位行数",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "院校代码",
+        "院校名称OCR",
+        "建议完整院校名称",
+        "2026院校专业组代码",
+        "是否0明细占位组",
+        "PDF证据页码",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "OCR引擎",
+        "渲染DPI",
+        "OCR语言",
+        "页面OCR匹配方式",
+        "OCR标题命中状态",
+        "OCR命中变体",
+        "标题代码与2026组代码关系",
+        "OCR标题行号",
+        "OCR标题行置信度",
+        "OCR标题行SHA256",
+        "OCR标题行原文",
+        "结构化组表是否出现",
+        "结构化专业明细数",
+        "结构异常规则ID",
+        "保守等级",
+        "是否可写回D0建议",
+        "可进入下一阶段",
+    }
+    candidate_v3_d0_pdf_by_code = {
+        row.get("2026院校专业组代码"): row for row in candidate_v3_d0_pdf_rows
+    }
+    candidate_v3_d0_pdf_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [candidate_v3_d0_pdf_summary_path, candidate_v3_d0_pdf_csv]
+    )
+    def split_semicolon(value):
+        return [part for part in str(value or "").split("；") if part]
+    def all_private_ids_and_hashes_ok(row):
+        page_ids = split_semicolon(row.get("私有页图证据编号"))
+        text_ids = split_semicolon(row.get("私有OCR文本证据编号"))
+        page_hashes = split_semicolon(row.get("私有页图SHA256"))
+        text_hashes = split_semicolon(row.get("私有OCR文本SHA256"))
+        return (
+            page_ids
+            and text_ids
+            and all(re.fullmatch(r"page-\d{3}", item) for item in page_ids)
+            and all(re.fullmatch(r"\d{3}_page-\d{3}", item) for item in text_ids)
+            and all(re.fullmatch(r"[0-9a-f]{64}", item) for item in page_hashes)
+            and all(re.fullmatch(r"[0-9a-f]{64}", item) for item in text_hashes)
+        )
+    checks.append(ok(
+        "第 19 期候选V3 D0原页OCR证据摘要和行数正确",
+        candidate_v3_d0_pdf_summary.get("status") == "issue19_candidate_v3_d0_pdf_page_evidence_not_final"
+        and candidate_v3_d0_pdf_summary.get("source_d0_workbench")
+        == "data/working/issue19-candidate-v3-d0-resolution-workbench.csv"
+        and candidate_v3_d0_pdf_summary.get("output_table")
+        == "data/working/issue19-candidate-v3-d0-pdf-page-evidence.csv"
+        and candidate_v3_d0_pdf_summary.get("row_count") == 17
+        and candidate_v3_d0_pdf_summary.get("source_d0_task_count") == 58
+        and candidate_v3_d0_pdf_summary.get("match_method_counts") == {
+            "exact_match": 13,
+            "missing_in_page_and_structured": 2,
+            "normalized_o0_match": 2,
+        }
+        and candidate_v3_d0_pdf_summary.get("exact_title_hit_count") == 13
+        and candidate_v3_d0_pdf_summary.get("confusable_title_hit_count") == 2
+        and candidate_v3_d0_pdf_summary.get("no_title_hit_count") == 2
+        and candidate_v3_d0_pdf_summary.get("zero_detail_group_count") == 2
+        and candidate_v3_d0_pdf_summary.get("structured_group_hit_count") == 15
+        and candidate_v3_d0_pdf_summary.get("structured_group_missing_count") == 2
+        and candidate_v3_d0_pdf_summary.get("auto_writeback_allowed_count") == 0
+        and candidate_v3_d0_pdf_summary.get("next_stage_allowed_count") == 0
+        and len(candidate_v3_d0_pdf_rows) == 17,
+        f"{len(candidate_v3_d0_pdf_rows)} groups",
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 D0原页OCR证据字段、组集合和闸门正确",
+        required_candidate_v3_d0_pdf_fields.issubset(candidate_v3_d0_pdf_fields)
+        and set(candidate_v3_d0_pdf_by_code) == set(candidate_v3_d0_by_code)
+        and len({row.get("D0原页证据ID") for row in candidate_v3_d0_pdf_rows}) == len(candidate_v3_d0_pdf_rows)
+        and sum(as_int(row.get("来源D0任务数")) or 0 for row in candidate_v3_d0_pdf_rows) == 58
+        and sum(as_int(row.get("真实招生明细行数")) or 0 for row in candidate_v3_d0_pdf_rows) == 56
+        and sum(as_int(row.get("0明细占位行数")) or 0 for row in candidate_v3_d0_pdf_rows) == 2
+        and all(
+            row.get("数据阶段") == "issue19_candidate_v3_d0_pdf_page_evidence"
+            and row.get("最终可用") == "false"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("是否可写回D0建议") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("渲染DPI") == "120"
+            and all_private_ids_and_hashes_ok(row)
+            and all(1 <= (as_int(page) or 0) <= 240 for page in split_semicolon(row.get("PDF证据页码")))
+            for row in candidate_v3_d0_pdf_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 D0原页OCR证据关键风险组保持保守",
+        candidate_v3_d0_pdf_by_code.get("C10702", {}).get("页面OCR匹配方式") == "missing_in_page_and_structured"
+        and candidate_v3_d0_pdf_by_code.get("C10702", {}).get("0明细占位行数") == "1"
+        and candidate_v3_d0_pdf_by_code.get("C10702", {}).get("真实招生明细行数") == "0"
+        and candidate_v3_d0_pdf_by_code.get("C10702", {}).get("结构化组表是否出现") == "否"
+        and candidate_v3_d0_pdf_by_code.get("C10702", {}).get("保守等级") == "P0-必须人工原页核验"
+        and candidate_v3_d0_pdf_by_code.get("K15123", {}).get("页面OCR匹配方式") == "missing_in_page_and_structured"
+        and candidate_v3_d0_pdf_by_code.get("K15123", {}).get("0明细占位行数") == "1"
+        and candidate_v3_d0_pdf_by_code.get("K15123", {}).get("真实招生明细行数") == "0"
+        and candidate_v3_d0_pdf_by_code.get("K15123", {}).get("结构化组表是否出现") == "否"
+        and candidate_v3_d0_pdf_by_code.get("K15123", {}).get("保守等级") == "P0-必须人工原页核验"
+        and candidate_v3_d0_pdf_by_code.get("P01202", {}).get("页面OCR匹配方式") == "normalized_o0_match"
+        and candidate_v3_d0_pdf_by_code.get("P01202", {}).get("OCR命中变体") == "PO1202"
+        and candidate_v3_d0_pdf_by_code.get("P01202", {}).get("标题代码与2026组代码关系") == "字符混淆命中-禁止自动写回"
+        and candidate_v3_d0_pdf_by_code.get("F01203", {}).get("页面OCR匹配方式") == "normalized_o0_match"
+        and candidate_v3_d0_pdf_by_code.get("F01203", {}).get("OCR命中变体") == "FO1203"
+        and candidate_v3_d0_pdf_by_code.get("F01203", {}).get("标题代码与2026组代码关系") == "字符混淆命中-禁止自动写回"
+        and candidate_v3_d0_pdf_by_code.get("C10705", {}).get("页面OCR匹配方式") == "exact_match"
+        and "major_text_embeds_other_school_marker" in candidate_v3_d0_pdf_by_code.get("C10705", {}).get("结构异常规则ID", "")
+        and "plan_count_number_ge_1000" in candidate_v3_d0_pdf_by_code.get("C10705", {}).get("结构异常规则ID", "")
+        and candidate_v3_d0_pdf_by_code.get("C10705", {}).get("保守等级") == "P0-必须人工原页核验",
+    ))
+    checks.append(ok(
+        "第 19 期候选V3 D0原页OCR证据公开文件不含私有路径、整页文本、图片路径和最终可用结论",
+        "private/" not in candidate_v3_d0_pdf_public_text
+        and "/Users/" not in candidate_v3_d0_pdf_public_text
+        and "ocr-runs" not in candidate_v3_d0_pdf_public_text
+        and "rendered-pages" not in candidate_v3_d0_pdf_public_text
+        and ".png" not in candidate_v3_d0_pdf_public_text
+        and ".jpg" not in candidate_v3_d0_pdf_public_text
+        and ".jpeg" not in candidate_v3_d0_pdf_public_text
+        and "final_allowed" not in candidate_v3_d0_pdf_public_text
+        and "ready_for_discussion" not in candidate_v3_d0_pdf_public_text
+        and "已确认" not in candidate_v3_d0_pdf_public_text
+        and "最终推荐" not in candidate_v3_d0_pdf_public_text
+        and "最终方案" not in candidate_v3_d0_pdf_public_text
+        and not any(token in candidate_v3_d0_pdf_public_text for token in ["身份证", "准考证", "报名号", "姓名"]),
+    ))
+
     v3_b0_b1_summary_path = ROOT / "data/working/issue19-candidate-v3-b0-b1-review-pack-summary.json"
     v3_b0_b1_group_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv"
     v3_b0_b1_major_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv"

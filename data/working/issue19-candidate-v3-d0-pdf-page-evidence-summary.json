@@ -1,0 +1,39 @@
+{
+  "status": "issue19_candidate_v3_d0_pdf_page_evidence_not_final",
+  "generated_by": "build_issue19_candidate_v3_d0_pdf_page_evidence.py",
+  "source_d0_workbench": "data/working/issue19-candidate-v3-d0-resolution-workbench.csv",
+  "output_table": "data/working/issue19-candidate-v3-d0-pdf-page-evidence.csv",
+  "private_ocr_run_id": "issue19-full-120dpi",
+  "private_source_policy": "只读取私有行级OCR和页级哈希；公开输出不写入私有路径、整页OCR文本或页图。",
+  "row_count": 17,
+  "source_d0_task_count": 58,
+  "status_counts": {
+    "未命中候选组号-0明细占位保持阻断": 2,
+    "疑似字符混淆命中-只作人工核页线索": 2,
+    "精确命中专业组标题行-只作原页OCR佐证": 13
+  },
+  "relation_counts": {
+    "字符混淆命中-禁止自动写回": 2,
+    "未命中候选组号": 2,
+    "精确命中": 13
+  },
+  "match_method_counts": {
+    "exact_match": 13,
+    "missing_in_page_and_structured": 2,
+    "normalized_o0_match": 2
+  },
+  "conservative_grade_counts": {
+    "P0-必须人工原页核验": 11,
+    "P1-低置信页优先核验": 3,
+    "P1-标题命中但仍需人工核验": 3
+  },
+  "exact_title_hit_count": 13,
+  "confusable_title_hit_count": 2,
+  "no_title_hit_count": 2,
+  "zero_detail_group_count": 2,
+  "structured_group_hit_count": 15,
+  "structured_group_missing_count": 2,
+  "auto_writeback_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "fidelity_note": "本表只把D0组级任务绑定到PDF原页OCR标题行和页级哈希；不能替代人工看原页、湖北官方系统和高校官网/章程核验。"
+}
