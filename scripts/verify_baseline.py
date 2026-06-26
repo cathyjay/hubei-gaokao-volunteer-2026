@@ -149,20 +149,39 @@ def main():
     issue19_template = ROOT / "data/working/issue19-admission-plan-template.csv"
     template_header = issue19_template.read_text(encoding="utf-8").splitlines()[0]
     required_template_fields = [
-        "source_page",
-        "source_pdf_sha256",
-        "verification_status",
-        "institution_code",
-        "institution_name",
-        "major_group_code",
-        "major_code",
-        "major_name",
-        "plan_count",
-        "group_adjustment_acceptability",
+        "来源页码",
+        "来源PDF_SHA256",
+        "核验状态",
+        "院校代码",
+        "院校名称",
+        "院校专业组代码",
+        "专业代号",
+        "专业名称",
+        "专业计划数",
+        "组内调剂可接受性",
     ]
     checks.append(ok(
-        "第 19 期招生计划结构化模板字段完整",
+        "第 19 期招生计划中文结构化模板字段完整",
         all(re.search(rf"(^|,){field}(,|$)", template_header) for field in required_template_fields),
+    ))
+
+    sample_schools_path = ROOT / "data/working/issue19-sample-schools-20.csv"
+    with sample_schools_path.open(newline="", encoding="utf-8-sig") as f:
+        sample_schools = list(csv.DictReader(f))
+    checks.append(ok(
+        "第 19 期 OCR double check 样本学校为 20 所",
+        len(sample_schools) == 20 and all(row.get("官网核验状态") for row in sample_schools),
+        str(len(sample_schools)),
+    ))
+
+    official_sources_path = ROOT / "data/working/issue19-sample-school-official-sources.csv"
+    with official_sources_path.open(newline="", encoding="utf-8-sig") as f:
+        official_sources = list(csv.DictReader(f))
+    saved_official_pages = list((ROOT / "data/external/issue19-sample-school-official").glob("*"))
+    checks.append(ok(
+        "第 19 期样本学校官网来源状态已记录",
+        len(official_sources) == 20 and len(saved_official_pages) >= 8,
+        f"{len(official_sources)} sources, {len(saved_official_pages)} local files",
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())

@@ -16,8 +16,9 @@
     "script": "scripts/ocr_pdf_pages.py",
     "line_csv_script": "scripts/ocr_jsonl_to_line_csv.py",
     "qc_script": "scripts/ocr_qc_report.py",
-    "status": "full_ocr_completed_private_outputs_available",
+    "status": "full_ocr_completed_sample_school_double_check_in_progress",
     "run_summary": "data/working/issue19-ocr-run-summary.json",
+    "sample_schools": "data/working/issue19-sample-schools-20.csv",
     "working_template": "data/working/issue19-admission-plan-template.csv",
     "private_full_output_recommendation": "private/derived/issue19-admission-plan/issue19-admission-plan.csv"
   }

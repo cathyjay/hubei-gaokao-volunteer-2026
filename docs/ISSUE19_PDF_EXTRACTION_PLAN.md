@@ -124,6 +124,37 @@ private/derived/issue19-admission-plan/issue19-admission-plan.csv
 data/working/issue19-admission-plan-template.csv
 ```
 
+结构化 CSV 使用中文表头，方便家庭成员共同审阅。字段模板见 `data/working/issue19-admission-plan-template.csv`。
+
+### 4. 20 所学校样本 double check
+
+在全量结构化之前，先抽 20 所学校做 OCR + 官网双重核验：
+
+```text
+data/working/issue19-sample-schools-20.csv
+```
+
+样本核验说明见 `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`。
+
+私有 OCR 定位输出：
+
+```bash
+python3 scripts/extract_issue19_school_samples.py
+```
+
+输出到：
+
+```text
+private/derived/issue19-sample-school-ocr/样本学校OCR定位.csv
+```
+
+样本验证目标：
+
+- OCR 能否正确定位学校、院校代码、院校专业组代码。
+- OCR 能否识别组内全部专业，而不是只识别想看的专业。
+- 学校官网能否找到 2026 湖北招生计划、专业组、专业代号、计划数、学费、选科或至少部分字段。
+- 记录 OCR 与学校官网的冲突类型，再决定是否进入全量结构化。
+
 ## 六、数据保存边界
 
 | 数据 | 保存位置 | 是否提交公开仓库 | 说明 |
@@ -155,6 +186,7 @@ data/working/issue19-admission-plan-template.csv
 
 1. 用 `scripts/ocr_pdf_pages.py` 跑 `1-20` 页，定位目录和招生计划起点。
 2. 按招生计划页段分批 OCR。
-3. 从 `ocr-lines.csv` 按左右栏、页码和坐标建立“院校专业组 -> 组内全部专业”的结构化表。
-4. 对第一版 20 个候选池优先回看对应页，完成院校专业组级核验。
-5. 对可进入最终表的院校专业组，再查高校官网和官方平台做交叉核验。
+3. 先对 `data/working/issue19-sample-schools-20.csv` 做 OCR 和官网 double check。
+4. 样本校验通过后，再从 `ocr-lines.csv` 按左右栏、页码和坐标建立“院校专业组 -> 组内全部专业”的结构化表。
+5. 对第一版候选池和新增候选学校优先回看对应页，完成院校专业组级核验。
+6. 对可进入最终表的院校专业组，再查高校官网和官方平台做交叉核验。
