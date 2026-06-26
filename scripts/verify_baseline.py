@@ -2467,10 +2467,15 @@ def main():
     b0_b1_official_evidence_match_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv"
     b0_b1_detail_evidence_ledger_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-admission-detail-evidence-ledger.csv"
     b0_b1_official_evidence_match_summary_path = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-evidence-match-summary.json"
+    b0_b1_plan_conflict_csv = ROOT / "data/working/issue19-b0-b1-plan-conflict-review-queue.csv"
+    b0_b1_unmatched_major_csv = ROOT / "data/working/issue19-b0-b1-unmatched-major-review-queue.csv"
+    b0_b1_source_gap_csv = ROOT / "data/working/issue19-b0-b1-official-source-gap-priority.csv"
+    b0_b1_fidelity_summary_path = ROOT / "data/working/issue19-b0-b1-fidelity-review-summary.json"
     xztu_extracted_csv = ROOT / "data/external/issue19-b0-b1-official-sources/xztu-2026-hubei-physics-plan-extracted.csv"
     jsut_extracted_csv = ROOT / "data/external/issue19-b0-b1-official-sources/jsut-2026-hubei-physics-plan-extracted.csv"
     b0_b1_official_summary = json.loads(b0_b1_official_summary_path.read_text())
     b0_b1_official_evidence_match_summary = json.loads(b0_b1_official_evidence_match_summary_path.read_text())
+    b0_b1_fidelity_summary = json.loads(b0_b1_fidelity_summary_path.read_text())
     with b0_b1_school_source_csv.open(newline="", encoding="utf-8-sig") as f:
         b0_b1_school_source_reader = csv.DictReader(f)
         b0_b1_school_source_rows = list(b0_b1_school_source_reader)
@@ -2501,6 +2506,18 @@ def main():
         b0_b1_detail_evidence_ledger_reader = csv.DictReader(f)
         b0_b1_detail_evidence_ledger_rows = list(b0_b1_detail_evidence_ledger_reader)
         b0_b1_detail_evidence_ledger_fields = set(b0_b1_detail_evidence_ledger_reader.fieldnames or [])
+    with b0_b1_plan_conflict_csv.open(newline="", encoding="utf-8-sig") as f:
+        b0_b1_plan_conflict_reader = csv.DictReader(f)
+        b0_b1_plan_conflict_rows = list(b0_b1_plan_conflict_reader)
+        b0_b1_plan_conflict_fields = set(b0_b1_plan_conflict_reader.fieldnames or [])
+    with b0_b1_unmatched_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        b0_b1_unmatched_major_reader = csv.DictReader(f)
+        b0_b1_unmatched_major_rows = list(b0_b1_unmatched_major_reader)
+        b0_b1_unmatched_major_fields = set(b0_b1_unmatched_major_reader.fieldnames or [])
+    with b0_b1_source_gap_csv.open(newline="", encoding="utf-8-sig") as f:
+        b0_b1_source_gap_reader = csv.DictReader(f)
+        b0_b1_source_gap_rows = list(b0_b1_source_gap_reader)
+        b0_b1_source_gap_fields = set(b0_b1_source_gap_reader.fieldnames or [])
     with xztu_extracted_csv.open(newline="", encoding="utf-8-sig") as f:
         xztu_extracted_rows = list(csv.DictReader(f))
     with jsut_extracted_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -2640,6 +2657,11 @@ def main():
     b0_b1_evidence_match_status_counts = Counter(row.get("官网证据匹配状态") for row in b0_b1_official_evidence_match_rows)
     b0_b1_evidence_plan_status_counts = Counter(row.get("计划数核验状态") for row in b0_b1_official_evidence_match_rows)
     b0_b1_detail_ledger_fidelity_counts = Counter(row.get("保真处理状态") for row in b0_b1_detail_evidence_ledger_rows)
+    b0_b1_plan_conflict_type_counts = Counter(row.get("冲突类型") for row in b0_b1_plan_conflict_rows)
+    b0_b1_plan_conflict_school_counts = Counter(row.get("院校名称") for row in b0_b1_plan_conflict_rows)
+    b0_b1_unmatched_major_type_counts = Counter(row.get("未匹配类型") for row in b0_b1_unmatched_major_rows)
+    b0_b1_source_gap_type_counts = Counter(row.get("结构化证据缺口类型") for row in b0_b1_source_gap_rows)
+    b0_b1_source_gap_priority_counts = Counter(row.get("补源优先级") for row in b0_b1_source_gap_rows)
     b0_b1_evidence_matched_school_counts = Counter(
         row.get("院校名称OCR")
         for row in b0_b1_official_evidence_match_rows
@@ -2678,6 +2700,9 @@ def main():
     }
     b0_b1_evidence_match_by_detail_id = {
         row.get("招生明细主表行ID"): row for row in b0_b1_official_evidence_match_rows
+    }
+    b0_b1_detail_ledger_by_detail_id = {
+        row.get("招生明细主表行ID"): row for row in b0_b1_detail_evidence_ledger_rows
     }
     xztu_extracted_plan_by_major = {
         row.get("专业名称"): row.get("湖北计划数") for row in xztu_extracted_rows
@@ -2768,6 +2793,59 @@ def main():
         "可进入最终专业列表",
         "可进入下一阶段",
     }
+    required_b0_b1_plan_conflict_fields = {
+        "复核优先级",
+        "冲突类型",
+        "招生明细主表行ID",
+        "来源页码",
+        "院校代码",
+        "院校名称",
+        "2026院校专业组代码",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "OCR计划数候选",
+        "官网专业名称",
+        "官网计划数",
+        "官网学费",
+        "官网来源文件",
+        "保真处理状态",
+        "核页重点",
+        "下一步",
+    }
+    required_b0_b1_unmatched_major_fields = {
+        "复核优先级",
+        "未匹配类型",
+        "招生明细主表行ID",
+        "来源页码",
+        "院校代码",
+        "院校名称",
+        "2026院校专业组代码",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "OCR计划数候选",
+        "官网来源状态",
+        "官网证据覆盖结论",
+        "仍需核验",
+        "核页重点",
+        "下一步",
+    }
+    required_b0_b1_source_gap_fields = {
+        "补源优先级",
+        "结构化证据缺口类型",
+        "院校代码",
+        "院校名称",
+        "官网来源状态",
+        "B0B1专业组数",
+        "逐专业核验任务数",
+        "涉及专业组代码",
+        "官网URL",
+        "本地留存状态",
+        "是否可核湖北2026",
+        "可核字段",
+        "局限性",
+        "官方源缺口",
+        "下一步",
+    }
     b0_b1_major_official_placeholder_rows = [
         row
         for row in b0_b1_major_official_rows
@@ -2792,6 +2870,10 @@ def main():
             b0_b1_official_evidence_match_csv,
             b0_b1_detail_evidence_ledger_csv,
             b0_b1_official_evidence_match_summary_path,
+            b0_b1_plan_conflict_csv,
+            b0_b1_unmatched_major_csv,
+            b0_b1_source_gap_csv,
+            b0_b1_fidelity_summary_path,
             xztu_extracted_csv,
         ]
     )
@@ -3145,12 +3227,14 @@ def main():
             "match": 47,
         }
         and b0_b1_official_evidence_match_summary.get("fidelity_status_counts") == {
-            "待补高校官网计划源": 189,
-            "占位行-不是真实招生明细": 2,
+            "有官网线索但未结构化匹配": 80,
+            "待补高校官网计划源": 66,
             "官网可补OCR计划数-优先核页": 52,
+            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 47,
+            "仅章程规则线索-无结构化计划证据": 43,
             "官网专业名匹配但计划数冲突-优先核页": 25,
             "官网未匹配-专业名或OCR待核": 9,
-            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 47,
+            "占位行-不是真实招生明细": 2,
         }
         and b0_b1_official_evidence_match_summary.get("matched_school_counts") == {
             "西安财经大学": 1,
@@ -3275,6 +3359,103 @@ def main():
             "西安航空学院": "未见",
         }
         and all(row.get("局限性") and row.get("下一步") for row in b0_b1_source_search_log_rows),
+    ))
+    checks.append(ok(
+        "B0/B1保真复核队列摘要、行数和类型分布正确",
+        b0_b1_fidelity_summary.get("status") == "b0_b1_fidelity_review_queues_not_final"
+        and b0_b1_fidelity_summary.get("plan_conflict_row_count") == 25
+        and b0_b1_fidelity_summary.get("unmatched_major_row_count") == 9
+        and b0_b1_fidelity_summary.get("source_gap_school_count") == 21
+        and b0_b1_fidelity_summary.get("plan_conflict_type_counts") == {
+            "OCR计划数疑似误取学费": 13,
+            "OCR计划数与官网计划数不一致": 12,
+        }
+        and b0_b1_fidelity_summary.get("plan_conflict_school_counts") == {
+            "江苏理工学院": 10,
+            "中国传媒大学": 1,
+            "南宁学院": 3,
+            "成都信息工程大学": 2,
+            "山东大学": 1,
+            "江汉大学": 8,
+        }
+        and b0_b1_fidelity_summary.get("unmatched_major_type_counts") == {
+            "专业代号非数字疑似OCR噪声": 3,
+            "官网留存证据未匹配该专业": 6,
+        }
+        and b0_b1_fidelity_summary.get("source_gap_type_counts") == {
+            "需继续寻找高校官网湖北2026计划": 8,
+            "有官网线索但尚未结构化到逐专业证据": 13,
+        }
+        and b0_b1_fidelity_summary.get("source_gap_priority_counts") == {
+            "P0-待补官方计划源": 8,
+            "P1-已有线索待结构化": 13,
+        }
+        and required_b0_b1_plan_conflict_fields.issubset(b0_b1_plan_conflict_fields)
+        and required_b0_b1_unmatched_major_fields.issubset(b0_b1_unmatched_major_fields)
+        and required_b0_b1_source_gap_fields.issubset(b0_b1_source_gap_fields)
+        and len(b0_b1_plan_conflict_rows) == 25
+        and len(b0_b1_unmatched_major_rows) == 9
+        and len(b0_b1_source_gap_rows) == 21
+        and b0_b1_plan_conflict_type_counts == Counter(
+            b0_b1_fidelity_summary.get("plan_conflict_type_counts", {})
+        )
+        and b0_b1_plan_conflict_school_counts == Counter(
+            b0_b1_fidelity_summary.get("plan_conflict_school_counts", {})
+        )
+        and b0_b1_unmatched_major_type_counts == Counter(
+            b0_b1_fidelity_summary.get("unmatched_major_type_counts", {})
+        )
+        and b0_b1_source_gap_type_counts == Counter(
+            b0_b1_fidelity_summary.get("source_gap_type_counts", {})
+        )
+        and b0_b1_source_gap_priority_counts == Counter(
+            b0_b1_fidelity_summary.get("source_gap_priority_counts", {})
+        ),
+    ))
+    checks.append(ok(
+        "B0/B1保真复核队列与逐专业证据合并表精确对应",
+        {row.get("招生明细主表行ID") for row in b0_b1_plan_conflict_rows}
+        == {
+            row.get("招生明细主表行ID")
+            for row in b0_b1_detail_evidence_ledger_rows
+            if row.get("计划数核验状态") == "mismatch"
+        }
+        and {row.get("招生明细主表行ID") for row in b0_b1_unmatched_major_rows}
+        == {
+            row.get("招生明细主表行ID")
+            for row in b0_b1_detail_evidence_ledger_rows
+            if row.get("官网证据匹配状态") in {"unmatched", "possible_match"}
+        }
+        and all(
+            b0_b1_detail_ledger_by_detail_id.get(row.get("招生明细主表行ID"), {}).get("计划数核验状态")
+            == "mismatch"
+            and row.get("核页重点")
+            and row.get("下一步")
+            for row in b0_b1_plan_conflict_rows
+        )
+        and all(
+            b0_b1_detail_ledger_by_detail_id.get(row.get("招生明细主表行ID"), {}).get("官网证据匹配状态")
+            in {"unmatched", "possible_match"}
+            and row.get("核页重点")
+            and row.get("下一步")
+            for row in b0_b1_unmatched_major_rows
+        )
+        and {
+            row.get("院校名称")
+            for row in b0_b1_source_gap_rows
+            if row.get("补源优先级") == "P0-待补官方计划源"
+        }
+        == {
+            "武汉轻工大学",
+            "湖北师范大学",
+            "长春工业大学",
+            "浙江传媒学院",
+            "浙江工业大学",
+            "西安航空学院",
+            "成都师范学院",
+            "韶关学院",
+        }
+        and all(row.get("下一步") and row.get("官方源缺口") for row in b0_b1_source_gap_rows),
     ))
     checks.append(ok(
         "第 19 期候选V3 B0/B1官方交叉校验公开文件不含本地路径、图片扩展名、身份信息和最终可用结论",

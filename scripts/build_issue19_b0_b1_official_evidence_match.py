@@ -767,7 +767,7 @@ def coverage_conclusion(match_status, plan_check):
     if match_status == "possible_match":
         return "官网存在疑似专业名匹配，需人工确认OCR或专业名称差异"
     if match_status == "no_school_source":
-        return "该校尚无留存官网计划证据"
+        return "该校尚无可匹配的结构化官网计划证据"
     return "官网留存证据未匹配到该专业"
 
 
@@ -847,7 +847,12 @@ def fidelity_status(row):
     match_status = row.get("官网证据匹配状态")
     plan_check = row.get("计划数核验状态")
     if match_status == "no_school_source":
-        return "待补高校官网计划源"
+        source_status = row.get("官网来源状态")
+        if source_status == "needs_official_plan_source_search":
+            return "待补高校官网计划源"
+        if source_status == "charter_or_rules_only_no_plan":
+            return "仅章程规则线索-无结构化计划证据"
+        return "有官网线索但未结构化匹配"
     if match_status == "matched" and plan_check == "match":
         return "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核"
     if match_status == "matched" and plan_check == "mismatch":

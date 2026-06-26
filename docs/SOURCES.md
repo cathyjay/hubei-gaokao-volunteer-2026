@@ -206,6 +206,10 @@
 - `data/working/issue19-b0-b1-retained-official-plan-normalized.csv`：B0/B1 已留存官网/API/HTML/XLSX/PDF/图片抽取证据标准化表，当前 367 条；字段包括学校、来源文件、证据类型、年份、省份、科类、专业、计划数、学费、校区、选科和来源局限。
 - `data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv`：B0/B1 逐专业官网证据匹配表，覆盖 324 条招生明细；一行一个招生专业，带出页码、专业组、专业代号、OCR 专业名、OCR 计划数、官网匹配专业、官网计划数、匹配状态、计划数核验状态和仍需核验项。
 - `data/working/issue19-candidate-v3-b0-b1-official-evidence-match-summary.json`：B0/B1 逐专业官网证据匹配摘要；当前 124 条专业名匹配，其中 47 条计划数与 OCR 一致，52 条为 OCR 缺失但官网可补，25 条计划数存在差异，全部保持非最终结论。
+- `data/working/issue19-b0-b1-plan-conflict-review-queue.csv`：B0/B1 计划数冲突复核队列，25 条；按 OCR 疑似误取学费、计划数不一致等类型安排核页顺序。
+- `data/working/issue19-b0-b1-unmatched-major-review-queue.csv`：B0/B1 官网证据未匹配专业复核队列，9 条；用于定位 OCR 噪声、串行或官网表未覆盖问题。
+- `data/working/issue19-b0-b1-official-source-gap-priority.csv`：B0/B1 学校补源缺口优先表，21 所；区分 8 所 P0 待补官方计划源和 13 所已有官网线索但尚未结构化到逐专业证据的学校。
+- `data/working/issue19-b0-b1-fidelity-review-summary.json`：B0/B1 保真复核队列摘要；只用于安排核页/补源，不是最终候选或填报方案。
 - `data/external/issue19-b0-b1-official-sources/xztu-2026-hubei-physics-plan-extracted.csv`：忻州师范学院官网 PDF 宽表抽取出的湖北物理类逐专业证据，15 条；作为 PDF 原件的可复跑抽取结果，不替代第 19 期原页和湖北官方系统。
 - `data/external/issue19-b0-b1-official-sources/jsut-2026-hubei-physics-plan-extracted.csv`：江苏理工学院官方计划图转录出的湖北物理类普通类逐专业证据，15 条；作为官方计划图的结构化转录结果，不替代第 19 期原页和湖北官方系统。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
@@ -233,6 +237,7 @@
 - `scripts/extract_xztu_official_pdf_plan.py`：使用 `pdfplumber` 从忻州师范学院官网 PDF 中抽取湖北物理类专业行，并写出可审计 CSV；需要使用 bundled Python 或本地安装 `pdfplumber`。
 - `scripts/extract_jsut_official_image_plan.py`：把江苏理工学院官方计划图人工转录并写成逐专业 CSV，同时保留来源图片和官网入口校验条件。
 - `scripts/build_issue19_b0_b1_official_evidence_match.py`：把已留存官网/API/HTML/XLSX/PDF/计划图抽取证据标准化，并与 B0/B1 逐专业招生明细主表逐条匹配；同时生成逐专业招生明细证据合并表，输出只用于保真交叉校验，不是最终志愿方案。
+- `scripts/build_issue19_b0_b1_fidelity_review_queues.py`：从 B0/B1 逐专业证据合并表生成计划数冲突、专业未匹配和学校补源缺口三类保真复核队列；只安排人工核验顺序，不生成可填报结论。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。
