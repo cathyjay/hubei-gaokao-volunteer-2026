@@ -1,0 +1,60 @@
+{
+  "status": "full_quality_tiers_need_manual_pdf_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "full_quality_tier_ocr_draft",
+  "generated_by": "scripts/build_issue19_full_quality_tiers.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-ocr-structure-anomaly-queue.csv",
+      "sha256": "edf71556c40a51c130e7ad8eac00067cc9c483b8cec8f136c266057402b4c6f5",
+      "row_count": 5129
+    }
+  ],
+  "group_count": 3329,
+  "major_count": 13736,
+  "review_queue_count": 3300,
+  "quality_tier_counts": {
+    "Q1-高风险结构异常": 1554,
+    "Q4-结构相对完整待抽检": 244,
+    "Q0-无专业明细": 40,
+    "Q3-字段待核": 943,
+    "Q2-重点候选字段待核": 548
+  },
+  "review_priority_counts": {
+    "P0-必须优先核页": 3296,
+    "P3-相对完整但仍需核页": 29,
+    "P1-高优先核页": 4
+  },
+  "groups_with_any_structure_anomaly": 2149,
+  "groups_with_high_structure_anomaly": 1554,
+  "groups_with_no_major_detail": 40,
+  "duplicate_normalized_group_code_count": 3,
+  "duplicate_normalized_group_code_row_count": 6,
+  "candidate_v1_hit_group_count": 17,
+  "preference_hit_group_count": 1402,
+  "risk_hit_group_count": 2962,
+  "outputs": [
+    "data/working/issue19-full-quality-group-tiers.csv",
+    "data/working/issue19-full-quality-review-queue.csv"
+  ],
+  "notes": [
+    "质量分层只用于安排复核优先级，不代表可填报。",
+    "所有行保持最终可用=false，仍需回看第19期原PDF页和官方系统/章程。",
+    "Q4 只是结构相对完整待抽检，不是最终事实。"
+  ]
+}

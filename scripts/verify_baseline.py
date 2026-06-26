@@ -3,6 +3,7 @@ import csv
 import hashlib
 import json
 import re
+from collections import Counter
 from pathlib import Path
 
 
@@ -1198,6 +1199,199 @@ def main():
         "第 19 期候选V2升级工作台公开文件不含本地路径、身份信息和 final_allowed",
         "final_allowed" not in candidate_v2_verification_public_text
         and not any(token in candidate_v2_verification_public_text for token in candidate_v2_forbidden_tokens),
+    ))
+
+    full_quality_summary_path = ROOT / "data/working/issue19-full-quality-tier-summary.json"
+    full_quality_group_csv = ROOT / "data/working/issue19-full-quality-group-tiers.csv"
+    full_quality_queue_csv = ROOT / "data/working/issue19-full-quality-review-queue.csv"
+    full_quality_summary = json.loads(full_quality_summary_path.read_text())
+    with full_quality_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        full_quality_group_reader = csv.DictReader(f)
+        full_quality_group_rows = list(full_quality_group_reader)
+        full_quality_group_fields = set(full_quality_group_reader.fieldnames or [])
+    with full_quality_queue_csv.open(newline="", encoding="utf-8-sig") as f:
+        full_quality_queue_reader = csv.DictReader(f)
+        full_quality_queue_rows = list(full_quality_queue_reader)
+        full_quality_queue_fields = set(full_quality_queue_reader.fieldnames or [])
+    full_quality_groups_by_code = {
+        row.get("院校专业组代码OCR规范化"): row for row in full_quality_group_rows
+    }
+    full_group_codes = {row.get("院校专业组代码OCR规范化") for row in full_group_rows}
+    full_group_code_counts = Counter(row.get("院校专业组代码OCR规范化") for row in full_group_rows)
+    full_quality_group_code_counts = Counter(
+        row.get("院校专业组代码OCR规范化") for row in full_quality_group_rows
+    )
+    full_group_signatures = Counter(
+        (
+            row.get("院校代码"),
+            row.get("院校专业组代码OCR规范化"),
+            row.get("来源页码"),
+            row.get("专业组标题行号"),
+            row.get("OCR专业行数"),
+            row.get("专业组标题OCR原文"),
+        )
+        for row in full_group_rows
+    )
+    full_quality_group_signatures = Counter(
+        (
+            row.get("院校代码"),
+            row.get("院校专业组代码OCR规范化"),
+            row.get("来源页码"),
+            row.get("专业组标题行号"),
+            row.get("OCR专业行数_组表"),
+            row.get("专业组标题OCR原文"),
+        )
+        for row in full_quality_group_rows
+    )
+    full_quality_major_count_by_group = Counter(
+        row.get("院校专业组代码OCR规范化") for row in full_major_rows
+    )
+    full_quality_anomaly_count_by_group = Counter(
+        row.get("院校专业组代码OCR规范化") for row in structure_anomaly_rows
+    )
+    full_quality_high_anomaly_count_by_group = Counter(
+        row.get("院校专业组代码OCR规范化")
+        for row in structure_anomaly_rows
+        if row.get("严重程度") == "高"
+    )
+    required_full_quality_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业组号OCR",
+        "专业组标题OCR原文",
+        "来源页码",
+        "版面列",
+        "专业组标题行号",
+        "OCR专业行数_组表",
+        "专业明细行数_专业表",
+        "专业行数是否一致",
+        "规范化专业组代码是否重复",
+        "规范化专业组代码重复行数",
+        "相对质量层级",
+        "复核优先级",
+        "结构异常数",
+        "高严重结构异常数",
+        "偏好专业命中数",
+        "偏好方向列表",
+        "硬风险命中",
+        "硬风险类型列表",
+    }
+    full_quality_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [full_quality_summary_path, full_quality_group_csv, full_quality_queue_csv]
+    )
+    checks.append(ok(
+        "第 19 期全量专业组质量分层摘要和行数正确",
+        full_quality_summary.get("status") == "full_quality_tiers_need_manual_pdf_review"
+        and full_quality_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and full_quality_summary.get("group_count") == 3329
+        and full_quality_summary.get("major_count") == 13736
+        and full_quality_summary.get("review_queue_count") == 3300
+        and full_quality_summary.get("quality_tier_counts") == {
+            "Q1-高风险结构异常": 1554,
+            "Q4-结构相对完整待抽检": 244,
+            "Q0-无专业明细": 40,
+            "Q3-字段待核": 943,
+            "Q2-重点候选字段待核": 548,
+        }
+        and full_quality_summary.get("review_priority_counts") == {
+            "P0-必须优先核页": 3296,
+            "P3-相对完整但仍需核页": 29,
+            "P1-高优先核页": 4,
+        }
+        and full_quality_summary.get("groups_with_any_structure_anomaly") == 2149
+        and full_quality_summary.get("groups_with_high_structure_anomaly") == 1554
+        and full_quality_summary.get("groups_with_no_major_detail") == 40
+        and full_quality_summary.get("duplicate_normalized_group_code_count") == 3
+        and full_quality_summary.get("duplicate_normalized_group_code_row_count") == 6
+        and full_quality_summary.get("candidate_v1_hit_group_count") == 17
+        and full_quality_summary.get("preference_hit_group_count") == 1402
+        and full_quality_summary.get("risk_hit_group_count") == 2962
+        and len(full_quality_group_rows) == 3329
+        and len(full_quality_queue_rows) == 3300,
+        f"{len(full_quality_group_rows)} groups, {len(full_quality_queue_rows)} queue rows",
+    ))
+    checks.append(ok(
+        "第 19 期全量专业组质量分层字段、状态和覆盖正确",
+        required_full_quality_fields.issubset(full_quality_group_fields)
+        and required_full_quality_fields.issubset(full_quality_queue_fields)
+        and len(full_quality_group_code_counts) == len(full_group_codes)
+        and set(full_quality_groups_by_code) == full_group_codes
+        and full_quality_group_code_counts == full_group_code_counts
+        and full_quality_group_signatures == full_group_signatures
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "needs_manual_pdf_review"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("规范化专业组代码重复行数")
+            == str(full_group_code_counts[row.get("院校专业组代码OCR规范化")])
+            and (
+                row.get("规范化专业组代码是否重复") == "是"
+                if full_group_code_counts[row.get("院校专业组代码OCR规范化")] > 1
+                else row.get("规范化专业组代码是否重复") == "否"
+            )
+            for row in full_quality_group_rows + full_quality_queue_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期全量专业组质量分层聚合与明细/异常队列一致",
+        all(
+            as_int(row.get("专业明细行数_专业表"))
+            == full_quality_major_count_by_group[row.get("院校专业组代码OCR规范化")]
+            and as_int(row.get("结构异常数"))
+            == full_quality_anomaly_count_by_group[row.get("院校专业组代码OCR规范化")]
+            and as_int(row.get("高严重结构异常数"))
+            == full_quality_high_anomaly_count_by_group[row.get("院校专业组代码OCR规范化")]
+            for row in full_quality_group_rows
+        )
+        and all(
+            (
+                row.get("专业行数是否一致") == "是"
+                and row.get("OCR专业行数_组表") == row.get("专业明细行数_专业表")
+            )
+            or (
+                row.get("专业行数是否一致") == "否"
+                and row.get("OCR专业行数_组表") != row.get("专业明细行数_专业表")
+                and "组表专业行数与明细表聚合不一致" in row.get("优先级原因说明", "")
+            )
+            for row in full_quality_group_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期全量专业组质量分层 P0 触发规则保持保守",
+        all(
+            row.get("复核优先级") == "P0-必须优先核页"
+            for row in full_quality_group_rows
+            if (
+                as_int(row.get("专业明细行数_专业表")) == 0
+                or as_int(row.get("高严重结构异常数")) > 0
+                or row.get("候选池V1命中") == "是"
+                or bool(row.get("偏好方向列表"))
+                or row.get("硬风险命中") == "是"
+                or as_int(row.get("异常学费专业数")) > 0
+                or as_int(row.get("缺再选科目专业数")) > 0
+                or as_int(row.get("缺计划数专业数")) > 0
+                or row.get("规范化专业组代码是否重复") == "是"
+                or row.get("专业行数是否一致") == "否"
+            )
+        )
+        and full_quality_groups_by_code.get("C10703", {}).get("复核优先级") == "P0-必须优先核页"
+        and full_quality_groups_by_code.get("C10705", {}).get("复核优先级") == "P0-必须优先核页"
+        and full_quality_groups_by_code.get("K15114", {}).get("复核优先级") == "P0-必须优先核页"
+        and full_quality_groups_by_code.get("K17905", {}).get("复核优先级") == "P0-必须优先核页",
+    ))
+    checks.append(ok(
+        "第 19 期全量专业组质量分层公开文件不含本地路径、身份信息和最终可用结论",
+        "final_allowed" not in full_quality_public_text
+        and "ready_for_discussion" not in full_quality_public_text
+        and "已确认" not in full_quality_public_text
+        and not any(token in full_quality_public_text for token in shared_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
