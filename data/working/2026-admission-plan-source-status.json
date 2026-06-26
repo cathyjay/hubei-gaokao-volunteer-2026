@@ -40,7 +40,14 @@
   "official_policy_notes": {
     "volunteer_reference_system_page": "data/official/hubei-2026-volunteer-policy/143022-policy.html",
     "plan_issue_numbers": ["13", "16", "19", "22"],
-    "important_note": "湖北官方政策问答要求志愿代号以 2026 年省招办通过《湖北招生考试》第 13、16、19、22 期公布的招生计划为准，不能使用往年资料代号。"
+    "important_note": "湖北官方政策问答要求志愿代号以 2026 年省招办通过《湖北招生考试》第 13、16、19、22 期公布的招生计划为准，不能使用往年资料代号。",
+    "issue_19_note": "湖北招生考试网产品手册显示第 19 期对应本科普通批首选物理科目各院校在鄂招生计划。"
+  },
+  "magazine_search": {
+    "doc": "docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md",
+    "product_brochure_local_dir": "data/external/hbksw-product-brochure",
+    "school_fragment_local_sample": "data/external/hubei-admission-magazine-search/whhxit-2026-c211-codes.html",
+    "status": "未找到第 16/19 期完整公开电子版；第 19 期为本项目首选物理核心材料。"
   },
   "school_crosscheck_sources": {
     "doc": "docs/SCHOOL_CROSSCHECK_SOURCES.md",
@@ -49,7 +56,7 @@
   },
   "required_next_action": [
     "使用考生账号登录湖北招生数智综合平台查询或导出关注院校专业组。",
-    "获取《湖北招生考试》杂志第 16 期和第 19 期，本科普通批招生计划。",
+    "获取《湖北招生考试》杂志第 19 期，本科普通批首选物理招生计划。",
     "等待湖北教育考试网招生计划专题更新完整 2026 计划。"
   ]
 }

@@ -98,6 +98,14 @@
    - 用途：辅助核验学校官网公布的专业、计划、学费、选科和专业组线索。
    - 限制：高校官网不能替代湖北省招办 2026 招生计划；若高校官网与省招办计划不一致，以省招办渠道为准。
 
+6. 《湖北招生考试》第 16/19 期专项检索
+   - 检索记录：`docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`
+   - 湖北招生考试网产品手册：https://www.hbksw.com/product/
+   - 本地产品手册：`data/external/hbksw-product-brochure/`
+   - 学校片段样例：`data/external/hubei-admission-magazine-search/whhxit-2026-c211-codes.html`
+   - 当前结论：未找到 2026 第 16/19 期完整公开电子版；第 19 期是本项目首选物理招生计划核心材料。
+   - 限制：学校片段和第三方 Excel 线索不能替代官方杂志或平台。
+
 ## 派生数据说明
 
 - `data/derived/hubei-2025-physics-toudang-ocr.txt`：由 2025 官方图片 OCR 生成。

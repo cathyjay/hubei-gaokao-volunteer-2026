@@ -106,6 +106,14 @@ def main():
     ]
     checks.append(ok("高校官网交叉校验样例已留存", all(p.exists() and p.stat().st_size > 1000 for p in school_crosscheck_files)))
 
+    magazine_search_files = [
+        ROOT / "docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md",
+        ROOT / "data/external/hbksw-product-brochure/index.html",
+        ROOT / "data/external/hbksw-product-brochure/1029-06.jpg",
+        ROOT / "data/external/hubei-admission-magazine-search/whhxit-2026-c211-codes.html",
+    ]
+    checks.append(ok("第 16/19 期专项检索证据已留存", all(p.exists() and p.stat().st_size > 1000 for p in magazine_search_files)))
+
     checksum_path = ROOT / "CHECKSUMS.sha256"
     if checksum_path.exists():
         manifest_ok = True
