@@ -98,7 +98,7 @@ def as_int(value):
 
 
 def has_next_school_noise(text):
-    return bool(re.search(r"[A-Z]\d{3}[\u4e00-\u9fff]{2,}", str(text or "")))
+    return bool(re.search(r"[A-Z]\d{3,4}\s*[\u4e00-\u9fff]{2,}", str(text or "")))
 
 
 def classify_plan_conflict(row):

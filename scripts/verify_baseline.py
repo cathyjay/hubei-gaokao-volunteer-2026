@@ -2472,6 +2472,8 @@ def main():
     b0_b1_source_gap_csv = ROOT / "data/working/issue19-b0-b1-official-source-gap-priority.csv"
     b0_b1_fidelity_summary_path = ROOT / "data/working/issue19-b0-b1-fidelity-review-summary.json"
     xztu_extracted_csv = ROOT / "data/external/issue19-b0-b1-official-sources/xztu-2026-hubei-physics-plan-extracted.csv"
+    sdtbu_extracted_csv = ROOT / "data/external/issue19-b0-b1-official-sources/sdtbu-2026-hubei-physics-plan-extracted.csv"
+    sdtbu_audit_csv = ROOT / "data/external/issue19-b0-b1-official-sources/sdtbu-2026-pdf-ocr-grid-audit.csv"
     jsut_extracted_csv = ROOT / "data/external/issue19-b0-b1-official-sources/jsut-2026-hubei-physics-plan-extracted.csv"
     b0_b1_official_summary = json.loads(b0_b1_official_summary_path.read_text())
     b0_b1_official_evidence_match_summary = json.loads(b0_b1_official_evidence_match_summary_path.read_text())
@@ -2520,6 +2522,10 @@ def main():
         b0_b1_source_gap_fields = set(b0_b1_source_gap_reader.fieldnames or [])
     with xztu_extracted_csv.open(newline="", encoding="utf-8-sig") as f:
         xztu_extracted_rows = list(csv.DictReader(f))
+    with sdtbu_extracted_csv.open(newline="", encoding="utf-8-sig") as f:
+        sdtbu_extracted_rows = list(csv.DictReader(f))
+    with sdtbu_audit_csv.open(newline="", encoding="utf-8-sig") as f:
+        sdtbu_audit_rows = list(csv.DictReader(f))
     with jsut_extracted_csv.open(newline="", encoding="utf-8-sig") as f:
         jsut_extracted_rows = list(csv.DictReader(f))
     with b0_b1_source_search_log_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -2706,6 +2712,9 @@ def main():
     }
     xztu_extracted_plan_by_major = {
         row.get("专业名称"): row.get("湖北计划数") for row in xztu_extracted_rows
+    }
+    sdtbu_extracted_plan_by_major = {
+        row.get("专业名称"): row.get("湖北计划数") for row in sdtbu_extracted_rows
     }
     jsut_extracted_plan_by_major = {
         row.get("专业名称"): row.get("湖北计划数") for row in jsut_extracted_rows
@@ -3187,7 +3196,7 @@ def main():
     checks.append(ok(
         "第 19 期候选V3 B0/B1官网/API留存证据匹配表为逐专业明细且不是最终方案",
         b0_b1_official_evidence_match_summary.get("status") == "official_evidence_match_not_final"
-        and b0_b1_official_evidence_match_summary.get("normalized_official_row_count") == 410
+        and b0_b1_official_evidence_match_summary.get("normalized_official_row_count") == 434
         and b0_b1_official_evidence_match_summary.get("admission_detail_row_count") == 324
         and b0_b1_official_evidence_match_summary.get("admission_detail_evidence_ledger_row_count") == 324
         and b0_b1_official_evidence_match_summary.get("default_discussion_table")
@@ -3199,6 +3208,7 @@ def main():
             "喀什大学",
             "天津外国语大学",
             "山东大学",
+            "山东工商学院",
             "忻州师范学院",
             "成都信息工程大学",
             "杭州电子科技大学",
@@ -3216,44 +3226,44 @@ def main():
             "official_static_html_table": 58,
             "official_attachment_xlsx_province_table": 31,
             "official_attachment_xlsx_row_plan": 21,
-            "official_pdf_table_extracted_csv": 15,
+            "official_pdf_table_extracted_csv": 39,
             "official_image_table_extracted_csv": 15,
             "official_static_html_joined_tables": 43,
         }
         and b0_b1_official_evidence_match_summary.get("match_status_counts") == {
-            "no_school_source": 156,
-            "matched": 142,
-            "unmatched": 25,
+            "no_school_source": 140,
+            "unmatched": 31,
+            "matched": 152,
             "possible_match": 1,
         }
         and b0_b1_official_evidence_match_summary.get("plan_check_status_counts") == {
-            "not_covered": 181,
-            "ocr_plan_missing_official_available": 47,
-            "official_plan_missing": 20,
-            "mismatch": 17,
-            "match": 59,
+            "not_covered": 171,
+            "ocr_plan_missing_official_available": 55,
+            "official_plan_missing": 19,
+            "match": 61,
+            "mismatch": 18,
         }
         and b0_b1_official_evidence_match_summary.get("fidelity_status_counts") == {
-            "有官网线索但未结构化匹配": 45,
+            "有官网线索但未结构化匹配": 29,
             "占位行-不是真实招生明细": 2,
             "仅章程规则线索-无结构化计划证据": 43,
             "待补高校官网计划源": 66,
-            "官网可补OCR计划数-优先核页": 47,
-            "待人工复核": 19,
-            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 59,
-            "官网未匹配-专业名或OCR待核": 25,
+            "官网未匹配-专业名或OCR待核": 31,
+            "官网可补OCR计划数-优先核页": 55,
+            "待人工复核": 18,
+            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 61,
             "疑似匹配-人工确认": 1,
-            "官网专业名匹配但计划数冲突-优先核页": 17,
+            "官网专业名匹配但计划数冲突-优先核页": 18,
         }
         and b0_b1_official_evidence_match_summary.get("matched_school_counts") == {
-            "西安财经大学": 1,
             "西安医学院": 2,
-            "武汉商学院": 33,
+            "武汉商学院": 32,
             "忻州师范学院": 4,
-            "江苏理工学院": 13,
+            "江苏理工学院": 12,
             "杭州电子科技大学": 10,
+            "山东工商学院": 15,
             "中国传媒大学": 9,
-            "南宁学院": 5,
+            "南宁学院": 4,
             "成都信息工程大学": 19,
             "西安邮电大学": 19,
             "喀什大学": 6,
@@ -3261,12 +3271,11 @@ def main():
             "兰州大学": 7,
             "西北民族大学": 3,
             "江汉大学": 7,
-            "天津外国语大学": 1,
         }
         and required_b0_b1_retained_official_fields.issubset(b0_b1_retained_official_fields)
         and required_b0_b1_evidence_match_fields.issubset(b0_b1_official_evidence_match_fields)
         and required_b0_b1_detail_evidence_ledger_fields.issubset(b0_b1_detail_evidence_ledger_fields)
-        and len(b0_b1_retained_official_rows) == 410
+        and len(b0_b1_retained_official_rows) == 434
         and len(b0_b1_official_evidence_match_rows) == 324
         and len(b0_b1_detail_evidence_ledger_rows) == 324
         and set(b0_b1_evidence_match_by_detail_id) == {row.get("招生明细主表行ID") for row in b0_b1_admission_detail_rows}
@@ -3312,6 +3321,38 @@ def main():
             and row.get("提取方法") == "pdfplumber_extract_tables_header_hubei_column"
             and "湖北院校专业组代码" in row.get("提取局限性", "")
             for row in xztu_extracted_rows
+        ),
+    ))
+    checks.append(ok(
+        "山东工商学院官网PDF抽取表保留湖北物理类逐专业明细和OCR网格审计表",
+        len(sdtbu_extracted_rows) == 24
+        and len(sdtbu_audit_rows) == 42
+        and all(row.get("学校名称") == "山东工商学院" for row in sdtbu_extracted_rows)
+        and all(row.get("科类") == "物理" for row in sdtbu_extracted_rows)
+        and sdtbu_extracted_plan_by_major.get("人工智能") == "3"
+        and sdtbu_extracted_plan_by_major.get("数字媒体技术") == "2"
+        and sdtbu_extracted_plan_by_major.get("计算机科学与技术") == "3"
+        and sdtbu_extracted_plan_by_major.get("通信工程") == "1"
+        and sdtbu_extracted_plan_by_major.get("数据科学与大数据技术") == "1"
+        and sdtbu_extracted_plan_by_major.get("信息管理与信息系统") == "4"
+        and any(
+            row.get("专业名称OCR") == "信息箵理与信息系统"
+            and row.get("专业名称") == "信息管理与信息系统"
+            and "人工复核校正" in row.get("专业名称校正说明", "")
+            for row in sdtbu_extracted_rows
+        )
+        and all(
+            row.get("原始PDF") == "data/external/issue19-b0-b1-official-sources/sdtbu-2026-province-major-plan.pdf"
+            and row.get("湖北列索引") == "13"
+            and row.get("提取方法") == "pdf_grid_numbers_plus_apple_vision_ocr_major_column"
+            and "湖北院校专业组代码" in row.get("提取局限性", "")
+            for row in sdtbu_extracted_rows
+        )
+        and any(
+            row.get("专业名称") == "信用风险管理与法律防控"
+            and row.get("纳入湖北物理类匹配表") == "否"
+            and "人工复核校正" in row.get("专业名称校正说明", "")
+            for row in sdtbu_audit_rows
         ),
     ))
     checks.append(ok(
@@ -3404,39 +3445,41 @@ def main():
     checks.append(ok(
         "B0/B1保真复核队列摘要、行数和类型分布正确",
         b0_b1_fidelity_summary.get("status") == "b0_b1_fidelity_review_queues_not_final"
-        and b0_b1_fidelity_summary.get("plan_conflict_row_count") == 17
-        and b0_b1_fidelity_summary.get("unmatched_major_row_count") == 26
-        and b0_b1_fidelity_summary.get("source_gap_school_count") == 20
+        and b0_b1_fidelity_summary.get("plan_conflict_row_count") == 18
+        and b0_b1_fidelity_summary.get("unmatched_major_row_count") == 32
+        and b0_b1_fidelity_summary.get("source_gap_school_count") == 19
         and b0_b1_fidelity_summary.get("plan_conflict_type_counts") == {
             "OCR计划数疑似误取学费": 13,
-            "OCR计划数与官网计划数不一致": 4,
+            "OCR计划数与官网计划数不一致": 5,
         }
         and b0_b1_fidelity_summary.get("plan_conflict_school_counts") == {
             "江苏理工学院": 10,
+            "山东工商学院": 1,
             "中国传媒大学": 1,
             "南宁学院": 3,
             "成都信息工程大学": 2,
             "山东大学": 1,
         }
         and b0_b1_fidelity_summary.get("unmatched_major_type_counts") == {
-            "专业代号非数字疑似OCR噪声": 3,
+            "官网留存证据未覆盖关键限定词专业": 17,
             "官网留存证据未匹配该专业": 8,
-            "官网留存证据未覆盖关键限定词专业": 15,
+            "专业代号非数字疑似OCR噪声": 3,
+            "OCR专业名疑似串入下一院校": 4,
         }
         and b0_b1_fidelity_summary.get("source_gap_type_counts") == {
             "需继续寻找高校官网湖北2026计划": 8,
-            "有官网线索但尚未结构化到逐专业证据": 12,
+            "有官网线索但尚未结构化到逐专业证据": 11,
         }
         and b0_b1_fidelity_summary.get("source_gap_priority_counts") == {
             "P0-待补官方计划源": 8,
-            "P1-已有线索待结构化": 12,
+            "P1-已有线索待结构化": 11,
         }
         and required_b0_b1_plan_conflict_fields.issubset(b0_b1_plan_conflict_fields)
         and required_b0_b1_unmatched_major_fields.issubset(b0_b1_unmatched_major_fields)
         and required_b0_b1_source_gap_fields.issubset(b0_b1_source_gap_fields)
-        and len(b0_b1_plan_conflict_rows) == 17
-        and len(b0_b1_unmatched_major_rows) == 26
-        and len(b0_b1_source_gap_rows) == 20
+        and len(b0_b1_plan_conflict_rows) == 18
+        and len(b0_b1_unmatched_major_rows) == 32
+        and len(b0_b1_source_gap_rows) == 19
         and b0_b1_plan_conflict_type_counts == Counter(
             b0_b1_fidelity_summary.get("plan_conflict_type_counts", {})
         )

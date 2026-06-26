@@ -39,6 +39,7 @@ SOURCE_FILES_BY_SCHOOL = {
     "喀什大学": ["ksu-2026-undergraduate-plan.xlsx"],
     "杭州电子科技大学": ["hdu-2026-hubei-plan.xlsx"],
     "忻州师范学院": ["xztu-2026-hubei-physics-plan-extracted.csv"],
+    "山东工商学院": ["sdtbu-2026-hubei-physics-plan-extracted.csv"],
     "江苏理工学院": ["jsut-2026-hubei-physics-plan-extracted.csv"],
     "南宁学院": ["unn-2026-undergraduate-plan-page.html"],
 }
@@ -260,6 +261,10 @@ def missing_key_qualifiers(target, official_name):
     ]
 
 
+def has_next_school_noise(text):
+    return bool(re.search(r"[A-Z]\d{3,4}\s*[\u4e00-\u9fff]{2,}", str(text or "")))
+
+
 def clean_cell(row, index):
     if index >= len(row):
         return ""
@@ -439,8 +444,16 @@ def parse_extracted_pdf_csv(path, school_name):
             source_note_parts.append(f"原始PDF：{item.get('原始PDF', '')}")
         if item.get("页码"):
             source_note_parts.append(f"页码：{item.get('页码', '')}")
+        if item.get("PDF表格行号"):
+            source_note_parts.append(f"PDF表格行号：{item.get('PDF表格行号', '')}")
         if item.get("系"):
             source_note_parts.append(f"系：{item.get('系', '')}")
+        if item.get("总计划数"):
+            source_note_parts.append(f"总计划数：{item.get('总计划数', '')}")
+        if item.get("专业名称OCR") and item.get("专业名称OCR") != item.get("专业名称"):
+            source_note_parts.append(f"专业名称OCR：{item.get('专业名称OCR', '')}")
+        if item.get("专业名称校正说明"):
+            source_note_parts.append(f"专业名校正：{item.get('专业名称校正说明', '')}")
         if item.get("原始图片"):
             source_note_parts.append("原始图片：官方计划图已本地留存")
         if item.get("官网入口页"):
@@ -463,7 +476,7 @@ def parse_extracted_pdf_csv(path, school_name):
                 "证据类型": evidence_type,
                 "年份": "2026",
                 "省份": "湖北",
-                "科类": "物理类" if item.get("科类") == "物理" else item.get("科类", ""),
+                "科类": "物理类" if item.get("科类") in {"物理", "理工类"} else item.get("科类", ""),
                 "批次": "",
                 "类别": "",
                 "专业组": "",
@@ -859,6 +872,8 @@ def best_match(detail, official_rows_by_school):
     school_rows = official_rows_by_school.get(detail["院校名称OCR"], [])
     if not school_rows:
         return None, "no_retained_official_plan_for_school", 0
+    if has_next_school_noise(detail.get("专业名称及备注OCR", "")):
+        return None, "unmatched_embedded_other_school_marker", 0
     target = normalize_major_name(detail["专业名称及备注OCR"])
     if not target:
         return None, "ocr_major_name_empty", 0

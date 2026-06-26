@@ -6,32 +6,34 @@
     "data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv",
     "data/working/issue19-b0-b1-retained-official-plan-normalized.csv"
   ],
-  "plan_conflict_row_count": 17,
+  "plan_conflict_row_count": 18,
   "plan_conflict_type_counts": {
     "OCR计划数疑似误取学费": 13,
-    "OCR计划数与官网计划数不一致": 4
+    "OCR计划数与官网计划数不一致": 5
   },
   "plan_conflict_school_counts": {
     "江苏理工学院": 10,
+    "山东工商学院": 1,
     "中国传媒大学": 1,
     "南宁学院": 3,
     "成都信息工程大学": 2,
     "山东大学": 1
   },
-  "unmatched_major_row_count": 26,
+  "unmatched_major_row_count": 32,
   "unmatched_major_type_counts": {
+    "官网留存证据未覆盖关键限定词专业": 17,
     "官网留存证据未匹配该专业": 8,
     "专业代号非数字疑似OCR噪声": 3,
-    "官网留存证据未覆盖关键限定词专业": 15
+    "OCR专业名疑似串入下一院校": 4
   },
-  "source_gap_school_count": 20,
+  "source_gap_school_count": 19,
   "source_gap_type_counts": {
     "需继续寻找高校官网湖北2026计划": 8,
-    "有官网线索但尚未结构化到逐专业证据": 12
+    "有官网线索但尚未结构化到逐专业证据": 11
   },
   "source_gap_priority_counts": {
     "P0-待补官方计划源": 8,
-    "P1-已有线索待结构化": 12
+    "P1-已有线索待结构化": 11
   },
   "notes": [
     "本摘要只用于安排人工核页和补源，不是最终志愿方案。",
