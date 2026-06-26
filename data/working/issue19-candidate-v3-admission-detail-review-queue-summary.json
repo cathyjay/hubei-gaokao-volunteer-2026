@@ -1,0 +1,75 @@
+{
+  "status": "issue19_candidate_v3_admission_detail_review_queue_not_final",
+  "generated_by": "build_issue19_candidate_v3_admission_detail_review_queue.py",
+  "source_table": "data/working/issue19-candidate-v3-admission-detail.csv",
+  "output_table": "data/working/issue19-candidate-v3-admission-detail-review-queue.csv",
+  "row_count": 8412,
+  "real_admission_detail_count": 8410,
+  "zero_detail_placeholder_count": 2,
+  "unique_queue_id_count": 8412,
+  "priority_counts": {
+    "D0-0明细或边界问题先补齐": 58,
+    "D1-历史候选逐专业核页": 77,
+    "D2-数字媒体技术逐专业核页": 78,
+    "D3-偏好专业可接受性核验": 1652,
+    "D4-硬风险专业排除或调剂风险核验": 1604,
+    "D5-特殊限制专业核验": 639,
+    "D6-组内调剂接受度核验": 4304
+  },
+  "transfer_risk_counts": {
+    "T0-不可判断：专业明细缺失": 2,
+    "T1-高：同组存在默认不能接受专业": 3817,
+    "T3-待家庭确认：机器未见自动阻断": 3202,
+    "T2-中：同组存在特殊限制待核专业": 1391
+  },
+  "batch_counts": {
+    "B0-历史候选和组号问题优先核页": 79,
+    "B4-同页边界风险组核页": 1,
+    "B2-偏好专业未自动阻断核页": 4313,
+    "B3-偏好专业硬风险先核风险": 3774,
+    "B1-数字媒体技术优先核页": 245
+  },
+  "top_priority_school_counts": {
+    "武汉商学院": 35,
+    "武汉轻工大学": 24,
+    "湖北": 22,
+    "湖北大学": 21,
+    "武汉大学": 18,
+    "湖南": 17,
+    "黄冈师范学院": 16,
+    "江西师范大学": 14,
+    "湖南大学": 13,
+    "汉江师范学院": 13,
+    "武汉体育学院": 12,
+    "江汉大学": 12,
+    "长江大学": 12,
+    "武汉工程大学": 11,
+    "湖北工业大学": 11,
+    "湖北科技学院": 11,
+    "江西财经大学": 11,
+    "湖北师范大学": 10,
+    "荆楚理工学院": 10,
+    "湖北经济学院": 10,
+    "湖北理工学院": 10,
+    "四川师范大学": 10,
+    "上海": 9,
+    "华中师范大学": 9,
+    "湖北汽车工业学院": 9,
+    "淮南师范学院": 9,
+    "湖南科技大学": 9,
+    "新疆师范大学": 9,
+    "成都信息工程大学": 8,
+    "西安邮电大学": 8
+  },
+  "final_available_count": 0,
+  "major_final_available_count": 0,
+  "fidelity_note": "该队列一行对应一个招生专业或0明细占位，用于安排 PDF 原页、湖北官方系统、高校官网/章程、家庭接受度和调剂影响核验顺序，不是填报建议。",
+  "review_schema_note": "官方系统、高校官网/章程、校区/办学地点、特殊限制、专业组完整性、核验人和核验时间字段为后续人工核验落点；为空代表尚未核验，不得升级。",
+  "inputs": [
+    {
+      "path": "data/working/issue19-candidate-v3-admission-detail.csv",
+      "sha256": "20015fc62d04a7fef3df448a2530d7e5ad2f91f2f735f26cf79c51d665b06d7f",
+      "row_count": 8412
+    }
+  ]
+}

@@ -74,3 +74,5 @@
 - 明确 B0/B1 官方交叉校验口径：高校官网/章程只能辅助核验，`has_reusable_2026_hubei_plan_source` 也不是最终通过；最终保真必须由第 19 期 PDF 原页、湖北官方系统/省招办计划、高校官网/章程、家庭接受度和调剂结论共同闭环。
 - 生成候选 V3 全量逐专业招生明细主表：`data/working/issue19-candidate-v3-admission-detail.csv` 覆盖 1327 个组级入口并展开为 8412 行，其中 8410 条真实招生专业、2 条 0 明细占位；后续候选讨论默认使用逐专业主表，`issue19-candidate-v3-review-intake.csv` 降级为组级索引、投档线索和调剂范围承载。
 - 留存湖北招生数智综合平台 2026-06-27 当前前端资源和无登录探针，并新增 `scripts/fetch_hubei_plan_platform.py`；脚本在拿到 `Admin-Token` 后可抓取 `/prod-api/planQuery/plan/group`，原始分页 JSON 默认写入 Git 忽略的 `private/`，公开输出一行一个招生专业并保留原始行 SHA。
+- 生成候选 V3 全量逐专业复核队列：`data/working/issue19-candidate-v3-admission-detail-review-queue.csv` 覆盖 8412 行，其中 8410 条真实招生专业、2 条 0 明细占位；队列按 D0-D6 安排逐专业核验，D0 额外纳入 `湖北`、`湖南`、`上海`、`北京` 等疑似截断院校名，所有真实专业都必须核 PDF 原页、湖北官方系统、高校官网/章程、完整专业组边界、校区、特殊限制、家庭接受度和调剂影响。
+- 加固候选 V3 保真门禁：0 明细占位必须保持 `是否真实招生明细=false`、专业字段为空、`同组调剂机器风险=T0`、`可进入最终专业列表=false`、`可进入下一阶段=false`；计划数、学费或再选科目为空时必须保留字段完整性标记并继续 pending；官方系统和高校官网证据编号、证据 SHA、人工核验时间为空时，不允许升级为最终可用。
