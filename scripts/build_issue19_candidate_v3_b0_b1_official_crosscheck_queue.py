@@ -17,6 +17,7 @@ B0_B1_OFFICIAL_SOURCE_SEEDS = ROOT / "data/working/issue19-candidate-v3-b0-b1-of
 
 SCHOOL_QUEUE_OUTPUT = ROOT / "data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv"
 GROUP_QUEUE_OUTPUT = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv"
+ADMISSION_DETAIL_OUTPUT = ROOT / "data/working/issue19-candidate-v3-b0-b1-admission-detail-official-crosscheck.csv"
 MAJOR_QUEUE_OUTPUT = ROOT / "data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv"
 SUMMARY_OUTPUT = ROOT / "data/working/issue19-candidate-v3-b0-b1-official-crosscheck-summary.json"
 
@@ -184,6 +185,7 @@ def main():
         school_rows.append(row)
 
     group_queue_rows = []
+    admission_detail_rows = []
     major_queue_rows = []
     for group in group_rows:
         school_name = group["院校名称OCR"]
@@ -194,7 +196,7 @@ def main():
             "OCQ",
             [source_pdf_sha256, group["候选V3入口ID"], group["2026院校专业组代码"]],
         )
-        row = {
+        group_queue_row = {
             "来源期号": source_issue,
             "来源PDF_SHA256": source_pdf_sha256,
             "数据阶段": DATA_STAGE,
@@ -232,9 +234,10 @@ def main():
             "招生章程检索式": charter_query_for_school(school_name),
             "下一步": "先补高校官网/章程来源，再按必须核验字段逐项比对第19期、湖北官方系统和高校官网；不一致时以省招办渠道为准并记录差异。",
         }
-        group_queue_rows.append(row)
+        group_queue_rows.append(group_queue_row)
         for major in major_tasks:
-            major_queue_rows.append({
+            is_placeholder = major["专业行来源"] == "zero_detail_group_placeholder"
+            major_queue_row = {
                 "来源期号": source_issue,
                 "来源PDF_SHA256": source_pdf_sha256,
                 "数据阶段": DATA_STAGE,
@@ -292,7 +295,42 @@ def main():
                 "高校官网计划检索式": search_query_for_school(school_name),
                 "招生章程检索式": charter_query_for_school(school_name),
                 "下一步": "逐专业比对PDF原页、湖北官方系统或省招办计划、高校官网/章程和家庭接受度；专业字段未全部确认前不得进入最终专业列表。",
-            })
+            }
+            major_queue_rows.append(major_queue_row)
+
+            admission_detail_row = {
+                "招生明细主表行ID": stable_id(
+                    "ADM",
+                    [
+                        source_pdf_sha256,
+                        major["候选V3入口ID"],
+                        major["专业核验任务ID"],
+                        major["专业组内专业序号"],
+                        major["专业代号OCR"],
+                    ],
+                ),
+                "主表粒度": "逐专业招生明细",
+                "是否真实招生明细": "false" if is_placeholder else "true",
+                "是否0明细占位": "true" if is_placeholder else "false",
+                "组级索引文件": str(GROUP_QUEUE_OUTPUT.relative_to(ROOT)),
+                "学校补源文件": str(SCHOOL_QUEUE_OUTPUT.relative_to(ROOT)),
+                "原逐专业核验队列文件": str(MAJOR_QUEUE_OUTPUT.relative_to(ROOT)),
+                "组级风险线索": group_queue_row["风险线索"],
+                "历史线使用口径": group_queue_row["历史线使用口径"],
+                "专业明细行数": group_queue_row["专业明细行数"],
+                "逐专业核验任务数": group_queue_row["逐专业核验任务数"],
+                "必须核验字段": group_queue_row["必须核验字段"],
+                "组级湖北官方系统核验状态": group_queue_row["湖北官方系统核验状态"],
+                "组级高校官网计划核验状态": group_queue_row["高校官网计划核验状态"],
+                "组级招生章程核验状态": group_queue_row["招生章程核验状态"],
+                "组级PDF原页核验状态": group_queue_row["PDF原页核验状态"],
+                "组级家庭接受度核验状态": group_queue_row["家庭接受度核验状态"],
+                "组级调剂结论状态": group_queue_row["调剂结论状态"],
+                "组级交叉校验结论": group_queue_row["交叉校验结论"],
+                "组级可进入下一阶段": group_queue_row["可进入下一阶段"],
+            }
+            admission_detail_row.update(major_queue_row)
+            admission_detail_rows.append(admission_detail_row)
 
     school_fields = [
         "来源期号",
@@ -411,8 +449,31 @@ def main():
         "招生章程检索式",
         "下一步",
     ]
+    admission_detail_fields = [
+        "招生明细主表行ID",
+        "主表粒度",
+        "是否真实招生明细",
+        "是否0明细占位",
+        "组级索引文件",
+        "学校补源文件",
+        "原逐专业核验队列文件",
+        "组级风险线索",
+        "历史线使用口径",
+        "专业明细行数",
+        "逐专业核验任务数",
+        "必须核验字段",
+        "组级湖北官方系统核验状态",
+        "组级高校官网计划核验状态",
+        "组级招生章程核验状态",
+        "组级PDF原页核验状态",
+        "组级家庭接受度核验状态",
+        "组级调剂结论状态",
+        "组级交叉校验结论",
+        "组级可进入下一阶段",
+    ] + major_fields
     write_csv(SCHOOL_QUEUE_OUTPUT, school_rows, school_fields)
     write_csv(GROUP_QUEUE_OUTPUT, group_queue_rows, group_fields)
+    write_csv(ADMISSION_DETAIL_OUTPUT, admission_detail_rows, admission_detail_fields)
     write_csv(MAJOR_QUEUE_OUTPUT, major_queue_rows, major_fields)
 
     summary = {
@@ -434,9 +495,13 @@ def main():
         "school_count": len(school_rows),
         "group_count": len(group_queue_rows),
         "major_review_task_count": len(major_rows),
+        "admission_detail_main_row_count": len(admission_detail_rows),
         "major_official_crosscheck_task_count": len(major_queue_rows),
         "school_source_status_counts": dict(sorted(Counter(row["官网来源状态"] for row in school_rows).items())),
         "group_source_status_counts": dict(sorted(Counter(row["官网来源状态"] for row in group_queue_rows).items())),
+        "admission_detail_source_status_counts": dict(sorted(Counter(row["官网来源状态"] for row in admission_detail_rows).items())),
+        "admission_detail_real_row_count": sum(row["是否真实招生明细"] == "true" for row in admission_detail_rows),
+        "admission_detail_placeholder_row_count": sum(row["是否0明细占位"] == "true" for row in admission_detail_rows),
         "major_source_status_counts": dict(sorted(Counter(row["官网来源状态"] for row in major_queue_rows).items())),
         "major_row_source_counts": dict(sorted(Counter(row["专业行来源"] for row in major_queue_rows).items())),
         "source_priority_counts": dict(sorted(Counter(row["补源优先级"] for row in school_rows).items())),
@@ -454,6 +519,7 @@ def main():
         "major_final_available_count": sum(row["可进入下一阶段"] == "true" for row in major_queue_rows),
         "notes": [
             "本队列用于补齐B0/B1优先组的高校官网/章程交叉校验证据，不是最终报考建议。",
+            "后续候选讨论默认使用逐专业招生明细主表；组级队列只作为投档、调剂、历史线和补源索引。",
             "高校官网只能辅助核专业、计划、学费、选科、校区和章程规则；若与省招办计划不一致，以湖北省招办渠道为准。",
             "没有官网湖北2026计划页的学校不删除，标为needs_official_plan_source_search并保留检索式。",
             "所有专业组和逐专业任务仍保持可进入下一阶段=false，必须完成PDF原页、湖北官方系统、高校官网/章程、家庭接受度和调剂结论后才能升级。",
@@ -461,6 +527,7 @@ def main():
         "outputs": [
             str(SCHOOL_QUEUE_OUTPUT.relative_to(ROOT)),
             str(GROUP_QUEUE_OUTPUT.relative_to(ROOT)),
+            str(ADMISSION_DETAIL_OUTPUT.relative_to(ROOT)),
             str(MAJOR_QUEUE_OUTPUT.relative_to(ROOT)),
         ],
     }
@@ -468,10 +535,12 @@ def main():
 
     print(f"写出B0/B1学校官方来源队列：{SCHOOL_QUEUE_OUTPUT}")
     print(f"写出B0/B1官方交叉校验队列：{GROUP_QUEUE_OUTPUT}")
+    print(f"写出B0/B1逐专业招生明细主表：{ADMISSION_DETAIL_OUTPUT}")
     print(f"写出B0/B1逐专业官方交叉校验队列：{MAJOR_QUEUE_OUTPUT}")
     print(f"写出B0/B1官方交叉校验摘要：{SUMMARY_OUTPUT}")
     print(f"学校数：{len(school_rows)}")
     print(f"专业组数：{len(group_queue_rows)}")
+    print(f"逐专业招生明细主表行数：{len(admission_detail_rows)}")
     print(f"逐专业任务数：{len(major_queue_rows)}")
 
 

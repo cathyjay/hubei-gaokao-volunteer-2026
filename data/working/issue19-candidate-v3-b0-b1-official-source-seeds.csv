@@ -1,4 +1,9 @@
 学校名称,官网来源优先级,官网URL,本地留存路径,是否可核湖北2026,可核字段,局限性,下一步
 北京语言大学,中,https://zsb.blcu.edu.cn/sjz/zsdt/xxgk.htm,未留存,可能,招生计划入口；招生章程入口；历年分数入口,需进入动态查询入口核湖北2026，本地尚未留存具体湖北计划结果,优先用官方招生计划入口查询湖北2026并本地留存
 成都理工大学,中,https://zsdata.cdut.edu.cn/zsdata/lqxx/,未留存,可能,官方招生信息动态查询入口；省份/年份/科类筛选,页面需动态查询，本地尚未保存湖北2026物理类结果,用浏览器或接口查询湖北2026物理类并本地留存
+成都信息工程大学,高,https://zs.cuit.edu.cn/info/1096/1688.htm,data/external/issue19-b0-b1-official-sources/cuit-2026-undergraduate-plan.html,部分,湖北2026分专业计划；专业代码；湖北计划数；学费；学院；校区,未直接给出湖北院校专业组代码和专业代号，需与第19期原页及湖北官方系统对齐,用官网表核专业名称、湖北计划数、学费、学院和校区；组边界回到第19期及湖北官方系统核验
+江汉大学,高,https://zsdata.jhun.edu.cn/zsdata/lqxx/,data/external/issue19-b0-b1-official-sources/jhun-2026-hubei-physics-normal-lqxx2.json,部分,湖北2026物理类普通类专业名称；专业代码；专业代号；计划数；学制；专业备注,官方接口未直接给出湖北院校专业组代码和组内边界，且汇总为湖北物理类普通批全量专业,用接口结果核专业与计划；专业组边界、面向武汉类别和调剂范围必须回看第19期及湖北官方系统
 西安建筑科技大学,中,https://zhaosheng.xauat.edu.cn/,未留存,部分,招生计划入口；招生章程入口；历年分数入口,首页有招生计划入口但本地未留存湖北2026查询结果,优先查询官方招生计划入口中的湖北2026并本地留存
+西安财经大学,高,https://zhaosheng.xaufe.edu.cn/zsdata/lqxx/,data/external/issue19-b0-b1-official-sources/xaufe-2026-hubei-physics-normal.json,部分,湖北2026理工/物理类普通类专业名称；计划数；专业备注,专业组、专业代号、学费、选科、校区字段为空或不足，不能单独核专业组边界,用接口结果核金融学中外合作等专业名称和计划数；费用、专业组、选科和校区回到第19期、湖北官方系统和章程核验
+西安医学院,高,http://luqu.xiyi.edu.cn/zsdata/lqxx/,data/external/issue19-b0-b1-official-sources/xiyi-2026-hubei-physics-normal.json,部分,湖北2026物理类普通类专业名称；专业代码；计划数；学制；学费；校区；选科要求；专业备注,旧版接口可用但未直接给出湖北院校专业组代码和专业代号，且医学/ICC费用风险需章程核实,用接口结果核英语、预防医学、护理学等专业计划/学费/选科；专业组边界和调剂范围回到第19期及湖北官方系统
+西安邮电大学,高,https://zsdata.xupt.edu.cn/zsdata/lqxx/,data/external/issue19-b0-b1-official-sources/xupt-2026-hubei-physics-normal.json,是,湖北2026物理类普通类专业组；专业名称；专业代号；计划数；选科；类别,动态接口专业组号需与第19期湖北院校专业组代码映射核对，学费和校区还需第19期或章程补齐,用官方接口JSON核逐专业计划和组内专业；再与第19期原页、湖北官方系统和章程逐字段对齐

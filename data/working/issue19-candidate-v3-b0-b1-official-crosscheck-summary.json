@@ -26,31 +26,40 @@
     },
     {
       "path": "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv",
-      "sha256": "c9ca5358c6b3581c663958f79aecd71e17e5c48ddc474e21d515c944303a21e3",
-      "row_count": 3
+      "sha256": "7093e255c046ae99259011d6601ddbfc568068dada37e739383bdf2d270c2dce",
+      "row_count": 8
     }
   ],
   "school_count": 36,
   "group_count": 49,
   "major_review_task_count": 324,
+  "admission_detail_main_row_count": 324,
   "major_official_crosscheck_task_count": 324,
   "school_source_status_counts": {
     "charter_or_rules_only_no_plan": 2,
-    "has_partial_source_needs_followup": 3,
-    "has_reusable_2026_hubei_plan_source": 1,
-    "needs_official_plan_source_search": 30
+    "has_partial_source_needs_followup": 7,
+    "has_reusable_2026_hubei_plan_source": 2,
+    "needs_official_plan_source_search": 25
   },
   "group_source_status_counts": {
     "charter_or_rules_only_no_plan": 5,
-    "has_partial_source_needs_followup": 4,
-    "has_reusable_2026_hubei_plan_source": 5,
-    "needs_official_plan_source_search": 35
+    "has_partial_source_needs_followup": 10,
+    "has_reusable_2026_hubei_plan_source": 6,
+    "needs_official_plan_source_search": 28
   },
+  "admission_detail_source_status_counts": {
+    "charter_or_rules_only_no_plan": 13,
+    "has_partial_source_needs_followup": 50,
+    "has_reusable_2026_hubei_plan_source": 54,
+    "needs_official_plan_source_search": 207
+  },
+  "admission_detail_real_row_count": 322,
+  "admission_detail_placeholder_row_count": 2,
   "major_source_status_counts": {
     "charter_or_rules_only_no_plan": 13,
-    "has_partial_source_needs_followup": 6,
-    "has_reusable_2026_hubei_plan_source": 35,
-    "needs_official_plan_source_search": 270
+    "has_partial_source_needs_followup": 50,
+    "has_reusable_2026_hubei_plan_source": 54,
+    "needs_official_plan_source_search": 207
   },
   "major_row_source_counts": {
     "candidate_v2_major_review_seed": 81,
@@ -59,11 +68,13 @@
   },
   "source_priority_counts": {
     "S0-B0历史候选学校优先补源": 11,
+    "S1-已有官网计划源先做字段对照": 1,
     "S2-多组学校优先补源": 2,
-    "S3-B1单组学校按页码推进": 23
+    "S3-B1单组学校按页码推进": 22
   },
   "schools_with_reusable_2026_hubei_plan_source": [
-    "武汉商学院"
+    "武汉商学院",
+    "西安邮电大学"
   ],
   "schools_needing_official_plan_source_search": [
     "中国传媒大学",
@@ -78,22 +89,17 @@
     "山东工商学院",
     "山东财经大学",
     "忻州师范学院",
-    "成都信息工程大学",
     "成都师范学院",
     "新疆天山职业技术大学",
     "杭州电子科技大学",
     "武汉轻工大学",
-    "江汉大学",
     "江苏理工学院",
     "浙江传媒学院",
     "浙江工业大学",
     "湖北师范大学",
     "西北民族大学",
-    "西安医学院",
     "西安工商学院",
     "西安航空学院",
-    "西安财经大学",
-    "西安邮电大学",
     "长春工业大学",
     "韶关学院"
   ],
@@ -101,6 +107,7 @@
   "major_final_available_count": 0,
   "notes": [
     "本队列用于补齐B0/B1优先组的高校官网/章程交叉校验证据，不是最终报考建议。",
+    "后续候选讨论默认使用逐专业招生明细主表；组级队列只作为投档、调剂、历史线和补源索引。",
     "高校官网只能辅助核专业、计划、学费、选科、校区和章程规则；若与省招办计划不一致，以湖北省招办渠道为准。",
     "没有官网湖北2026计划页的学校不删除，标为needs_official_plan_source_search并保留检索式。",
     "所有专业组和逐专业任务仍保持可进入下一阶段=false，必须完成PDF原页、湖北官方系统、高校官网/章程、家庭接受度和调剂结论后才能升级。"
@@ -108,6 +115,7 @@
   "outputs": [
     "data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv",
     "data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv",
+    "data/working/issue19-candidate-v3-b0-b1-admission-detail-official-crosscheck.csv",
     "data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv"
   ]
 }
