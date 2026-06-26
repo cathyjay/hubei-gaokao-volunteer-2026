@@ -28,6 +28,13 @@ python3 scripts/extract_issue19_school_samples.py
 
 本轮官网核验发现：真正能直接用于 double check 第 19 期 OCR 的高价值官方来源，主要集中在湖北本省高校。省外高校多数只公开招生章程、总计划或动态查询入口，未必有 2026 湖北专业组页。
 
+高优先级 7 校 OCR 定位和官网来源摘要已生成：
+
+- 摘要 CSV：`data/working/issue19-high-priority-double-check-summary.csv`
+- 结果文档：`docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`
+
+当前结论：OCR 结果只足够做“定位与复核任务生成”，不能直接作为招生计划结构化入库或最终志愿依据。
+
 优先处理 7 所：
 
 | 学校 | 官方来源价值 | 处理重点 |

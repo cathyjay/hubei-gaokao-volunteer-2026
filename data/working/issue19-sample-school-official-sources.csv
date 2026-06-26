@@ -1,11 +1,11 @@
 学校名称,官网来源优先级,官网URL,本地留存路径,是否可核湖北2026,可核字段,局限性,下一步
 武汉商学院,高,https://zs.wbu.edu.cn/2026/0618/c1351a89857/page.htm；https://zs.wbu.edu.cn/2026/0618/c1351a89856/page.htm,data/external/issue19-sample-school-official/wbu-2026-source-plan.html；data/external/issue19-sample-school-official/wbu-2026-undergraduate-plan.html,是,湖北分专业计划；计划数；学费；选科,不含院校专业组代码和专业代号，需与第19期对齐,优先做第19期 OCR 与官网分专业计划对照
 武汉科技大学,高,https://zs.wust.edu.cn/info/1071/15371.htm；https://zs.wust.edu.cn/info/1071/15291.htm,data/external/issue19-sample-school-official/wust-2026-hubei-groups.html；data/external/school-plan-crosschecks/wust-2026-major-plan-fees.html,是,湖北院校专业组；计划；专业；学费；选科,专业组页主体可能有图片/复杂表格；本次重新抓取学费页超时但旧留存可用,优先作为强校验样本
-湖北大学,中高,https://zsxx.hubu.edu.cn/info/1016/2366.htm,data/external/issue19-sample-school-official/hubu-2026-hubei-groups.html,是,湖北专业组及招生计划,主体为图片/附件，需截图或 OCR；分数可能偏冲,用于验证图片型官网来源
-湖北理工学院,高,https://www.zhinengdayi.com/hbpu,data/external/issue19-sample-school-official/hbpu-zhaosheng-index.html,是,院校专业组；专业名称；再选科目；人数；学费,托管平台页面需打开详情页完整核第19期物理,优先核湖北理工样本组
+湖北大学,高,https://zsxx.hubu.edu.cn/info/1016/2366.htm；https://zsxx.hubu.edu.cn/info/1016/2365.htm,data/external/issue19-sample-school-official/hubu-2026-hubei-groups.html；data/external/issue19-sample-school-official/hubu-2026-provincial-major-plan.html,是,湖北专业组及招生计划；分省分专业招生计划,主体为图片/附件，需截图或 OCR；分数可能偏冲,用于验证图片型官网来源
+湖北理工学院,高,https://www.zhinengdayi.com/hbpu；https://www.zhinengdayi.com/page/detail/RAULOW/12077/65972,data/external/issue19-sample-school-official/hbpu-zhaosheng-index.html；data/external/issue19-sample-school-official/hbpu-2026-admission-magazine-guide.html,是,院校专业组；专业名称；再选科目；人数；学费；《湖北招生考试》查询指引,托管平台详情页访问较慢，仍需以第19期原页和官方系统兜底,优先作为全字段 OCR 试跑样本
 湖北科技学院,高,https://zsjy.hbust.edu.cn/info/1132/2239.htm,data/external/issue19-sample-school-official/hbust-2026-hubei-groups.html,是,湖北专业组设置及计划,正文可能为附件/PDF，需下载或截图继续核,优先核低位公办样本
-湖北工程学院,中,https://zs.hbeu.edu.cn/info/1044/9654.htm,data/external/issue19-sample-school-official/hbeu-2026-plan.html,部分,2026招生计划入口,页面主体可能为图片；是否含院校专业组待核,作为中优先级样本
-荆楚理工学院,高,https://zsxx.jcut.edu.cn/info/1052/2326.htm,data/external/issue19-sample-school-official/jcut-2026-undergraduate-plan.html,是,普通本科招生计划,专业组设置可能在公众号，官网页未必完整含代码,优先核保稳样本
+湖北工程学院,中,https://zs.hbeu.edu.cn/info/1044/9654.htm,data/external/issue19-sample-school-official/hbeu-2026-plan.html；data/external/issue19-sample-school-official/hbeu-2026-plan.png,部分,2026招生计划入口；官网图片附件,页面主体为图片；是否含院校专业组待人工/OCR核,作为中优先级样本
+荆楚理工学院,高,https://zsxx.jcut.edu.cn/info/1052/2326.htm,data/external/issue19-sample-school-official/jcut-2026-undergraduate-plan.html；data/external/issue19-sample-school-official/jcut-2026-undergraduate-plan.png,是,普通本科招生计划；官网图片附件,专业组设置可能在公众号，官网页未必完整含代码,优先核保稳样本
 湖北第二师范学院,中,https://zszx.hue.edu.cn/；https://www.hue.edu.cn/_upload/article/files/77/c9/c896a9ad427f9d01030e951d7e2d/96ad0b39-7563-4f30-8470-921c2cecf241.pdf,未留存,部分,荆楚优师专业组；计划；免学费,不是普通本科批完整计划,作为师范方向规则补充
 武汉体育学院,低,https://zs.whsu.edu.cn/info/1151/22357.htm,未留存,否,招生章程；录取规则；专业范围,未找到湖北专业组计划页,只作章程补充
 湖北汽车工业学院,中,https://zs.huat.edu.cn/,未留存,是,湖北省专业组分组线索,需打开详情页核表,后续补充官网详情

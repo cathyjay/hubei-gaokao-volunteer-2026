@@ -184,6 +184,17 @@ def main():
         f"{len(official_sources)} sources, {len(saved_official_pages)} local files",
     ))
 
+    high_priority_summary_path = ROOT / "data/working/issue19-high-priority-double-check-summary.csv"
+    with high_priority_summary_path.open(newline="", encoding="utf-8-sig") as f:
+        high_priority_summary = list(csv.DictReader(f))
+    checks.append(ok(
+        "第 19 期高优先级 7 校 double check 摘要已生成",
+        len(high_priority_summary) == 7
+        and all(row.get("证据集分层") for row in high_priority_summary)
+        and any(row.get("学校名称") == "湖北理工学院" and "主证据" in row.get("证据集分层", "") for row in high_priority_summary),
+        str(len(high_priority_summary)),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

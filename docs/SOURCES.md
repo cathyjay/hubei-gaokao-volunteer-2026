@@ -114,6 +114,16 @@
    - 当前判断：240 页，无可抽取文本层，需要渲染为图片后 OCR。
    - 限制：原始 PDF、渲染页图片、整页 OCR 文本和全量抽取结果默认只保存在 `private/`，不提交公开仓库。
 
+8. 第 19 期样本学校官网交叉校验源
+   - 来源状态表：`data/working/issue19-sample-school-official-sources.csv`
+   - 高优先级摘要：`data/working/issue19-high-priority-double-check-summary.csv`
+   - 本地留存目录：`data/external/issue19-sample-school-official/`
+   - 第一批结构化试跑主证据：武汉科技大学、湖北大学、湖北理工学院。
+   - 第一批字段补充源：武汉商学院。
+   - 第二批附件 OCR 后加入：湖北科技学院。
+   - 补充证据：湖北工程学院、荆楚理工学院。
+   - 限制：高校官网只能交叉校验专业组、专业、人数、学费、选科或备注等字段；最终仍以湖北省招办材料、湖北官方平台或志愿系统为准。
+
 ## 派生数据说明
 
 - `data/derived/hubei-2025-physics-toudang-ocr.txt`：由 2025 官方图片 OCR 生成。
@@ -128,7 +138,10 @@
 - `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。
 - `data/working/issue19-sample-schools-20.csv`：第 19 期 OCR + 学校官网 double check 的 20 所样本学校清单。
 - `data/working/issue19-sample-school-official-sources.csv`：20 所样本学校官网来源状态和本地留存路径。
+- `data/working/issue19-high-priority-double-check-summary.csv`：第 19 期高优先级 7 校 OCR 定位和官网来源摘要，只保留统计指标与复核状态，不含整页 OCR 原文。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
+- `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
+- `scripts/build_issue19_double_check_summary.py`：根据私有 OCR 定位和公开官网来源表生成高优先级 7 校摘要。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。
 
