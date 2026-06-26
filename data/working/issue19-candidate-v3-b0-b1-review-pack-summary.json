@@ -1,0 +1,104 @@
+{
+  "status": "issue19_candidate_v3_b0_b1_review_pack_pending_manual_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "issue19_candidate_v3_b0_b1_review_pack",
+  "generated_by": "scripts/build_issue19_candidate_v3_b0_b1_review_pack.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-candidate-v3-review-intake.csv",
+      "sha256": "d8d39bc23df3abba83d4f66fca81ff4567ad49a207c38e44e9de0b355daf582c",
+      "row_count": 1327
+    },
+    {
+      "path": "data/working/issue19-family-fit-major-detail.csv",
+      "sha256": "0c19ef49f2ed261de189b01ae26e9239bbbaaa758380c85e473d1208dae40340",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-major-review-seed.csv",
+      "sha256": "ad3dd80eb2d180b36006093cf4bcbef63dcf99fe7d3d206f06b33a20ca831f30",
+      "row_count": 82
+    },
+    {
+      "path": "data/working/issue19-page-manifest.csv",
+      "sha256": "abc78676bcf8ea471616bd4e4c5d4bee361678909c3f85722cbf2c935eae3c0c",
+      "row_count": 240
+    }
+  ],
+  "target_batches": [
+    "B0-历史候选和组号问题优先核页",
+    "B1-数字媒体技术优先核页"
+  ],
+  "group_count": 49,
+  "major_review_task_count": 324,
+  "placeholder_major_task_count": 2,
+  "batch_counts": {
+    "B0-历史候选和组号问题优先核页": 20,
+    "B1-数字媒体技术优先核页": 29
+  },
+  "group_major_source_counts": {
+    "candidate_v2_review_seed": 22,
+    "family_fit_full_ocr": 27
+  },
+  "major_row_source_counts": {
+    "candidate_v2_major_review_seed": 81,
+    "family_fit_major_detail": 241,
+    "zero_detail_group_placeholder": 2
+  },
+  "zero_detail_group_codes": [
+    "C10702",
+    "K15123"
+  ],
+  "selected_page_count": 32,
+  "selected_pages": [
+    "109",
+    "119",
+    "135",
+    "137",
+    "141",
+    "16",
+    "168",
+    "169",
+    "17",
+    "18",
+    "187",
+    "199",
+    "208",
+    "209",
+    "212",
+    "217",
+    "223",
+    "226",
+    "227",
+    "235",
+    "240",
+    "36",
+    "56",
+    "57",
+    "69",
+    "70",
+    "74",
+    "78",
+    "80",
+    "81",
+    "92",
+    "96"
+  ],
+  "missing_page_hash_groups": [],
+  "final_available_count": 0,
+  "notes": [
+    "本包只覆盖候选V3的B0和B1优先批次，用于原页核验和逐专业字段回填，不是最终建议。",
+    "逐专业行不从组内招生明细文本切分；candidate_v2_review_seed 使用V2补种明细，family_fit_full_ocr 使用家庭底线逐专业结构化表。",
+    "0明细组保留占位任务，必须先确认2026组号变化、旧组号或补齐专业明细。",
+    "所有行保持最终可用=false，进入下一阶段前必须完成PDF原页、湖北官方系统、高校章程、家庭接受度和调剂结论核验。"
+  ],
+  "outputs": [
+    "data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv",
+    "data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv"
+  ]
+}

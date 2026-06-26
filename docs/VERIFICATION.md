@@ -143,6 +143,14 @@ OCR 初稿 / 最终可用=false
 - 当前 V3 全部保持 `V3复核状态=pending_v3_manual_review`、`候选闸门状态=pending_verification`、`最终可用=false`、`可进入最终候选=false`。
 - V3 进入后续讨论前，仍必须逐组补齐 PDF 原页、湖北官方系统或省招办计划、高校官网/章程、家庭逐专业接受度、调剂结论和三年稳定性证据。
 
+候选 V3 B0/B1 核验包的使用方式：
+
+- `data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv` 是前 49 个优先专业组的原页核验包，覆盖 B0 历史候选/组号问题和 B1 数字媒体技术优先组。
+- `data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv` 是逐专业核验包，当前 324 个任务；每个任务都默认阻断组升级，直到 PDF、官方系统、章程、家庭接受度和调剂影响补齐。
+- 逐专业任务不从 `组内招生明细` 文本拆分；候选 V2 组使用 V2 逐专业种子，其他组使用家庭底线逐专业结构化表。
+- `C10702`、`K15123` 仍是 0 明细组，只保留占位任务；不得因有占位任务而进入专业接受度或冲稳保排序。
+- B0/B1 包仍是复核工作台，不是可填报清单；所有组 `可进入下一阶段=false`，所有专业 `可进入最终专业列表=false`。
+
 底座审计表的使用方式：
 
 - `data/working/issue19-foundation-audit-summary.json` 是第 19 期招生计划底座的机器审计摘要；当前状态为 `issue19_foundation_machine_checks_passed_need_pdf_official_review`。
