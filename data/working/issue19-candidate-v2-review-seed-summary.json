@@ -1,0 +1,67 @@
+{
+  "status": "candidate_v2_review_seed_needs_manual_pdf_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "candidate_v2_review_seed",
+  "generated_by": "scripts/build_issue19_candidate_v2_review_seed.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-candidate-plan-review-summary.csv",
+      "sha256": "c12185952d68df8d18fb3dc3c8d2b979e30a6551c583e06d1d15a68f88e1aedd",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-candidate-page-code-audit.csv",
+      "sha256": "d2626290790108da765a51d3d3685bb81dbb819daf0fc6f69a24a27d0c5d3c42",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-candidate-review-group-page-map.csv",
+      "sha256": "33c1ff9aed64c6240cff8acaa7f00ff213efb1920cb424a7d8bc849d91b72634",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-ocr-structure-anomaly-queue.csv",
+      "sha256": "edf71556c40a51c130e7ad8eac00067cc9c483b8cec8f136c266057402b4c6f5",
+      "row_count": 5129
+    }
+  ],
+  "group_seed_count": 23,
+  "major_seed_count": 82,
+  "relation_type_counts": {
+    "历史候选": 20,
+    "同页相邻风险组": 1,
+    "同校偏好专业补充组": 2
+  },
+  "evidence_source_counts": {
+    "full_ocr_draft": 68,
+    "page_visual_review_seed": 14
+  },
+  "key_findings": [
+    "C10704 页面OCR和页图可见，但全量结构化专业组表漏拆；已补为页图复核种子。",
+    "C10703 当前全量OCR吞入C10704专业；候选V2种子按页图重切为7个专业。",
+    "K15123 在第208/209页未见；同校K15114含数字媒体技术，作为同校偏好专业补充组，不沿用K15123历史投档线。"
+  ],
+  "outputs": [
+    "data/working/issue19-candidate-v2-group-review-seed.csv",
+    "data/working/issue19-candidate-v2-major-review-seed.csv"
+  ],
+  "notes": [
+    "本表仍是复核种子，不是最终志愿表。",
+    "所有行保持最终可用=false，进入最终方案前必须回看原页、湖北官方系统和高校章程。"
+  ]
+}

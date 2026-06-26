@@ -159,6 +159,9 @@
 - `data/working/issue19-candidate-page-code-audit.csv`：20 条历史候选的页码组号审计，记录候选组号在页面 OCR、全量专业组表和同校组号中的命中关系。
 - `data/working/issue19-ocr-structure-anomaly-queue.csv`：全量专业明细结构异常队列，记录疑似串入下一院校、串入专业组代码、页眉串入、专业代号异常、数字字段错位和低置信度等风险。
 - `data/working/issue19-integrity-audit-summary.json`：第 19 期完整性审计摘要，记录候选页码组号审计和结构异常队列的行数、类型分布和输入 SHA。
+- `data/working/issue19-candidate-v2-group-review-seed.csv`：候选 V2 专业组复核种子，含 20 条历史候选、同页相邻风险组和同校偏好专业补充组，全部待人工复核。
+- `data/working/issue19-candidate-v2-major-review-seed.csv`：候选 V2 逐专业招生明细复核种子，含 82 条专业明细，用于后续判断专业接受度和组内调剂风险。
+- `data/working/issue19-candidate-v2-review-seed-summary.json`：候选 V2 摘要，记录输入文件 SHA、输出行数、证据来源和重点发现。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
 - `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座初稿说明和保真机制。
@@ -170,6 +173,7 @@
 - `scripts/build_issue19_priority_review_queues.py`：根据全量 OCR 底座生成偏好专业检索队列和硬风险专业组队列。
 - `scripts/build_issue19_candidate_review_page_packet.py`：根据候选复核工作台和全量 OCR 底座生成候选池页面复核包，公开保存页码和哈希，私有保存页图和页面 OCR 文本。
 - `scripts/build_issue19_integrity_audit_queues.py`：根据候选页面复核包和全量 OCR 底座生成候选页码组号审计和全量专业明细结构异常队列。
+- `scripts/build_issue19_candidate_v2_review_seed.py`：根据候选复核工作台、页码审计、页面复核包和人工页图复核结果生成候选 V2 专业组与逐专业明细复核种子。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

@@ -43,7 +43,7 @@
 当前处于：
 
 ```text
-2026 招生计划全量 OCR 明细底座已生成，候选复核工作台和优先复核队列已生成
+2026 招生计划全量 OCR 明细底座已生成，候选V2逐专业明细复核种子已生成
 ```
 
 已经完成：
@@ -62,6 +62,8 @@
 - 已生成全量偏好专业检索队列：`data/working/issue19-preference-major-search.csv`，共 2499 条专业行。
 - 已生成全量硬风险专业组队列：`data/working/issue19-hard-risk-group-review-queue.csv`，共 2962 个专业组。
 - 已生成候选池页面复核包公开元数据：`data/working/issue19-candidate-review-page-packet.csv` 和 `data/working/issue19-candidate-review-group-page-map.csv`，覆盖 10 个需要回看的第 19 期 PDF 页。
+- 已生成完整性审计队列：`data/working/issue19-candidate-page-code-audit.csv` 和 `data/working/issue19-ocr-structure-anomaly-queue.csv`，用于发现漏拆、串校、串组、页眉串入、数字错位和低置信度问题。
+- 已生成候选 V2 逐专业明细复核种子：23 个专业组、82 条专业明细；其中 `C10704` 为页图可见但结构化漏拆补种，`K15114` 为成都理工同校偏好专业补充组，`K15123` 仍是 0 条明细的历史组号待核问题。
 - 优先专业队列已经合并本专业行风险和所在专业组风险；`机器初判`、`综合风险等级` 只用于安排复核，不是最终报考建议。
 
 尚未完成：
@@ -127,6 +129,8 @@ data/working/issue19-candidate-plan-review-summary.csv
 data/working/issue19-candidate-plan-review-major-detail.csv
 data/working/issue19-candidate-page-code-audit.csv
 data/working/issue19-ocr-structure-anomaly-queue.csv
+data/working/issue19-candidate-v2-group-review-seed.csv
+data/working/issue19-candidate-v2-major-review-seed.csv
 ```
 
 该表的目的不是马上定志愿，而是先把最可能进入方案的院校专业组从全量 OCR 初稿提升到可讨论状态。
@@ -207,7 +211,7 @@ data/working/issue19-ocr-structure-anomaly-queue.csv
 
 | 时间 | 目标 | 产物 |
 | --- | --- | --- |
-| 2026-06-27 | 完成全量 OCR 明细底座、候选复核工作台、偏好专业和硬风险队列；启动重点组人工复核 | 全量 OCR 招生明细、候选池复核工作台、优先复核队列 |
+| 2026-06-27 | 完成全量 OCR 明细底座、候选复核工作台、偏好专业和硬风险队列、候选V2逐专业明细种子；启动重点组人工复核 | 全量 OCR 招生明细、候选池复核工作台、优先复核队列、候选V2逐专业明细 |
 | 2026-06-28 | 对 20 条候选池和必要保底项做 PDF 原页、官网/章程、家庭接受度复核 | 候选池 V2 |
 | 2026-06-29 | 完成专业接受度、调剂判断、冲稳保分层 | 冲稳保候选表 |
 | 2026-06-30 | 形成最终志愿方案 | 最终志愿表、风险审查表 |

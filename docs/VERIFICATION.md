@@ -88,6 +88,15 @@ OCR 初稿 / 最终可用=false
 - `复核页未见候选组号且结构化未命中` 不能直接删除，需要核查 2026 组号变化、历史投档线旧组号或候选池 OCR 噪声；当前 `C10702`、`K15123` 属于这一类。
 - `data/working/issue19-ocr-structure-anomaly-queue.csv` 用来定位专业明细中的串校、串组、页眉串入、专业代号异常、计划数/学费错位和低置信度行。命中异常的专业行，在人工复核前不得用于判断专业组能否服从调剂。
 
+候选 V2 逐专业明细种子的使用方式：
+
+- `data/working/issue19-candidate-v2-group-review-seed.csv` 只负责定位候选专业组、同页相邻风险组和同校偏好补充组。
+- `data/working/issue19-candidate-v2-major-review-seed.csv` 必须逐专业使用，判断调剂时要看该组内全部专业，不只看想填的 6 个专业。
+- `C10704` 是页图可见但结构化漏拆的补种，不是已经最终核准的事实。
+- `K15114` 是成都理工大学同校偏好专业补充组，含数字媒体技术，但不能继承历史候选 `K15123` 的投档线。
+- `最高学费候选` 只能作为 OCR 数字线索；如果 `学费候选` 非纯数字，或命中 `tuition_not_plain_number`、`tuition_number_le_500`，预算判断必须回看原页和高校章程。
+- 候选 V2 仍统一为 `candidate_v2_review_seed_needs_manual_pdf_review`，所有行 `最终可用=false`；只有完成原页、官方系统或湖北省招办计划、高校章程三方核验后，才能升级。
+
 ## 四、第三方数据核验
 
 千问高考、static-data.gaokao.cn、阳光高考页面和其他工具只能作为辅助来源。

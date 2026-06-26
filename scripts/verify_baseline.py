@@ -34,6 +34,13 @@ def sha256(path):
     return h.hexdigest()
 
 
+def as_int(value):
+    try:
+        return int(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+
+
 def manifest_files():
     ignored = {ROOT / "CHECKSUMS.sha256"}
     files = []
@@ -820,6 +827,209 @@ def main():
     checks.append(ok(
         "第 19 期完整性审计公开文件不含本地路径和身份信息",
         not any(token in integrity_public_text for token in shared_forbidden_tokens),
+    ))
+
+    candidate_v2_summary_path = ROOT / "data/working/issue19-candidate-v2-review-seed-summary.json"
+    candidate_v2_group_csv = ROOT / "data/working/issue19-candidate-v2-group-review-seed.csv"
+    candidate_v2_major_csv = ROOT / "data/working/issue19-candidate-v2-major-review-seed.csv"
+    candidate_v2_summary = json.loads(candidate_v2_summary_path.read_text())
+    with candidate_v2_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v2_group_reader = csv.DictReader(f)
+        candidate_v2_group_rows = list(candidate_v2_group_reader)
+        candidate_v2_group_fields = set(candidate_v2_group_reader.fieldnames or [])
+    with candidate_v2_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v2_major_reader = csv.DictReader(f)
+        candidate_v2_major_rows = list(candidate_v2_major_reader)
+        candidate_v2_major_fields = set(candidate_v2_major_reader.fieldnames or [])
+    required_candidate_v2_group_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "关联类型",
+        "关联原候选",
+        "2026院校专业组代码",
+        "院校名称",
+        "来源页码",
+        "证据来源",
+        "专业明细行数",
+        "V2定位结论",
+        "核验状态",
+    }
+    required_candidate_v2_major_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "关联类型",
+        "关联原候选",
+        "2026院校专业组代码",
+        "专业代号",
+        "专业名称及备注",
+        "专业计划数候选",
+        "学费候选",
+        "偏好方向",
+        "风险类型",
+        "核验状态",
+    }
+    candidate_v2_groups_by_code = {
+        row.get("2026院校专业组代码"): row for row in candidate_v2_group_rows
+    }
+    candidate_v2_majors_by_group = {}
+    for row in candidate_v2_major_rows:
+        candidate_v2_majors_by_group.setdefault(row.get("2026院校专业组代码"), []).append(row)
+    candidate_v2_major_codes_by_group = {
+        code: [row.get("专业代号") for row in rows]
+        for code, rows in candidate_v2_majors_by_group.items()
+    }
+    candidate_v2_zero_detail_groups = {
+        row.get("2026院校专业组代码")
+        for row in candidate_v2_group_rows
+        if row.get("专业明细行数") == "0"
+    }
+    candidate_v2_suspicious_tuition_rows = [
+        row
+        for row in candidate_v2_major_rows
+        if (
+            not row.get("学费候选", "").isdigit()
+            or "tuition_not_plain_number" in row.get("字段完整性标记", "")
+            or "tuition_not_plain_number" in row.get("结构异常规则ID", "")
+            or "tuition_number_le_500" in row.get("结构异常规则ID", "")
+        )
+    ]
+    candidate_v2_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [candidate_v2_summary_path, candidate_v2_group_csv, candidate_v2_major_csv]
+    )
+    candidate_v2_forbidden_tokens = [
+        token
+        for token in shared_forbidden_tokens
+        if token not in {".png"}
+    ]
+    candidate_v2_forbidden_tokens.append("/tmp/")
+    checks.append(ok(
+        "第 19 期候选V2逐专业明细种子摘要和行数正确",
+        candidate_v2_summary.get("status") == "candidate_v2_review_seed_needs_manual_pdf_review"
+        and candidate_v2_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and candidate_v2_summary.get("group_seed_count") == 23
+        and candidate_v2_summary.get("major_seed_count") == 82
+        and candidate_v2_summary.get("relation_type_counts") == {
+            "历史候选": 20,
+            "同页相邻风险组": 1,
+            "同校偏好专业补充组": 2,
+        }
+        and candidate_v2_summary.get("evidence_source_counts") == {
+            "full_ocr_draft": 68,
+            "page_visual_review_seed": 14,
+        }
+        and len(candidate_v2_group_rows) == 23
+        and len(candidate_v2_major_rows) == 82,
+        f"{len(candidate_v2_group_rows)} groups, {len(candidate_v2_major_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期候选V2逐专业明细种子字段和待复核状态正确",
+        required_candidate_v2_group_fields.issubset(candidate_v2_group_fields)
+        and required_candidate_v2_major_fields.issubset(candidate_v2_major_fields)
+        and all(
+            row.get("最终可用") == "false" and row.get("核验状态") == "needs_manual_pdf_review"
+            for row in candidate_v2_group_rows + candidate_v2_major_rows
+        )
+        and all(
+            row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            for row in candidate_v2_group_rows + candidate_v2_major_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2专业组行数与逐专业明细一致",
+        all(
+            as_int(row.get("专业明细行数"))
+            == len(candidate_v2_majors_by_group.get(row.get("2026院校专业组代码"), []))
+            for row in candidate_v2_group_rows
+        )
+        and candidate_v2_zero_detail_groups == {"C10702", "K15123"}
+        and all(
+            "需回看页图逐字段确认" in row.get("页面证据", "")
+            for row in candidate_v2_major_rows
+            if row.get("证据来源") == "full_ocr_draft"
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2关键定位结论保持保守",
+        candidate_v2_groups_by_code.get("C10702", {}).get("V2定位结论")
+        == "第19期候选页未见该组号，按2026组号变化/旧组号处理"
+        and candidate_v2_groups_by_code.get("C10704", {}).get("证据来源") == "page_visual_review_seed"
+        and candidate_v2_groups_by_code.get("C10704", {}).get("结构化命中") == "否"
+        and candidate_v2_groups_by_code.get("C10704", {}).get("专业明细行数") == "3"
+        and "结构化漏拆" in candidate_v2_groups_by_code.get("C10704", {}).get("V2定位结论", "")
+        and candidate_v2_groups_by_code.get("K15123", {}).get("专业明细行数") == "0"
+        and "2026组号变化/旧组号" in candidate_v2_groups_by_code.get("K15123", {}).get("V2定位结论", "")
+        and candidate_v2_groups_by_code.get("K15114", {}).get("关联类型") == "同校偏好专业补充组"
+        and candidate_v2_groups_by_code.get("K15114", {}).get("关联原候选") == "成都理工大学 K15123 第23组"
+        and "数字媒体技术" in candidate_v2_groups_by_code.get("K15114", {}).get("偏好方向", "")
+        and candidate_v2_groups_by_code.get("K17905", {}).get("关联类型") == "同校偏好专业补充组"
+        and candidate_v2_groups_by_code.get("K17905", {}).get("关联原候选") == "成都师范学院 K17903 第03组",
+    ))
+    checks.append(ok(
+        "第 19 期候选V2关键专业明细保持逐专业和风险可追溯",
+        candidate_v2_major_codes_by_group.get("C10703") == ["05", "06", "07", "08", "09", "10", "11"]
+        and candidate_v2_major_codes_by_group.get("C10704") == ["12", "13", "14"]
+        and candidate_v2_major_codes_by_group.get("C10705") == ["15"]
+        and candidate_v2_major_codes_by_group.get("K15114") == ["53", "54", "55"]
+        and candidate_v2_major_codes_by_group.get("K15123") is None
+        and any(
+            row.get("专业代号") == "14"
+            and row.get("专业名称及备注") == "数据科学与大数据技术"
+            and row.get("专业计划数候选") == "7"
+            and row.get("学费候选") == "4000"
+            and row.get("偏好方向") == "计算机类相关"
+            for row in candidate_v2_majors_by_group.get("C10704", [])
+        )
+        and any(
+            row.get("专业代号") == "15"
+            and row.get("学费候选") == "48000"
+            and "中外合作或高收费" in row.get("风险类型", "")
+            and "学费超过当前上限" in row.get("风险类型", "")
+            for row in candidate_v2_majors_by_group.get("C10705", [])
+        )
+        and any(
+            row.get("专业代号") == "53"
+            and "数字媒体技术" in row.get("专业名称及备注", "")
+            and row.get("专业计划数候选") == "2"
+            and row.get("学费候选") == "6240"
+            and "体检或色觉限制" in row.get("风险类型", "")
+            for row in candidate_v2_majors_by_group.get("K15114", [])
+        )
+        and any(
+            row.get("专业代号") == "54"
+            and row.get("专业名称及备注") == "智能科学与技术（宜宾校区）"
+            and row.get("专业计划数候选") == "4"
+            and row.get("学费候选") == "6240"
+            for row in candidate_v2_majors_by_group.get("K15114", [])
+        )
+        and any(
+            row.get("2026院校专业组代码") == "K17905"
+            and "数字媒体技术" in row.get("专业名称及备注", "")
+            and row.get("证据来源") == "full_ocr_draft"
+            and "major_text_embeds_page_header" in row.get("结构异常规则ID", "")
+            for row in candidate_v2_major_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2异常学费字段仍保持待复核",
+        {
+            row.get("2026院校专业组代码")
+            for row in candidate_v2_suspicious_tuition_rows
+        }.issuperset({"A03208", "K48504", "K48704"})
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "needs_manual_pdf_review"
+            and row.get("结构异常规则ID")
+            for row in candidate_v2_suspicious_tuition_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V2公开文件不含本地路径和身份信息",
+        not any(token in candidate_v2_public_text for token in candidate_v2_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
