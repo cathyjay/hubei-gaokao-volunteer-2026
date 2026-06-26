@@ -1,0 +1,87 @@
+{
+  "status": "issue19_page_manifest_public_metadata_ready",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "issue19_public_page_manifest",
+  "generated_by": "scripts/build_issue19_page_manifest.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-ocr-run-summary.json",
+      "sha256": "b78b676b6029928a018183dd6923b27fc4978b31d41aec8489197be3516ffd04"
+    },
+    {
+      "path": "data/working/issue19-foundation-page-audit.csv",
+      "sha256": "9c537d300a377843c8fa2ce08d3232fbeb639b26eb20b0174329f4a650216ad7",
+      "row_count": 231
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-ocr-structure-anomaly-queue.csv",
+      "sha256": "edf71556c40a51c130e7ad8eac00067cc9c483b8cec8f136c266057402b4c6f5",
+      "row_count": 5129
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-field-review-ledger.csv",
+      "sha256": "a43432eb67cf16efe242ecaca552370784c7737f9ecde200ae367eba481801c0",
+      "row_count": 840
+    }
+  ],
+  "private_inputs": {
+    "ocr_run_id": "issue19-full-120dpi",
+    "page_manifest_row_count": 240,
+    "ocr_line_count": 65512,
+    "qc_issue_count": 37127,
+    "suspected_plan_line_count": 3837
+  },
+  "page_count": 240,
+  "rendered_page_count": 240,
+  "ocr_text_page_count": 240,
+  "structured_plan_page_range": [
+    10,
+    240
+  ],
+  "structured_plan_page_count": 231,
+  "structured_plan_pages_with_group_and_major_count": 231,
+  "structured_school_count_sum_by_page": 1271,
+  "structured_group_count": 3329,
+  "structured_major_count": 13736,
+  "structure_anomaly_count": 5129,
+  "high_structure_anomaly_count": 3142,
+  "candidate_v2_field_task_count": 840,
+  "candidate_v2_field_task_on_single_page_count": 832,
+  "candidate_v2_field_task_without_single_page_count": 8,
+  "candidate_v2_p0_field_task_count": 494,
+  "candidate_v2_p0_field_task_on_single_page_count": 486,
+  "candidate_v2_p0_field_task_without_single_page_count": 8,
+  "low_confidence_page_count_below_0_65": 6,
+  "low_confidence_pages_below_0_65": [
+    61,
+    117,
+    129,
+    166,
+    192,
+    215
+  ],
+  "outputs": [
+    "data/working/issue19-page-manifest.csv"
+  ],
+  "notes": [
+    "本表只公开页级元数据和哈希，不公开私有页图、整页OCR文本或本机绝对路径。",
+    "私有页图证据编号和私有OCR文本证据编号只用于在本机私有目录定位证据。",
+    "来源页码为复合页码的候选任务不强行拆入单页统计，已在摘要中单独计数。",
+    "本表不能替代第19期原PDF页、湖北官方系统或高校章程的人工核验。"
+  ]
+}

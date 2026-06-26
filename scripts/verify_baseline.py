@@ -2021,6 +2021,184 @@ def main():
         and not any(token in foundation_public_text for token in shared_forbidden_tokens),
     ))
 
+    page_manifest_summary_path = ROOT / "data/working/issue19-page-manifest-summary.json"
+    page_manifest_csv = ROOT / "data/working/issue19-page-manifest.csv"
+    page_manifest_summary = json.loads(page_manifest_summary_path.read_text())
+    with page_manifest_csv.open(newline="", encoding="utf-8-sig") as f:
+        page_manifest_reader = csv.DictReader(f)
+        page_manifest_rows = list(page_manifest_reader)
+        page_manifest_fields = set(page_manifest_reader.fieldnames or [])
+    required_page_manifest_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "PDF页码",
+        "页码范围角色",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "OCR引擎",
+        "识别语言",
+        "OCR识别行数",
+        "OCR平均置信度",
+        "OCR_QC_P0数",
+        "OCR_QC_P1数",
+        "疑似招生计划行数",
+        "结构化状态",
+        "结构化院校数",
+        "结构化专业组数",
+        "结构化专业明细数",
+        "结构异常数",
+        "高严重结构异常数",
+        "候选V2字段任务数",
+        "候选V2字段P0任务数",
+        "核验状态",
+    }
+    page_manifest_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [page_manifest_summary_path, page_manifest_csv]
+    )
+    checks.append(ok(
+        "第 19 期公开页级 manifest 摘要和行数正确",
+        page_manifest_summary.get("status") == "issue19_page_manifest_public_metadata_ready"
+        and page_manifest_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and page_manifest_summary.get("page_count") == 240
+        and page_manifest_summary.get("rendered_page_count") == 240
+        and page_manifest_summary.get("ocr_text_page_count") == 240
+        and page_manifest_summary.get("structured_plan_page_range") == [10, 240]
+        and page_manifest_summary.get("structured_plan_page_count") == 231
+        and page_manifest_summary.get("structured_plan_pages_with_group_and_major_count") == 231
+        and page_manifest_summary.get("structured_group_count") == 3329
+        and page_manifest_summary.get("structured_major_count") == 13736
+        and page_manifest_summary.get("structure_anomaly_count") == 5129
+        and page_manifest_summary.get("high_structure_anomaly_count") == 3142
+        and page_manifest_summary.get("candidate_v2_field_task_count") == 840
+        and page_manifest_summary.get("candidate_v2_field_task_on_single_page_count") == 832
+        and page_manifest_summary.get("candidate_v2_field_task_without_single_page_count") == 8
+        and page_manifest_summary.get("candidate_v2_p0_field_task_count") == 494
+        and page_manifest_summary.get("candidate_v2_p0_field_task_on_single_page_count") == 486
+        and page_manifest_summary.get("candidate_v2_p0_field_task_without_single_page_count") == 8
+        and page_manifest_summary.get("low_confidence_page_count_below_0_65") == 6
+        and page_manifest_summary.get("low_confidence_pages_below_0_65")
+        == [61, 117, 129, 166, 192, 215]
+        and page_manifest_summary.get("private_inputs", {}).get("page_manifest_row_count") == 240
+        and page_manifest_summary.get("private_inputs", {}).get("ocr_line_count") == 65512
+        and page_manifest_summary.get("private_inputs", {}).get("qc_issue_count") == 37127
+        and page_manifest_summary.get("private_inputs", {}).get("suspected_plan_line_count") == 3837
+        and len(page_manifest_rows) == 240,
+        f"{len(page_manifest_rows)} pages",
+    ))
+    checks.append(ok(
+        "第 19 期公开页级 manifest 字段、状态和页码范围正确",
+        required_page_manifest_fields.issubset(page_manifest_fields)
+        and [as_int(row.get("PDF页码")) for row in page_manifest_rows] == list(range(1, 241))
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "needs_manual_pdf_review"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("私有页图SHA256")
+            and row.get("私有OCR文本SHA256")
+            and row.get("OCR引擎") == "apple_vision"
+            for row in page_manifest_rows
+        )
+        and all(row.get("页码范围角色") == "前置说明页" for row in page_manifest_rows[:9])
+        and all(row.get("页码范围角色") == "招生计划明细页" for row in page_manifest_rows[9:])
+        and all(
+            row.get("结构化状态") == "结构化招生计划页"
+            and as_int(row.get("结构化专业组数")) > 0
+            and as_int(row.get("结构化专业明细数")) > 0
+            for row in page_manifest_rows[9:]
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期公开页级 manifest 与 OCR/结构化/候选任务聚合一致",
+        sum(as_int(row.get("OCR识别行数")) for row in page_manifest_rows) == 65512
+        and sum(as_int(row.get("OCR_QC_P0数")) for row in page_manifest_rows) == 19189
+        and sum(as_int(row.get("OCR_QC_P1数")) for row in page_manifest_rows) == 17938
+        and sum(as_int(row.get("疑似招生计划行数")) for row in page_manifest_rows) == 3837
+        and sum(as_int(row.get("结构化专业组数")) for row in page_manifest_rows) == 3329
+        and sum(as_int(row.get("结构化专业明细数")) for row in page_manifest_rows) == 13736
+        and sum(as_int(row.get("结构异常数")) for row in page_manifest_rows) == 5129
+        and sum(as_int(row.get("高严重结构异常数")) for row in page_manifest_rows) == 3142
+        and sum(as_int(row.get("候选V2字段任务数")) for row in page_manifest_rows) == 832
+        and sum(as_int(row.get("候选V2字段P0任务数")) for row in page_manifest_rows) == 486,
+    ))
+    group_count_by_page = Counter()
+    school_codes_by_page = {}
+    for row in full_group_rows:
+        page = as_int(row.get("来源页码"))
+        if page is None:
+            continue
+        group_count_by_page[page] += 1
+        if row.get("院校代码"):
+            school_codes_by_page.setdefault(page, set()).add(row.get("院校代码"))
+    major_count_by_page = Counter()
+    for row in full_major_rows:
+        page = as_int(row.get("来源页码"))
+        if page is not None:
+            major_count_by_page[page] += 1
+    anomaly_count_by_page = Counter()
+    high_anomaly_count_by_page = Counter()
+    for row in structure_anomaly_rows:
+        page = as_int(row.get("来源页码"))
+        if page is None:
+            continue
+        anomaly_count_by_page[page] += 1
+        high_anomaly_count_by_page[page] += row.get("严重程度") == "高"
+    candidate_task_count_by_page = Counter()
+    candidate_p0_task_count_by_page = Counter()
+    for row in candidate_v2_field_ledger_rows:
+        page = as_int(row.get("来源页码"))
+        if page is None:
+            continue
+        candidate_task_count_by_page[page] += 1
+        candidate_p0_task_count_by_page[page] += row.get("复核优先级") == "P0-字段必须优先核"
+    foundation_page_by_page = {
+        as_int(row.get("来源页码")): row
+        for row in foundation_page_rows
+    }
+    manifest_page_distribution_ok = True
+    for row in page_manifest_rows:
+        page = as_int(row.get("PDF页码"))
+        foundation_row = foundation_page_by_page.get(page)
+        manifest_page_distribution_ok = manifest_page_distribution_ok and (
+            as_int(row.get("结构化院校数")) == len(school_codes_by_page.get(page, set()))
+            and as_int(row.get("结构化专业组数")) == group_count_by_page.get(page, 0)
+            and as_int(row.get("结构化专业明细数")) == major_count_by_page.get(page, 0)
+            and as_int(row.get("结构异常数")) == anomaly_count_by_page.get(page, 0)
+            and as_int(row.get("高严重结构异常数")) == high_anomaly_count_by_page.get(page, 0)
+            and as_int(row.get("候选V2字段任务数")) == candidate_task_count_by_page.get(page, 0)
+            and as_int(row.get("候选V2字段P0任务数")) == candidate_p0_task_count_by_page.get(page, 0)
+        )
+        if 10 <= page <= 240:
+            manifest_page_distribution_ok = manifest_page_distribution_ok and bool(foundation_row) and (
+                as_int(row.get("结构化专业组数"))
+                == as_int(foundation_row.get("页面专业组数"))
+                and as_int(row.get("结构化专业明细数"))
+                == as_int(foundation_row.get("页面专业明细数"))
+                and as_int(row.get("结构异常数"))
+                == as_int(foundation_row.get("页面结构异常数"))
+                and as_int(row.get("高严重结构异常数"))
+                == as_int(foundation_row.get("页面高严重结构异常数"))
+                and row.get("底座页级复核优先级") == foundation_row.get("页面复核优先级")
+                and row.get("底座页级审计状态") == foundation_row.get("页面审计状态")
+            )
+        else:
+            manifest_page_distribution_ok = manifest_page_distribution_ok and not foundation_row
+    checks.append(ok(
+        "第 19 期公开页级 manifest 逐页回推到结构化底座和候选总账",
+        manifest_page_distribution_ok,
+    ))
+    checks.append(ok(
+        "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
+        "final_allowed" not in page_manifest_public_text
+        and "ready_for_discussion" not in page_manifest_public_text
+        and "已确认" not in page_manifest_public_text
+        and not any(token in page_manifest_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

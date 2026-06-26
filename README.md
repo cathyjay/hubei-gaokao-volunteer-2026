@@ -75,6 +75,7 @@ python3 scripts/build_issue19_full_quality_tiers.py
 python3 scripts/build_issue19_major_detail_quality_workbench.py
 python3 scripts/build_issue19_foundation_audit.py
 python3 scripts/build_issue19_candidate_evidence_ledgers.py
+python3 scripts/build_issue19_page_manifest.py
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```
 
