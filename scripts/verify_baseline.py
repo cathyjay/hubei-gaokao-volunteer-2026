@@ -2,10 +2,21 @@
 import csv
 import hashlib
 import json
+import re
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+PUBLIC_HASH_EXCLUDED_DIRS = {
+    ".git",
+    "__pycache__",
+    "candidate-screenshots",
+    "private",
+    "scratch",
+    "tmp",
+    "user-provided",
+}
+PUBLIC_HASH_EXCLUDED_SUFFIXES = {".pyc"}
 
 
 def ok(label, condition, detail=""):
@@ -29,7 +40,10 @@ def manifest_files():
     for path in ROOT.rglob("*"):
         if not path.is_file():
             continue
-        if ".git" in path.parts:
+        rel_parts = path.relative_to(ROOT).parts
+        if any(part in PUBLIC_HASH_EXCLUDED_DIRS for part in rel_parts):
+            continue
+        if path.suffix in PUBLIC_HASH_EXCLUDED_SUFFIXES:
             continue
         if path in ignored:
             continue
@@ -118,8 +132,47 @@ def main():
         ROOT / "docs/OCR_WORKFLOW.md",
         ROOT / "scripts/ocr_magazine_pages.py",
         ROOT / "scripts/vision_ocr.swift",
+        ROOT / "scripts/ocr_pdf_pages.py",
+        ROOT / "scripts/ocr_jsonl_to_line_csv.py",
+        ROOT / "scripts/ocr_qc_report.py",
     ]
     checks.append(ok("第 19 期照片 OCR 工作流已就绪", all(p.exists() and p.stat().st_size > 1000 for p in ocr_workflow_files)))
+
+    issue19_source = json.loads((ROOT / "data/working/issue19-pdf-source.json").read_text())
+    checks.append(ok(
+        "第 19 期 PDF 元数据已记录",
+        issue19_source["source"]["sha256"] == "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d"
+        and issue19_source["source"]["pages"] == 240
+        and issue19_source["source"]["text_layer"] == "none_detected",
+    ))
+
+    issue19_template = ROOT / "data/working/issue19-admission-plan-template.csv"
+    template_header = issue19_template.read_text(encoding="utf-8").splitlines()[0]
+    required_template_fields = [
+        "source_page",
+        "source_pdf_sha256",
+        "verification_status",
+        "institution_code",
+        "institution_name",
+        "major_group_code",
+        "major_code",
+        "major_name",
+        "plan_count",
+        "group_adjustment_acceptability",
+    ]
+    checks.append(ok(
+        "第 19 期招生计划结构化模板字段完整",
+        all(re.search(rf"(^|,){field}(,|$)", template_header) for field in required_template_fields),
+    ))
+
+    issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
+    checks.append(ok(
+        "第 19 期全量 OCR 摘要已记录",
+        issue19_ocr_summary["page_count"] == 240
+        and issue19_ocr_summary["summary"]["ocr_line_count"] >= 60000
+        and issue19_ocr_summary["summary"]["qc_issue_count"] >= 30000
+        and issue19_ocr_summary["source_pdf_sha256"] == issue19_source["source"]["sha256"],
+    ))
 
     checksum_path = ROOT / "CHECKSUMS.sha256"
     if checksum_path.exists():

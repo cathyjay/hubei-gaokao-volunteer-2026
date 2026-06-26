@@ -1,0 +1,24 @@
+{
+  "last_updated": "2026-06-26",
+  "source": {
+    "title": "湖北招生考试2026年19期·本科普通批（下）",
+    "local_private_path": "private/raw/hubei-admission-magazine-2026-issue-19/issue19.pdf",
+    "original_user_path": "/Users/cathy07/Downloads/《湖北招生考试》2026年19期·本科普通批（下）.pdf",
+    "sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+    "size_bytes": 144095796,
+    "pages": 240,
+    "page_size": "1000 x 1475 pt",
+    "text_layer": "none_detected",
+    "copyright_policy": "原始 PDF、渲染页图片和整页 OCR 文本仅保存在 private/，不提交公开仓库。"
+  },
+  "extraction": {
+    "method": "render_pdf_pages_then_apple_vision_ocr",
+    "script": "scripts/ocr_pdf_pages.py",
+    "line_csv_script": "scripts/ocr_jsonl_to_line_csv.py",
+    "qc_script": "scripts/ocr_qc_report.py",
+    "status": "full_ocr_completed_private_outputs_available",
+    "run_summary": "data/working/issue19-ocr-run-summary.json",
+    "working_template": "data/working/issue19-admission-plan-template.csv",
+    "private_full_output_recommendation": "private/derived/issue19-admission-plan/issue19-admission-plan.csv"
+  }
+}

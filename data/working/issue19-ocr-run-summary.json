@@ -1,0 +1,39 @@
+{
+  "last_updated": "2026-06-26",
+  "run_id": "issue19-full-120dpi",
+  "private_output_dir": "private/ocr-runs/issue19-full-120dpi",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "page_count": 240,
+  "render_dpi": 120,
+  "ocr_engine": "apple_vision",
+  "ocr_languages": ["zh-Hans", "en-US"],
+  "outputs_private": {
+    "pdf_manifest": "private/ocr-runs/issue19-full-120dpi/pdf_manifest.json",
+    "page_manifest": "private/ocr-runs/issue19-full-120dpi/manifest.csv",
+    "ocr_jsonl": "private/ocr-runs/issue19-full-120dpi/ocr.jsonl",
+    "ocr_lines_csv": "private/ocr-runs/issue19-full-120dpi/ocr-lines.csv",
+    "qc_issues_csv": "private/ocr-runs/issue19-full-120dpi/qc_issues.csv",
+    "suspected_plan_lines": "private/ocr-runs/issue19-full-120dpi/suspected_plan_lines.csv"
+  },
+  "summary": {
+    "ocr_line_count": 65512,
+    "qc_issue_count": 37127,
+    "qc_p0_count": 19189,
+    "qc_p1_count": 17938,
+    "low_confidence_page_count_below_0_65": 6,
+    "low_confidence_pages_below_0_65": [61, 117, 129, 166, 192, 215],
+    "line_type_counts": {
+      "major_or_numbered_line": 31929,
+      "text": 28340,
+      "school": 4255,
+      "table_header": 516,
+      "page_header": 472
+    },
+    "table_band_counts": {
+      "left": 34026,
+      "right": 31363,
+      "outside": 123
+    }
+  },
+  "interpretation": "本次 OCR 可用于搜索、定位和辅助录入；不能直接作为最终招生计划真值。院校专业组代码、专业代号、再选科目、计划数、学费、备注必须回看原 PDF 或官方系统人工核验。"
+}

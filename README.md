@@ -40,6 +40,7 @@
 - `docs/2026_ADMISSION_PLAN_ACQUISITION.md`：2026 招生计划获取来源、接口状态和下一步动作。
 - `docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`：《湖北招生考试》第 16/19 期专项检索记录。
 - `docs/OCR_WORKFLOW.md`：第 19 期纸质版照片 OCR、批量处理和人工复核流程。
+- `docs/ISSUE19_PDF_EXTRACTION_PLAN.md`：第 19 期 PDF 私有留存、OCR 提取和数据保存方案。
 - `docs/CANDIDATE_POOL_V1.md`：第一版可讨论候选池，全部待 2026 计划核验。
 - `docs/SCHOOL_CROSSCHECK_SOURCES.md`：高校官网招生计划交叉校验来源。
 - `docs/DECISIONS.md`：每天的决策日志。
@@ -56,7 +57,9 @@
 ## 快速命令
 
 ```bash
+python3 scripts/update_checksums.py
 python3 scripts/verify_baseline.py
 python3 scripts/ocr_magazine_pages.py --input private/raw/hubei-admission-magazine-2026-issue-19
+python3 scripts/ocr_pdf_pages.py --pdf private/raw/hubei-admission-magazine-2026-issue-19/issue19.pdf --pages 1-20
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```

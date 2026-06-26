@@ -106,6 +106,14 @@
    - 当前结论：未找到 2026 第 16/19 期完整公开电子版；第 19 期是本项目首选物理招生计划核心材料。
    - 限制：学校片段和第三方 Excel 线索不能替代官方杂志或平台。
 
+7. 《湖北招生考试》2026 年第 19 期 PDF
+   - 本地私有路径：`private/raw/hubei-admission-magazine-2026-issue-19/issue19.pdf`
+   - PDF 元数据：`data/working/issue19-pdf-source.json`
+   - 提取方案：`docs/ISSUE19_PDF_EXTRACTION_PLAN.md`
+   - SHA256：`ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d`
+   - 当前判断：240 页，无可抽取文本层，需要渲染为图片后 OCR。
+   - 限制：原始 PDF、渲染页图片、整页 OCR 文本和全量抽取结果默认只保存在 `private/`，不提交公开仓库。
+
 ## 派生数据说明
 
 - `data/derived/hubei-2025-physics-toudang-ocr.txt`：由 2025 官方图片 OCR 生成。
@@ -116,6 +124,8 @@
 - `data/working/family-preferences.json`：当前家庭偏好和筛选底线。
 - `data/working/2026-admission-plan-source-status.json`：2026 招生计划来源状态。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
+- `data/working/issue19-pdf-source.json`：第 19 期 PDF 元数据和私有留存边界。
+- `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。
 
