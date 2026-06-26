@@ -1,0 +1,64 @@
+{
+  "status": "priority_review_queues_need_manual_pdf_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "priority_review_queue_ocr_draft",
+  "generated_by": "scripts/build_issue19_priority_review_queues.py",
+  "inputs": [
+    {
+      "path": "data/working/family-preferences.json",
+      "sha256": "757aa12a0fc73cfd8b6074789921a3f8a8365f392cb3587e3df8ee63cd6abd62"
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "6d55736afbb0083ccb0915d34778cb75c8ca5507ffd4fe39c77582eabac0f0de",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "cbe78e64574a4813cd0bef202b14369539cb5f998f7128e5b5702d09ea17dce8",
+      "row_count": 13736
+    }
+  ],
+  "preference_major_count": 2499,
+  "preference_counts": {
+    "数字媒体技术": 78,
+    "计算机类相关": 1867,
+    "师范类相关": 601
+  },
+  "preference_comprehensive_risk_level_counts": {
+    "未触发硬风险": 385,
+    "限制风险": 145,
+    "硬风险": 1969
+  },
+  "preference_major_only_risk_level_counts": {
+    "未触发硬风险": 1705,
+    "限制风险": 208,
+    "硬风险": 586
+  },
+  "preference_rows_with_group_risk_count": 2114,
+  "hard_risk_group_count": 2939,
+  "hard_risk_type_counts": {
+    "中外合作或高收费": 444,
+    "医学/护理等排除方向": 604,
+    "学费超过当前上限": 2635,
+    "体检或色觉限制": 700,
+    "语种或单科限制": 289,
+    "专项/预科/定向等特殊类型": 70
+  },
+  "tuition_limit_yuan": 15000,
+  "outputs": [
+    "data/working/issue19-preference-major-search.csv",
+    "data/working/issue19-hard-risk-group-review-queue.csv"
+  ],
+  "output_row_counts": {
+    "data/working/issue19-preference-major-search.csv": 2499,
+    "data/working/issue19-hard-risk-group-review-queue.csv": 2939
+  },
+  "notes": [
+    "优先专业检索队列只用于发现方向，不代表专业组可填。",
+    "综合风险等级合并本专业行风险和所在院校专业组风险，避免把组内可调剂风险误判为安全。",
+    "硬风险队列用于防止误服从调剂，风险标签必须回看第19期原PDF页确认。",
+    "所有行仍为 OCR 初稿，最终可用均应为 false。"
+  ]
+}

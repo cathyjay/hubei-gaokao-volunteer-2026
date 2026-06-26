@@ -414,6 +414,199 @@ def main():
         not any(token in full_public_text for token in full_public_forbidden_tokens),
     ))
 
+    candidate_review_summary_path = ROOT / "data/working/issue19-candidate-plan-review-summary.json"
+    candidate_review_summary_csv = ROOT / "data/working/issue19-candidate-plan-review-summary.csv"
+    candidate_review_detail_csv = ROOT / "data/working/issue19-candidate-plan-review-major-detail.csv"
+    candidate_review_queue_csv = ROOT / "data/working/issue19-priority-review-queue.csv"
+    priority_review_summary_path = ROOT / "data/working/issue19-priority-review-queues-summary.json"
+    preference_search_csv = ROOT / "data/working/issue19-preference-major-search.csv"
+    hard_risk_queue_csv = ROOT / "data/working/issue19-hard-risk-group-review-queue.csv"
+    with candidate_review_summary_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_review_reader = csv.DictReader(f)
+        candidate_review_rows = list(candidate_review_reader)
+        candidate_review_fields = set(candidate_review_reader.fieldnames or [])
+    with candidate_review_detail_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_detail_reader = csv.DictReader(f)
+        candidate_detail_rows = list(candidate_detail_reader)
+        candidate_detail_fields = set(candidate_detail_reader.fieldnames or [])
+    with candidate_review_queue_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_queue_reader = csv.DictReader(f)
+        candidate_queue_rows = list(candidate_queue_reader)
+        candidate_queue_fields = set(candidate_queue_reader.fieldnames or [])
+    with preference_search_csv.open(newline="", encoding="utf-8-sig") as f:
+        preference_reader = csv.DictReader(f)
+        preference_rows = list(preference_reader)
+        preference_fields = set(preference_reader.fieldnames or [])
+    with hard_risk_queue_csv.open(newline="", encoding="utf-8-sig") as f:
+        hard_risk_reader = csv.DictReader(f)
+        hard_risk_rows = list(hard_risk_reader)
+        hard_risk_fields = set(hard_risk_reader.fieldnames or [])
+
+    candidate_review_summary = json.loads(candidate_review_summary_path.read_text())
+    priority_review_summary = json.loads(priority_review_summary_path.read_text())
+    required_candidate_summary_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "候选池学校专业组",
+        "候选专业组代码",
+        "硬风险专业行数",
+        "硬风险标签命中数",
+        "硬风险类型",
+        "机器初判",
+        "核验状态",
+    }
+    required_candidate_detail_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "候选池学校专业组",
+        "候选专业组代码",
+        "专业名称及备注OCR",
+        "偏好和风险标签",
+        "核验状态",
+        "最终可用",
+    }
+    required_candidate_queue_fields = {
+        "复核优先级",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "候选池学校专业组",
+        "候选专业组代码",
+        "机器初判",
+        "初判原因",
+        "硬风险类型",
+        "第19期全量OCR命中",
+    }
+    required_preference_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "优先方向",
+        "综合风险等级",
+        "本专业OCR风险等级",
+        "本专业风险类型",
+        "专业组风险类型",
+        "院校专业组代码",
+        "专业名称及备注OCR",
+        "最终可用",
+    }
+    required_hard_risk_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "综合风险等级",
+        "风险类型",
+        "院校专业组代码",
+        "核验状态",
+        "最终可用",
+    }
+    shared_forbidden_tokens = [
+        "/Users/",
+        "private/",
+        "private\\",
+        "ocr-runs",
+        "rendered-pages",
+        ".jpg",
+        ".jpeg",
+        ".png",
+        "身份证",
+        "准考证",
+        "报名号",
+        "序列号",
+    ]
+    review_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            candidate_review_summary_path,
+            candidate_review_summary_csv,
+            candidate_review_detail_csv,
+            candidate_review_queue_csv,
+            priority_review_summary_path,
+            preference_search_csv,
+            hard_risk_queue_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期候选复核工作台摘要和行数正确",
+        candidate_review_summary.get("status") == "candidate_review_workbench_needs_manual_pdf_review"
+        and candidate_review_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and candidate_review_summary.get("candidate_count") == 20
+        and candidate_review_summary.get("matched_candidate_count") == 17
+        and candidate_review_summary.get("unmatched_candidate_count") == 3
+        and candidate_review_summary.get("candidate_major_detail_count") == 77
+        and candidate_review_summary.get("machine_decision_counts") == {
+            "默认排除": 10,
+            "可复核但字段不完整": 4,
+            "高风险暂缓": 2,
+            "待定位": 3,
+            "可人工复核": 1,
+        }
+        and len(candidate_review_rows) == 20
+        and len(candidate_detail_rows) == 77
+        and len(candidate_queue_rows) == 20,
+    ))
+    checks.append(ok(
+        "第 19 期候选复核工作台字段和风险口径正确",
+        required_candidate_summary_fields.issubset(candidate_review_fields)
+        and required_candidate_detail_fields.issubset(candidate_detail_fields)
+        and required_candidate_queue_fields.issubset(candidate_queue_fields)
+        and "硬风险命中数" not in candidate_review_fields
+        and any(
+            row.get("候选专业组代码") == "C15003"
+            and row.get("机器初判") == "高风险暂缓"
+            and "语种或单科限制" in row.get("硬风险类型", "")
+            for row in candidate_review_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选复核工作台状态保持待人工复核",
+        all(row.get("最终可用") == "false" and row.get("核验状态") == "needs_manual_pdf_review" for row in candidate_detail_rows)
+        and all(row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"] for row in candidate_review_rows + candidate_detail_rows + candidate_queue_rows),
+    ))
+
+    checks.append(ok(
+        "第 19 期全量优先专业和硬风险队列摘要正确",
+        priority_review_summary.get("status") == "priority_review_queues_need_manual_pdf_review"
+        and priority_review_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and priority_review_summary.get("preference_major_count") == 2499
+        and priority_review_summary.get("preference_counts") == {
+            "数字媒体技术": 78,
+            "计算机类相关": 1867,
+            "师范类相关": 601,
+        }
+        and priority_review_summary.get("preference_comprehensive_risk_level_counts") == {
+            "未触发硬风险": 385,
+            "限制风险": 145,
+            "硬风险": 1969,
+        }
+        and priority_review_summary.get("preference_major_only_risk_level_counts") == {
+            "未触发硬风险": 1705,
+            "限制风险": 208,
+            "硬风险": 586,
+        }
+        and priority_review_summary.get("preference_rows_with_group_risk_count") == 2114
+        and priority_review_summary.get("hard_risk_group_count") == 2939
+        and len(preference_rows) == 2499
+        and len(hard_risk_rows) == 2939,
+    ))
+    checks.append(ok(
+        "第 19 期全量优先专业和硬风险队列字段与状态正确",
+        required_preference_fields.issubset(preference_fields)
+        and required_hard_risk_fields.issubset(hard_risk_fields)
+        and all(row.get("最终可用") == "false" and row.get("核验状态") == "needs_manual_pdf_review" for row in preference_rows + hard_risk_rows)
+        and all(row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"] for row in preference_rows + hard_risk_rows)
+        and not any(
+            row.get("综合风险等级") == "未触发硬风险" and row.get("专业组风险类型")
+            for row in preference_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期新增公开复核文件不含本地路径和身份信息",
+        not any(token in review_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

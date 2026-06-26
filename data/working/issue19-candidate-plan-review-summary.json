@@ -1,0 +1,62 @@
+{
+  "status": "candidate_review_workbench_needs_manual_pdf_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "candidate_review_workbench_ocr_draft",
+  "generated_by": "scripts/build_issue19_candidate_review_workbench.py",
+  "inputs": [
+    {
+      "path": "data/working/family-preferences.json",
+      "sha256": "757aa12a0fc73cfd8b6074789921a3f8a8365f392cb3587e3df8ee63cd6abd62"
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-candidate-coverage.csv",
+      "sha256": "069c6bcf7aa733d04e67f3aa32f28ec318bb0a6d97a7805ade92d1e994ae72f8",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "6d55736afbb0083ccb0915d34778cb75c8ca5507ffd4fe39c77582eabac0f0de",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "cbe78e64574a4813cd0bef202b14369539cb5f998f7128e5b5702d09ea17dce8",
+      "row_count": 13736
+    }
+  ],
+  "candidate_count": 20,
+  "matched_candidate_count": 17,
+  "unmatched_candidate_count": 3,
+  "machine_decision_counts": {
+    "默认排除": 10,
+    "可复核但字段不完整": 4,
+    "高风险暂缓": 2,
+    "待定位": 3,
+    "可人工复核": 1
+  },
+  "candidate_major_detail_count": 77,
+  "candidate_hard_risk_major_counts_by_type": {
+    "体检或色觉限制": 2,
+    "中外合作或高收费": 8,
+    "语种或单科限制": 3,
+    "医学/护理等排除方向": 7,
+    "学费超过当前上限": 6
+  },
+  "tuition_limit_yuan": 15000,
+  "outputs": [
+    "data/working/issue19-candidate-plan-review-summary.csv",
+    "data/working/issue19-candidate-plan-review-major-detail.csv",
+    "data/working/issue19-priority-review-queue.csv"
+  ],
+  "output_row_counts": {
+    "data/working/issue19-candidate-plan-review-summary.csv": 20,
+    "data/working/issue19-candidate-plan-review-major-detail.csv": 77,
+    "data/working/issue19-priority-review-queue.csv": 20
+  },
+  "notes": [
+    "机器初判只用于复核优先级，不是最终志愿建议。",
+    "所有候选仍需回看第19期原PDF页，核对组边界、组内全部专业、计划数、学费、选科和备注。",
+    "服从调剂判断必须覆盖院校专业组内全部专业。"
+  ]
+}

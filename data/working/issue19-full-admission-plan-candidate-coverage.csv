@@ -1,7 +1,7 @@
 ﻿候选池学校专业组,城市,年份覆盖,2023最低分,2024最低分,2025最低分,历史风险初判,候选专业组代码OCR规范化,第19期全量OCR命中,第19期OCR院校名称,第19期OCR页码,第19期OCR专业行数,第19期OCR风险标签,当前状态,下一步
 武汉商学院 C15007 第07组,武汉,2023/2025,490,,482,保/稳观察,C15007,是,武汉商学院,81,2,high_fee_or_coop;priority_3_teacher;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 武汉商学院 C15006 第06组,武汉,2023/2025,485,,498,稳观察,C15006,是,武汉商学院,80,3,tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
-武汉商学院 C15003 第03组,武汉,2023/2024/2025,501,512,500,稳偏冲,C15003,是,武汉商学院,80,22,language_or_single_subject;priority_2_computer;priority_3_teacher,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
+武汉商学院 C15003 第03组,武汉,2023/2024/2025,501,512,500,稳偏冲,C15003,是,武汉商学院,80,22,language_or_single_subject;priority_2_computer,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 武汉商学院 C15005 第05组,武汉,2023/2024/2025,509,517,507,小冲,C15005,是,武汉商学院,80,4,tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 武汉商学院 C15004 第04组,武汉,2023/2024/2025,517,494,513,波动冲,C15004,是,武汉商学院,80,4,priority_2_computer;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 武汉轻工大学 C12508 第08组,武汉,2023/2024/2025,506,529,498,稳偏冲/高波动,C12508,是,武汉轻工大学,74,21,rejected_medical,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
@@ -11,7 +11,7 @@
 西安航空学院 K48703 第03组,西安,2024/2025,,515,497,稳偏冲/降分需核,K48703,是,西安航空学院,226,1,high_fee_or_coop;priority_2_computer;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 西安航空学院 K48704 第04组,西安,2025,,,506,小冲/单年观察,K48704,是,西安航空学院,226,2,high_fee_or_coop;rejected_medical;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 西安医学院 K48805 第05组,西安,2023/2024/2025,539,534,496,主方案排除/历史样本,K48805,是,西安医学院,226,1,rejected_medical;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
-西安医学院 K48804 第04组,西安,2023/2024/2025,558,564,507,主方案排除/历史样本,K48804,是,西安医学院,226,1,language_or_single_subject;priority_3_teacher;rejected_medical;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
+西安医学院 K48804 第04组,西安,2023/2024/2025,558,564,507,主方案排除/历史样本,K48804,是,西安医学院,226,1,language_or_single_subject;rejected_medical;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 成都医学院 K17802 第02组,成都,2023/2024/2025,514,517,512,主方案排除/历史样本,K17802,是,成都医学院,212,1,body_or_exam_limit;priority_3_teacher;rejected_medical;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 成都医学院 K17801 第01组,成都,2023/2024/2025,514,521,514,主方案排除/OCR待核,K17801,是,成都医学院,212,1,body_or_exam_limit;rejected_medical;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
 成都师范学院 K17903 第03组,成都,2023/2024/2025,522,536,516,高冲观察,K17903,是,成都师范学院,212,1,priority_3_teacher;tuition_over_15000,needs_manual_pdf_review,回看第19期原PDF页，核组边界和组内全部专业
