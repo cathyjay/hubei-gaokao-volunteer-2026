@@ -1,0 +1,45 @@
+{
+  "status": "issue19_full_major_verification_batches_not_final",
+  "generated_by": "build_issue19_full_major_verification_batches.py",
+  "source_full_major_fidelity_ledger": "data/working/issue19-full-major-field-fidelity-ledger.csv",
+  "source_page_fidelity_review_queue": "data/working/issue19-page-fidelity-review-queue.csv",
+  "output_table": "data/working/issue19-full-major-verification-batches.csv",
+  "row_count": 13736,
+  "source_full_major_row_count": 13736,
+  "source_page_count": 231,
+  "unique_major_line_id_count": 13736,
+  "unique_group_occurrence_id_count": 3289,
+  "unique_pdf_page_count": 231,
+  "batch_counts": {
+    "A0-阻断级结构先核": 3998,
+    "A1-历史候选和样本先核": 472,
+    "A2-偏好专业逐专业先核": 1672,
+    "A3-家庭底线和费用先核": 1129,
+    "A4-调剂风险先核": 1811,
+    "A5-计划数字段先核": 3248,
+    "A6-选科和特殊限制先核": 1083,
+    "A7-学费字段先核": 14,
+    "A8-待补证字段核验": 18,
+    "A9-低风险抽检但非最终": 291
+  },
+  "block_level_counts": {
+    "F0-阻断级：不得进入候选排序": 3998,
+    "F1-高优先：必须逐字段核验": 8240,
+    "F2-待补证：字段需核验": 1248,
+    "F3-暂未触发机器高风险但仍非最终": 250
+  },
+  "page_priority_counts": {
+    "P0-必须优先核页": 13680,
+    "P1-字段高风险核页": 56
+  },
+  "candidate_v1_hit_count": 77,
+  "sample_school_hit_count": 560,
+  "preference_major_row_count": 2499,
+  "auto_final_list_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "notes": [
+    "本表是一行一个招生专业的全量核验批次表，只安排逐专业人工核验顺序，不生成最终志愿结论。",
+    "页级字段来自按页保真复核队列，用于定位PDF页图和OCR文本证据编号。",
+    "所有专业仍需PDF原页、湖北官方系统/省招办计划、高校官网/章程、家庭接受度和调剂结论闭环。"
+  ]
+}

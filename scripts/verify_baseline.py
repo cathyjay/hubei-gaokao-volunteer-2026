@@ -5270,6 +5270,206 @@ def main():
         and "最终方案" not in page_fidelity_public_text
         and not any(token in page_fidelity_public_text for token in shared_forbidden_tokens),
     ))
+
+    full_major_verification_batches_summary_path = (
+        ROOT / "data/working/issue19-full-major-verification-batches-summary.json"
+    )
+    full_major_verification_batches_csv = (
+        ROOT / "data/working/issue19-full-major-verification-batches.csv"
+    )
+    full_major_verification_batches_summary = json.loads(
+        full_major_verification_batches_summary_path.read_text()
+    )
+    with full_major_verification_batches_csv.open(newline="", encoding="utf-8-sig") as f:
+        full_major_verification_batches_reader = csv.DictReader(f)
+        full_major_verification_batches_rows = list(full_major_verification_batches_reader)
+        full_major_verification_batches_fields = set(
+            full_major_verification_batches_reader.fieldnames or []
+        )
+    required_full_major_verification_batches_fields = {
+        "逐专业核验批次ID",
+        "来源全量逐专业保真总账",
+        "来源页级保真复核队列",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "是否可进入最终专业列表",
+        "可进入下一阶段",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "页级保真队列ID",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "页级复核优先级",
+        "页级阻断等级",
+        "全量保真复核优先级",
+        "风险阻断等级",
+        "批次排序",
+        "逐专业核验批次",
+        "批次触发原因",
+        "核验动作",
+        "必须核验字段",
+        "PDF字段核验状态",
+        "湖北官方系统字段核验状态",
+        "高校官网/章程字段核验状态",
+        "家庭接受度核验状态",
+        "调剂影响等级",
+        "机器专业接受度初判",
+        "专业偏好方向",
+        "候选池V1命中",
+        "样本学校命中",
+        "下一步",
+    }
+    full_major_verification_batches_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            full_major_verification_batches_summary_path,
+            full_major_verification_batches_csv,
+        ]
+    )
+    full_major_verification_batch_counts = Counter(
+        row.get("逐专业核验批次") for row in full_major_verification_batches_rows
+    )
+    full_major_verification_block_counts = Counter(
+        row.get("风险阻断等级") for row in full_major_verification_batches_rows
+    )
+    full_major_verification_page_priority_counts = Counter(
+        row.get("页级复核优先级") for row in full_major_verification_batches_rows
+    )
+    full_major_verification_ids = {
+        row.get("专业行ID") for row in full_major_verification_batches_rows
+    }
+    full_major_verification_by_major_id = {
+        row.get("专业行ID"): row for row in full_major_verification_batches_rows
+    }
+    full_major_fidelity_by_major_id = {row.get("专业行ID"): row for row in full_major_fidelity_rows}
+    full_major_verification_distribution_ok = True
+    for row in full_major_verification_batches_rows:
+        fidelity_row = full_major_fidelity_by_major_id.get(row.get("专业行ID"))
+        page_row = page_fidelity_by_page.get(as_int(row.get("来源页码")))
+        full_major_verification_distribution_ok = (
+            full_major_verification_distribution_ok
+            and bool(fidelity_row)
+            and bool(page_row)
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("专业组出现ID") == fidelity_row.get("专业组出现ID")
+            and row.get("全量保真复核优先级") == fidelity_row.get("全量保真复核优先级")
+            and row.get("风险阻断等级") == fidelity_row.get("风险阻断等级")
+            and row.get("专业名称及备注OCR") == fidelity_row.get("专业名称及备注OCR")
+            and row.get("专业计划数OCR候选") == fidelity_row.get("专业计划数OCR候选")
+            and row.get("学费OCR候选") == fidelity_row.get("学费OCR候选")
+            and row.get("页级保真队列ID") == page_row.get("页级保真队列ID")
+            and row.get("私有页图证据编号") == page_row.get("私有页图证据编号")
+            and row.get("私有OCR文本证据编号") == page_row.get("私有OCR文本证据编号")
+            and row.get("页级复核优先级") == page_row.get("页面复核优先级")
+            and row.get("页级阻断等级") == page_row.get("页面阻断等级")
+        )
+    checks.append(ok(
+        "第 19 期全量逐专业核验批次表摘要和行数正确",
+        full_major_verification_batches_summary.get("status")
+        == "issue19_full_major_verification_batches_not_final"
+        and full_major_verification_batches_summary.get("generated_by")
+        == "build_issue19_full_major_verification_batches.py"
+        and full_major_verification_batches_summary.get("source_full_major_fidelity_ledger")
+        == "data/working/issue19-full-major-field-fidelity-ledger.csv"
+        and full_major_verification_batches_summary.get("source_page_fidelity_review_queue")
+        == "data/working/issue19-page-fidelity-review-queue.csv"
+        and full_major_verification_batches_summary.get("output_table")
+        == "data/working/issue19-full-major-verification-batches.csv"
+        and full_major_verification_batches_summary.get("row_count") == 13736
+        and full_major_verification_batches_summary.get("source_full_major_row_count") == 13736
+        and full_major_verification_batches_summary.get("source_page_count") == 231
+        and full_major_verification_batches_summary.get("unique_major_line_id_count") == 13736
+        and full_major_verification_batches_summary.get("unique_group_occurrence_id_count") == 3289
+        and full_major_verification_batches_summary.get("unique_pdf_page_count") == 231
+        and full_major_verification_batches_summary.get("candidate_v1_hit_count") == 77
+        and full_major_verification_batches_summary.get("sample_school_hit_count") == 560
+        and full_major_verification_batches_summary.get("preference_major_row_count") == 2499
+        and full_major_verification_batches_summary.get("auto_final_list_allowed_count") == 0
+        and full_major_verification_batches_summary.get("next_stage_allowed_count") == 0
+        and len(full_major_verification_batches_rows) == 13736,
+        f"{len(full_major_verification_batches_rows)} major verification rows",
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业核验批次表字段、主键和门禁正确",
+        required_full_major_verification_batches_fields.issubset(
+            full_major_verification_batches_fields
+        )
+        and len({row.get("逐专业核验批次ID") for row in full_major_verification_batches_rows})
+        == len(full_major_verification_batches_rows)
+        and len(full_major_verification_ids) == len(full_major_verification_batches_rows)
+        and full_major_verification_ids == full_major_fidelity_ids
+        and all(
+            row.get("来源全量逐专业保真总账")
+            == "data/working/issue19-full-major-field-fidelity-ledger.csv"
+            and row.get("来源页级保真复核队列")
+            == "data/working/issue19-page-fidelity-review-queue.csv"
+            and row.get("数据阶段") == "issue19_full_major_verification_batches"
+            and row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_full_major_manual_verification_batch"
+            and row.get("是否可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("PDF字段核验状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网/章程字段核验状态") == "pending_school_plan_or_charter_review"
+            and row.get("家庭接受度核验状态") == "pending_family_acceptance_review"
+            and all(
+                token in row.get("必须核验字段", "")
+                for token in ["PDF原页", "湖北官方系统", "高校官网/章程", "专业组边界"]
+            )
+            for row in full_major_verification_batches_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业核验批次表批次分布和上游闭环正确",
+        full_major_verification_batch_counts
+        == Counter(full_major_verification_batches_summary.get("batch_counts", {}))
+        and full_major_verification_block_counts
+        == Counter(full_major_verification_batches_summary.get("block_level_counts", {}))
+        and full_major_verification_page_priority_counts
+        == Counter(full_major_verification_batches_summary.get("page_priority_counts", {}))
+        and full_major_verification_batches_summary.get("batch_counts") == {
+            "A0-阻断级结构先核": 3998,
+            "A1-历史候选和样本先核": 472,
+            "A2-偏好专业逐专业先核": 1672,
+            "A3-家庭底线和费用先核": 1129,
+            "A4-调剂风险先核": 1811,
+            "A5-计划数字段先核": 3248,
+            "A6-选科和特殊限制先核": 1083,
+            "A7-学费字段先核": 14,
+            "A8-待补证字段核验": 18,
+            "A9-低风险抽检但非最终": 291,
+        }
+        and full_major_verification_batches_summary.get("block_level_counts")
+        == full_major_fidelity_summary.get("block_level_counts")
+        and full_major_verification_distribution_ok,
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业核验批次表公开文件不含本地路径、图片扩展名、身份信息和最终可用结论",
+        "private/" not in full_major_verification_batches_public_text
+        and "/Users/" not in full_major_verification_batches_public_text
+        and "ocr-runs" not in full_major_verification_batches_public_text
+        and "rendered-pages" not in full_major_verification_batches_public_text
+        and ".png" not in full_major_verification_batches_public_text
+        and ".jpg" not in full_major_verification_batches_public_text
+        and ".jpeg" not in full_major_verification_batches_public_text
+        and "final_allowed" not in full_major_verification_batches_public_text
+        and "ready_for_discussion" not in full_major_verification_batches_public_text
+        and "已确认" not in full_major_verification_batches_public_text
+        and "最终推荐" not in full_major_verification_batches_public_text
+        and "最终方案" not in full_major_verification_batches_public_text
+        and not any(token in full_major_verification_batches_public_text for token in shared_forbidden_tokens),
+    ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
         "final_allowed" not in page_manifest_public_text
