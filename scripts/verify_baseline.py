@@ -195,6 +195,15 @@ def main():
         str(len(high_priority_summary)),
     ))
 
+    first_batch_seed = json.loads((ROOT / "data/working/issue19-first-batch-review-seed-summary.json").read_text())
+    checks.append(ok(
+        "第 19 期第一批 4 校逐组复核种子摘要已生成",
+        first_batch_seed.get("status") == "review_seed_only_not_final"
+        and len(first_batch_seed.get("schools", [])) == 4
+        and sum(row.get("专业组标题候选数", 0) for row in first_batch_seed.get("schools", [])) >= 40,
+        str(sum(row.get("专业组标题候选数", 0) for row in first_batch_seed.get("schools", []))),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

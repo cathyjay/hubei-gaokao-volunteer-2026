@@ -44,7 +44,9 @@ final_allowed
 公开输出：
 
 - 高优先级 7 校摘要：`data/working/issue19-high-priority-double-check-summary.csv`
+- 第一批逐组复核种子公开摘要：`data/working/issue19-first-batch-review-seed-summary.json`
 - 生成脚本：`scripts/build_issue19_double_check_summary.py`
+- 第一批复核种子脚本：`scripts/build_issue19_first_batch_review_seed.py`
 
 注意：公开 CSV 只保留摘要指标，不保存整页 OCR 文本、长段 OCR 摘录、原始 PDF、渲染图片或个人身份信息。
 
@@ -67,6 +69,20 @@ final_allowed
 - 第一批结构化试跑：武汉科技大学、湖北大学、湖北理工学院、武汉商学院。
 - 湖北科技学院：先补齐官网 PDF 附件 OCR/截图，再加入强证据集。
 - 湖北工程学院、荆楚理工学院：先作为分省分专业计划、学费、选科或湖北计划数的补充证据，不单独用来证明专业组边界。
+
+第一批私有逐组复核种子已生成：
+
+```text
+private/derived/issue19-first-batch-structure-trial/逐组复核种子.csv
+```
+
+公开摘要见：
+
+```text
+data/working/issue19-first-batch-review-seed-summary.json
+```
+
+该私有表只作为人工回看第 19 期原 PDF 页的任务清单，不能直接作为最终招生计划。
 
 ## 四、字段可信度
 

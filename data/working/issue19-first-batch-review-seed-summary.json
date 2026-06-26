@@ -1,0 +1,47 @@
+{
+  "status": "review_seed_only_not_final",
+  "private_output": "private/derived/issue19-first-batch-structure-trial/逐组复核种子.csv",
+  "source": "private/derived/issue19-sample-school-ocr/样本学校OCR定位.csv",
+  "schools": [
+    {
+      "学校名称": "武汉科技大学",
+      "PDF OCR页码": [
+        64,
+        65
+      ],
+      "专业组标题候选数": 10,
+      "状态": "待人工逐组复核"
+    },
+    {
+      "学校名称": "湖北大学",
+      "PDF OCR页码": [
+        65,
+        66,
+        67
+      ],
+      "专业组标题候选数": 17,
+      "状态": "待人工逐组复核"
+    },
+    {
+      "学校名称": "湖北理工学院",
+      "PDF OCR页码": [
+        79
+      ],
+      "专业组标题候选数": 12,
+      "状态": "待人工逐组复核"
+    },
+    {
+      "学校名称": "武汉商学院",
+      "PDF OCR页码": [
+        80,
+        81
+      ],
+      "专业组标题候选数": 5,
+      "状态": "待人工逐组复核"
+    }
+  ],
+  "notes": [
+    "该摘要不含 OCR 原文；OCR 原文只保存在 private 逐组复核种子表。",
+    "逐组复核种子只用于人工回看第19期原 PDF 页，不可直接作为最终招生计划。"
+  ]
+}
