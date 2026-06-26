@@ -1,0 +1,127 @@
+{
+  "status": "issue19_foundation_machine_checks_passed_need_pdf_official_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "issue19_foundation_audit",
+  "generated_by": "scripts/build_issue19_foundation_audit.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-ocr-draft-summary.json",
+      "sha256": "7e7ca4989a0ba087d14706a66bf64b3a45f09d8597499fa7cf7923c93a9ad7cd"
+    },
+    {
+      "path": "data/working/issue19-integrity-audit-summary.json",
+      "sha256": "b69c8010fc43530be0528bb7e8862a34580aef7b3e7cae91d7229912f9139a2f"
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-full-quality-group-tiers.csv",
+      "sha256": "d02bcedcdb3189d0a2c123e91b28518420403b995e14e4ec91a64926e36c14bb",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-major-detail-quality-workbench.csv",
+      "sha256": "1de3fd3d8db50fbb78175198604ca9d2eb6582c4d4d36cbe8b59f4ab18a6db02",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-full-major-detail-review-queue.csv",
+      "sha256": "55b8e1cf8b620d41d5b155f76383851b1335ff94bff47b36612a047140bd5718",
+      "row_count": 13705
+    },
+    {
+      "path": "data/working/issue19-ocr-structure-anomaly-queue.csv",
+      "sha256": "edf71556c40a51c130e7ad8eac00067cc9c483b8cec8f136c266057402b4c6f5",
+      "row_count": 5129
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-candidate-coverage.csv",
+      "sha256": "6355146fd6bf01c147b6e5a340b77e8d8b396b2eca7524d7ee206477a0f3a217",
+      "row_count": 20
+    }
+  ],
+  "expected_page_range": [
+    10,
+    240
+  ],
+  "page_count": 231,
+  "missing_page_count": 0,
+  "outside_page_row_count": 0,
+  "school_count": 1103,
+  "group_count": 3329,
+  "major_count": 13736,
+  "major_workbench_count": 13736,
+  "major_review_queue_count": 13705,
+  "structure_anomaly_count": 5129,
+  "matched_structure_anomaly_count": 5129,
+  "automatic_blocking_findings_count": 0,
+  "manual_review_findings_count": 8,
+  "finding_status_counts": {
+    "通过": 10,
+    "需人工复核": 8
+  },
+  "finding_severity_counts": {
+    "阻断": 9,
+    "高": 6,
+    "中": 3
+  },
+  "duplicate_group_code_count": 3,
+  "duplicate_group_code_row_count": 6,
+  "duplicate_group_code_major_row_count": 14,
+  "duplicate_major_source_signature_row_count": 0,
+  "exact_group_occurrence_major_count": 11898,
+  "fallback_unique_group_code_major_count": 1838,
+  "fallback_unique_group_code_group_count": 334,
+  "fallback_candidate_major_count": 18,
+  "fallback_sample_major_count": 52,
+  "unmatched_major_group_occurrence_count": 0,
+  "duplicate_major_code_group_count": 31,
+  "duplicate_major_code_pair_count": 58,
+  "duplicate_major_code_row_count": 116,
+  "field_flag_counts": {
+    "missing_plan_count_candidate": 5739,
+    "missing_subject_candidate": 11456,
+    "low_ocr_confidence": 1717,
+    "missing_tuition_candidate": 1040,
+    "tuition_over_15000": 120,
+    "tuition_not_plain_number": 222,
+    "plan_count_not_plain_number": 40
+  },
+  "risk_and_preference_tag_counts": {
+    "rejected_medical": 1499,
+    "priority_2_computer": 1867,
+    "high_fee_or_coop": 683,
+    "special_plan_or_direction": 97,
+    "body_or_exam_limit": 1633,
+    "tuition_over_15000": 120,
+    "priority_1_digital_media": 78,
+    "priority_3_teacher": 601,
+    "language_or_single_subject": 526
+  },
+  "candidate_coverage_status_counts": {
+    "命中": 17,
+    "未命中": 3
+  },
+  "outputs": [
+    "data/working/issue19-foundation-audit-findings.csv",
+    "data/working/issue19-foundation-page-audit.csv"
+  ],
+  "notes": [
+    "本审计只证明机器层面的底座闭环，不证明 OCR 文字等同于最终官方事实。",
+    "所有招生明细进入志愿方案前，仍必须回看第19期 PDF、湖北志愿系统和高校招生章程/官网。",
+    "字段异常、费用、选科、调剂范围和候选池未命中项均保持人工复核状态。"
+  ]
+}

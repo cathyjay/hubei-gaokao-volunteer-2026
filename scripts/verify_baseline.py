@@ -1713,6 +1713,125 @@ def main():
         and not any(token in major_quality_public_text for token in shared_forbidden_tokens),
     ))
 
+    foundation_audit_summary_path = ROOT / "data/working/issue19-foundation-audit-summary.json"
+    foundation_audit_findings_csv = ROOT / "data/working/issue19-foundation-audit-findings.csv"
+    foundation_page_audit_csv = ROOT / "data/working/issue19-foundation-page-audit.csv"
+    foundation_audit_summary = json.loads(foundation_audit_summary_path.read_text())
+    with foundation_audit_findings_csv.open(newline="", encoding="utf-8-sig") as f:
+        foundation_findings_reader = csv.DictReader(f)
+        foundation_finding_rows = list(foundation_findings_reader)
+        foundation_finding_fields = set(foundation_findings_reader.fieldnames or [])
+    with foundation_page_audit_csv.open(newline="", encoding="utf-8-sig") as f:
+        foundation_page_reader = csv.DictReader(f)
+        foundation_page_rows = list(foundation_page_reader)
+        foundation_page_fields = set(foundation_page_reader.fieldnames or [])
+
+    foundation_required_finding_fields = {
+        "审计编号",
+        "审计域",
+        "审计项",
+        "审计状态",
+        "严重程度",
+        "自动阻断",
+        "计数",
+        "证据摘要",
+        "下一步",
+    }
+    foundation_required_page_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "来源页码",
+        "页面专业组数",
+        "页面专业明细数",
+        "页面院校数",
+        "页面结构异常数",
+        "页面高严重结构异常数",
+        "页面偏好专业明细数",
+        "页面风险专业明细数",
+        "页面候选池V1专业明细数",
+        "页面复核优先级",
+        "页面审计状态",
+        "下一步",
+    }
+    foundation_findings_by_id = {row.get("审计编号"): row for row in foundation_finding_rows}
+    foundation_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [foundation_audit_summary_path, foundation_audit_findings_csv, foundation_page_audit_csv]
+    )
+    checks.append(ok(
+        "第 19 期底座审计摘要、发现和页级表正确",
+        foundation_audit_summary.get("status")
+        == "issue19_foundation_machine_checks_passed_need_pdf_official_review"
+        and foundation_audit_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and foundation_audit_summary.get("page_count") == 231
+        and foundation_audit_summary.get("missing_page_count") == 0
+        and foundation_audit_summary.get("outside_page_row_count") == 0
+        and foundation_audit_summary.get("school_count") == 1103
+        and foundation_audit_summary.get("group_count") == 3329
+        and foundation_audit_summary.get("major_count") == 13736
+        and foundation_audit_summary.get("major_workbench_count") == 13736
+        and foundation_audit_summary.get("major_review_queue_count") == 13705
+        and foundation_audit_summary.get("structure_anomaly_count") == 5129
+        and foundation_audit_summary.get("matched_structure_anomaly_count") == 5129
+        and foundation_audit_summary.get("automatic_blocking_findings_count") == 0
+        and foundation_audit_summary.get("manual_review_findings_count") == 8
+        and foundation_audit_summary.get("finding_status_counts") == {"通过": 10, "需人工复核": 8}
+        and len(foundation_finding_rows) == 18
+        and len(foundation_page_rows) == 231
+        and foundation_required_finding_fields.issubset(foundation_finding_fields)
+        and foundation_required_page_fields.issubset(foundation_page_fields),
+        f"{len(foundation_finding_rows)} findings, {len(foundation_page_rows)} pages",
+    ))
+    checks.append(ok(
+        "第 19 期底座审计机器阻断项全部通过",
+        all(
+            row.get("审计状态") == "通过" and row.get("自动阻断") == "否"
+            for row in foundation_finding_rows
+            if row.get("严重程度") == "阻断"
+        )
+        and foundation_findings_by_id["F002"].get("计数") == "0"
+        and foundation_findings_by_id["F004"].get("证据摘要") == "专业组ID=3329/3329；专业行ID=13736/13736"
+        and foundation_findings_by_id["F007"].get("证据摘要") == "异常队列=5129；工作台聚合=5129"
+        and foundation_findings_by_id["F009"].get("计数") == "0",
+    ))
+    checks.append(ok(
+        "第 19 期底座审计关键人工复核风险已显式记录",
+        foundation_audit_summary.get("duplicate_group_code_count") == 3
+        and foundation_audit_summary.get("duplicate_group_code_row_count") == 6
+        and foundation_audit_summary.get("duplicate_group_code_major_row_count") == 14
+        and foundation_audit_summary.get("exact_group_occurrence_major_count") == 11898
+        and foundation_audit_summary.get("fallback_unique_group_code_major_count") == 1838
+        and foundation_audit_summary.get("fallback_unique_group_code_group_count") == 334
+        and foundation_audit_summary.get("fallback_candidate_major_count") == 18
+        and foundation_audit_summary.get("fallback_sample_major_count") == 52
+        and foundation_audit_summary.get("unmatched_major_group_occurrence_count") == 0
+        and foundation_audit_summary.get("duplicate_major_code_group_count") == 31
+        and foundation_audit_summary.get("duplicate_major_code_pair_count") == 58
+        and foundation_audit_summary.get("duplicate_major_code_row_count") == 116
+        and foundation_audit_summary.get("candidate_coverage_status_counts") == {"命中": 17, "未命中": 3}
+        and foundation_findings_by_id["R008"].get("审计状态") == "需人工复核"
+        and foundation_findings_by_id["R008"].get("计数") == "1838"
+        and foundation_findings_by_id["R009"].get("审计状态") == "需人工复核"
+        and foundation_findings_by_id["R009"].get("计数") == "116",
+    ))
+    checks.append(ok(
+        "第 19 期底座页级审计覆盖 10-240 页且无缺结构化记录页",
+        [as_int(row.get("来源页码")) for row in foundation_page_rows] == list(range(10, 241))
+        and sum(as_int(row.get("页面专业组数")) for row in foundation_page_rows) == 3329
+        and sum(as_int(row.get("页面专业明细数")) for row in foundation_page_rows) == 13736
+        and sum(as_int(row.get("页面结构异常数")) for row in foundation_page_rows) == 5129
+        and sum(as_int(row.get("页面高严重结构异常数")) for row in foundation_page_rows)
+        == sum(1 for row in structure_anomaly_rows if row.get("严重程度") == "高")
+        and all(row.get("页面审计状态") == "有结构化记录待核页" for row in foundation_page_rows),
+    ))
+    checks.append(ok(
+        "第 19 期底座审计公开文件不含本地路径、身份信息和最终可用结论",
+        "final_allowed" not in foundation_public_text
+        and "ready_for_discussion" not in foundation_public_text
+        and "已确认" not in foundation_public_text
+        and not any(token in foundation_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

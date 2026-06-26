@@ -171,6 +171,9 @@
 - `data/working/issue19-full-major-detail-quality-workbench.csv`：第 19 期全量逐专业明细质量工作台，覆盖 13736 条专业行，记录 `专业行ID`、`专业组出现ID`、组级质量、专业行异常、字段完整性、偏好/风险和复核优先级。
 - `data/working/issue19-full-major-detail-review-queue.csv`：第 19 期全量逐专业明细复核队列，列出 13705 条需要优先回看原页的专业行。
 - `data/working/issue19-full-major-detail-quality-summary.json`：逐专业质量摘要，记录 ID 唯一性、异常匹配、候选池/样本学校命中、字段缺失和逐专业 P0/P1/P3 数量。
+- `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
+- `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
+- `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
 - `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座初稿说明和保真机制。
@@ -186,6 +189,7 @@
 - `scripts/build_issue19_candidate_v2_verification_workbench.py`：根据候选 V2 种子生成升级闸门工作台，明确进入排序前必须补齐的原页、官方系统、章程、家庭接受度和调剂证据。
 - `scripts/build_issue19_full_quality_tiers.py`：根据全量专业组、专业明细和结构异常队列生成质量分层索引与复核队列；质量层级只用于安排核页优先级，不代表可填报。
 - `scripts/build_issue19_major_detail_quality_workbench.py`：根据全量专业明细、专业组质量索引和结构异常队列生成逐专业明细质量工作台；后续候选讨论必须使用该表展开完整专业明细。
+- `scripts/build_issue19_foundation_audit.py`：根据全量 OCR 初稿、质量分层、逐专业工作台、结构异常和候选覆盖生成底座审计表；用于证明机器层面的行数、页码、主键、异常和发布边界闭环。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。
