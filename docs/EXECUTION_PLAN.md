@@ -60,7 +60,8 @@
 - 已生成 20 条历史候选的候选组级复核工作台：`data/working/issue19-candidate-plan-review-summary.csv`。
 - 已生成已命中候选组内专业明细：`data/working/issue19-candidate-plan-review-major-detail.csv`，共 77 条专业行。
 - 已生成全量偏好专业检索队列：`data/working/issue19-preference-major-search.csv`，共 2499 条专业行。
-- 已生成全量硬风险专业组队列：`data/working/issue19-hard-risk-group-review-queue.csv`，共 2939 个专业组。
+- 已生成全量硬风险专业组队列：`data/working/issue19-hard-risk-group-review-queue.csv`，共 2962 个专业组。
+- 已生成候选池页面复核包公开元数据：`data/working/issue19-candidate-review-page-packet.csv` 和 `data/working/issue19-candidate-review-group-page-map.csv`，覆盖 10 个需要回看的第 19 期 PDF 页。
 - 优先专业队列已经合并本专业行风险和所在专业组风险；`机器初判`、`综合风险等级` 只用于安排复核，不是最终报考建议。
 
 尚未完成：
@@ -112,6 +113,7 @@ OCR 字段不等于最终事实。
 
 - 对已命中项，回看第 19 期 PDF 原页确认专业组边界和组内全部专业。
 - 对未命中项，判断是 OCR 漏识别、2026 组号变化、历史组取消，还是候选池历史 OCR 噪声。
+- 优先打开候选池页面复核包的 10 页私有页图和页面 OCR 文本，先核候选专业组及同校相邻专业组。
 - 核对专业代号、专业名称、计划数、学费、选科、备注。
 - 标记风险：医学/护理、高收费、中外合作、体检限制、语种/单科、小计划、学费超过 15000 元。
 - 标记家庭接受度：可接受、勉强接受、不能接受。

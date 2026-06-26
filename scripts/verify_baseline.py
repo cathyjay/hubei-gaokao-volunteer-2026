@@ -386,6 +386,12 @@ def main():
         and full_draft_summary.get("major_field_completeness", {}).get("最终可用true专业行数") == 0,
     ))
     checks.append(ok(
+        "第 19 期全量招生明细 OCR 初稿风险标签统计正确",
+        full_draft_summary.get("risk_and_preference_tag_counts", {}).get("rejected_medical") == 769
+        and full_draft_summary.get("risk_and_preference_tag_counts", {}).get("priority_2_computer") == 1032
+        and full_draft_summary.get("risk_and_preference_tag_counts", {}).get("priority_3_teacher") == 515,
+    ))
+    checks.append(ok(
         "第 19 期全量招生明细 OCR 初稿公开 CSV 行数正确",
         len(full_school_rows) == 1103
         and len(full_group_rows) == 3329
@@ -402,6 +408,24 @@ def main():
         "第 19 期全量招生明细 OCR 初稿状态保持待人工复核",
         all(row.get("最终可用") == "false" and row.get("核验状态") == "needs_manual_pdf_review" for row in full_major_rows)
         and all(row.get("最终可用") == "false" and row.get("核验状态") == "needs_manual_pdf_review" for row in full_group_rows),
+    ))
+    medical_boundary_keywords = [
+        "中医骨伤科学",
+        "康复治疗学",
+        "健康服务与管理",
+        "食品卫生与营养学",
+        "公共卫生",
+    ]
+    checks.append(ok(
+        "第 19 期医学相关边界专业已进入风险标签",
+        all(
+            all(
+                "rejected_medical" in row.get("偏好和风险标签", "")
+                for row in full_major_rows
+                if keyword in row.get("专业名称及备注OCR", "")
+            )
+            for keyword in medical_boundary_keywords
+        ),
     ))
     checks.append(ok(
         "第 19 期全量招生明细 OCR 初稿候选池覆盖已记录",
@@ -538,8 +562,8 @@ def main():
         and candidate_review_summary.get("candidate_major_detail_count") == 77
         and candidate_review_summary.get("machine_decision_counts") == {
             "默认排除": 10,
-            "可复核但字段不完整": 4,
-            "高风险暂缓": 2,
+            "可复核但字段不完整": 3,
+            "高风险暂缓": 3,
             "待定位": 3,
             "可人工复核": 1,
         }
@@ -557,6 +581,12 @@ def main():
             row.get("候选专业组代码") == "C15003"
             and row.get("机器初判") == "高风险暂缓"
             and "语种或单科限制" in row.get("硬风险类型", "")
+            for row in candidate_review_rows
+        )
+        and any(
+            row.get("候选专业组代码") == "C10703"
+            and row.get("机器初判") == "高风险暂缓"
+            and "医学/护理等排除方向" in row.get("硬风险类型", "")
             for row in candidate_review_rows
         ),
     ))
@@ -577,19 +607,19 @@ def main():
             "师范类相关": 601,
         }
         and priority_review_summary.get("preference_comprehensive_risk_level_counts") == {
-            "未触发硬风险": 385,
-            "限制风险": 145,
-            "硬风险": 1969,
+            "未触发硬风险": 360,
+            "限制风险": 133,
+            "硬风险": 2006,
         }
         and priority_review_summary.get("preference_major_only_risk_level_counts") == {
-            "未触发硬风险": 1705,
-            "限制风险": 208,
-            "硬风险": 586,
+            "未触发硬风险": 1699,
+            "限制风险": 194,
+            "硬风险": 606,
         }
-        and priority_review_summary.get("preference_rows_with_group_risk_count") == 2114
-        and priority_review_summary.get("hard_risk_group_count") == 2939
+        and priority_review_summary.get("preference_rows_with_group_risk_count") == 2139
+        and priority_review_summary.get("hard_risk_group_count") == 2962
         and len(preference_rows) == 2499
-        and len(hard_risk_rows) == 2939,
+        and len(hard_risk_rows) == 2962,
     ))
     checks.append(ok(
         "第 19 期全量优先专业和硬风险队列字段与状态正确",
@@ -605,6 +635,86 @@ def main():
     checks.append(ok(
         "第 19 期新增公开复核文件不含本地路径和身份信息",
         not any(token in review_public_text for token in shared_forbidden_tokens),
+    ))
+
+    page_packet_summary_path = ROOT / "data/working/issue19-candidate-review-page-packet-summary.json"
+    page_packet_csv = ROOT / "data/working/issue19-candidate-review-page-packet.csv"
+    group_page_map_csv = ROOT / "data/working/issue19-candidate-review-group-page-map.csv"
+    with page_packet_csv.open(newline="", encoding="utf-8-sig") as f:
+        page_packet_reader = csv.DictReader(f)
+        page_packet_rows = list(page_packet_reader)
+        page_packet_fields = set(page_packet_reader.fieldnames or [])
+    with group_page_map_csv.open(newline="", encoding="utf-8-sig") as f:
+        group_page_map_reader = csv.DictReader(f)
+        group_page_map_rows = list(group_page_map_reader)
+        group_page_map_fields = set(group_page_map_reader.fieldnames or [])
+    page_packet_summary = json.loads(page_packet_summary_path.read_text())
+    required_page_packet_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "页码",
+        "页图文件名",
+        "页图SHA256",
+        "页面OCR文本文件名",
+        "页面OCR文本SHA256",
+        "关联候选专业组",
+        "本页OCR专业组",
+        "核验状态",
+    }
+    required_group_page_map_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "候选池学校专业组",
+        "候选专业组代码",
+        "第19期全量OCR命中",
+        "候选复核页码",
+        "同校第19期OCR专业组",
+        "同校第19期OCR页码",
+        "机器初判",
+        "核验状态",
+    }
+    page_packet_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [page_packet_summary_path, page_packet_csv, group_page_map_csv]
+    )
+    page_packet_forbidden_tokens = [
+        token
+        for token in shared_forbidden_tokens
+        if token not in {".png"}
+    ]
+    checks.append(ok(
+        "第 19 期候选池页面复核包公开摘要正确",
+        page_packet_summary.get("status") == "candidate_review_page_packet_ready_private_assets_not_committed"
+        and page_packet_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and page_packet_summary.get("candidate_count") == 20
+        and page_packet_summary.get("review_page_count") == 10
+        and set(page_packet_summary.get("review_pages", [])) == {17, 69, 74, 80, 81, 208, 209, 212, 223, 226}
+        and page_packet_summary.get("group_map_row_count") == 20
+        and page_packet_summary.get("private_assets_generated_locally") is True
+        and len(page_packet_rows) == 10
+        and len(group_page_map_rows) == 20,
+    ))
+    checks.append(ok(
+        "第 19 期候选池页面复核包字段和定位正确",
+        required_page_packet_fields.issubset(page_packet_fields)
+        and required_group_page_map_fields.issubset(group_page_map_fields)
+        and all(row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"] for row in page_packet_rows + group_page_map_rows)
+        and all(row.get("核验状态") == "needs_manual_pdf_review" for row in page_packet_rows)
+        and all("/" not in row.get("页图文件名", "") and "/" not in row.get("页面OCR文本文件名", "") for row in page_packet_rows)
+        and any(
+            row.get("候选专业组代码") == "C10702" and row.get("候选复核页码") == "69"
+            for row in group_page_map_rows
+        )
+        and any(
+            row.get("候选专业组代码") == "K15123" and row.get("候选复核页码") == "208；209"
+            for row in group_page_map_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选池页面复核包公开文件不含本地路径和身份信息",
+        not any(token in page_packet_public_text for token in page_packet_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())

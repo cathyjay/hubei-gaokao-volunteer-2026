@@ -11,12 +11,12 @@
     },
     {
       "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
-      "sha256": "6d55736afbb0083ccb0915d34778cb75c8ca5507ffd4fe39c77582eabac0f0de",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
       "row_count": 3329
     },
     {
       "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
-      "sha256": "cbe78e64574a4813cd0bef202b14369539cb5f998f7128e5b5702d09ea17dce8",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
       "row_count": 13736
     }
   ],
@@ -27,20 +27,20 @@
     "师范类相关": 601
   },
   "preference_comprehensive_risk_level_counts": {
-    "未触发硬风险": 385,
-    "限制风险": 145,
-    "硬风险": 1969
+    "未触发硬风险": 360,
+    "限制风险": 133,
+    "硬风险": 2006
   },
   "preference_major_only_risk_level_counts": {
-    "未触发硬风险": 1705,
-    "限制风险": 208,
-    "硬风险": 586
+    "未触发硬风险": 1699,
+    "限制风险": 194,
+    "硬风险": 606
   },
-  "preference_rows_with_group_risk_count": 2114,
-  "hard_risk_group_count": 2939,
+  "preference_rows_with_group_risk_count": 2139,
+  "hard_risk_group_count": 2962,
   "hard_risk_type_counts": {
     "中外合作或高收费": 444,
-    "医学/护理等排除方向": 604,
+    "医学/护理等排除方向": 769,
     "学费超过当前上限": 2635,
     "体检或色觉限制": 700,
     "语种或单科限制": 289,
@@ -53,7 +53,7 @@
   ],
   "output_row_counts": {
     "data/working/issue19-preference-major-search.csv": 2499,
-    "data/working/issue19-hard-risk-group-review-queue.csv": 2939
+    "data/working/issue19-hard-risk-group-review-queue.csv": 2962
   },
   "notes": [
     "优先专业检索队列只用于发现方向，不代表专业组可填。",

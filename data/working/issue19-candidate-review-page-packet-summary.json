@@ -1,0 +1,57 @@
+{
+  "status": "candidate_review_page_packet_ready_private_assets_not_committed",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "candidate_review_page_packet",
+  "generated_by": "scripts/build_issue19_candidate_review_page_packet.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-candidate-plan-review-summary.csv",
+      "sha256": "c12185952d68df8d18fb3dc3c8d2b979e30a6551c583e06d1d15a68f88e1aedd",
+      "row_count": 20
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
+      "row_count": 13736
+    }
+  ],
+  "candidate_count": 20,
+  "review_page_count": 10,
+  "review_pages": [
+    17,
+    69,
+    74,
+    80,
+    81,
+    208,
+    209,
+    212,
+    223,
+    226
+  ],
+  "group_map_row_count": 20,
+  "outputs": [
+    "data/working/issue19-candidate-review-page-packet.csv",
+    "data/working/issue19-candidate-review-group-page-map.csv"
+  ],
+  "private_assets_generated_locally": true,
+  "private_asset_types": [
+    "readme",
+    "page_images",
+    "page_ocr_text"
+  ],
+  "notes": [
+    "公开文件只保存页码、文件名和哈希，不提交 PDF 原页图或整页 OCR 文本。",
+    "页面复核包用于人工回看第19期原页，不代表任何专业组已可填报。"
+  ]
+}

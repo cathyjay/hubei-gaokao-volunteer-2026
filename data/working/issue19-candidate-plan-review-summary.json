@@ -11,17 +11,17 @@
     },
     {
       "path": "data/working/issue19-full-admission-plan-candidate-coverage.csv",
-      "sha256": "069c6bcf7aa733d04e67f3aa32f28ec318bb0a6d97a7805ade92d1e994ae72f8",
+      "sha256": "6355146fd6bf01c147b6e5a340b77e8d8b396b2eca7524d7ee206477a0f3a217",
       "row_count": 20
     },
     {
       "path": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
-      "sha256": "6d55736afbb0083ccb0915d34778cb75c8ca5507ffd4fe39c77582eabac0f0de",
+      "sha256": "458d60149306a2dfa2347c87f0afd8e43b09f3a3c6f8b6e814b4dbcdd8a2c956",
       "row_count": 3329
     },
     {
       "path": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
-      "sha256": "cbe78e64574a4813cd0bef202b14369539cb5f998f7128e5b5702d09ea17dce8",
+      "sha256": "84bf7b2406a030bcdb7a162d0a9efe44f2b6dcc8eb876b95c0465ef78fdf508a",
       "row_count": 13736
     }
   ],
@@ -30,8 +30,8 @@
   "unmatched_candidate_count": 3,
   "machine_decision_counts": {
     "默认排除": 10,
-    "可复核但字段不完整": 4,
-    "高风险暂缓": 2,
+    "可复核但字段不完整": 3,
+    "高风险暂缓": 3,
     "待定位": 3,
     "可人工复核": 1
   },
@@ -40,7 +40,7 @@
     "体检或色觉限制": 2,
     "中外合作或高收费": 8,
     "语种或单科限制": 3,
-    "医学/护理等排除方向": 7,
+    "医学/护理等排除方向": 12,
     "学费超过当前上限": 6
   },
   "tuition_limit_yuan": 15000,

@@ -74,6 +74,13 @@ OCR 初稿 / 最终可用=false
 
 公开 CSV 里的 `机器初判`、`综合风险等级`、`硬风险类型` 只用于安排复核顺序。命中不等于可报，未命中不等于不存在，OCR 字段不等于最终事实。
 
+候选池页面复核包的使用方式：
+
+- 公开元数据见 `data/working/issue19-candidate-review-page-packet.csv` 和 `data/working/issue19-candidate-review-group-page-map.csv`。
+- 本地私有页图和页面 OCR 文本只用于人工回看原页，不提交 Git。
+- 人工核页时要同时看候选专业组和同校相邻专业组，防止跨页、漏组、组号变化或 OCR 切组错误。
+- 页面复核包生成不代表已完成核验；只有逐字段确认后，才能进入候选池 V2。
+
 ## 四、第三方数据核验
 
 千问高考、static-data.gaokao.cn、阳光高考页面和其他工具只能作为辅助来源。
