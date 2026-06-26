@@ -1,6 +1,6 @@
 # 2026 招生计划获取状态
 
-最后更新：2026-06-26
+最后更新：2026-06-27
 
 ## 一、为什么必须获取 2026 招生计划
 
@@ -21,8 +21,8 @@
 | --- | --- | --- | --- |
 | 湖北教育考试网招生计划专题 | http://www.hbccks.cn/html/gkgzzt/gkzsjh/ | 已留存索引页 | 官方公开入口 |
 | 2026 年普通高等学校招生计划页面 | http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html | 页面显示“持续更新中，敬请期待” | 等待官方公开完整计划 |
-| 湖北招生数智综合平台 | https://zspt.hubzs.com.cn | 首页和前端资源已留存 | 官方志愿系统和智能参考系统 |
-| 平台计划查询接口 | `/prod-api/planQuery/plan/*` | 无登录请求返回 `401 令牌不能为空` | 需要考生登录态或平台权限 |
+| 湖北招生数智综合平台 | https://zspt.hubzs.com.cn | 2026-06-27 首页和当前前端资源已留存 | 官方志愿系统和智能参考系统 |
+| 平台计划查询接口 | `/prod-api/planQuery/plan/*` | 无登录请求返回 `401 令牌不能为空`；已写可复跑抓取脚本 | 需要考生登录态或平台权限 |
 | 《湖北招生考试》杂志 | 第 13、16、19、22 期 | 需人工获取 | 官方纸质/电子招生计划来源 |
 | 第 16/19 期专项检索 | `docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md` | 未找到公开完整电子版 | 获取路径和线索记录 |
 | 高校官网招生计划 | 学校本科招生网 | 已发现部分高校发布 2026 计划 | 只能作为交叉校验 |
@@ -32,6 +32,7 @@
 - `data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html`
 - `data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html`
 - `data/official/hubei-2026-admission-plan-platform/index.html`
+- `data/official/hubei-2026-admission-plan-platform/index-live-20260627.html`
 - `data/official/hubei-2026-admission-plan-platform/assets/`
 - `data/official/hubei-2026-admission-plan-platform/api-probes/`
 - `data/official/hubei-2026-volunteer-policy/143022-policy.html`
@@ -41,7 +42,7 @@
 
 ## 三、已发现的平台接口
 
-从湖北招生数智综合平台前端资源中发现以下只读计划查询接口：
+从湖北招生数智综合平台 2026-06-27 前端资源中发现以下只读计划查询接口：
 
 - `/prod-api/planQuery/plan/nfs`
 - `/prod-api/planQuery/plan/yxList?nf=2026&keyword=...&limit=...`
@@ -49,6 +50,25 @@
 - `/prod-api/planQuery/plan/student`
 - `/prod-api/planQuery/plan/jzjt`
 - `/prod-api/planQuery/dict/...`
+
+本次留存的当前前端资源和 SHA256：
+
+| 文件 | SHA256 | 用途 |
+| --- | --- | --- |
+| `data/official/hubei-2026-admission-plan-platform/index-live-20260627.html` | `253e6dd5c05c99af0ca9f52ee72182fcdcb70f188eae1bd88df456009dc6298d` | 当日平台首页快照 |
+| `data/official/hubei-2026-admission-plan-platform/assets/index-Cut-ZwER.js` | `191ac7517cf0c9ea22cb82d98c381664ba439ffe485936b600405b92593e4de4` | 当前主入口资源，含请求封装 |
+| `data/official/hubei-2026-admission-plan-platform/assets/planQuery-DaPwtzYm.js` | `1013eb61f6f142b97d439269397b4674d778cf2c00483120462d83748cfd90ee` | 当前计划查询接口定义 |
+| `data/official/hubei-2026-admission-plan-platform/assets/planQueryDicts-CJncJeD8.js` | `3ba9e346cea6e9f44f4a5f2c6b00f4a021678006a6cc8a295ddddc2d439d09f4` | 当前计划查询字典辅助 |
+| `data/official/hubei-2026-admission-plan-platform/assets/index-BjY7ltef.js` | `63e980b0c2d033d8cfcc5e46c21690abd9f2b776d940a1f02be7d75d67358522` | 当前计划查询页面实现 |
+| `data/official/hubei-2026-admission-plan-platform/assets/jhcxtc-DB-omj6U.js` | `0f645c97ba0a7baacb61a7dae38dbb40bb51b4014080ee60e92dfb82b3f6c3cf` | 志愿参考/体检等弹窗资源 |
+| `data/official/hubei-2026-admission-plan-platform/assets/jhcxsc-q90d6UCp.js` | `6f032912cd9d0c128c7df2bb5408c1d6372d98d30b27079d0428904407985298` | 收藏页资源 |
+
+当前接口契约：
+
+- 请求前缀为 `/prod-api`。
+- 登录 token 来源为 `Admin-Token`，请求头为 `Authorization: Bearer <Admin-Token>`。
+- 计划主查询页调用 `/planQuery/plan/group`，页面参数包括 `nf`、`pcdm`、`kldm`、`pageNum`、`pageSize`、`yxglzc`、`yxzyzdh`、`zyglzc1-4`、`ssdmlb`、`bxxzdmlb`、`sfsyl`、`sxzylblb`、`sxjhlblb`、`xkkmglfs`、`xkkmdmlb`，有权限时还会带 `verifyCode`。
+- 返回列表按层级组织，`type=YX` 为院校行，`type=ZYZ` 为院校专业组行，`type=ZY` 为招生专业行。后续结构化时只把 `type=ZY` 作为真实招生明细，专业组无专业行时只输出 0 明细占位。
 
 直接无登录请求会返回：
 
@@ -62,8 +82,41 @@
 
 - `data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-nfs-no-token.json`
 - `data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-yxList-2026-wuhan-no-token.json`
+- `data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-group-current-no-token.json`
+- `data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-dict-pcdm-2026-no-token.json`
+- `data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-student-no-token.json`
 
-## 四、下一步获取方案
+上述无登录探测 JSON 的 SHA256 均为 `02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f`，内容均为 `{"code":401,"msg":"令牌不能为空"}`。
+
+## 四、官方平台抓取脚手架
+
+已新增脚本：
+
+```bash
+python3 scripts/fetch_hubei_plan_platform.py --dry-run-contract
+```
+
+拿到登录态后，脚本运行方式为：
+
+```bash
+HUBEI_PLAN_TOKEN='<Admin-Token>' \
+python3 scripts/fetch_hubei_plan_platform.py \
+  --year 2026 \
+  --batch-label-contains 本科普通批 \
+  --subject-label-contains 物理 \
+  --page-size 200
+```
+
+脚本保真规则：
+
+- token 只从 `HUBEI_PLAN_TOKEN` 或 `HUBEI_PLAN_AUTH_TOKEN` 读取，不打印、不写入公开仓库。
+- 可选考生号只从 `--ksh` 或 `HUBEI_PLAN_KSH` 读取；公开摘要只记录 redacted 标识。
+- 原始分页 JSON 默认写入 `private/hubei-plan-platform/raw/`，该目录被 Git 忽略。
+- 公开输出默认为 `data/working/hubei-2026-official-platform-admission-detail.csv`，一行一个招生专业；专业组无专业行时只输出 0 明细占位。
+- 公开 CSV 默认保存原始行 SHA，不保存完整原始行 JSON；如确需字段级审计，可显式加 `--include-raw-json-in-csv`，但提交前必须做隐私和敏感字段扫描。
+- 平台数据进入最终方案前，仍要和第 19 期 PDF 原页、高校官网/章程、家庭接受度和调剂结论闭环。
+
+## 五、下一步获取方案
 
 优先级从高到低：
 
@@ -74,9 +127,9 @@
 
 湖北官方政策问答已明确：考生填报的志愿代号必须以 2026 年省招办通过《湖北招生考试》杂志第 13、16、19、22 期公布的招生计划为准，不能使用往年资料上的代号。第 16 期对应历史类计划，若后续做历史类对照或家庭扩展需求再获取；当前考生首选物理，核心是第 19 期。
 
-## 五、需要导出的字段
+## 六、需要导出的字段
 
-整理 2026 计划时，每条院校专业组至少记录：
+整理 2026 计划时，默认按“招生明细”记录，一行一个专业；院校专业组只作为索引和调剂范围。每条招生明细至少记录：
 
 ```text
 学校名称
@@ -97,9 +150,11 @@
 是否中外合作/高收费/民办/定向/专项/预科/民族班
 是否有体检、单科、语种等限制
 来源页码或平台截图编号
+原始行SHA256
+私有原始响应编号
 ```
 
-## 六、当前可先推进的工作
+## 七、当前可先推进的工作
 
 在完整 2026 计划拿到前，可以先做：
 

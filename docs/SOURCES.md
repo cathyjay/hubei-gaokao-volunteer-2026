@@ -58,11 +58,13 @@
 9. 湖北省招生数智综合平台
    - URL：https://zspt.hubzs.com.cn
    - 本地首页：`data/official/hubei-2026-admission-plan-platform/index.html`
+   - 2026-06-27 本地首页：`data/official/hubei-2026-admission-plan-platform/index-live-20260627.html`
    - 本地前端资源：`data/official/hubei-2026-admission-plan-platform/assets/*.js`
    - 已发现接口：`/prod-api/planQuery/plan/nfs`、`/prod-api/planQuery/plan/yxList`、`/prod-api/planQuery/plan/group` 等。
    - 无登录探测留存：`data/official/hubei-2026-admission-plan-platform/api-probes/*.json`
    - 当前状态：无登录请求返回 `{"code":401,"msg":"令牌不能为空"}`。
-   - 用途：登录后查询或导出 2026 招生计划；未登录状态不能作为完整数据来源。
+   - 2026-06-27 当前资源 SHA：`index-Cut-ZwER.js=191ac7517cf0c9ea22cb82d98c381664ba439ffe485936b600405b92593e4de4`、`planQuery-DaPwtzYm.js=1013eb61f6f142b97d439269397b4674d778cf2c00483120462d83748cfd90ee`、`index-BjY7ltef.js=63e980b0c2d033d8cfcc5e46c21690abd9f2b776d940a1f02be7d75d67358522`。
+   - 用途：登录后查询或导出 2026 招生计划；未登录状态不能作为完整数据来源。接口结构化时一行一个招生专业，院校专业组只作索引。
 
 ## 交叉校验来源
 
@@ -192,6 +194,8 @@
 - `data/working/issue19-family-fit-screen-summary.json`：家庭底线筛选摘要，记录专业组/专业行数、机器家庭匹配分布、调剂初判分布和下一轮复核优先级分布。
 - `data/working/issue19-candidate-v3-review-intake.csv`：候选 V3 复核入口表，覆盖家庭筛选 R0/R1/R2 与候选 V2 补充组，每行都带完整组内招生明细、页码哈希、候选批次、历史同组投档线线索和升级缺口；全部 `最终可用=false`。
 - `data/working/issue19-candidate-v3-review-intake-summary.json`：候选 V3 摘要，记录 1327 条复核入口、批次分布、历史线命中分布、专业明细来源和最终可用边界。
+- `data/working/issue19-candidate-v3-admission-detail.csv`：候选 V3 全量逐专业招生明细主表，覆盖 8412 行；其中 8410 条是真实招生专业，2 条为 0 明细占位。后续 V3 候选讨论默认使用该表，组级入口只作索引。
+- `data/working/issue19-candidate-v3-admission-detail-summary.json`：候选 V3 逐专业主表摘要，记录 1327 个组级入口、8410 条真实招生明细、2 条占位、来源行数闭环、主键唯一性和最终可用边界。
 - `data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv`：候选 V3 B0/B1 组级核验包，覆盖 49 个优先专业组，逐组列出页码证据、组内招生明细、历史线口径、核页重点和升级闸门；这是复核工作台，不是可填报清单。
 - `data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv`：候选 V3 B0/B1 逐专业核验包，覆盖 324 个逐专业核验任务；一行一个专业或 0 明细占位任务，用于回填 PDF、官方系统、章程、家庭接受度和调剂结论；这是复核工作台，不是可填报清单。
 - `data/working/issue19-candidate-v3-b0-b1-review-pack-summary.json`：候选 V3 B0/B1 核验包摘要，记录组数、专业任务数、页码覆盖、0 明细组和发布边界。
@@ -234,6 +238,7 @@
 - `scripts/build_issue19_page_manifest.py`：根据私有 OCR 运行目录和公开结构化表生成 240 页公开页级 manifest；只输出页级元数据和哈希，不输出私有页图、整页 OCR 文本或本机路径。
 - `scripts/build_issue19_family_fit_screen.py`：根据全量专业组质量索引、逐专业质量工作台和家庭偏好生成家庭底线筛选表；只做 OCR 草案初筛，办学属性、字段和家庭接受度仍全部待核。
 - `scripts/build_issue19_candidate_v3_review_intake.py`：根据家庭底线筛选、候选 V2、页级 manifest、三年历史投档线和全量 OCR 覆盖表生成候选 V3 复核入口；用于下一轮逐组核页和补证，不产生最终建议。
+- `scripts/build_issue19_candidate_v3_admission_detail.py`：把候选 V3 复核入口展开为全量逐专业招生明细主表；优先使用候选 V2 逐专业种子和家庭底线逐专业表，不从长文本硬切专业。
 - `scripts/build_issue19_candidate_v3_b0_b1_review_pack.py`：根据候选 V3 入口、家庭底线逐专业表、候选 V2 逐专业种子和页级 manifest 生成 B0/B1 组级和逐专业核验包；不从长文本拆专业，优先使用结构化来源。
 - `scripts/build_issue19_candidate_v3_b0_b1_official_crosscheck_queue.py`：根据 B0/B1 核验包和高校官网来源表生成学校来源、组级索引、逐专业招生明细主表和原逐专业官方交叉校验队列；这些表只是补证工作台，不代表官方核验完成。
 - `scripts/extract_xztu_official_pdf_plan.py`：使用 `pdfplumber` 从忻州师范学院官网 PDF 中抽取湖北物理类专业行，并写出可审计 CSV；需要使用 bundled Python 或本地安装 `pdfplumber`。
@@ -241,6 +246,7 @@
 - `scripts/extract_jsut_official_image_plan.py`：把江苏理工学院官方计划图人工转录并写成逐专业 CSV，同时保留来源图片和官网入口校验条件。
 - `scripts/build_issue19_b0_b1_official_evidence_match.py`：把已留存官网/API/HTML/XLSX/PDF/计划图抽取证据标准化，并与 B0/B1 逐专业招生明细主表逐条匹配；同时生成逐专业招生明细证据合并表，输出只用于保真交叉校验，不是最终志愿方案。
 - `scripts/build_issue19_b0_b1_fidelity_review_queues.py`：从 B0/B1 逐专业证据合并表生成计划数冲突、专业未匹配和学校补源缺口三类保真复核队列；只安排人工核验顺序，不生成可填报结论。
+- `scripts/fetch_hubei_plan_platform.py`：湖北招生数智综合平台逐专业计划抓取脚手架；token 只从环境变量读取，原始分页响应默认保存在 Git 忽略的 `private/hubei-plan-platform/raw/`，公开输出为逐专业规范化 CSV 和摘要。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

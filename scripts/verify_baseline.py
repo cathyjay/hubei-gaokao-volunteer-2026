@@ -2280,6 +2280,147 @@ def main():
         and not any(token in candidate_v3_public_text for token in shared_forbidden_tokens),
     ))
 
+    candidate_v3_detail_summary_path = ROOT / "data/working/issue19-candidate-v3-admission-detail-summary.json"
+    candidate_v3_detail_csv = ROOT / "data/working/issue19-candidate-v3-admission-detail.csv"
+    candidate_v3_detail_summary = json.loads(candidate_v3_detail_summary_path.read_text())
+    with candidate_v3_detail_csv.open(newline="", encoding="utf-8-sig") as f:
+        candidate_v3_detail_reader = csv.DictReader(f)
+        candidate_v3_detail_rows = list(candidate_v3_detail_reader)
+        candidate_v3_detail_fields = set(candidate_v3_detail_reader.fieldnames or [])
+    required_candidate_v3_detail_fields = {
+        "招生明细主表行ID",
+        "主表粒度",
+        "是否真实招生明细",
+        "是否0明细占位",
+        "组级索引文件",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "候选V3入口ID",
+        "复核批次",
+        "院校代码",
+        "院校名称OCR",
+        "2026院校专业组代码",
+        "专业组出现ID",
+        "专业行来源",
+        "专业行ID",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "再选科目OCR候选",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "专业偏好方向",
+        "专业风险类型",
+        "机器专业接受度初判",
+        "调剂影响初判",
+        "PDF字段核验状态",
+        "湖北官方系统字段核验状态",
+        "高校官网/章程字段核验状态",
+        "家庭接受度人工结论状态",
+        "调剂影响人工结论状态",
+        "字段核验状态",
+        "是否阻断组升级",
+        "可进入最终专业列表",
+        "可进入下一阶段",
+    }
+    candidate_v3_detail_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [candidate_v3_detail_summary_path, candidate_v3_detail_csv]
+    )
+    candidate_v3_detail_source_counts = Counter(row.get("专业行来源") for row in candidate_v3_detail_rows)
+    candidate_v3_detail_batch_counts = Counter(row.get("复核批次") for row in candidate_v3_detail_rows)
+    candidate_v3_detail_by_entry = Counter(row.get("候选V3入口ID") for row in candidate_v3_detail_rows)
+    candidate_v3_detail_zero_codes = {
+        row.get("2026院校专业组代码")
+        for row in candidate_v3_detail_rows
+        if row.get("是否0明细占位") == "true"
+    }
+    candidate_v3_detail_entry_counts_match = all(
+        candidate_v3_detail_by_entry.get(row.get("候选V3入口ID"), 0)
+        == ((as_int(row.get("专业明细行数")) or 0) or 1)
+        for row in candidate_v3_rows
+    )
+    checks.append(ok(
+        "第 19 期候选V3逐专业招生明细主表摘要、行数和闭环正确",
+        candidate_v3_detail_summary.get("status") == "issue19_candidate_v3_admission_detail_not_final"
+        and candidate_v3_detail_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and candidate_v3_detail_summary.get("default_discussion_table")
+        == "data/working/issue19-candidate-v3-admission-detail.csv"
+        and candidate_v3_detail_summary.get("group_index_table")
+        == "data/working/issue19-candidate-v3-review-intake.csv"
+        and candidate_v3_detail_summary.get("group_index_count") == 1327
+        and candidate_v3_detail_summary.get("expected_real_detail_count_from_group_index") == 8410
+        and candidate_v3_detail_summary.get("admission_detail_row_count") == 8412
+        and candidate_v3_detail_summary.get("real_admission_detail_count") == 8410
+        and candidate_v3_detail_summary.get("zero_detail_placeholder_count") == 2
+        and candidate_v3_detail_summary.get("row_source_counts") == {
+            "candidate_v2_major_review_seed": 82,
+            "family_fit_major_detail": 8328,
+            "zero_detail_group_placeholder": 2,
+        }
+        and candidate_v3_detail_summary.get("batch_counts") == {
+            "B0-历史候选和组号问题优先核页": 79,
+            "B1-数字媒体技术优先核页": 245,
+            "B2-偏好专业未自动阻断核页": 4313,
+            "B3-偏好专业硬风险先核风险": 3774,
+            "B4-同页边界风险组核页": 1,
+        }
+        and candidate_v3_detail_summary.get("missing_detail_group_count") == 0
+        and candidate_v3_detail_summary.get("detail_count_mismatch_group_count") == 0
+        and candidate_v3_detail_summary.get("unique_admission_detail_id_count") == 8412
+        and candidate_v3_detail_summary.get("final_available_count") == 0
+        and candidate_v3_detail_summary.get("major_final_available_count") == 0
+        and len(candidate_v3_detail_rows) == 8412,
+        f"{len(candidate_v3_detail_rows)} detail rows",
+    ))
+    checks.append(ok(
+        "第 19 期候选V3逐专业招生明细字段、主键和默认闸门正确",
+        required_candidate_v3_detail_fields.issubset(candidate_v3_detail_fields)
+        and len({row.get("招生明细主表行ID") for row in candidate_v3_detail_rows})
+        == len(candidate_v3_detail_rows)
+        and candidate_v3_detail_source_counts
+        == Counter(candidate_v3_detail_summary.get("row_source_counts", {}))
+        and candidate_v3_detail_batch_counts
+        == Counter(candidate_v3_detail_summary.get("batch_counts", {}))
+        and candidate_v3_detail_entry_counts_match
+        and candidate_v3_detail_zero_codes == {"C10702", "K15123"}
+        and all(
+            row.get("主表粒度") == "逐专业招生明细"
+            and row.get("组级索引文件") == "data/working/issue19-candidate-v3-review-intake.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_candidate_v3_admission_detail"
+            and row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_v3_detail_manual_review"
+            and row.get("PDF字段核验状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网/章程字段核验状态") == "pending_school_plan_or_charter_review"
+            and row.get("家庭接受度人工结论状态") == "pending_family_acceptance_review"
+            and row.get("调剂影响人工结论状态") == "pending_transfer_decision"
+            and row.get("字段核验状态") == "pending"
+            and row.get("是否阻断组升级") == "是"
+            and row.get("可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            for row in candidate_v3_detail_rows
+        )
+        and all(
+            row.get("是否真实招生明细") == ("false" if row.get("专业行来源") == "zero_detail_group_placeholder" else "true")
+            and row.get("是否0明细占位") == ("true" if row.get("专业行来源") == "zero_detail_group_placeholder" else "false")
+            for row in candidate_v3_detail_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期候选V3逐专业招生明细公开文件不含本地路径、身份信息和最终可用结论",
+        "final_allowed" not in candidate_v3_detail_public_text
+        and "ready_for_discussion" not in candidate_v3_detail_public_text
+        and "已确认" not in candidate_v3_detail_public_text
+        and "最终推荐" not in candidate_v3_detail_public_text
+        and "最终方案" not in candidate_v3_detail_public_text
+        and not any(token in candidate_v3_detail_public_text for token in shared_forbidden_tokens),
+    ))
+
     v3_b0_b1_summary_path = ROOT / "data/working/issue19-candidate-v3-b0-b1-review-pack-summary.json"
     v3_b0_b1_group_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-group-review-pack.csv"
     v3_b0_b1_major_csv = ROOT / "data/working/issue19-candidate-v3-b0-b1-major-review-pack.csv"

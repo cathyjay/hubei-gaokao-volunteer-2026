@@ -1,0 +1,60 @@
+{
+  "status": "issue19_candidate_v3_admission_detail_not_final",
+  "generated_by": "build_issue19_candidate_v3_admission_detail.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "default_discussion_table": "data/working/issue19-candidate-v3-admission-detail.csv",
+  "group_index_table": "data/working/issue19-candidate-v3-review-intake.csv",
+  "group_index_count": 1327,
+  "expected_real_detail_count_from_group_index": 8410,
+  "admission_detail_row_count": 8412,
+  "real_admission_detail_count": 8410,
+  "zero_detail_placeholder_count": 2,
+  "row_source_counts": {
+    "candidate_v2_major_review_seed": 82,
+    "family_fit_major_detail": 8328,
+    "zero_detail_group_placeholder": 2
+  },
+  "batch_counts": {
+    "B0-历史候选和组号问题优先核页": 79,
+    "B1-数字媒体技术优先核页": 245,
+    "B2-偏好专业未自动阻断核页": 4313,
+    "B3-偏好专业硬风险先核风险": 3774,
+    "B4-同页边界风险组核页": 1
+  },
+  "group_batch_counts": {
+    "B0-历史候选和组号问题优先核页": 20,
+    "B1-数字媒体技术优先核页": 29,
+    "B2-偏好专业未自动阻断核页": 763,
+    "B3-偏好专业硬风险先核风险": 514,
+    "B4-同页边界风险组核页": 1
+  },
+  "missing_detail_group_count": 0,
+  "missing_detail_groups": [],
+  "detail_count_mismatch_group_count": 0,
+  "detail_count_mismatch_groups": [],
+  "unique_admission_detail_id_count": 8412,
+  "final_available_count": 0,
+  "major_final_available_count": 0,
+  "fidelity_note": "该表一行对应一个招生专业或0明细占位；院校专业组文件只作索引、投档线和调剂范围承载，不能作为候选讨论主表。",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/issue19-candidate-v3-review-intake.csv",
+      "sha256": "d8d39bc23df3abba83d4f66fca81ff4567ad49a207c38e44e9de0b355daf582c",
+      "row_count": 1327
+    },
+    {
+      "path": "data/working/issue19-family-fit-major-detail.csv",
+      "sha256": "0c19ef49f2ed261de189b01ae26e9239bbbaaa758380c85e473d1208dae40340",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-candidate-v2-major-review-seed.csv",
+      "sha256": "ad3dd80eb2d180b36006093cf4bcbef63dcf99fe7d3d206f06b33a20ca831f30",
+      "row_count": 82
+    }
+  ]
+}
