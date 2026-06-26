@@ -26,8 +26,8 @@
     },
     {
       "path": "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv",
-      "sha256": "7093e255c046ae99259011d6601ddbfc568068dada37e739383bdf2d270c2dce",
-      "row_count": 8
+      "sha256": "38aaa7ecf37145b407c82298d2bfba97d5488386ec2b051837d5e219ed28241d",
+      "row_count": 23
     }
   ],
   "school_count": 36,
@@ -36,30 +36,30 @@
   "admission_detail_main_row_count": 324,
   "major_official_crosscheck_task_count": 324,
   "school_source_status_counts": {
-    "charter_or_rules_only_no_plan": 2,
-    "has_partial_source_needs_followup": 7,
-    "has_reusable_2026_hubei_plan_source": 2,
-    "needs_official_plan_source_search": 25
+    "charter_or_rules_only_no_plan": 5,
+    "has_partial_source_needs_followup": 14,
+    "has_reusable_2026_hubei_plan_source": 7,
+    "needs_official_plan_source_search": 10
   },
   "group_source_status_counts": {
-    "charter_or_rules_only_no_plan": 5,
-    "has_partial_source_needs_followup": 10,
-    "has_reusable_2026_hubei_plan_source": 6,
-    "needs_official_plan_source_search": 28
+    "charter_or_rules_only_no_plan": 8,
+    "has_partial_source_needs_followup": 17,
+    "has_reusable_2026_hubei_plan_source": 12,
+    "needs_official_plan_source_search": 12
   },
   "admission_detail_source_status_counts": {
-    "charter_or_rules_only_no_plan": 13,
-    "has_partial_source_needs_followup": 50,
-    "has_reusable_2026_hubei_plan_source": 54,
-    "needs_official_plan_source_search": 207
+    "charter_or_rules_only_no_plan": 44,
+    "has_partial_source_needs_followup": 112,
+    "has_reusable_2026_hubei_plan_source": 82,
+    "needs_official_plan_source_search": 86
   },
   "admission_detail_real_row_count": 322,
   "admission_detail_placeholder_row_count": 2,
   "major_source_status_counts": {
-    "charter_or_rules_only_no_plan": 13,
-    "has_partial_source_needs_followup": 50,
-    "has_reusable_2026_hubei_plan_source": 54,
-    "needs_official_plan_source_search": 207
+    "charter_or_rules_only_no_plan": 44,
+    "has_partial_source_needs_followup": 112,
+    "has_reusable_2026_hubei_plan_source": 82,
+    "needs_official_plan_source_search": 86
   },
   "major_row_source_counts": {
     "candidate_v2_major_review_seed": 81,
@@ -68,37 +68,27 @@
   },
   "source_priority_counts": {
     "S0-B0历史候选学校优先补源": 11,
-    "S1-已有官网计划源先做字段对照": 1,
-    "S2-多组学校优先补源": 2,
-    "S3-B1单组学校按页码推进": 22
+    "S1-已有官网计划源先做字段对照": 6,
+    "S2-多组学校优先补源": 1,
+    "S3-B1单组学校按页码推进": 18
   },
   "schools_with_reusable_2026_hubei_plan_source": [
+    "中国传媒大学",
+    "兰州大学",
+    "天津外国语大学",
+    "山东大学",
     "武汉商学院",
+    "西北民族大学",
     "西安邮电大学"
   ],
   "schools_needing_official_plan_source_search": [
-    "中国传媒大学",
-    "云南大学",
-    "兰州大学",
-    "北京林业大学",
-    "北方工业大学",
     "南宁学院",
-    "喀什大学",
-    "天津外国语大学",
-    "山东大学",
-    "山东工商学院",
-    "山东财经大学",
-    "忻州师范学院",
     "成都师范学院",
-    "新疆天山职业技术大学",
-    "杭州电子科技大学",
     "武汉轻工大学",
     "江苏理工学院",
     "浙江传媒学院",
     "浙江工业大学",
     "湖北师范大学",
-    "西北民族大学",
-    "西安工商学院",
     "西安航空学院",
     "长春工业大学",
     "韶关学院"

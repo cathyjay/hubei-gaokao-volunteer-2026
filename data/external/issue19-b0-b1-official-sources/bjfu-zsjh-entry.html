@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>招生计划</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<meta name="viewport" content="width=1440">
+<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge"/>
+<link rel="shortcut icon" href="/static/front/bjfu/basic/images/change_doc/fun/logo.ico" type="image/x-icon">
+<link rel="stylesheet" href="/static/front/bjfu/basic/css/hb.css"/>
+<script type="text/javascript" src="/static/front/bjfu/basic/js/j3.js"></script>
+<!--[if lt IE 9]>
+	<script type="text/javascript" src="/static/front/bjfu/basic/js/html5shiv.js"></script>
+	<script type="text/javascript" src="/static/front/bjfu/basic/js/j1.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="/static/front/bjfu/basic/js/init.js"></script>
+<script type="text/javascript" src="/static/front/bjfu/basic/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="/static/front/bjfu/basic/js/jquery.placeholder.min.js"></script>
+<script type="text/javascript" src="/static/front/bjfu/basic/js/artTemplate.js"></script>
+<script type="text/javascript" src="/static/front/bjfu/basic/js/util.js"></script>
+<script type="text/javascript" src="/static/front/bjfu/basic/js/tplt.js"></script>
+<script type="text/javascript" src="/static/front/bjfu/basic/js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="/static/front/bjfu/basic/css/plugs/swiper.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/front/bjfu/basic/css/zsjh.min.css"/>
+	<script src="/static/front/bjfu/basic/js/pinyin.js"></script>
+	<script src="/static/front/bjfu/basic/js/plugs_select.js"></script>
+	<script type="text/javascript" src="/static/front/bjfu/basic/js/filterCache_copy.js"></script>
+	<script type="text/javascript">
+		var initActiveParam = null;
+		var paramList = unescape($.getAddrUrl('param')||'');
+		if( paramList === '' ){
+			paramList = $.out(_config,'pageParam.zsjh');
+		}
+		if( paramList && paramList!='' ){
+			paramList = paramList.replace('{{nowYear}}',new Date().getFullYear());
+			initActiveParam = paramList.split('_');
+		}
+	</script>
+</head>
+<body>
+	<div class="wrapper">
+		<script type="text/javascript" src="/static/front/bjfu/basic/js/plugs.js"></script>
+<div class="header_cover"></div>
+		<div id="header_box"></div>
+		<script>
+	          $("#header_box").load("header.html");
+	    </script>
+		<div class="body">
+			<div class="banner"><img src="/static/front/bjfu/basic/images/change_doc/fun/banner_fun.jpg"/></div>
+			<div class="sec_bg">
+				<img src="/static/front/bjfu/basic/images/com/newbg.png" alt="" />
+				<div class="sec_1">
+					<div class="l_con">
+						<div id="siteAddrPlace"></div>
+						<script type="text/html" id="siteAddr">
+							<div class="site_addr">
+								<div class="tit">招生信息</div>
+								<div class="addr">
+									<div>
+										<a href="{{go_home()}}"><i class="icon_home"></i>{{_config.home.name}}</a>
+										<span class="icon_line">-</span>
+										<a class="active" href="zsjh.html">招生计划</a>
+									</div>
+								</div>
+							</div>
+						</script>
+						<script type="text/javascript">
+							tplt.draw('siteAddr',{});
+						</script>
+					</div>
+				</div>
+				<div class="sec_2">
+					<div class="l_con">
+						<div class="left">
+							<div class="b_subNav">
+	<div id="subNavPlace"></div>
+	<script id="subNav" type="text/html">
+		{{if !isEmpty(list)}}
+			<ul id="subNav" class="nav_a">
+				{{each list}}
+					<li>
+						<div class="nav_tit">
+							<div>
+								<a href="{{$value.url}}">{{$value.title}}</a>
+							</div>
+						</div>
+					</li>
+				{{/each}}
+			</ul>
+		{{/if}}
+	</script>
+	<script type="text/javascript">
+		tplt.draw('subNav',{list: window.cdhlinks});
+		$(function(){
+			var href = window.location.href;
+			var mrslt = href.match(/\/[\s\S][^\/]+\.html/);
+			if( mrslt != null ){
+				$(this).find('.b_subNav a').each(function(){
+					var subNavHref = $(this).attr('href');
+					if( subNavHref.indexOf(mrslt) >= 0 ){
+						$(this).parents('li').addClass('active');
+						return false;
+					}
+				});
+			}
+		});
+	</script>
+</div>
+						</div>
+						<div class="right">
+							<div class="filter">
+								<!-- <dl>
+									<dt>省份：</dt>
+									<dd data-param="ssmc">
+										<a data-value="北京">北京</a>
+										<a data-value="天津">天津</a>
+										<a data-value="河北">河北</a>
+										<a data-value="山西">山西</a>
+										<a data-value="内蒙古">内蒙古</a>
+										<a data-value="辽宁">辽宁</a>
+										<a data-value="吉林">吉林</a>
+										<a data-value="黑龙江">黑龙江</a>
+										<a data-value="上海">上海</a>
+										<a data-value="江苏">江苏</a>
+										<a data-value="浙江">浙江</a>
+										<a data-value="安徽">安徽</a>
+										<a data-value="福建">福建</a>
+										<a data-value="江西">江西</a>
+										<a data-value="山东">山东</a>
+										<a data-value="河南">河南</a>
+										<a data-value="湖北">湖北</a>
+										<a data-value="湖南">湖南</a>
+										<a data-value="广东">广东</a>
+										<a data-value="广西">广西</a>
+										<a data-value="海南">海南</a>
+										<a data-value="重庆">重庆</a>
+										<a data-value="四川">四川</a>
+										<a data-value="贵州">贵州</a>
+										<a data-value="云南">云南</a>
+										<a data-value="西藏">西藏</a>
+										<a data-value="陕西">陕西</a>
+										<a data-value="甘肃">甘肃</a>
+										<a data-value="青海">青海</a>
+										<a data-value="宁夏">宁夏</a>
+										<a data-value="新疆">新疆</a>
+										<a data-value="台湾">台湾</a>
+										<a data-value="香港">香港</a>
+										<a data-value="澳门">澳门</a>
+									</dd>
+								</dl> -->
+								<div id="filterPlace"></div>
+								<script type="text/html" id="filter">
+									<div>
+										{{each defaultConfig as $item $key}}
+											{{if $item.isNeed}}
+												{{if !isEmpty(filter.list[$key])}}
+													<dl>
+														<dt>{{$item.nameCa}}：</dt>
+														<dd data-param="{{$item.name}}">
+															{{if $item.isNeedAll}}
+																<a href="javascript:void(0);" class="{{if filter.params[$key]=='_filter_all'}} active {{/if}}" data-value="_filter_all">全部</a>
+															{{/if}}
+															{{each filter.list[$key]}}
+																<a href="javascript:void(0);" class="{{if filter.params[$key]==$value}} active {{/if}} {{if $value.length >= 4}} padd {{/if}}" data-value="{{$value}}">{{$value}}</a>
+															{{/each}}
+														</dd>
+													</dl>
+												{{/if}}
+											{{/if}}
+										{{/each}}
+									</div>
+								</script>
+								<script type="text/javascript">
+									function filter(){
+										this.fc = null;
+										this.calArr = [];
+										var _filter = this;
+										$('body').on('click','.filter dd a',function(){
+											if($(this).hasClass('active')||isAjaxIng){
+												return false;
+											}
+											$(this).parents('dd').find('.active').removeClass('active');
+											$(this).addClass('active');
+											if($(this).parent('dd').data('param')=='zslx'){
+												_filter.calArr.forEach(function(item){
+													item({params:_filter.getActiveParam()});
+												});
+												return false;
+											}
+											var params = [];
+											for(var key = 0 ; key < config.length ; key++){
+												var $param = $('.filter [data-param="'+config[key]['name']+'"]');
+												if( $param.length != 0 ){
+													var value = $param.find('.active').data('value')||'';
+													params.push(value);
+												}else{
+													params.push('');
+												}
+											}
+											console.log(params);
+											tplt.draw('filter',{
+												filter: _filter.fc.get(params),
+												defaultConfig: config
+											});
+											_filter.calArr.forEach(function(item){
+												item({params:_filter.getActiveParam()});
+											});
+										});
+									};
+									filter.prototype.init = function(config,data,initActiveParam){
+										if(this.fc==null){
+											var _filter = this;
+											this.fc = new filterCache();
+											this.fc.changeConfig(config);
+											this.fc.add(data);
+											var drawData;
+											console.log(initActiveParam);
+											if( $.isEmpty(initActiveParam) ){
+												drawData = _filter.fc.get();
+											}else{
+												drawData = _filter.fc.get( initActiveParam );
+											}
+											$('.filter [data-value="'+drawData.params[0]+'"]').addClass('active');
+											console.log(drawData);
+											tplt.draw('filter',{
+												filter: drawData,
+												defaultConfig: config
+											});
+										}
+									}
+									filter.prototype.isInit = function(){
+										return this.fc!=null;
+									}
+									filter.prototype.change = function(cal){
+										this.calArr.push(cal);
+									}
+									filter.prototype.getActiveParam = function(){
+										var data = {};
+										if(this.isInit()){
+											$('.filter .active').each(function(){
+												var type = $(this).parent().data('param');
+												var value = $(this).data('value');
+												if( value != '_filter_all' ){
+													data[type] = value;
+												}else{
+													data[type] = '';
+												}
+											});
+										}
+										return data;
+									}
+								</script>
+							</div>
+							<div class="rslt">
+								<div class="header_tit">
+									<span class="box"></span>
+									招生计划概况
+									<span class="line"></span>
+								</div>
+								<div id="zsjhTotalPlace"></div>
+								<div class="header_tit">
+									<span class="box"></span>
+									招生计划分专业情况
+									<span class="line"></span>
+								</div>
+								<div id="zsjhListPlace"></div>
+								<div id="tabTipPlace"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="footer_box"></div>
+		<script>
+		      $("#footer_box").load("footer.html");
+		</script>
+	</div>
+	
+	<script type="text/html" id="tabTip">
+		{{if !isEmpty(remark)}}
+			<div class="tabTip">{{#remark}}</div>
+		{{/if}}
+	</script>
+	<script type='text/html' id="zsjhTotal">
+		<table class="table_1 table_con">
+			<colgroup>
+				<col width="75">
+				<col width="75">
+				{{if isNeedSex}}
+					<col width="75">
+				{{/if}}
+				{{if isNeedCampus}}
+					<col width="75">
+				{{/if}}
+				<col width="280">
+				<col width="75">
+				<col width="75">
+				<col width="75">
+			</colgroup>
+			<thead>
+				<tr>
+					<th>年份</th>
+					<th>省市</th>
+					{{if isNeedSex}}
+						<th>性别</th>
+					{{/if}}
+					{{if isNeedCampus}}
+						<th>校区</th>
+					{{/if}}
+					<th>类型</th>
+					<th>科类</th>
+					<th>层次</th>
+					<th>计划数</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{if !isLoading}}
+					{{each list}}
+						<tr>
+							<td>{{ out($value,'nf','2018') }}</td>
+							<td>{{ out($value,'ssmc','--') }}</td>
+							{{if isNeedSex}}
+								<td>{{ out($value,'sex','--') }}</td>
+							{{/if}}
+							{{if isNeedCampus}}
+								<td>{{ out($value,'campus','--') }}</td>
+							{{/if}}
+							<td>{{ out($value,'zylx','--') }}</td>
+							<td>{{ out($value,'klmc','--') }}</td>
+							<td>{{ out($value,'zycc','--') }}</td>
+							<td>{{ out($value,'zsjhs','--') }}</td>
+						</tr>
+					{{/each}}
+					{{if list.length==0}}
+						<tr class="no_data">
+							<td colspan="15">
+								{{if isEmpty(errorTxt)}}
+									没有找到符合条件的数据
+								{{else}}
+									{{errorTxt}}
+								{{/if}}
+							</td>
+						</tr>
+					{{/if}}
+				{{else}}
+					<tr class="loading">
+						<td colspan="15"></td>
+					</tr>
+				{{/if}}
+			</tbody>
+		</table>
+	</script>
+	<script type='text/html' id="zsjhList">
+		<table class="table_1 sort-table">
+			<colgroup>
+				<col width="75">
+				<col width="75">
+				{{if isNeedSex}}
+					<col width="75">
+				{{/if}}
+				{{if isNeedCampus}}
+					<col width="75">
+				{{/if}}
+				<col width="190">
+				<col width="85">
+				<col width="75">
+				<col width="75">
+				<col width="75">
+			</colgroup>
+			<thead>
+				<tr>
+					<th>年份</th>
+					<th>省市</th>
+					{{if isNeedSex}}
+						<th>性别</th>
+					{{/if}}
+					{{if isNeedCampus}}
+						<th>校区</th>
+					{{/if}}
+					<th>专业</th>
+					<th>类型</th>
+					<th>科类</th>
+					<th>层次</th>
+					<th>计划数</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{if !isLoading}}
+					{{each list}}
+						<tr>
+							<td>{{ out($value,'nf','2018') }}</td>
+							<td>{{ out($value,'ssmc','--') }}</td>
+							{{if isNeedSex}}
+								<td>{{ out($value,'sex','--') }}</td>
+							{{/if}}
+							{{if isNeedCampus}}
+								<td>{{ out($value,'campus','--') }}</td>
+							{{/if}}
+							<td>
+								{{ out($value,'zydhmc','--') }}
+							</td>
+							<td>{{ out($value,'zylx','--') }}</td>
+							<td>{{ out($value,'klmc','--') }}</td>
+							<td>{{ out($value,'zycc','--') }}</td>
+							<td>{{ out($value,'zsjhs','--') }}</td>
+						</tr>
+					{{/each}}
+					{{if list.length==0}}
+						<tr class="no_data">
+							<td colspan="15">
+								{{if isEmpty(errorTxt)}}
+									没有找到符合条件的数据
+								{{else}}
+									{{errorTxt}}
+								{{/if}}
+							</td>
+						</tr>
+					{{/if}}
+				{{else}}
+					<tr class="loading">
+						<td colspan="15"></td>
+					</tr>
+				{{/if}}
+			</tbody>
+		</table>
+	</script>
+	<script type="text/javascript">
+		var config = [{
+					name: 'ssmc',
+					nameCa: '省份',
+					isNeed: true,
+					isNeedAll: false
+				},{
+					name: 'zsnf',
+					nameCa: '年份',
+					isNeed: true,
+					isNeedAll: false
+				},{
+					name: 'klmc',
+					nameCa: '科类',
+					isNeed: true,
+					isNeedAll: false
+				},{
+					name: 'sex',
+					nameCa: '性别',
+					isNeed: false,
+					isNeedAll: false
+				},{
+					name: 'campus',
+					nameCa: '校区',
+					isNeed: false,
+					isNeedAll: false
+				},{
+					name: 'zslx',
+					nameCa: '类型',
+					isNeed: true,
+					isNeedAll: false
+				}];
+		var isAjaxIng = false;
+		var isNeedSex = false;
+		var isNeedCampus = false;
+		var isNeedAllSsmc = false;
+		var flt = null;
+		$.ajax({
+			async : false, // 同步请求
+			type: "POST",
+			url: $.url('f/ajax_zsjh_param'),
+			success: function(res){
+				if( res.state === 1 ){
+					var data = {};
+					data.list = $.out(res,'data.ssmc_nf_klmc_sex_campus_zslx_list');
+					flt = new filter();
+					config[3]['isNeed'] = res.data.withSex || false;
+					config[4]['isNeed'] = res.data.withCampus || false;
+					isNeedSex = res.data.withSex;
+					isNeedCampus = res.data.withCampus;
+					flt.init(config,data,initActiveParam)
+					getFormData(flt.getActiveParam());
+					flt.change(function(e){
+						var data = e.params;
+						getFormData(data);
+					});
+					tplt.draw('tabTip',{remark: $.out(res,'data.remarks.remark1')||''});
+				}
+			}
+		});
+		function getFormData(data){
+			isAjaxIng = true;
+			$('.body').height($('.body').height());
+			tplt.draw('zsjhTotal',{
+				isLoading: true,
+				isNeedSex: isNeedSex,
+				isNeedCampus: isNeedCampus
+			});
+			tplt.draw('zsjhList',{
+				isLoading: true,
+				isNeedSex: isNeedSex,
+				isNeedCampus: isNeedCampus
+			});
+			var isFirst = true;
+			$.ajax({
+				type: "POST",
+				url: $.url('f/ajax_zsjh'),
+				data: data,
+				success: function(res){
+					if( res.state == 1 ){
+						tplt.draw('zsjhTotal',{
+							list: $.out(res,'data.zsjhTotal')||[],
+							isNeedSex: isNeedSex,
+							isNeedCampus: isNeedCampus
+						});
+						tplt.draw('zsjhList',{
+							list: $.out(res,'data.zsjhList')||[],
+							isNeedSex: isNeedSex,
+							isNeedCampus: isNeedCampus
+						});
+						$(".sort-table").trigger("update");
+					}else{
+						tplt.draw('zsjhTotal',{
+							list: [],
+							isNeedSex: isNeedSex,
+							isNeedCampus: isNeedCampus
+						});
+						tplt.draw('zsjhList',{
+							list: [],
+							isNeedSex: isNeedSex,
+							isNeedCampus: isNeedCampus
+						});
+					}
+					isAjaxIng = false;
+					$('.body').css('height','auto');
+					if(isFirst){
+						isFirst = false;
+						initTable();
+					}
+				},
+				error: function(){
+					isAjaxIng = false;
+					tplt.draw('zsjhTotal',{
+						list: [],
+						errorTxt: '网络服务错误，请刷新页面',
+						isNeedSex: isNeedSex,
+						isNeedCampus: isNeedCampus
+					});
+					tplt.draw('zsjhList',{
+						list:[],
+						errorTxt: '网络服务错误，请刷新页面',
+						isNeedSex: isNeedSex,
+						isNeedCampus: isNeedCampus
+					});
+					$('.body').css('height','auto');
+				}
+			});
+		};
+		function initTable(){
+			$(".sort-table").tablesorter({
+				headers : {
+					0 : {
+						sorter : false
+					},
+					1 : {
+						sorter : false
+					},
+					2 : {
+						sorter : false
+					},
+					3 : {
+						sorter : false
+					},
+					8 : {
+						sorter : false
+					},
+					9 : {
+						sorter : false
+					}
+				}
+			});
+		};
+		function go_to_zyjs_zy(t){
+			var zyName = $(t).data('zyname');
+			var zsnf = $(t).data('zsnf');
+			if($(t).hasClass('active')){
+				return false;
+			}
+			var load = $.loading();
+			$.ajax({
+				async: false, // 同步请求
+				type: "POST",
+				url: $.url('f/ajax_zyjs_zy'),
+				data: {
+					zyName: zyName,
+					zsnf: zsnf
+				},
+				success: function(res){
+					load.remove();
+					if( res.state != 0 ){
+						window.open('zyjs_zy.html?zyName='+escape(zyName)+'&zsnf='+escape(zsnf));
+					}else{
+						$.noticeTip(1000,res.msg);
+						$(t).addClass('active');
+					}
+				}
+			});
+		}
+	</script>
+</body>
+</html>

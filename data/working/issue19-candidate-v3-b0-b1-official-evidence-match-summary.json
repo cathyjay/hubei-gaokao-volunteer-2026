@@ -1,0 +1,64 @@
+{
+  "status": "official_evidence_match_not_final",
+  "generated_by": "scripts/build_issue19_b0_b1_official_evidence_match.py",
+  "normalized_official_row_count": 332,
+  "admission_detail_row_count": 324,
+  "retained_official_schools": [
+    "中国传媒大学",
+    "兰州大学",
+    "喀什大学",
+    "天津外国语大学",
+    "山东大学",
+    "忻州师范学院",
+    "成都信息工程大学",
+    "杭州电子科技大学",
+    "江汉大学",
+    "西北民族大学",
+    "西安医学院",
+    "西安财经大学",
+    "西安邮电大学"
+  ],
+  "evidence_type_counts": {
+    "official_dynamic_ajax_json": 38,
+    "official_dynamic_api_json": 189,
+    "official_static_html_table": 38,
+    "official_attachment_xlsx_province_table": 31,
+    "official_attachment_xlsx_row_plan": 21,
+    "official_pdf_table_extracted_csv": 15
+  },
+  "match_status_counts": {
+    "no_school_source": 211,
+    "matched": 106,
+    "unmatched": 7
+  },
+  "plan_check_status_counts": {
+    "not_covered": 218,
+    "ocr_plan_missing_official_available": 52,
+    "match": 42,
+    "mismatch": 12
+  },
+  "matched_school_counts": {
+    "西安财经大学": 1,
+    "西安医学院": 2,
+    "忻州师范学院": 4,
+    "杭州电子科技大学": 10,
+    "中国传媒大学": 9,
+    "成都信息工程大学": 19,
+    "西安邮电大学": 19,
+    "喀什大学": 7,
+    "山东大学": 6,
+    "兰州大学": 7,
+    "西北民族大学": 3,
+    "江汉大学": 18,
+    "天津外国语大学": 1
+  },
+  "notes": [
+    "本结果只是高校官网/API对第19期OCR底座的交叉校验证据，不是最终志愿方案。",
+    "计划数只有在OCR数字和官网数字一致时才记为match；OCR空缺但官网有数时只用于补缺提示。",
+    "所有可用结论仍必须回到PDF原页、湖北官方系统、招生章程、专业组边界、调剂范围和家庭接受度。"
+  ],
+  "outputs": [
+    "data/working/issue19-b0-b1-retained-official-plan-normalized.csv",
+    "data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv"
+  ]
+}
