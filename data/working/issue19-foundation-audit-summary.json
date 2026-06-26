@@ -29,17 +29,17 @@
     },
     {
       "path": "data/working/issue19-full-quality-group-tiers.csv",
-      "sha256": "d02bcedcdb3189d0a2c123e91b28518420403b995e14e4ec91a64926e36c14bb",
+      "sha256": "a0880d3df24f7dce5eae3ab10c21c8da8d7b617969ac4b80e82c9c6b94b0a78f",
       "row_count": 3329
     },
     {
       "path": "data/working/issue19-full-major-detail-quality-workbench.csv",
-      "sha256": "1de3fd3d8db50fbb78175198604ca9d2eb6582c4d4d36cbe8b59f4ab18a6db02",
+      "sha256": "0e5cf948aa0a86448628bb713111e9db46f6e62deb5cfdcaa3414fe0302cf08c",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-full-major-detail-review-queue.csv",
-      "sha256": "55b8e1cf8b620d41d5b155f76383851b1335ff94bff47b36612a047140bd5718",
+      "sha256": "dae032a46620dc96ae8d27e09587bcaed818f624ab46a157c08c20e94a42dfe8",
       "row_count": 13705
     },
     {

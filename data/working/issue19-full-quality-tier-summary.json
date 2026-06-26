@@ -32,13 +32,13 @@
     "Q1-高风险结构异常": 1552,
     "Q4-结构相对完整待抽检": 245,
     "Q0-无专业明细": 40,
-    "Q3-字段待核": 944,
-    "Q2-重点候选字段待核": 548
+    "Q3-字段待核": 998,
+    "Q2-重点候选字段待核": 494
   },
   "review_priority_counts": {
-    "P0-必须优先核页": 3296,
+    "P0-必须优先核页": 3295,
     "P3-相对完整但仍需核页": 29,
-    "P1-高优先核页": 4
+    "P1-高优先核页": 5
   },
   "groups_with_any_structure_anomaly": 2147,
   "groups_with_high_structure_anomaly": 1552,
@@ -48,7 +48,7 @@
   "unmatched_major_group_occurrence_count": 0,
   "fallback_unique_group_code_major_count": 1838,
   "candidate_v1_hit_group_count": 17,
-  "preference_hit_group_count": 1402,
+  "preference_hit_group_count": 1312,
   "risk_hit_group_count": 2962,
   "outputs": [
     "data/working/issue19-full-quality-group-tiers.csv",

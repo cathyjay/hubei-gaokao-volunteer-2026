@@ -25,12 +25,12 @@
     },
     {
       "path": "data/working/issue19-full-major-detail-quality-workbench.csv",
-      "sha256": "1de3fd3d8db50fbb78175198604ca9d2eb6582c4d4d36cbe8b59f4ab18a6db02",
+      "sha256": "0e5cf948aa0a86448628bb713111e9db46f6e62deb5cfdcaa3414fe0302cf08c",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-foundation-audit-summary.json",
-      "sha256": "46b705c15d233515e549efa1b4b1b1da7c598df13f17fc9772dbda869110a465"
+      "sha256": "18360c70c91fef74231388b2ab24944c8546c0bee3e88e4dcaa975908d91d711"
     },
     {
       "path": "data/working/issue19-foundation-page-audit.csv",

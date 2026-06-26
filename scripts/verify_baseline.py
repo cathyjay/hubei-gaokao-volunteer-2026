@@ -1595,13 +1595,13 @@ def main():
             "Q1-高风险结构异常": 1552,
             "Q4-结构相对完整待抽检": 245,
             "Q0-无专业明细": 40,
-            "Q3-字段待核": 944,
-            "Q2-重点候选字段待核": 548,
+            "Q3-字段待核": 998,
+            "Q2-重点候选字段待核": 494,
         }
         and full_quality_summary.get("review_priority_counts") == {
-            "P0-必须优先核页": 3296,
+            "P0-必须优先核页": 3295,
             "P3-相对完整但仍需核页": 29,
-            "P1-高优先核页": 4,
+            "P1-高优先核页": 5,
         }
         and full_quality_summary.get("groups_with_any_structure_anomaly") == 2147
         and full_quality_summary.get("groups_with_high_structure_anomaly") == 1552
@@ -1611,7 +1611,7 @@ def main():
         and full_quality_summary.get("unmatched_major_group_occurrence_count") == 0
         and full_quality_summary.get("fallback_unique_group_code_major_count") == 1838
         and full_quality_summary.get("candidate_v1_hit_group_count") == 17
-        and full_quality_summary.get("preference_hit_group_count") == 1402
+        and full_quality_summary.get("preference_hit_group_count") == 1312
         and full_quality_summary.get("risk_hit_group_count") == 2962
         and len(full_quality_group_rows) == 3329
         and len(full_quality_queue_rows) == 3300,
@@ -1653,6 +1653,12 @@ def main():
             == full_quality_high_anomaly_count_by_group[row.get("专业组出现ID")]
             for row in full_quality_group_rows
         )
+        and full_quality_summary.get("preference_hit_group_count")
+        == sum(as_int(row.get("偏好专业命中数")) > 0 for row in full_quality_group_rows)
+        and sum(
+            bool(row.get("偏好方向列表")) and not (as_int(row.get("偏好专业命中数")) > 0)
+            for row in full_quality_group_rows
+        ) == 0
         and all(
             (
                 row.get("专业行数是否一致") == "是"
@@ -1791,9 +1797,9 @@ def main():
         and major_quality_summary.get("unique_major_line_id_count") == 13736
         and major_quality_summary.get("unique_group_occurrence_id_count") == 3289
         and major_quality_summary.get("major_review_priority_counts") == {
-            "P0-逐专业必须核页": 13701,
+            "P0-逐专业必须核页": 13700,
             "P3-逐专业相对完整但仍需核页": 31,
-            "P1-逐专业高优先核页": 4,
+            "P1-逐专业高优先核页": 5,
         }
         and major_quality_summary.get("major_attention_type_counts") == {
             "字段或结构异常待核验": 7678,
@@ -1900,6 +1906,190 @@ def main():
         and "ready_for_discussion" not in major_quality_public_text
         and "已确认" not in major_quality_public_text
         and not any(token in major_quality_public_text for token in shared_forbidden_tokens),
+    ))
+
+    family_fit_summary_path = ROOT / "data/working/issue19-family-fit-screen-summary.json"
+    family_fit_group_csv = ROOT / "data/working/issue19-family-fit-group-screen.csv"
+    family_fit_major_csv = ROOT / "data/working/issue19-family-fit-major-detail.csv"
+    family_fit_summary = json.loads(family_fit_summary_path.read_text())
+    with family_fit_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        family_fit_group_reader = csv.DictReader(f)
+        family_fit_group_rows = list(family_fit_group_reader)
+        family_fit_group_fields = set(family_fit_group_reader.fieldnames or [])
+    with family_fit_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        family_fit_major_reader = csv.DictReader(f)
+        family_fit_major_rows = list(family_fit_major_reader)
+        family_fit_major_fields = set(family_fit_major_reader.fieldnames or [])
+    required_family_fit_group_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "家庭偏好版本",
+        "预算上限元",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业组出现ID",
+        "办学属性核验状态",
+        "专业明细行数",
+        "组内招生明细OCR",
+        "偏好专业数",
+        "医学护理排除专业数",
+        "高收费或超预算专业数",
+        "机器家庭匹配初判",
+        "调剂初判",
+        "下一轮复核优先级",
+    }
+    required_family_fit_major_fields = {
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "最终可用",
+        "核验状态",
+        "家庭偏好版本",
+        "预算上限元",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "专业偏好方向",
+        "专业风险类型",
+        "机器专业接受度初判",
+        "机器阻断或待核原因",
+        "调剂影响初判",
+        "家庭接受度核验状态",
+    }
+    family_fit_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [family_fit_summary_path, family_fit_group_csv, family_fit_major_csv]
+    )
+    family_fit_major_rows_by_group = Counter(row.get("专业组出现ID") for row in family_fit_major_rows)
+    family_fit_preference_rows_by_group = Counter(
+        row.get("专业组出现ID") for row in family_fit_major_rows if row.get("专业偏好方向")
+    )
+    family_fit_medical_rows_by_group = Counter(
+        row.get("专业组出现ID")
+        for row in family_fit_major_rows
+        if row.get("机器专业接受度初判") == "默认不能接受-医学护理等排除方向"
+    )
+    family_fit_high_fee_rows_by_group = Counter(
+        row.get("专业组出现ID")
+        for row in family_fit_major_rows
+        if row.get("机器专业接受度初判") == "默认不能接受-高收费或超预算"
+    )
+    family_fit_major_acceptance_counts = Counter(
+        row.get("机器专业接受度初判") for row in family_fit_major_rows
+    )
+    family_fit_group_fit_counts = Counter(row.get("机器家庭匹配初判") for row in family_fit_group_rows)
+    family_fit_transfer_counts = Counter(row.get("调剂初判") for row in family_fit_group_rows)
+    family_fit_priority_counts = Counter(row.get("下一轮复核优先级") for row in family_fit_group_rows)
+    checks.append(ok(
+        "第 19 期家庭底线筛选表摘要和行数正确",
+        family_fit_summary.get("status") == "issue19_family_fit_screen_ocr_draft_needs_manual_review"
+        and family_fit_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and family_fit_summary.get("family_preference_version") == family_preferences.get("last_updated")
+        and family_fit_summary.get("tuition_limit_yuan") == 15000
+        and family_fit_summary.get("group_count") == 3329
+        and family_fit_summary.get("major_count") == 13736
+        and family_fit_summary.get("groups_with_preference_major_count") == 1312
+        and family_fit_summary.get("groups_with_digital_media_count") == 78
+        and family_fit_summary.get("groups_with_computer_count") == 1032
+        and family_fit_summary.get("groups_with_teacher_count") == 391
+        and family_fit_summary.get("groups_default_not_main_plan_count") == 1467
+        and family_fit_summary.get("groups_priority_review_without_auto_block_count") == 590
+        and family_fit_summary.get("group_fit_counts") == {
+            "优先复核-有偏好专业且未触发自动阻断": 590,
+            "普通备选待了解-未命中当前偏好且未触发自动阻断": 779,
+            "暂不可判断-无专业明细": 40,
+            "暂缓进入主方案-组内存在特殊限制待核专业": 453,
+            "默认不进主方案-组内存在医学/护理等排除专业": 752,
+            "默认不进主方案-组内存在高收费/超预算专业": 715,
+        }
+        and family_fit_summary.get("transfer_judgement_counts") == {
+            "不可判断-无专业明细": 40,
+            "可进入人工调剂接受度判断": 801,
+            "暂不判断-特殊限制待核": 453,
+            "暂不判断-组内存在学费字段待核": 37,
+            "暂不判断-组内结构异常需先核页": 531,
+            "调剂风险线索-组内存在默认不能接受专业": 1467,
+        }
+        and family_fit_summary.get("next_round_priority_counts") == {
+            "R0-历史候选优先复核": 17,
+            "R1-偏好专业且未自动阻断": 792,
+            "R2-偏好专业但有硬风险先核风险": 514,
+            "R3-普通备选或保底扩展待了解": 1064,
+            "R4-默认不进主方案低优先": 942,
+        }
+        and family_fit_summary.get("major_acceptance_counts") == {
+            "优先了解-命中当前偏好方向": 1726,
+            "待了解-未命中当前偏好方向": 7279,
+            "暂缓判断-特殊限制待核": 1215,
+            "默认不能接受-医学护理等排除方向": 1499,
+            "默认不能接受-高收费或超预算": 2017,
+        }
+        and len(family_fit_group_rows) == 3329
+        and len(family_fit_major_rows) == 13736,
+        f"{len(family_fit_group_rows)} groups, {len(family_fit_major_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期家庭底线筛选表字段、状态和主键正确",
+        required_family_fit_group_fields.issubset(family_fit_group_fields)
+        and required_family_fit_major_fields.issubset(family_fit_major_fields)
+        and {row.get("专业组出现ID") for row in family_fit_group_rows}
+        == {row.get("专业组出现ID") for row in full_quality_group_rows}
+        and {row.get("专业行ID") for row in family_fit_major_rows}
+        == {row.get("专业行ID") for row in major_quality_rows}
+        and len({row.get("专业行ID") for row in family_fit_major_rows}) == 13736
+        and family_fit_major_acceptance_counts == Counter(
+            family_fit_summary.get("major_acceptance_counts", {})
+        )
+        and family_fit_group_fit_counts == Counter(family_fit_summary.get("group_fit_counts", {}))
+        and family_fit_transfer_counts == Counter(family_fit_summary.get("transfer_judgement_counts", {}))
+        and family_fit_priority_counts == Counter(family_fit_summary.get("next_round_priority_counts", {}))
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "needs_manual_pdf_review"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("家庭偏好版本") == family_preferences.get("last_updated")
+            and row.get("办学属性核验状态") == "pending_school_attribute_review"
+            for row in family_fit_group_rows
+        )
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("核验状态") == "needs_manual_pdf_review"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("家庭接受度核验状态") == "pending_family_acceptance_review"
+            for row in family_fit_major_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期家庭底线筛选表聚合与逐专业明细一致",
+        all(
+            as_int(row.get("专业明细行数")) == family_fit_major_rows_by_group[row.get("专业组出现ID")]
+            and as_int(row.get("偏好专业数")) == family_fit_preference_rows_by_group[row.get("专业组出现ID")]
+            and as_int(row.get("医学护理排除专业数")) == family_fit_medical_rows_by_group[row.get("专业组出现ID")]
+            and as_int(row.get("高收费或超预算专业数")) == family_fit_high_fee_rows_by_group[row.get("专业组出现ID")]
+            and (
+                (as_int(row.get("专业明细行数")) == 0 and not row.get("组内招生明细OCR"))
+                or (as_int(row.get("专业明细行数")) > 0 and "专业行ID:" in row.get("组内招生明细OCR", ""))
+            )
+            for row in family_fit_group_rows
+        )
+        and sum(as_int(row.get("偏好专业数")) > 0 for row in family_fit_group_rows) == 1312,
+    ))
+    checks.append(ok(
+        "第 19 期家庭底线筛选表公开文件不含本地路径、身份信息和最终可用结论",
+        "final_allowed" not in family_fit_public_text
+        and "ready_for_discussion" not in family_fit_public_text
+        and "已确认" not in family_fit_public_text
+        and not any(token in family_fit_public_text for token in shared_forbidden_tokens),
     ))
 
     foundation_audit_summary_path = ROOT / "data/working/issue19-foundation-audit-summary.json"

@@ -1,0 +1,78 @@
+{
+  "status": "issue19_family_fit_screen_ocr_draft_needs_manual_review",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "data_stage": "issue19_family_fit_screen_ocr_draft",
+  "generated_by": "scripts/build_issue19_family_fit_screen.py",
+  "inputs": [
+    {
+      "path": "data/working/issue19-pdf-source.json",
+      "sha256": "279dace3042ed2b70e9f97fa8a62532b8bba176cbaa066ebeaaf9eec2c34b4f8"
+    },
+    {
+      "path": "data/working/family-preferences.json",
+      "sha256": "757aa12a0fc73cfd8b6074789921a3f8a8365f392cb3587e3df8ee63cd6abd62"
+    },
+    {
+      "path": "data/working/issue19-full-quality-group-tiers.csv",
+      "sha256": "a0880d3df24f7dce5eae3ab10c21c8da8d7b617969ac4b80e82c9c6b94b0a78f",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-full-major-detail-quality-workbench.csv",
+      "sha256": "0e5cf948aa0a86448628bb713111e9db46f6e62deb5cfdcaa3414fe0302cf08c",
+      "row_count": 13736
+    }
+  ],
+  "family_preference_version": "2026-06-26",
+  "tuition_limit_yuan": 15000,
+  "group_count": 3329,
+  "major_count": 13736,
+  "group_fit_counts": {
+    "优先复核-有偏好专业且未触发自动阻断": 590,
+    "普通备选待了解-未命中当前偏好且未触发自动阻断": 779,
+    "暂不可判断-无专业明细": 40,
+    "暂缓进入主方案-组内存在特殊限制待核专业": 453,
+    "默认不进主方案-组内存在医学/护理等排除专业": 752,
+    "默认不进主方案-组内存在高收费/超预算专业": 715
+  },
+  "transfer_judgement_counts": {
+    "不可判断-无专业明细": 40,
+    "可进入人工调剂接受度判断": 801,
+    "暂不判断-特殊限制待核": 453,
+    "暂不判断-组内存在学费字段待核": 37,
+    "暂不判断-组内结构异常需先核页": 531,
+    "调剂风险线索-组内存在默认不能接受专业": 1467
+  },
+  "next_round_priority_counts": {
+    "R0-历史候选优先复核": 17,
+    "R1-偏好专业且未自动阻断": 792,
+    "R2-偏好专业但有硬风险先核风险": 514,
+    "R3-普通备选或保底扩展待了解": 1064,
+    "R4-默认不进主方案低优先": 942
+  },
+  "major_acceptance_counts": {
+    "优先了解-命中当前偏好方向": 1726,
+    "待了解-未命中当前偏好方向": 7279,
+    "暂缓判断-特殊限制待核": 1215,
+    "默认不能接受-医学护理等排除方向": 1499,
+    "默认不能接受-高收费或超预算": 2017
+  },
+  "groups_with_preference_major_count": 1312,
+  "groups_with_digital_media_count": 78,
+  "groups_with_computer_count": 1032,
+  "groups_with_teacher_count": 391,
+  "groups_default_not_main_plan_count": 1467,
+  "groups_priority_review_without_auto_block_count": 590,
+  "outputs": [
+    "data/working/issue19-family-fit-group-screen.csv",
+    "data/working/issue19-family-fit-major-detail.csv"
+  ],
+  "notes": [
+    "本表是 OCR 草案筛选视图，不是最终报考建议。",
+    "办学属性没有权威字段时统一保持 pending_school_attribute_review，不自动判定公办或民办。",
+    "医学护理、高收费/超预算、特殊限制和偏好方向均来自 OCR 风险/偏好标签，必须回看原PDF、湖北官方系统和高校章程。",
+    "偏好专业数按命中偏好的专业行数统计，数字媒体技术/计算机类相关/师范类相关子类按标签拆分统计。",
+    "组内招生明细已在专业组表中展开，后续判断调剂时必须看完整组内专业。"
+  ]
+}

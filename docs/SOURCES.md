@@ -179,6 +179,9 @@
 - `data/working/issue19-candidate-v2-evidence-ledger-summary.json`：候选 V2 证据总账摘要，记录字段任务数、P0/P1/P2/P3 分布、专业行 ID 匹配和当前不可进入最终候选状态。
 - `data/working/issue19-page-manifest.csv`：第 19 期公开页级 manifest，覆盖 PDF 1-240 页，记录私有页图/文本证据编号、哈希、OCR 行数、QC 数、结构化专业组/专业明细和候选字段任务数。
 - `data/working/issue19-page-manifest-summary.json`：第 19 期页级 manifest 摘要，记录 240 页渲染/OCR 完整性、10-240 页结构化覆盖、OCR/QC 总量和候选字段任务页码归属。
+- `data/working/issue19-family-fit-group-screen.csv`：第 19 期家庭底线专业组筛选表，覆盖 3329 个院校专业组；每行展开组内全部招生明细，并给出医学护理、超预算、偏好方向和调剂初判。
+- `data/working/issue19-family-fit-major-detail.csv`：第 19 期家庭底线逐专业筛选表，覆盖 13736 条专业明细；一行一个专业，记录机器接受度初判、阻断或待核原因和家庭接受度待确认状态。
+- `data/working/issue19-family-fit-screen-summary.json`：家庭底线筛选摘要，记录专业组/专业行数、机器家庭匹配分布、调剂初判分布和下一轮复核优先级分布。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
 - `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座初稿说明和保真机制。
@@ -197,6 +200,7 @@
 - `scripts/build_issue19_foundation_audit.py`：根据全量 OCR 初稿、质量分层、逐专业工作台、结构异常和候选覆盖生成底座审计表；用于证明机器层面的行数、页码、主键、异常和发布边界闭环。
 - `scripts/build_issue19_candidate_evidence_ledgers.py`：根据候选 V2 升级工作台、全量逐专业工作台和底座审计生成字段复核总账与三方证据矩阵；用于后续人工回填和候选升级。
 - `scripts/build_issue19_page_manifest.py`：根据私有 OCR 运行目录和公开结构化表生成 240 页公开页级 manifest；只输出页级元数据和哈希，不输出私有页图、整页 OCR 文本或本机路径。
+- `scripts/build_issue19_family_fit_screen.py`：根据全量专业组质量索引、逐专业质量工作台和家庭偏好生成家庭底线筛选表；只做 OCR 草案初筛，办学属性、字段和家庭接受度仍全部待核。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

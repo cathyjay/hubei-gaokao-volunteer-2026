@@ -258,11 +258,13 @@ def main():
         field_issue_count = sum(flag_counter.values()) + non_plain_plan_count + non_plain_tuition_count
 
         tags = split_tags(row.get("偏好和风险标签", ""))
-        preference_tags = tags & set(PREFERENCE_TAG_LABELS)
+        major_preference_tags = set()
+        for major in majors:
+            major_preference_tags.update(split_tags(major.get("偏好和风险标签", "")) & set(PREFERENCE_TAG_LABELS))
         risk_tags = tags & set(RISK_TAG_LABELS)
         group_candidate_hit = row.get("候选池V1命中") == "是"
         sample_hit = row.get("样本学校命中") == "是"
-        preference_hit = bool(preference_tags)
+        preference_hit = bool(major_preference_tags)
         risk_hit = bool(risk_tags)
         line_count_mismatch = str(len(majors)) != row["OCR专业行数"]
         unique_major_code_count = len({major.get("专业代号OCR", "") for major in majors if major.get("专业代号OCR", "")})
@@ -353,7 +355,7 @@ def main():
             "学费超过预算专业数": str(tuition_over_budget_count),
             "异常学费专业数": str(suspicious_tuition_count),
             "偏好专业命中数": str(sum(1 for major in majors if split_tags(major.get("偏好和风险标签", "")) & set(PREFERENCE_TAG_LABELS))),
-            "偏好方向列表": labels_for(preference_tags, PREFERENCE_TAG_LABELS),
+            "偏好方向列表": labels_for(major_preference_tags, PREFERENCE_TAG_LABELS),
             "硬风险命中": "是" if risk_hit else "否",
             "硬风险类型列表": risk_labels(risk_tags),
             "候选池V1命中": row.get("候选池V1命中", ""),
