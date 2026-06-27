@@ -1,7 +1,8 @@
-# 2026 湖北高考志愿项目
+# 2026 湖北高考志愿数据底座与核验项目
 
-这个项目用于持续记录、复核和讨论 2026 年湖北普通类首选物理考生的高考志愿填报方案。
-核心目标是在 2026-06-30 前形成可执行的学校/专业组/专业排序最终方案。2026-07-02
+这个项目用于持续记录、复核和讨论 2026 年湖北普通类首选物理考生的招生计划数据底座、证据链和志愿填报决策过程。
+当前公开仓库只保存 OCR/结构化复核底座和核验工作台，不构成最终志愿方案或可填报清单。
+项目核心目标仍是在 2026-06-30 前形成可执行的学校/专业组/专业排序最终方案。2026-07-02
 12:00 前只保留应急修改缓冲；官方本科普通批集中填报截止时间仍为 2026-07-02 17:00。
 
 ## 项目规则
@@ -83,6 +84,7 @@ python3 scripts/build_issue19_full_major_evidence_closure_tasks.py
 python3 scripts/build_issue19_p0_evidence_execution_packets.py
 python3 scripts/build_issue19_p0_evidence_review_worklist.py
 python3 scripts/build_issue19_major_level_evidence_worktables.py
+python3 scripts/build_issue19_major_detail_foundation_release.py
 python3 scripts/build_issue19_foundation_audit.py
 python3 scripts/build_issue19_candidate_evidence_ledgers.py
 python3 scripts/build_issue19_page_manifest.py
@@ -103,4 +105,4 @@ python3 scripts/fetch_hubei_plan_platform.py --dry-run-contract
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```
 
-注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级、逐专业核验批次、优先整组逐专业核验包、全量逐专业证据执行工作台、证据闭环任务队列、P0 证据执行包、P0 逐专业复核工作清单、页级保真复核队列、候选 V3 批次、候选 V3 全量逐专业复核队列、B0/B1 核验包、官方交叉校验表、逐专业证据合并表和字段保真总账只用于安排复核与补证，不是最终报考建议。候选讨论默认使用逐专业招生明细表和逐专业字段保真总账，组级/学校级/页级/P0执行包表只作索引、投档线、调剂范围、核页顺序和补源入口。
+注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计、复核队列和统一逐专业底座入口，`机器初判`、质量分层、逐专业 P0/P1 优先级、逐专业核验批次、优先整组逐专业核验包、全量逐专业证据执行工作台、证据闭环任务队列、P0 证据执行包、P0 逐专业复核工作清单、统一逐专业底座发布表、页级保真复核队列、候选 V3 批次、候选 V3 全量逐专业复核队列、B0/B1 核验包、官方交叉校验表、逐专业证据合并表和字段保真总账只用于安排复核与补证，不是最终报考建议。新增城市、学校或专业方向时，默认先查 `data/working/issue19-major-detail-foundation-release.csv`；组级/学校级/页级/P0执行包表只作索引、投档线、调剂范围、核页顺序和补源入口。

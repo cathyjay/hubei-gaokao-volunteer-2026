@@ -203,6 +203,8 @@
 - `data/working/issue19-hubei-official-plan-major-crosscheck-packets-summary.json`：湖北官方系统核验包摘要；记录 13736 个唯一专业行和 13736 个官方核验任务，当前全部 `pending_hubei_official_plan_review`。
 - `data/working/issue19-b0-b1-public-official-diff-ledger.csv`：B0/B1 逐专业官网差异账，854 行；只覆盖已有高校官网/章程辅证线索的招生专业明细，记录官网匹配字段、计划数冲突、官网未匹配和仍需核验项。
 - `data/working/issue19-b0-b1-public-official-diff-ledger-summary.json`：B0/B1 逐专业官网差异账摘要；记录 18 条计划数冲突、28 条官网未匹配、153 条已有最佳官网来源文件，以及全部非最终门禁。
+- `data/working/issue19-major-detail-foundation-release.csv`：第 19 期统一逐专业底座入口，13736 行；一行一个招生专业明细，以 `专业行ID` 为主键，聚合 P0 复核任务、P1 字段缺口、湖北官方系统核验包、B0/B1 官网差异、页级证据编号、家庭底线、调剂风险和三年投档线索。该表用于检索、复核、补证和后续筛选预处理，不是最终志愿表。
+- `data/working/issue19-major-detail-foundation-release-summary.json`：统一逐专业底座入口摘要；记录 13736 个唯一专业行、5310 条 P0 专业明细、12473 条字段缺口专业明细、13736 条湖北官方待核专业明细、854 条 B0/B1 官网差异专业明细和全部非最终门禁。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。
