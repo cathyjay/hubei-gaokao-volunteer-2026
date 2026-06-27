@@ -165,7 +165,7 @@ python3 scripts/fetch_hubei_plan_platform.py \
 - 按城市和专业方向列出待查学校清单。
 - 从学校官网或公众号补充 2026 湖北计划线索。
 - 把第 19 期 OCR 明细逐专业结构化并保真核验，优先处理 B0/B1/B2 的 12995 条稳定化任务。
-- 使用 `data/working/issue19-raw-major-lineage-consistency-audit.csv` 持续确认 13736 条原始 OCR 专业行没有丢行、错连或核心字段漂移；使用 `data/working/issue19-raw-major-source-evidence-audit.csv` 持续确认每条专业明细都能按 `来源页码+版面列+专业起始行号` 回到私有 OCR 起始行、页级 manifest、私有窗口 JSONL 和公开原页锚点；再用 `data/working/issue19-major-source-evidence-risk-sidecar.csv` 把源证据风险、底座稳定性、闭环缺口和 P0 复核任务下沉到同一条 `专业行ID`。这些表只证明原始结构化链路、源证据闭合和核页优先级，不能替代湖北官方系统或省招办计划字段核验。
+- 使用 `data/working/issue19-raw-major-lineage-consistency-audit.csv` 持续确认 13736 条原始 OCR 专业行没有丢行、错连或核心字段漂移；使用 `data/working/issue19-raw-major-source-evidence-audit.csv` 持续确认每条专业明细都能按 `来源页码+版面列+专业起始行号` 回到私有 OCR 起始行、页级 manifest、私有窗口 JSONL 和公开原页锚点；再用 `data/working/issue19-major-source-evidence-risk-sidecar.csv` 把源证据风险、底座稳定性、闭环缺口和 P0 复核任务下沉到同一条 `专业行ID`，用 `data/working/issue19-field-fact-closure-ledger.csv` 把再选科目、专业计划数、学费三项关键字段的缺口、候选和待核状态下沉到同一条 `专业行ID`。这些表只证明原始结构化链路、源证据闭合、字段事实状态和核页优先级，不能替代湖北官方系统或省招办计划字段核验。
 
 但这些只能作为候选池，不能进入最终志愿表。
 

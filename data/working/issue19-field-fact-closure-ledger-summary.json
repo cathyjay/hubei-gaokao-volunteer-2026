@@ -1,0 +1,82 @@
+{
+  "status": "issue19_field_fact_closure_ledger_not_final",
+  "generated_by": "build_issue19_field_fact_closure_ledger.py",
+  "output_table": "data/working/issue19-field-fact-closure-ledger.csv",
+  "row_grain": "逐专业招生明细",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "row_count": 13736,
+  "unique_ledger_id_count": 13736,
+  "unique_major_line_id_count": 13736,
+  "source_counts": {
+    "master_workbench_row_count": 13736,
+    "source_risk_sidecar_row_count": 13736,
+    "field_gap_candidate_row_count": 19065,
+    "hubei_official_packet_row_count": 13736,
+    "b0_b1_official_evidence_row_count": 854,
+    "decision_gate_row_count": 13736
+  },
+  "field_fact_closure_level_counts": {
+    "L3-单字段缺口无候选需重读": 2771,
+    "L2-单字段缺口有候选待核": 3803,
+    "L1-两字段缺口优先补证": 5206,
+    "L4-三字段OCR齐全但待三方闭环": 1263,
+    "L0-三字段缺口优先阻断": 693
+  },
+  "field_fact_blocking_level_counts": {
+    "Q0-字段缺口无候选阻断": 5271,
+    "Q1-字段缺口有候选待人工核验": 7202,
+    "Q2-OCR字段齐全但PDF和官方未闭环": 1263
+  },
+  "three_field_ocr_completeness_counts": {
+    "三字段OCR候选缺1项": 6838,
+    "三字段OCR候选缺2项": 5418,
+    "三字段OCR候选齐全": 1293,
+    "三字段OCR候选缺3项": 187
+  },
+  "field_gap_count_distribution": {
+    "1": 6574,
+    "2": 5206,
+    "0": 1263,
+    "3": 693
+  },
+  "field_gap_field_distribution": {
+    "专业计划数": 777,
+    "再选科目": 5715,
+    "再选科目；专业计划数": 4719,
+    "": 1263,
+    "再选科目；专业计划数；学费": 693,
+    "专业计划数；学费": 158,
+    "学费": 82,
+    "再选科目；学费": 329
+  },
+  "reselect_field_status_counts": {
+    "K2-OCR候选存在但三方核验未闭环": 2280,
+    "K1-字段缺口有候选待PDF原页和官方核验": 6782,
+    "K0-字段缺口无候选需原页重读": 4674
+  },
+  "plan_count_field_status_counts": {
+    "K0-字段缺口无候选需原页重读": 5739,
+    "K2-OCR候选存在但三方核验未闭环": 7389,
+    "K1-字段缺口有候选待PDF原页和官方核验": 608
+  },
+  "tuition_field_status_counts": {
+    "K2-OCR候选存在但三方核验未闭环": 12474,
+    "K0-字段缺口无候选需原页重读": 1031,
+    "K1-字段缺口有候选待PDF原页和官方核验": 231
+  },
+  "reselect_candidate_task_total_count": 11456,
+  "plan_count_candidate_task_total_count": 6347,
+  "tuition_candidate_task_total_count": 1262,
+  "field_candidate_task_total_count": 19065,
+  "field_candidate_non_empty_total_count": 7621,
+  "manual_confirmed_field_count": 0,
+  "pdf_review_pending_count": 13736,
+  "hubei_official_review_pending_count": 13736,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "auto_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "public_safety_note": "本产物只保存字段候选、证据编号、哈希和核验状态；不保存私有OCR窗口原文、图片路径、登录态或个人身份信息。"
+}

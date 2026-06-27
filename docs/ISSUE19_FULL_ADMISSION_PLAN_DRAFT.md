@@ -86,6 +86,8 @@
 | `data/working/issue19-raw-major-source-evidence-audit-summary.json` | 原始专业行源证据审计摘要 | 看源头 OCR 行、页级 manifest、窗口哈希、QC 计数、锚点状态和不可推荐门禁 |
 | `data/working/issue19-major-source-evidence-risk-sidecar.csv` | 逐专业源证据风险侧账 | 覆盖全部 13736 条招生专业明细；把源证据风险、底座稳定性、闭环缺口和 P0 复核任务合并到同一条 `专业行ID` |
 | `data/working/issue19-major-source-evidence-risk-sidecar-summary.json` | 逐专业源证据风险侧账摘要 | 看 X1/X2/X3/X4 源证据下沉分层、优先核页数量、P0 工作清单覆盖和不可推荐门禁 |
+| `data/working/issue19-field-fact-closure-ledger.csv` | 字段事实闭环总账 | 覆盖全部 13736 条招生专业明细；把再选科目、专业计划数、学费三项关键字段的 OCR 候选、字段缺口候选、PDF 原页待核、湖北官方待核和下一步补证入口合到同一条 `专业行ID` |
+| `data/working/issue19-field-fact-closure-ledger-summary.json` | 字段事实闭环摘要 | 看 L0-L4 字段闭环等级、Q0-Q2 阻断等级、K0/K1/K2 三字段状态、字段候选任务 19065 条和非空候选 7621 条 |
 | `data/working/issue19-major-line-layout-continuity-risk-ledger.csv` | 专业行版面连续性风险清单 | 1934 条风险事件；只用公开原页锚点字段检查行号和坐标连续性 |
 | `data/working/issue19-major-code-order-risk-ledger.csv` | 专业代号顺序风险清单 | 355 条风险事件；检查专业代号无法解析、相邻不递增和大跳变 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |
