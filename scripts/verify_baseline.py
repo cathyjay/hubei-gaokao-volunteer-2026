@@ -11985,6 +11985,261 @@ def main():
         and not any(token in field_p0_reread_public_text for token in shared_forbidden_tokens),
     ))
 
+    field_p0_machine_summary_path = ROOT / "data/working/issue19-field-fact-p0-reread-machine-candidates-summary.json"
+    field_p0_machine_csv = ROOT / "data/working/issue19-field-fact-p0-reread-machine-candidates.csv"
+    field_p0_machine_summary = json.loads(field_p0_machine_summary_path.read_text())
+    with field_p0_machine_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_p0_machine_reader = csv.DictReader(f)
+        field_p0_machine_rows = list(field_p0_machine_reader)
+        field_p0_machine_fields = field_p0_machine_reader.fieldnames or []
+    expected_field_p0_machine_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_field_fact_p0_reread_machine_candidates.py",
+        "FIELDS",
+    )
+    field_p0_reread_by_task_id = {
+        row.get("P0字段原页重读任务ID"): row
+        for row in field_p0_reread_rows
+    }
+    field_p0_machine_non_empty_rows = [
+        row for row in field_p0_machine_rows if row.get("机器候选字段值")
+    ]
+    field_p0_machine_join_ok = True
+    for row in field_p0_machine_rows:
+        source_task_id = row.get("来源P0字段原页重读任务ID", "")
+        source_row = field_p0_reread_by_task_id.get(source_task_id, {})
+        status = row.get("机器候选状态", "")
+        value = row.get("机器候选字段值", "")
+        value_set = row.get("机器候选值集合", "")
+        unique_count = as_int(row.get("机器候选去重值数"))
+        raw_count = as_int(row.get("机器候选原始命中数"))
+        status_value_ok = (
+            (
+                status == "P0C0-未找到坐标候选仍需人工原页重读"
+                and value == ""
+                and value_set == ""
+                and unique_count == 0
+                and raw_count == 0
+                and row.get("机器候选置信等级") == "none"
+                and row.get("候选证据行号集合") == ""
+                and row.get("候选证据x集合") == ""
+                and row.get("候选证据y集合") == ""
+            )
+            or (
+                status == "P0C1-单一坐标候选待人工核验"
+                and value
+                and value_set == value
+                and unique_count == 1
+                and raw_count == 1
+                and row.get("机器候选置信等级") == "medium"
+                and row.get("候选证据行号集合")
+                and row.get("候选证据x集合")
+                and row.get("候选证据y集合")
+            )
+            or (
+                status == "P0C1-重复同值坐标候选待人工核验"
+                and value
+                and value_set == value
+                and unique_count == 1
+                and raw_count > 1
+                and row.get("机器候选置信等级") == "medium"
+                and row.get("候选证据行号集合")
+                and row.get("候选证据x集合")
+                and row.get("候选证据y集合")
+            )
+            or (
+                status == "P0C2-多值坐标候选冲突待人工核页"
+                and value == ""
+                and value_set
+                and unique_count > 1
+                and raw_count >= unique_count
+                and row.get("机器候选置信等级") == "low"
+                and row.get("候选证据行号集合")
+                and row.get("候选证据x集合")
+                and row.get("候选证据y集合")
+            )
+        )
+        field_name = row.get("字段名", "")
+        band = row.get("版面列", "")
+        expected_rule = "R_UNKNOWN_FIELD"
+        if field_name == "专业计划数":
+            expected_rule = "R_PLAN_RIGHT_X_0.82_0.875_LEN_1_3" if band == "right" else "R_PLAN_LEFT_X_0.39_0.455_LEN_1_3"
+        elif field_name == "学费":
+            expected_rule = "R_TUITION_RIGHT_X_0.84_0.91_LEN_4_6" if band == "right" else "R_TUITION_LEFT_X_0.43_0.50_LEN_4_6"
+        elif field_name == "再选科目":
+            expected_rule = "R_RESELECT_GROUP_CONTEXT_EXACT_SUBJECT"
+        field_p0_machine_join_ok = (
+            field_p0_machine_join_ok
+            and bool(source_row)
+            and row.get("P0字段机器候选任务ID")
+            == stable_id(
+                "P0COORDCAND",
+                [source_task_id, row.get("专业行ID", ""), field_name, issue19_source["source"]["sha256"]],
+            )
+            and row.get("来源P0字段原页重读工作清单")
+            == "data/working/issue19-field-fact-p0-reread-worklist.csv"
+            and row.get("来源私有OCR窗口JSONL") == "private_ocr_window_jsonl_not_public"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_field_fact_p0_reread_machine_candidates"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×K0字段×机器坐标候选"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("机器候选规则ID") == expected_rule
+            and status_value_ok
+            and row.get("来源字段事实核验任务ID") == source_row.get("来源字段事实核验任务ID")
+            and row.get("专业行ID") == source_row.get("专业行ID")
+            and row.get("字段事实闭环ID") == source_row.get("字段事实闭环ID")
+            and row.get("专业组出现ID") == source_row.get("专业组出现ID")
+            and row.get("院校代码") == source_row.get("院校代码")
+            and row.get("来源页码") == source_row.get("来源页码")
+            and row.get("版面列") == source_row.get("版面列")
+            and row.get("字段名") == source_row.get("字段名")
+            and row.get("字段事实状态") == source_row.get("字段事实状态")
+            and row.get("页级保真队列ID") == source_row.get("页级保真队列ID")
+            and row.get("原始专业行源证据审计ID") == source_row.get("原始专业行源证据审计ID")
+            and row.get("专业行原页证据锚点ID") == source_row.get("专业行原页证据锚点ID")
+            and row.get("窗口文本SHA256") == source_row.get("窗口文本SHA256")
+            and row.get("私有窗口证据编号") == source_row.get("私有窗口证据编号")
+            and "不保存 OCR 原文" in row.get("机器候选说明", "")
+            and "不得写回字段" in row.get("不得进入原因", "")
+            and "回填候选" in row.get("不得进入原因", "")
+            and "推荐学校专业" in row.get("不得进入原因", "")
+            and "志愿排序" in row.get("不得进入原因", "")
+            and "湖北官方字段核验" in row.get("下一步", "")
+        )
+    field_p0_machine_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [field_p0_machine_summary_path, field_p0_machine_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 字段机器坐标候选表摘要、行数和分布正确",
+        field_p0_machine_summary.get("status") == "issue19_field_fact_p0_reread_machine_candidates_not_final"
+        and field_p0_machine_summary.get("generated_by")
+        == "build_issue19_field_fact_p0_reread_machine_candidates.py"
+        and field_p0_machine_summary.get("source_p0_reread_worklist")
+        == "data/working/issue19-field-fact-p0-reread-worklist.csv"
+        and field_p0_machine_summary.get("source_private_window_jsonl")
+        == "private_ocr_window_jsonl_not_public"
+        and field_p0_machine_summary.get("output_table")
+        == "data/working/issue19-field-fact-p0-reread-machine-candidates.csv"
+        and field_p0_machine_summary.get("row_grain") == "逐专业招生明细×K0字段×机器坐标候选"
+        and field_p0_machine_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and field_p0_machine_summary.get("row_count") == 11444
+        and field_p0_machine_summary.get("unique_candidate_task_id_count") == 11444
+        and field_p0_machine_summary.get("unique_source_p0_reread_task_id_count") == 11444
+        and field_p0_machine_summary.get("unique_major_line_id_count") == 8536
+        and field_p0_machine_summary.get("unique_pdf_page_count") == 231
+        and field_p0_machine_summary.get("unique_school_code_count") == 967
+        and field_p0_machine_summary.get("field_counts") == {
+            "专业计划数": 5739,
+            "再选科目": 4674,
+            "学费": 1031,
+        }
+        and field_p0_machine_summary.get("candidate_status_counts") == {
+            "P0C1-单一坐标候选待人工核验": 4768,
+            "P0C0-未找到坐标候选仍需人工原页重读": 6386,
+            "P0C2-多值坐标候选冲突待人工核页": 218,
+            "P0C1-重复同值坐标候选待人工核验": 72,
+        }
+        and field_p0_machine_summary.get("candidate_confidence_counts") == {
+            "medium": 4840,
+            "none": 6386,
+            "low": 218,
+        }
+        and field_p0_machine_summary.get("candidate_rule_counts") == {
+            "R_PLAN_RIGHT_X_0.82_0.875_LEN_1_3": 3375,
+            "R_PLAN_LEFT_X_0.39_0.455_LEN_1_3": 2364,
+            "R_RESELECT_GROUP_CONTEXT_EXACT_SUBJECT": 4674,
+            "R_TUITION_LEFT_X_0.43_0.50_LEN_4_6": 707,
+            "R_TUITION_RIGHT_X_0.84_0.91_LEN_4_6": 324,
+        }
+        and field_p0_machine_summary.get("field_candidate_value_counts") == {
+            "专业计划数": 2175,
+            "再选科目": 1994,
+            "学费": 671,
+        }
+        and field_p0_machine_summary.get("non_empty_candidate_value_count") == 4840
+        and field_p0_machine_summary.get("single_candidate_count") == 4768
+        and field_p0_machine_summary.get("duplicate_same_value_candidate_count") == 72
+        and field_p0_machine_summary.get("multi_value_conflict_count") == 218
+        and field_p0_machine_summary.get("no_coordinate_candidate_count") == 6386
+        and field_p0_machine_summary.get("final_available_count") == 0
+        and field_p0_machine_summary.get("next_stage_available_count") == 0
+        and field_p0_machine_summary.get("auto_writeback_allowed_count") == 0
+        and field_p0_machine_summary.get("auto_candidate_fill_allowed_count") == 0
+        and field_p0_machine_summary.get("recommendation_basis_allowed_count") == 0
+        and field_p0_machine_summary.get("school_major_suggestion_allowed_count") == 0
+        and len(field_p0_machine_rows) == 11444,
+        f"{len(field_p0_machine_rows)} p0 machine candidate rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段机器坐标候选表字段、主键、候选状态和来源闭环正确",
+        field_p0_machine_fields == expected_field_p0_machine_fields
+        and len({row.get("P0字段机器候选任务ID") for row in field_p0_machine_rows}) == 11444
+        and {row.get("来源P0字段原页重读任务ID") for row in field_p0_machine_rows}
+        == set(field_p0_reread_by_task_id)
+        and Counter(row.get("字段名") for row in field_p0_machine_rows)
+        == Counter(field_p0_machine_summary.get("field_counts", {}))
+        and Counter(row.get("机器候选状态") for row in field_p0_machine_rows)
+        == Counter(field_p0_machine_summary.get("candidate_status_counts", {}))
+        and Counter(row.get("机器候选置信等级") for row in field_p0_machine_rows)
+        == Counter(field_p0_machine_summary.get("candidate_confidence_counts", {}))
+        and Counter(row.get("机器候选规则ID") for row in field_p0_machine_rows)
+        == Counter(field_p0_machine_summary.get("candidate_rule_counts", {}))
+        and {
+            field: sum(bool(row.get("机器候选字段值")) for row in field_p0_machine_rows if row.get("字段名") == field)
+            for field in ["专业计划数", "再选科目", "学费"]
+        } == field_p0_machine_summary.get("field_candidate_value_counts")
+        and sum(bool(row.get("机器候选字段值")) for row in field_p0_machine_rows) == 4840
+        and dict(Counter(row.get("来源页码") for row in field_p0_machine_non_empty_rows).most_common(30))
+        == field_p0_machine_summary.get("page_candidate_value_count_top30")
+        and dict(Counter(row["院校代码"] for row in field_p0_machine_non_empty_rows).most_common(30))
+        == field_p0_machine_summary.get("school_code_candidate_value_count_top30")
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            for row in field_p0_machine_rows
+        )
+        and field_p0_machine_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段机器坐标候选表公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(field_p0_machine_public_text) is None
+        and "private/" not in field_p0_machine_public_text
+        and "private\\" not in field_p0_machine_public_text
+        and "/Users/" not in field_p0_machine_public_text
+        and "ocr-runs" not in field_p0_machine_public_text
+        and "rendered-pages" not in field_p0_machine_public_text
+        and ".png" not in field_p0_machine_public_text
+        and ".jpg" not in field_p0_machine_public_text
+        and ".jpeg" not in field_p0_machine_public_text
+        and "Authorization" not in field_p0_machine_public_text
+        and "Bearer " not in field_p0_machine_public_text
+        and "Cookie" not in field_p0_machine_public_text
+        and "院校名称OCR" not in field_p0_machine_public_text
+        and "院校专业组代码OCR规范化" not in field_p0_machine_public_text
+        and "专业代号OCR" not in field_p0_machine_public_text
+        and "专业名称及备注短摘" not in field_p0_machine_public_text
+        and "组内招生明细" not in field_p0_machine_public_text
+        and "final_allowed" not in field_p0_machine_public_text
+        and "ready_for_discussion" not in field_p0_machine_public_text
+        and "已确认" not in field_p0_machine_public_text
+        and "已核准" not in field_p0_machine_public_text
+        and "最终推荐" not in field_p0_machine_public_text
+        and "最终方案" not in field_p0_machine_public_text
+        and "可填报" not in field_p0_machine_public_text
+        and "可排序" not in field_p0_machine_public_text
+        and not any(token in field_p0_machine_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
