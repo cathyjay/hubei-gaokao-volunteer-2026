@@ -116,3 +116,4 @@
 - 生成页列底座综合风险登记表：`data/working/issue19-page-side-foundation-risk-register.csv` 覆盖同一批 462 个 `PDF页码×版面列`，把全量字段页列队列、单一逐专业招生明细总工作台、结构保真登记、结构风险、版面连续性、专业代号顺序、官方查询键碰撞、教育部未匹配校名、B0/B1 官网差异、决策闸门和源证据风险侧账汇总为公开风险登记；当前 460 个 Z0、2 个 Z1，全部仍 `最终可用=false`、`可进入下一阶段=false`、`是否允许作为志愿推荐依据=false`。
 - 生成页列底座核验批次表：`data/working/issue19-page-side-foundation-verification-batches.csv` 覆盖同一批 462 个 `PDF页码×版面列`，把页列底座综合风险登记按风险顺序切成 19 个可执行批次，前 18 批各 25 个页列、最后 1 批 12 个页列；当前全部 R0 未开始，字段事实写回、下一阶段、志愿推荐和学校专业建议仍全部阻断。
 - 生成页列底座批次执行包：`data/working/issue19-page-side-foundation-batch-execution-packets.csv` 覆盖 19 个页列底座核验批次，并在本地私有目录生成 19 份批次 HTML/CSV 核页材料；公开表只保存批次计数、私有材料证据编号和 SHA、状态和非最终门禁，当前全部 R0，PDF 原页核页、湖北官方核验、结构/官方消歧和高校辅证完成页列数均为 0。
+- 生成页列底座公开核页进度账本：`data/working/issue19-page-side-foundation-review-progress-public-ledger.csv` 覆盖 19 批、462 个页列、231 个 PDF 页、13736 条专业明细和 41208 个字段任务，并把 private 核页材料中的填写状态同步为公开状态机；当前 1441 个必填记录槽位全部未填，PDF 原页、湖北官方、结构/官方消歧、高校辅证、升级条件、推荐依据和最终可用计数均为 0。

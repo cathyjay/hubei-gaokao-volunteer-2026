@@ -17014,6 +17014,304 @@ def main():
         and not any(token in ps_exec_public_text for token in shared_forbidden_tokens),
     ))
 
+    ps_progress_summary_path = (
+        ROOT / "data/working/issue19-page-side-foundation-review-progress-public-ledger-summary.json"
+    )
+    ps_progress_csv = ROOT / "data/working/issue19-page-side-foundation-review-progress-public-ledger.csv"
+    ps_progress_summary = json.loads(ps_progress_summary_path.read_text())
+    with ps_progress_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_progress_reader = csv.DictReader(f)
+        ps_progress_rows = list(ps_progress_reader)
+        ps_progress_fields = ps_progress_reader.fieldnames or []
+    expected_ps_progress_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_review_progress_ledger.py",
+        "FIELDS",
+    )
+    ps_progress_by_row_id = {
+        row.get("页列底座核验批次行ID"): row for row in ps_progress_rows
+    }
+    ps_batch_by_row_id = {
+        row.get("页列底座核验批次行ID"): row for row in ps_batch_rows
+    }
+    ps_exec_by_batch_int = {
+        as_int(row.get("批次总序")): row for row in ps_exec_rows
+    }
+
+    def private_value_filled(row, field):
+        return bool(str(row.get(field, "")).strip())
+
+    def progress_state(value):
+        return "S1-已有私有记录待复查" if value else "S0-未记录"
+
+    def dual_review_state(private_row):
+        first_done = private_value_filled(private_row, "核页人A")
+        second_done = private_value_filled(private_row, "核页人B")
+        if first_done and second_done:
+            return "D2-双人记录已齐待事实复查"
+        if first_done or second_done:
+            return "D1-单人记录待补另一人"
+        return "D0-未记录"
+
+    def progress_bucket_for(required, recorded, dual_state):
+        if recorded == 0:
+            return "R0-未开始私有核页记录", "pending_private_review_records"
+        if recorded < required:
+            return "R1-已有部分私有记录但未闭环", "partial_private_review_records_present"
+        if dual_state != "D2-双人记录已齐待事实复查":
+            return "R2-必填记录已齐待双人复核", "required_records_present_pending_dual_review"
+        return "R3-记录和双人复核已齐待事实复查", "records_and_dual_review_present_pending_fact_review"
+
+    ps_progress_join_ok = True
+    ps_progress_private_rows = []
+    ps_progress_private_task_sha_status_counter = Counter()
+    ps_progress_private_dir = (
+        ROOT / "private/review-assets/issue19-page-side-foundation-batch-execution-packets/tasks"
+    )
+    if ps_progress_private_dir.exists():
+        for batch_no in range(1, 20):
+            private_task_csv = ps_progress_private_dir / f"batch-{batch_no:02d}.csv"
+            if not private_task_csv.exists():
+                ps_progress_join_ok = False
+                continue
+            private_task_sha = sha256(private_task_csv)
+            exec_row = ps_exec_by_batch_int.get(batch_no, {})
+            expected_task_sha = exec_row.get("私有批次审阅任务CSV_SHA256", "")
+            task_sha_status = (
+                "matched_execution_packet_sha"
+                if private_task_sha == expected_task_sha
+                else "changed_after_execution_packet_sha"
+            )
+            with private_task_csv.open(newline="", encoding="utf-8-sig") as f:
+                private_rows = list(csv.DictReader(f))
+            ps_progress_private_rows.extend(private_rows)
+            for private_row in private_rows:
+                source = ps_batch_by_row_id.get(private_row.get("页列底座核验批次行ID", ""), {})
+                row = ps_progress_by_row_id.get(private_row.get("页列底座核验批次行ID", ""), {})
+                school_required = (
+                    to_int(private_row, "官网辅证线索行数") > 0
+                    or to_int(private_row, "官网计划数冲突行数") > 0
+                )
+                required_count = 3 + (1 if school_required else 0)
+                pdf_recorded = private_value_filled(private_row, "PDF原页核页记录")
+                official_recorded = private_value_filled(private_row, "湖北官方核验记录")
+                structure_recorded = private_value_filled(private_row, "结构和官方消歧记录")
+                school_recorded = private_value_filled(private_row, "高校辅证记录")
+                recorded_count = (
+                    int(pdf_recorded)
+                    + int(official_recorded)
+                    + int(structure_recorded)
+                    + (int(school_recorded) if school_required else 0)
+                )
+                dual_state = dual_review_state(private_row)
+                expected_bucket, expected_status = progress_bucket_for(
+                    required_count, recorded_count, dual_state
+                )
+                ps_progress_private_task_sha_status_counter[task_sha_status] += 1
+                ps_progress_join_ok = (
+                    ps_progress_join_ok
+                    and bool(row)
+                    and row.get("页列底座核页进度公开账本ID")
+                    == stable_id(
+                        "PSFOUNDATIONPROG",
+                        [private_row.get("页列底座核验批次行ID", ""), batch_no],
+                    )
+                    and row.get("来源页列底座批次执行包表")
+                    == "data/working/issue19-page-side-foundation-batch-execution-packets.csv"
+                    and row.get("来源页列底座核验批次表")
+                    == "data/working/issue19-page-side-foundation-verification-batches.csv"
+                    and row.get("来源私有批次任务CSV") == "private_batch_task_csv_not_public"
+                    and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+                    and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+                    and row.get("数据阶段")
+                    == "issue19_page_side_foundation_review_progress_public_ledger"
+                    and row.get("主表粒度") == "PDF页码×版面列"
+                    and row.get("任务粒度") == "PDF页码×版面列×私有核页记录进度"
+                    and row.get("最终可用") == "false"
+                    and row.get("可进入下一阶段") == "false"
+                    and row.get("机器是否允许自动写回主表") == "false"
+                    and row.get("机器是否允许自动标记核验完成") == "false"
+                    and row.get("是否允许作为志愿推荐依据") == "false"
+                    and row.get("是否允许生成学校专业建议") == "false"
+                    and row.get("批次总序") == private_row.get("批次总序")
+                    and row.get("批次ID") == private_row.get("批次ID") == source.get("批次ID")
+                    and row.get("批次名称") == private_row.get("批次名称") == source.get("批次名称")
+                    and row.get("批内页列序号") == source.get("批内页列序号")
+                    and row.get("页列全局风险总序") == private_row.get("页列全局风险总序")
+                    and row.get("来源页码") == private_row.get("来源页码") == source.get("来源页码")
+                    and row.get("版面列") == private_row.get("版面列") == source.get("版面列")
+                    and row.get("页码版面键") == private_row.get("页码版面键") == source.get("页码版面键")
+                    and row.get("综合风险优先级桶") == private_row.get("综合风险优先级桶")
+                    == source.get("综合风险优先级桶")
+                    and row.get("页列首要核验动作") == private_row.get("页列首要核验动作")
+                    == source.get("页列首要核验动作")
+                    and to_int(row, "包内专业行数") == to_int(source, "包内专业行数")
+                    and to_int(row, "包内字段任务数") == to_int(source, "包内字段任务数")
+                    and to_int(row, "包内字段任务数") == to_int(row, "包内专业行数") * 3
+                    and to_int(row, "字段Q0无候选阻断任务数")
+                    == to_int(source, "字段Q0无候选阻断任务数")
+                    and to_int(row, "字段Q1有候选待人工核验任务数")
+                    == to_int(source, "字段Q1有候选待人工核验任务数")
+                    and to_int(row, "字段Q2待三方闭环任务数")
+                    == to_int(source, "字段Q2待三方闭环任务数")
+                    and to_int(row, "结构风险事件数") == to_int(source, "结构风险事件数")
+                    and to_int(row, "官方查询键碰撞行数") == to_int(source, "官方查询键碰撞行数")
+                    and to_int(row, "教育部未匹配校名专业行数")
+                    == to_int(source, "教育部未匹配校名专业行数")
+                    and to_int(row, "官网辅证线索行数") == to_int(source, "官网辅证线索行数")
+                    and to_int(row, "官网计划数冲突行数")
+                    == to_int(source, "官网计划数冲突行数")
+                    and row.get("私有批次审阅HTML证据编号")
+                    == exec_row.get("私有批次审阅HTML证据编号")
+                    and row.get("私有批次审阅HTML_SHA256")
+                    == exec_row.get("私有批次审阅HTML_SHA256")
+                    and row.get("私有批次审阅任务CSV_SHA256") == private_task_sha
+                    and row.get("私有任务CSV_SHA256匹配状态") == task_sha_status
+                    and row.get("PDF原页核页记录状态") == progress_state(pdf_recorded)
+                    and row.get("湖北官方核验记录状态") == progress_state(official_recorded)
+                    and row.get("结构和官方消歧记录状态") == progress_state(structure_recorded)
+                    and row.get("高校辅证记录状态") == progress_state(school_recorded)
+                    and row.get("高校辅证是否需要记录") == ("true" if school_required else "false")
+                    and row.get("一审记录状态")
+                    == progress_state(private_value_filled(private_row, "核页人A"))
+                    and row.get("二审记录状态")
+                    == progress_state(private_value_filled(private_row, "核页人B"))
+                    and row.get("双人复核记录状态") == dual_state
+                    and to_int(row, "私有记录必填项数") == required_count
+                    and to_int(row, "私有记录已填项数") == recorded_count
+                    and to_int(row, "私有记录未填项数") == required_count - recorded_count
+                    and row.get("私有记录填写进度") == f"{recorded_count}/{required_count}"
+                    and row.get("页列私有记录进度桶") == expected_bucket
+                    and row.get("页列私有记录进度状态") == expected_status
+                    and row.get("PDF原页核页是否完成") == "false"
+                    and row.get("湖北官方核验是否完成") == "false"
+                    and row.get("结构和官方消歧是否完成") == "false"
+                    and row.get("高校辅证是否完成") == "false"
+                    and row.get("页列是否满足升级条件") == "false"
+                    and row.get("字段事实写回状态")
+                    == "blocked_until_private_records_and_fact_review_closed"
+                )
+
+    ps_progress_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [ps_progress_summary_path, ps_progress_csv]
+    )
+    checks.append(ok(
+        "第 19 期页列底座公开核页进度账本摘要、全量守恒和私有状态计数正确",
+        ps_progress_summary.get("status")
+        == "issue19_page_side_foundation_review_progress_public_ledger_not_final"
+        and ps_progress_summary.get("generated_by")
+        == "build_issue19_page_side_foundation_review_progress_ledger.py"
+        and ps_progress_summary.get("source_batch_execution_packets")
+        == "data/working/issue19-page-side-foundation-batch-execution-packets.csv"
+        and ps_progress_summary.get("source_page_side_foundation_verification_batches")
+        == "data/working/issue19-page-side-foundation-verification-batches.csv"
+        and ps_progress_summary.get("source_private_batch_task_csv")
+        == "private_batch_task_csv_not_public"
+        and ps_progress_summary.get("output_table")
+        == "data/working/issue19-page-side-foundation-review-progress-public-ledger.csv"
+        and ps_progress_summary.get("row_count") == len(ps_progress_rows) == 462
+        and ps_progress_summary.get("private_task_row_count") == len(ps_progress_rows)
+        and ps_progress_summary.get("batch_count") == 19
+        and ps_progress_summary.get("unique_page_side_count") == 462
+        and ps_progress_summary.get("unique_pdf_page_count") == 231
+        and ps_progress_summary.get("source_major_line_count") == 13736
+        and ps_progress_summary.get("source_field_task_count") == 41208
+        and ps_progress_summary.get("school_support_required_page_side_count") == 55
+        and ps_progress_summary.get("private_required_record_slot_count") == 1441
+        and ps_progress_summary.get("private_recorded_slot_count") == 0
+        and ps_progress_summary.get("private_missing_slot_count") == 1441
+        and ps_progress_summary.get("progress_bucket_counts") == {
+            "R0-未开始私有核页记录": 462,
+        }
+        and ps_progress_summary.get("pdf_record_status_counts") == {"S0-未记录": 462}
+        and ps_progress_summary.get("hubei_official_record_status_counts") == {"S0-未记录": 462}
+        and ps_progress_summary.get("structure_record_status_counts") == {"S0-未记录": 462}
+        and ps_progress_summary.get("dual_review_status_counts") == {"D0-未记录": 462}
+        and ps_progress_summary.get("private_task_csv_sha_status_counts")
+        == dict(ps_progress_private_task_sha_status_counter or Counter({"matched_execution_packet_sha": 462}))
+        and ps_progress_summary.get("pdf_completed_page_side_count") == 0
+        and ps_progress_summary.get("hubei_official_completed_page_side_count") == 0
+        and ps_progress_summary.get("structure_completed_page_side_count") == 0
+        and ps_progress_summary.get("school_support_completed_page_side_count") == 0
+        and ps_progress_summary.get("upgrade_ready_page_side_count") == 0
+        and ps_progress_summary.get("final_available_count") == 0
+        and ps_progress_summary.get("next_stage_available_count") == 0
+        and ps_progress_summary.get("recommendation_basis_allowed_count") == 0
+        and ps_progress_summary.get("school_major_suggestion_allowed_count") == 0,
+        f"{len(ps_progress_rows)} progress rows",
+    ))
+    checks.append(ok(
+        "第 19 期页列底座公开核页进度账本字段、逐页列回链和非最终门禁正确",
+        ps_progress_fields == expected_ps_progress_fields
+        and len({row.get("页列底座核页进度公开账本ID") for row in ps_progress_rows}) == 462
+        and len(ps_progress_by_row_id) == 462
+        and set(ps_progress_by_row_id) == set(ps_batch_by_row_id)
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in ps_progress_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in ps_progress_rows)
+        and all(row.get("机器是否允许自动标记核验完成") == "false" for row in ps_progress_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in ps_progress_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in ps_progress_rows)
+        and all(row.get("PDF原页核页是否完成") == "false" for row in ps_progress_rows)
+        and all(row.get("湖北官方核验是否完成") == "false" for row in ps_progress_rows)
+        and all(row.get("结构和官方消歧是否完成") == "false" for row in ps_progress_rows)
+        and all(row.get("高校辅证是否完成") == "false" for row in ps_progress_rows)
+        and all(row.get("页列是否满足升级条件") == "false" for row in ps_progress_rows)
+        and all(re.fullmatch(r"[0-9a-f]{64}", row.get("私有页图SHA256", "")) for row in ps_progress_rows)
+        and all(re.fullmatch(r"[0-9a-f]{64}", row.get("私有批次审阅HTML_SHA256", "")) for row in ps_progress_rows)
+        and all(re.fullmatch(r"[0-9a-f]{64}", row.get("私有批次审阅任务CSV_SHA256", "")) for row in ps_progress_rows)
+        and ps_progress_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期页列底座公开核页进度账本不含私有路径、识别行内容、字段读数、人工内容和最终误导结论",
+        foundation_release_sensitive_re.search(ps_progress_public_text) is None
+        and "/Users/" not in ps_progress_public_text
+        and "/home/" not in ps_progress_public_text
+        and "/var/folders/" not in ps_progress_public_text
+        and "/private/" not in ps_progress_public_text
+        and "private/" not in ps_progress_public_text
+        and "private\\" not in ps_progress_public_text
+        and "ocr-runs" not in ps_progress_public_text
+        and "rendered-pages" not in ps_progress_public_text
+        and ".png" not in ps_progress_public_text
+        and ".jpg" not in ps_progress_public_text
+        and ".jpeg" not in ps_progress_public_text
+        and ".webp" not in ps_progress_public_text
+        and ".tif" not in ps_progress_public_text
+        and ".tiff" not in ps_progress_public_text
+        and ".heic" not in ps_progress_public_text
+        and "Authorization" not in ps_progress_public_text
+        and "Bearer " not in ps_progress_public_text
+        and "Cookie" not in ps_progress_public_text
+        and "院校名称OCR" not in ps_progress_public_text
+        and "院校专业组代码OCR规范化" not in ps_progress_public_text
+        and "专业代号OCR" not in ps_progress_public_text
+        and "专业名称及备注" not in ps_progress_public_text
+        and "组内招生明细" not in ps_progress_public_text
+        and "候选值" not in ps_progress_public_text
+        and "机器候选字段值" not in ps_progress_public_text
+        and "高校官网字段候选值" not in ps_progress_public_text
+        and "裁图OCR候选字段值" not in ps_progress_public_text
+        and "PDF原页人工读数" not in ps_progress_public_text
+        and "湖北官方字段值" not in ps_progress_public_text
+        and "高校官网或招生章程字段值" not in ps_progress_public_text
+        and "字段确认值" not in ps_progress_public_text
+        and "字段OCR候选" not in ps_progress_public_text
+        and "字段候选值集合" not in ps_progress_public_text
+        and "OCR文本" not in ps_progress_public_text
+        and "OCR原文" not in ps_progress_public_text
+        and "OCR行文本" not in ps_progress_public_text
+        and "人工记录" not in ps_progress_public_text
+        and "核页人" not in ps_progress_public_text
+        and "复核备注" not in ps_progress_public_text
+        and "已确认" not in ps_progress_public_text
+        and "已核准" not in ps_progress_public_text
+        and "最终推荐" not in ps_progress_public_text
+        and "最终方案" not in ps_progress_public_text
+        and "可填报" not in ps_progress_public_text
+        and "可排序" not in ps_progress_public_text
+        and not any(token in ps_progress_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

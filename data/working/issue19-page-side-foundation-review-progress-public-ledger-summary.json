@@ -1,0 +1,52 @@
+{
+  "status": "issue19_page_side_foundation_review_progress_public_ledger_not_final",
+  "generated_by": "build_issue19_page_side_foundation_review_progress_ledger.py",
+  "source_batch_execution_packets": "data/working/issue19-page-side-foundation-batch-execution-packets.csv",
+  "source_page_side_foundation_verification_batches": "data/working/issue19-page-side-foundation-verification-batches.csv",
+  "source_private_batch_task_csv": "private_batch_task_csv_not_public",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_table": "data/working/issue19-page-side-foundation-review-progress-public-ledger.csv",
+  "row_count": 462,
+  "private_task_row_count": 462,
+  "batch_count": 19,
+  "unique_page_side_count": 462,
+  "unique_pdf_page_count": 231,
+  "source_major_line_count": 13736,
+  "source_field_task_count": 41208,
+  "progress_bucket_counts": {
+    "R0-未开始私有核页记录": 462
+  },
+  "pdf_record_status_counts": {
+    "S0-未记录": 462
+  },
+  "hubei_official_record_status_counts": {
+    "S0-未记录": 462
+  },
+  "structure_record_status_counts": {
+    "S0-未记录": 462
+  },
+  "school_support_required_page_side_count": 55,
+  "school_support_record_status_counts": {
+    "S0-未记录": 462
+  },
+  "dual_review_status_counts": {
+    "D0-未记录": 462
+  },
+  "private_task_csv_sha_status_counts": {
+    "matched_execution_packet_sha": 462
+  },
+  "private_required_record_slot_count": 1441,
+  "private_recorded_slot_count": 0,
+  "private_missing_slot_count": 1441,
+  "pdf_completed_page_side_count": 0,
+  "hubei_official_completed_page_side_count": 0,
+  "structure_completed_page_side_count": 0,
+  "school_support_completed_page_side_count": 0,
+  "upgrade_ready_page_side_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "safety_note": "公开账本只保存页列状态、计数、证据编号和SHA；不保存识别行内容、页图路径、学校专业明细、字段值、核页记录内容或补充记录内容。"
+}

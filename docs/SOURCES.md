@@ -403,6 +403,7 @@
 - `scripts/build_issue19_page_side_foundation_risk_register.py`：生成页列底座综合风险登记表，把字段页列队列和逐专业风险侧账汇总到 462 个 `PDF页码×版面列`，用于人工核页时同时看到字段、结构、源证据、官方消歧和决策闸门风险；公开输出只保留计数、分布、集合 SHA 和非最终门禁。
 - `scripts/build_issue19_page_side_foundation_verification_batches.py`：生成页列底座核验批次表，把 462 个 `PDF页码×版面列` 风险登记单元按 25 个一批切成 19 批，保留批次聚合计数、风险登记集合 SHA 和全部非最终门禁，作为后续逐批核页和记录完成度的公开执行入口。
 - `scripts/build_issue19_page_side_foundation_batch_execution_packets.py`：生成页列底座批次执行包，并在本地私有目录生成 19 份批次 HTML/CSV 核页材料；公开输出只保留私有材料证据编号、SHA、批次计数、状态和非最终门禁。
+- `scripts/build_issue19_page_side_foundation_review_progress_ledger.py`：读取页列底座批次执行包和 Git 忽略的私有批次任务 CSV，生成 462 行页列底座公开核页进度账本；公开输出只保存填写状态、计数、证据编号和 SHA，不保存核页记录内容、字段值、识别行内容或页图路径。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。
