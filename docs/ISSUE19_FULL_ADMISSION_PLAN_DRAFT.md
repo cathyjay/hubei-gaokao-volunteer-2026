@@ -50,6 +50,8 @@
 | `data/working/issue19-full-major-verification-batches-summary.json` | 全量核验批次摘要 | 看 A0-A9 分布、231 页覆盖、候选/样本/偏好命中和非最终门禁 |
 | `data/working/issue19-priority-group-major-review-pack.csv` | 优先整组逐专业核验包 | 覆盖 1043 个优先专业组内的 7537 条招生专业明细；一行一个专业，同时携带整组入选原因、调剂机器风险和组内完整专业数 |
 | `data/working/issue19-priority-group-major-review-pack-summary.json` | 优先整组逐专业核验包摘要 | 看 W0-W3 优先级、A0-A9 分布、T1/T2/T3 调剂风险和全部非最终门禁 |
+| `data/working/issue19-priority-major-evidence-workbench.csv` | 优先逐专业证据执行工作台 | 覆盖同一批 7537 条招生专业明细；一行一个专业，带全量核验状态、家庭底线、页级风险、B0/B1 官网辅证、D0 原页证据和三年投档线索 |
+| `data/working/issue19-priority-major-evidence-workbench-summary.json` | 优先逐专业证据执行摘要 | 看 E0-E6 执行优先级、辅证命中、字段缺口、历史线索和非最终门禁 |
 | `data/working/issue19-foundation-audit-summary.json` | 底座审计摘要 | 看机器阻断项是否通过、人工复核风险、页码覆盖、回退归属和重复专业代号 |
 | `data/working/issue19-foundation-audit-findings.csv` | 底座审计发现 | 区分机器阻断检查和人工复核风险，避免把 OCR 风险误当最终事实 |
 | `data/working/issue19-foundation-page-audit.csv` | 按页审计表 | 覆盖第 10-240 页，记录每页专业组、专业明细、结构异常、候选命中和复核优先级 |
@@ -176,6 +178,10 @@
 | 优先整组逐专业核验包专业明细 | 7537 |
 | 优先整组逐专业核验包覆盖专业组 | 1043 |
 | 优先整组逐专业核验包覆盖 PDF 页 | 230 |
+| 优先逐专业证据执行工作台专业明细 | 7537 |
+| 优先执行 E0 PDF 原页/组边界阻断 | 1362 |
+| 优先执行 E1 历史候选/样本三方证据 | 450 |
+| 优先执行 E2 数字媒体技术三方证据 | 405 |
 
 质量分层口径：
 

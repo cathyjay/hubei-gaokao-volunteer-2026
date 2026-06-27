@@ -77,6 +77,7 @@ python3 scripts/build_issue19_major_detail_quality_workbench.py
 python3 scripts/build_issue19_full_major_field_fidelity_ledger.py
 python3 scripts/build_issue19_full_major_verification_batches.py
 python3 scripts/build_issue19_priority_group_major_review_pack.py
+python3 scripts/build_issue19_priority_major_evidence_workbench.py
 python3 scripts/build_issue19_foundation_audit.py
 python3 scripts/build_issue19_candidate_evidence_ledgers.py
 python3 scripts/build_issue19_page_manifest.py
@@ -97,4 +98,4 @@ python3 scripts/fetch_hubei_plan_platform.py --dry-run-contract
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```
 
-注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级、逐专业核验批次、优先整组逐专业核验包、页级保真复核队列、候选 V3 批次、候选 V3 全量逐专业复核队列、B0/B1 核验包、官方交叉校验表、逐专业证据合并表和字段保真总账只用于安排复核与补证，不是最终报考建议。候选讨论默认使用逐专业招生明细表和逐专业字段保真总账，组级/学校级/页级表只作索引、投档线、调剂范围、核页顺序和补源入口。
+注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计和复核队列，`机器初判`、质量分层、逐专业 P0/P1 优先级、逐专业核验批次、优先整组逐专业核验包、逐专业证据执行工作台、页级保真复核队列、候选 V3 批次、候选 V3 全量逐专业复核队列、B0/B1 核验包、官方交叉校验表、逐专业证据合并表和字段保真总账只用于安排复核与补证，不是最终报考建议。候选讨论默认使用逐专业招生明细表和逐专业字段保真总账，组级/学校级/页级表只作索引、投档线、调剂范围、核页顺序和补源入口。
