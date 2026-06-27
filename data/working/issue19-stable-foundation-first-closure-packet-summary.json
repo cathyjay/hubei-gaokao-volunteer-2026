@@ -1,0 +1,65 @@
+{
+  "status": "issue19_stable_foundation_first_closure_packet_not_final",
+  "generated_by": "build_issue19_stable_foundation_first_closure_packet.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "official_public_status_source": "data/working/issue19-official-public-entry-status.json",
+  "official_public_plan_page_can_finalize": false,
+  "zspt_platform_can_finalize": false,
+  "input_files": [
+    {
+      "path": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
+      "sha256": "c72ce06fb3946d4806bc3d95a5bc857fb7381b7f7d5037faa0056daf83f5d426",
+      "row_count": 854
+    },
+    {
+      "path": "data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv",
+      "sha256": "dd4d8e3793d1581f8de1d5b1e902e16aaee06d5208d315d5dee7a89ebd6c876a",
+      "row_count": 319
+    },
+    {
+      "path": "data/working/issue19-official-public-entry-status.json",
+      "sha256": "dec81d791f223ca0b757dcf4ec6646afaf7ac15c1d08c94ed0b744e9cac02dd5"
+    }
+  ],
+  "detail_output_table": "data/working/issue19-stable-foundation-first-closure-detail-packet.csv",
+  "page_side_output_table": "data/working/issue19-stable-foundation-first-closure-page-side-packet.csv",
+  "detail_row_count": 205,
+  "page_side_row_count": 36,
+  "unique_detail_task_id_count": 205,
+  "unique_major_line_id_count": 150,
+  "unique_pdf_page_count": 32,
+  "unique_page_side_count": 36,
+  "auto_priority_detail_count": 104,
+  "manual_priority_detail_count": 101,
+  "auto_action_counts": {
+    "C1-官网补缺候选但禁止自动写回": 55,
+    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C7-官网源未匹配专业需人工确认专业名": 31
+  },
+  "manual_execution_batch_counts": {
+    "EXEC-02-计划数偏大重点核页": 11,
+    "EXEC-03-高校辅证线索三方核验": 74,
+    "EXEC-01-冲突异常立即核页": 16
+  },
+  "page_side_priority_counts": {
+    "Q0-冲突页列第一批先核": 17,
+    "Q1-补缺或计划数偏大页列先核": 11,
+    "Q2-官网未匹配或高校辅证页列先核": 8
+  },
+  "page_side_with_auto_and_manual_count": 12,
+  "page_side_with_plan_conflict_or_fill_count": 28,
+  "page_side_with_double_review_count": 29,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "policy": {
+    "scope": "第一闭环批次只纳入C0/C1/C7官网辅证任务和EXEC-01/02/03 P0字段任务。",
+    "manual_compression": "205条明细任务压缩到36个页列、32个PDF页，按页列集中核验。",
+    "official_boundary": "第19期PDF原页和湖北官方系统/省招办计划仍是字段事实闭环条件；高校官网不能替代湖北官方计划。",
+    "no_finalization": "本批次不确认任何字段值，不自动写回主表，不生成学校专业建议。"
+  }
+}

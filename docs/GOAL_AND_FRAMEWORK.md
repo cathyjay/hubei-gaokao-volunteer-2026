@@ -43,6 +43,8 @@
 
 新增的 `data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv` 和 `data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv` 是当前“湖北官方公开结构化源暂不可得”时的下一步闭环入口：前者把 854 条高校官网辅证分成自动复跑、冲突、补缺、补结构化和补源动作，后者把 319 条 P0 即时字段任务压缩成最小人工核页包。它们只能决定核验顺序和工作量压缩方式，不能把高校官网、裁图 OCR 或人工派单当作最终招生计划事实。
 
+新增的 `data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 是第一批执行入口：把最高优先级的 205 条明细任务集中到 36 个页列，先核冲突、补缺、官网未匹配和高校辅证字段线索。它只压缩人工工作量和安排核验顺序，不改变“湖北官方计划和 PDF 原页闭环前不得定案”的原则。
+
 ## 三、学校分析维度
 
 - 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。

@@ -325,6 +325,9 @@
 - `data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv`：稳定基座自动官网辅证交叉核验工作台，854 行；一行对应一条 B0/B1 高校官网辅证旁挂，把官网强辅证、补缺候选、冲突复核、章程规则、部分来源和待补源拆成可复跑动作。高校官网仍只能 double check 和定位冲突，不能替代湖北官方计划。
 - `data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv`：稳定基座最小人工闭环工作台，319 行；一行对应一个 P0 即时字段核验任务，把页列进度、裁图证据、官网辅证动作、双人复核和人工必做步骤接到同一张表。该表只安排 PDF 原页和湖北官方侧核验，不保存人工读数或最终字段事实。
 - `data/working/issue19-stable-foundation-next-closure-workbench-summary.json`：稳定基座下一步闭环摘要；记录自动工作台 854 行、人工工作台 319 行、官网辅证动作分布、P0 字段分布、官方公开入口仍不可定稿和所有最终门禁为 0。
+- `data/working/issue19-stable-foundation-first-closure-detail-packet.csv`：稳定基座第一闭环明细包，205 行；只纳入 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务，用于先核最高风险冲突、补缺、未匹配和高校辅证线索。
+- `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv`：稳定基座第一闭环页列包，36 行；把 205 条明细任务聚合到 36 个 `PDF页码×版面列`，用于集中人工核 PDF 原页、湖北官方侧和高校官网辅证。
+- `data/working/issue19-stable-foundation-first-closure-packet-summary.json`：第一闭环批次包摘要；记录 205 条明细、36 个页列、32 个 PDF 页、28 个计划数冲突或补缺页列、29 个双人复核页列，以及所有最终门禁为 0。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。

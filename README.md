@@ -178,6 +178,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 
 稳定基座下一步闭环工作台：`data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv` 和 `data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv` 把“官方公开结构化源暂不可得”的替代保真路线落成两张可执行表。前者覆盖 854 条 B0/B1 高校官网辅证，分成 18 条冲突先核、55 条官网补缺候选、61 条强辅证抽检、411 条部分来源补结构化、196 条继续补源等动作；后者覆盖 319 条 P0 即时字段任务，按 148 个页列集中人工核 PDF 原页和湖北官方侧。两张表全部保持 `最终可用=false`、`是否允许作为志愿推荐依据=false`、`是否允许官网证据替代湖北官方计划=false`。
 
+第一闭环批次包：`data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 把最高优先级的 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成第一批可执行核验包。当前 205 条明细任务被压缩到 36 个 `PDF页码×版面列`、32 个 PDF 页；其中 28 个页列含计划数冲突或补缺，29 个页列需要双人复核。该包只决定“先核哪些页列、哪些字段和哪些官网线索”，仍不确认字段事实，不替代湖北官方计划，不生成学校专业建议。
+
 P0 字段原页重读工作清单：`data/working/issue19-field-fact-p0-reread-worklist.csv` 从字段事实核验任务队列中严格抽取 11444 条 K0 无候选字段任务，覆盖 8536 条招生专业明细、231 个 PDF 明细页和 967 所学校。它把每个 `专业行ID × 字段名` 回连到字段任务、原始源证据审计、PDF 原页锚点和页级保真队列，用于优先回看专业计划数、再选科目、学费三项原始字段；全部 `最终可用=false`、`可进入下一阶段=false`，不得自动写回主表，也不得生成学校或专业建议。
 
 P0 字段机器坐标候选表：`data/working/issue19-field-fact-p0-reread-machine-candidates.csv` 在 P0 原页重读工作清单的 11444 条 K0 字段任务上，使用私有 OCR 窗口坐标和保守字段规则生成机器候选，仍是一行一个 `专业行ID × 字段名`。当前非空候选 4840 条，其中专业计划数 2175 条、再选科目 1994 条、学费 671 条；6386 条仍未找到坐标候选，218 条为多值冲突。该表只把部分 K0 字段推进到“有候选待人工核页”，公开输出仅保留候选值、坐标摘要、必要来源 ID、页码/版面列、字段名、证据编号、哈希和非最终门禁，不保存 OCR 窗口原文、院校名、专业名、专业代号或专业组代码，全部 `最终可用=false`、`可进入下一阶段=false`、`机器是否允许自动写回主表=false`、`机器是否允许自动回填候选=false`，不得生成学校或专业建议。
