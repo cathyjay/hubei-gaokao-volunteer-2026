@@ -1,0 +1,88 @@
+{
+  "status": "issue19_c4_c6_structured_candidate_diff_not_final",
+  "generated_by": "build_issue19_c4_c6_structured_candidate_diff.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_c4_c6_packets": "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv",
+  "source_c4_c6_packets_summary": "data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json",
+  "source_retained_official_plan": "data/working/issue19-b0-b1-retained-official-plan-normalized.csv",
+  "source_extra_school_sources": [
+    "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json"
+  ],
+  "source_extra_school_source_sha256": {
+    "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json": "e6130c9d5a73e3dee41fd230b57e04c2d279d51144d1123b0d69367eff2c2be8"
+  },
+  "source_field_fidelity_ledger": "data/working/issue19-full-major-field-fidelity-ledger.csv",
+  "hubei_official_can_finalize": false,
+  "hubei_official_without_login_structured_plan_available": false,
+  "school_official_sources_are_substitute_evidence_only": true,
+  "output_public_table": "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv",
+  "public_packet_count": 36,
+  "private_detail_row_count": 607,
+  "private_index_row_count": 36,
+  "retained_official_row_count": 434,
+  "retained_official_school_count": 17,
+  "extra_school_source_row_count": 14,
+  "extra_school_source_school_count": 1,
+  "combined_structured_source_row_count": 448,
+  "combined_structured_source_school_count": 18,
+  "packet_with_structured_source_count": 18,
+  "packet_with_candidate_diff_count": 17,
+  "detail_match_status_counts": {
+    "no_school_source": 340,
+    "matched": 212,
+    "unmatched": 53,
+    "possible_match": 2
+  },
+  "detail_plan_check_counts": {
+    "not_covered": 393,
+    "ocr_plan_missing_official_available": 106,
+    "mismatch": 23,
+    "match": 85
+  },
+  "source_layer_counts": {
+    "无匹配结构化官网源": 393,
+    "新增C4C6高校官网源": 9,
+    "既有B0B1留存官网源": 205
+  },
+  "priority_counts": {
+    "D5-有入口但仍缺结构化计划源": 10,
+    "D0-存在计划数冲突需优先核PDF原页": 8,
+    "D2-已有结构化源计划数一致候选": 3,
+    "D3-已有结构化源但计划数未闭合": 6,
+    "D4-新增高校官网源未命中需补规则或核专业名": 1,
+    "D6-无入口需继续搜索高校官网计划源": 8
+  },
+  "lane_priority_counts": {
+    "X3-C4已有部分来源待结构化|D5-有入口但仍缺结构化计划源": 5,
+    "X3-C4已有部分来源待结构化|D0-存在计划数冲突需优先核PDF原页": 7,
+    "X2-C4有入口但未留存结果|D2-已有结构化源计划数一致候选": 2,
+    "X2-C4有入口但未留存结果|D3-已有结构化源但计划数未闭合": 3,
+    "X2-C4有入口但未留存结果|D0-存在计划数冲突需优先核PDF原页": 1,
+    "X3-C4已有部分来源待结构化|D3-已有结构化源但计划数未闭合": 3,
+    "X3-C4已有部分来源待结构化|D2-已有结构化源计划数一致候选": 1,
+    "X1-C6有入口待获取湖北计划|D5-有入口但仍缺结构化计划源": 5,
+    "X1-C6有入口待获取湖北计划|D4-新增高校官网源未命中需补规则或核专业名": 1,
+    "X0-C6无官网计划入口需搜索|D6-无入口需继续搜索高校官网计划源": 8
+  },
+  "plan_match_candidate_count": 85,
+  "ocr_plan_missing_official_available_count": 106,
+  "plan_mismatch_candidate_count": 23,
+  "no_structured_source_detail_count": 340,
+  "extra_source_matched_detail_count": 9,
+  "extra_source_plan_match_count": 2,
+  "extra_source_plan_mismatch_count": 5,
+  "private_detail_csv_sha256": "d02e60f98b7bd59e41860707ecc5b75a02f04d25deb5481b18fcd2bccf9a1b1c",
+  "private_index_csv_sha256": "86277b08052c08cfcbe12dca70e675cc3d0950f4b958506f08cbbb5d0cbe9d60",
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "policy": {
+    "goal": "在湖北官方侧计划证据不可自动获取时，用高校官网/API/PDF/XLSX结构化源自动double check，压缩人工核验范围。",
+    "boundary": "高校官网源只能作辅证和差异发现，不替代第19期PDF原页、湖北官方系统或省招办计划。",
+    "manual_minimization": "人工优先核计划数冲突、OCR计划数缺失但官网可补、疑似匹配和新增源命中抽检，不逐行全量核。"
+  }
+}

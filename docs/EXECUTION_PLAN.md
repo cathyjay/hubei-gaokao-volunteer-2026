@@ -64,6 +64,8 @@
 
 新增北京语言大学 C6 官方 API 源留存：`data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json` 和 `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv` 已证明该校 2026 湖北物理类普通类计划可无登录抓取。下一步是把该原始 JSON 接入 C4/C6 结构化候选 diff，并重点核第 19 期原页中的 OCR 计划数、专业组代码和中外合作边界。
 
+新增 C4/C6 结构化候选 diff：`data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv` 已把北京语言大学新增 API 源接入综合结构化高校源，对 607 条 C4/C6 私有逐专业明细自动匹配。结果显示 212 条专业名匹配、85 条计划数一致候选、106 条 OCR 计划数缺失但官网可补、23 条计划数冲突；其中新增北语源命中 9 条、计划数一致 2 条、计划数冲突 5 条。下一步不是人工全量核 607 条，而是优先核冲突、OCR 缺失、疑似匹配和新增源命中抽检；若湖北官方侧继续不可自动取得，则继续按高校官网源自动 double check 加少量 PDF 原页人工核验闭环。
+
 新增官方公开入口活体复查：`data/working/issue19-official-public-entry-live-recheck.json` 让“湖北官方是否可得”从一次性判断变成可复跑证据。当前招生计划页、索引页和数智平台首页 SHA 均与留存副本一致，招生计划页仍含“持续更新中/敬请期待”，5 个无登录接口探针仍返回 401；所以当前仍不能自动取得可逐字段定稿的湖北官方结构化计划。
 
 新增官方不可得抽样门禁：`data/working/issue19-official-unavailable-sampling-gates.csv` 把“高校官网 double check + 最小人工核验”落成 103 行门禁：78 条高校侧任务继续负责自动复跑、补结构化、补源和强辅证抽检；25 条 P3 低风险专业明细用于抽样验收。C0/C1/C7 共 104 条明细必须 100% 核第 19 期原页，C2 强辅证抽检最低覆盖 20 条以上，抽检失败升级同页列、同校或同组 100% 核验。它只能压缩人工工作量，不能打开字段写回、推荐依据或最终可用门禁。

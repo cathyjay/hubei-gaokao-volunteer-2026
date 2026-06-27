@@ -1,7 +1,7 @@
 {
   "status": "issue19_official_public_entry_live_recheck_not_final",
   "generated_by": "build_issue19_official_public_entry_live_recheck.py",
-  "checked_at": "2026-06-28T04:23:34+08:00",
+  "checked_at": "2026-06-28T06:30:32+08:00",
   "output_file": "data/working/issue19-official-public-entry-live-recheck.json",
   "privacy_boundary": "只保存公开入口元数据、SHA、标题和无登录探针结果；不保存网页登录凭证、个人身份信息或完整 HTML 正文。",
   "row_grain_policy": "本文件只复核官方入口/接口可得性，不替代一行一个招生专业的第19期底座。",

@@ -156,3 +156,4 @@
 - 新增官方不可得抽样私有预填公开审计：`data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv` 将 46 个页列执行队列接到 Git 忽略的私有预填工作台，私有层预填 153 条抽样明细中的高校官网和 OCR 线索；公开层只保存页列计数、16 个高校来源文件聚合计数、私有 CSV SHA 和非最终门禁。该表用于降低人工 double check 查找成本，不替代第 19 期 PDF 原页、湖北官方侧核验或字段确认。
 - 新增 C4/C6 高校源刷新执行包：`data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv` 将 411 条 C4 补结构化任务和 196 条 C6 继续补源任务压缩成 36 个学校执行包、4 条泳道和 607 条私有逐专业明细。它用于并行寻找高校官网 2026 湖北计划源、补湖北物理行结构化并生成后续 diff；公开层只保存计数、集合 SHA 和私有 CSV SHA，仍不得字段写回、志愿推荐或最终可用。
 - 新增 C4/C6 已留存官网源复用审计和北京语言大学 C6 官方 API 原始源留存：前者把 36 个 C4/C6 执行包同 434 条已留存官网标准化证据做保守匹配，筛出 16 个已有可复用官网源的包、83 条计划数一致候选和 18 条冲突候选；后者留存北京语言大学 2026 湖北物理类普通类官方 API 原始 JSON。两者均只用于候选 diff 和复核优先级，不确认字段事实、不替代湖北省招办计划。
+- 新增 C4/C6 结构化候选 diff：`data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv` 将北语新增 API 源与既有官网标准化证据合并，形成 448 条综合结构化高校源，并对 607 条 C4/C6 私有明细生成包级 double check 结果。当前新增高校源命中 9 条、计划数一致 2 条、冲突 5 条；后续人工优先核冲突、OCR 缺失、疑似匹配和新增源抽检，不逐行全量人工核验。

@@ -74,6 +74,8 @@ C4/C6 已留存官网源复用审计当前固化在 `data/working/issue19-c4-c6-
 
 北京语言大学 C6 官方 API 原始源当前固化在 `data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json` 和 `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv`。原始 JSON 必须返回 state=1、msg=操作成功、14 条逐专业计划、1 条汇总行、逐专业计划数合计 34，所有逐专业行必须为 2026、湖北、物理类，批次集合必须仅为本科普通批单设志愿。公开账本只记录 URL、请求参数摘要、SHA、计数和非最终门禁；该源仍只是高校侧辅证，不替代湖北官方侧。
 
+C4/C6 结构化候选 diff 当前固化在 `data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv`。该表必须保持 36 行并回链到 607 条私有逐专业候选 diff 明细、36 个 C4/C6 执行包、434 条既有官网标准化证据、14 条北京语言大学新增高校官网源和全量字段保真总账。综合结构化高校源必须保持 448 行、18 所学校；匹配状态必须保持 no_school_source=340、matched=212、unmatched=53、possible_match=2；计划数状态必须保持 not_covered=393、match=85、ocr_plan_missing_official_available=106、mismatch=23；新增高校源命中必须保持 9 条，其中计划数一致 2 条、计划数冲突 5 条。公开层不得保存逐专业 OCR、官网字段值、冲突正文、人工记录或最终误导结论，全部门禁必须为 0。
+
 官方公开入口活体复查当前固化在 `data/working/issue19-official-public-entry-live-recheck.json`。该文件必须显示湖北教育考试网 2026 招生计划页、招生计划索引页和湖北招生数智综合平台首页公开可访问且 SHA 与留存副本一致；计划页仍含“持续更新中/敬请期待”，平台 `nfs`、`yxList`、`group`、`student` 和 `dict/pcdm` 无登录探针均返回 `401 令牌不能为空`。因此它只能证明官方入口状态和不可得边界，不能作为结构化计划明细。
 
 官方结构化计划暂不可得时的抽样门禁当前固化在 `data/working/issue19-official-unavailable-sampling-gates.csv`。该表必须保持 103 行：78 条高校侧辅证刷新任务和 25 条 P3 低风险抽检专业明细；C0/C1/C7 高风险明细合计 104 条必须 100% 回第 19 期原页并核湖北官方侧；C2 强辅证池 61 条，最低抽检明细数不得低于 20；P3 低风险池 184 条，抽样数不得低于 25。所有行必须保持字段写回、推荐依据、学校专业建议、官网替代湖北官方计划、下一阶段和最终可用均为 false。抽检失败必须升级同页列 100%，同一学校出现 2 个失败升级同校 100%，同一专业组失败升级整组 100%。
