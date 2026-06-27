@@ -114,6 +114,8 @@
 | `data/working/issue19-p0-immediate-page-review-packets-summary.json` | P0 即时按页核页包摘要 | 看 148 个页列包、114 个 PDF 页、319 条字段任务、319 个裁图证据、290 条双人复核任务和全部非最终门禁 |
 | `data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv` | P0 即时 PDF 原页读数候选公开审计 | 覆盖同一批 319 条即时复核字段任务；公开表只保存候选存在状态、审阅桶、证据编号、SHA、bbox、回链和非最终门禁，不保存候选读数、OCR 行文本或图片路径 |
 | `data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit-summary.json` | P0 即时 PDF 原页读数候选摘要 | 看 253 条私有候选已挂线索、66 条需要人工直接看图、99 条需要直接图像复核、290 条需要双人复核、字段写回允许数 0 和全部非最终门禁 |
+| `data/working/issue19-p0-immediate-page-execution-queue.csv` | P0 即时页列核页执行队列 | 把 148 个页列包按候选冲突、无稳定候选、候选一致待官方、常规候选四档排序；公开表只保存执行顺序、任务数量、证据编号、SHA、bbox 和状态 |
+| `data/working/issue19-p0-immediate-page-execution-queue-summary.json` | P0 即时页列核页执行摘要 | 看 11 个候选冲突先核页列、34 个无稳定候选先看图页列、11 个候选一致仍需官方闭环页列、92 个常规候选确认页列和全部非最终门禁 |
 | `data/working/issue19-major-line-layout-continuity-risk-ledger.csv` | 专业行版面连续性风险清单 | 1934 条风险事件；只用公开原页锚点字段检查行号和坐标连续性 |
 | `data/working/issue19-major-code-order-risk-ledger.csv` | 专业代号顺序风险清单 | 355 条风险事件；检查专业代号无法解析、相邻不递增和大跳变 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |

@@ -1,0 +1,48 @@
+{
+  "status": "issue19_p0_immediate_page_execution_queue_not_final",
+  "generated_by": "build_issue19_p0_immediate_page_execution_queue.py",
+  "source_page_review_packets": "data/working/issue19-p0-immediate-page-review-packets.csv",
+  "source_pdf_reading_candidates": "data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_table": "data/working/issue19-p0-immediate-page-execution-queue.csv",
+  "row_count": 148,
+  "source_page_packet_count": 148,
+  "source_candidate_task_count": 319,
+  "unique_execution_queue_id_count": 148,
+  "unique_page_packet_count": 148,
+  "unique_pdf_page_count": 114,
+  "unique_page_side_count": 148,
+  "unique_candidate_task_count": 319,
+  "unique_major_field_pair_count": 319,
+  "field_counts": {
+    "专业计划数": 281,
+    "学费": 19,
+    "再选科目": 19
+  },
+  "candidate_bucket_counts": {
+    "P0-候选冲突优先核图": 33,
+    "P1-候选与既有线索一致仍需核官方": 43,
+    "P3-无稳定候选需人工看图": 66,
+    "P2-有候选但需人工确认": 177
+  },
+  "page_execution_priority_counts": {
+    "Q0-候选冲突页列先核": 11,
+    "Q1-无稳定候选页列先核": 34,
+    "Q2-候选一致仍需官方闭环": 11,
+    "Q3-常规候选人工确认": 92
+  },
+  "packet_with_direct_image_review_count": 45,
+  "packet_with_double_review_count": 148,
+  "direct_image_review_task_count": 99,
+  "double_review_task_count": 290,
+  "private_candidate_seeded_task_count": 253,
+  "hubei_official_review_required_task_count": 319,
+  "pdf_manual_review_required_task_count": 319,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "safety_note": "公开队列只保存页列执行顺序、任务数量、证据编号、SHA、bbox和状态；不保存候选读数、OCR行文本、图片路径、人工读数、院校名、专业名、专业代号或专业组代码。"
+}

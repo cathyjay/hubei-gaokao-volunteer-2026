@@ -284,6 +284,8 @@
 - `data/working/issue19-p0-immediate-page-review-packets-summary.json`：P0 即时按页核页包摘要；记录 148 个页列包、319 条字段任务、319 个裁图证据、290 条双人复核任务、75 条高校辅证私有记录待完成、PDF 原页和湖北官方私有记录待完成各 319 条。该摘要只用于安排人工逐页逐列核 PDF 原页，不能作为推荐或排序依据。
 - `data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv`：第 19 期 P0 即时 PDF 原页读数候选公开审计表，319 行；一行对应一个 `专业行ID × 字段名 × 即时复核任务ID`，把私有裁图 OCR 候选、字段确认账本和按页核页包合并成公开状态。公开表只保存候选存在状态、候选关系、审阅桶、证据编号、SHA、bbox 和非最终门禁，不保存候选读数、OCR 行文本、图片路径或人工字段值。
 - `data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit-summary.json`：P0 即时 PDF 原页读数候选摘要；记录 319 条字段任务中 253 条有私有候选线索、66 条无稳定候选需人工看图、33 条候选冲突优先核图、43 条候选与既有线索一致但仍需核官方、177 条有候选但需人工确认、99 条需直接图像复核、290 条需双人复核、自动写入人工读数 0。该摘要只用于排人工核页顺序，不生成字段事实或推荐依据。
+- `data/working/issue19-p0-immediate-page-execution-queue.csv`：第 19 期 P0 即时页列核页执行队列，148 行；一行对应一个 `PDF页码×版面列`，把按页核页包和 PDF 原页读数候选审计合并后重新排序。公开表只保存执行顺序、页列优先级、任务数量、证据编号、SHA、bbox 和非最终门禁，不保存候选读数、OCR 行文本、图片路径、院校名、专业名、专业代号或专业组代码。
+- `data/working/issue19-p0-immediate-page-execution-queue-summary.json`：P0 即时页列核页执行摘要；记录 148 个页列包覆盖 114 页和 319 条字段任务，其中 11 个页列包为候选冲突先核、34 个为无稳定候选先看图、11 个为候选一致仍需官方闭环、92 个为常规候选人工确认。该摘要只用于组织核 PDF 原页和湖北官方核验顺序，不生成字段事实或推荐依据。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -398,6 +400,7 @@
 - `scripts/build_issue19_p0_immediate_crop_ocr_audit.py`：读取 319 张私有裁图的 Apple Vision OCR 结果，生成公开裁图 OCR 审计表和本地私有读数候选表；公开输出只保存 OCR 状态、关系、SHA 和门禁，不保存识别文本、候选读数或图片路径。
 - `scripts/build_issue19_p0_immediate_field_confirmation_workbench.py`：生成 P0 即时字段确认公开账本和本地私有字段确认工作台；私有表承接 PDF 原页、湖北官方、高校辅证和双人复核记录，公开表只同步状态机和门禁，不同步字段记录值。
 - `scripts/build_issue19_p0_immediate_page_review_packets.py`：读取 P0 即时字段确认公开账本、本地私有裁图索引和私有字段确认工作台，生成 148 个 `PDF页码×版面列` 核页执行包；公开输出只保存聚合状态和证据哈希，私有目录生成本地 HTML/CSV 审阅材料。
+- `scripts/build_issue19_p0_immediate_page_execution_queue.py`：读取 P0 即时按页核页包和 P0 即时 PDF 原页读数候选公开审计，把 148 个 `PDF页码×版面列` 包按候选冲突、无稳定候选、候选一致待官方闭环和常规人工确认重新排序；公开输出只保存执行顺序、任务数、证据编号、SHA、bbox 和非最终门禁。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

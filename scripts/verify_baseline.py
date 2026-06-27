@@ -15210,6 +15210,220 @@ def main():
         p0_pdf_candidate_private_detail,
     ))
 
+    p0_page_exec_summary_path = (
+        ROOT / "data/working/issue19-p0-immediate-page-execution-queue-summary.json"
+    )
+    p0_page_exec_csv = ROOT / "data/working/issue19-p0-immediate-page-execution-queue.csv"
+    p0_page_exec_summary = json.loads(p0_page_exec_summary_path.read_text())
+    with p0_page_exec_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_page_exec_reader = csv.DictReader(f)
+        p0_page_exec_rows = list(p0_page_exec_reader)
+        p0_page_exec_fields = p0_page_exec_reader.fieldnames or []
+    expected_p0_page_exec_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_p0_immediate_page_execution_queue.py",
+        "FIELDS",
+    )
+    p0_pdf_candidate_by_packet_id = {}
+    for row in p0_pdf_candidate_rows:
+        p0_pdf_candidate_by_packet_id.setdefault(row.get("P0即时按页核页包ID"), []).append(row)
+    p0_page_exec_by_packet_id = {
+        row.get("P0即时按页核页包ID"): row for row in p0_page_exec_rows
+    }
+    p0_page_exec_join_ok = True
+    p0_page_exec_task_ids = set()
+    for row in p0_page_exec_rows:
+        packet_id = row.get("P0即时按页核页包ID", "")
+        packet_row = p0_page_packet_by_id.get(packet_id, {})
+        candidate_rows = p0_pdf_candidate_by_packet_id.get(packet_id, [])
+        candidate_bucket_counts = Counter(
+            candidate_row.get("PDF原页候选审阅桶") for candidate_row in candidate_rows
+        )
+        field_counts = Counter(candidate_row.get("字段名") for candidate_row in candidate_rows)
+        if candidate_bucket_counts.get("P0-候选冲突优先核图", 0):
+            expected_bucket = "Q0-候选冲突页列先核"
+            expected_priority = "0"
+        elif candidate_bucket_counts.get("P3-无稳定候选需人工看图", 0):
+            expected_bucket = "Q1-无稳定候选页列先核"
+            expected_priority = "1"
+        elif candidate_bucket_counts.get("P1-候选与既有线索一致仍需核官方", 0):
+            expected_bucket = "Q2-候选一致仍需官方闭环"
+            expected_priority = "2"
+        else:
+            expected_bucket = "Q3-常规候选人工确认"
+            expected_priority = "3"
+        for task_id in row.get("P0字段即时复核任务ID集合", "").split("；"):
+            if task_id:
+                p0_page_exec_task_ids.add(task_id)
+        p0_page_exec_join_ok = (
+            p0_page_exec_join_ok
+            and bool(packet_row)
+            and bool(candidate_rows)
+            and row.get("P0即时页列核页执行队列ID")
+            == stable_id("P0PAGEEXEC", [packet_id, row.get("来源页码", ""), row.get("版面列", "")])
+            and row.get("来源P0即时按页核页包")
+            == "data/working/issue19-p0-immediate-page-review-packets.csv"
+            and row.get("来源P0即时PDF原页候选公开审计")
+            == "data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_p0_immediate_page_execution_queue"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×P0即时PDF原页候选核页执行队列"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("来源页码") == packet_row.get("来源页码")
+            and row.get("版面列") == packet_row.get("版面列")
+            and row.get("页码版面键") == packet_row.get("页码版面键")
+            and row.get("页列核页优先级桶") == expected_bucket
+            and row.get("页列核页优先级数值") == expected_priority
+            and as_int(row.get("包内字段任务数")) == len(candidate_rows)
+            and as_int(row.get("包内专业行数")) == len({candidate_row.get("专业行ID") for candidate_row in candidate_rows})
+            and as_int(row.get("包内裁图证据数")) == len({candidate_row.get("裁图证据编号") for candidate_row in candidate_rows})
+            and as_int(row.get("包内P0候选冲突任务数")) == candidate_bucket_counts.get("P0-候选冲突优先核图", 0)
+            and as_int(row.get("包内P1候选一致仍需官方任务数")) == candidate_bucket_counts.get("P1-候选与既有线索一致仍需核官方", 0)
+            and as_int(row.get("包内P2有候选人工确认任务数")) == candidate_bucket_counts.get("P2-有候选但需人工确认", 0)
+            and as_int(row.get("包内P3无稳定候选任务数")) == candidate_bucket_counts.get("P3-无稳定候选需人工看图", 0)
+            and as_int(row.get("包内私有候选已挂线索任务数"))
+            == sum(candidate_row.get("是否已有私有PDF原页候选") == "true" for candidate_row in candidate_rows)
+            and as_int(row.get("包内需要人工直接看图任务数"))
+            == sum(candidate_row.get("是否需要人工直接看图") == "true" for candidate_row in candidate_rows)
+            and as_int(row.get("包内需要双人复核任务数"))
+            == sum(candidate_row.get("是否需要双人复核") == "true" for candidate_row in candidate_rows)
+            and as_int(row.get("包内高校辅证核验任务数"))
+            == sum(candidate_row.get("是否仍需高校辅证核验") == "true" for candidate_row in candidate_rows)
+            and as_int(row.get("包内专业计划数字段任务数")) == field_counts.get("专业计划数", 0)
+            and as_int(row.get("包内学费字段任务数")) == field_counts.get("学费", 0)
+            and as_int(row.get("包内再选科目字段任务数")) == field_counts.get("再选科目", 0)
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("高校官网或招生章程辅证状态") == "pending_if_school_clue_present"
+            and row.get("三方字段一致性状态") == "pending_private_three_way_field_confirmation"
+            and row.get("字段事实写回状态") == "blocked_until_required_private_readings_complete"
+        )
+    p0_page_exec_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_page_exec_summary_path, p0_page_exec_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 即时页列核页执行队列摘要、任务集合和优先级正确",
+        p0_page_exec_summary.get("status") == "issue19_p0_immediate_page_execution_queue_not_final"
+        and p0_page_exec_summary.get("generated_by")
+        == "build_issue19_p0_immediate_page_execution_queue.py"
+        and p0_page_exec_summary.get("source_page_review_packets")
+        == "data/working/issue19-p0-immediate-page-review-packets.csv"
+        and p0_page_exec_summary.get("source_pdf_reading_candidates")
+        == "data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv"
+        and p0_page_exec_summary.get("output_table")
+        == "data/working/issue19-p0-immediate-page-execution-queue.csv"
+        and p0_page_exec_summary.get("row_count") == 148
+        and p0_page_exec_summary.get("source_page_packet_count") == 148
+        and p0_page_exec_summary.get("source_candidate_task_count") == 319
+        and p0_page_exec_summary.get("unique_execution_queue_id_count") == 148
+        and p0_page_exec_summary.get("unique_page_packet_count") == 148
+        and p0_page_exec_summary.get("unique_pdf_page_count") == 114
+        and p0_page_exec_summary.get("unique_page_side_count") == 148
+        and p0_page_exec_summary.get("unique_candidate_task_count") == 319
+        and p0_page_exec_summary.get("unique_major_field_pair_count") == 319
+        and p0_page_exec_summary.get("field_counts") == {
+            "专业计划数": 281,
+            "学费": 19,
+            "再选科目": 19,
+        }
+        and p0_page_exec_summary.get("candidate_bucket_counts") == {
+            "P0-候选冲突优先核图": 33,
+            "P1-候选与既有线索一致仍需核官方": 43,
+            "P3-无稳定候选需人工看图": 66,
+            "P2-有候选但需人工确认": 177,
+        }
+        and p0_page_exec_summary.get("page_execution_priority_counts") == {
+            "Q0-候选冲突页列先核": 11,
+            "Q1-无稳定候选页列先核": 34,
+            "Q2-候选一致仍需官方闭环": 11,
+            "Q3-常规候选人工确认": 92,
+        }
+        and p0_page_exec_summary.get("packet_with_direct_image_review_count") == 45
+        and p0_page_exec_summary.get("packet_with_double_review_count") == 148
+        and p0_page_exec_summary.get("direct_image_review_task_count") == 99
+        and p0_page_exec_summary.get("double_review_task_count") == 290
+        and p0_page_exec_summary.get("private_candidate_seeded_task_count") == 253
+        and p0_page_exec_summary.get("hubei_official_review_required_task_count") == 319
+        and p0_page_exec_summary.get("pdf_manual_review_required_task_count") == 319
+        and p0_page_exec_summary.get("field_writeback_allowed_count") == 0
+        and p0_page_exec_summary.get("recommendation_basis_allowed_count") == 0
+        and p0_page_exec_summary.get("school_major_suggestion_allowed_count") == 0
+        and p0_page_exec_summary.get("final_available_count") == 0
+        and p0_page_exec_summary.get("next_stage_available_count") == 0
+        and len(p0_page_exec_rows) == 148
+        and set(p0_page_exec_by_packet_id) == {row.get("P0即时按页核页包ID") for row in p0_page_packet_rows}
+        and p0_page_exec_task_ids == {row.get("P0字段即时复核任务ID") for row in p0_pdf_candidate_rows},
+        f"{len(p0_page_exec_rows)} page execution rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时页列核页执行队列字段、门禁和来源回链正确",
+        p0_page_exec_fields == expected_p0_page_exec_fields
+        and len({row.get("P0即时页列核页执行队列ID") for row in p0_page_exec_rows}) == 148
+        and [as_int(row.get("页列执行总序")) for row in p0_page_exec_rows] == list(range(1, 149))
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in p0_page_exec_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in p0_page_exec_rows)
+        and all(row.get("机器是否允许自动回填候选") == "false" for row in p0_page_exec_rows)
+        and all(row.get("是否允许写回字段") == "false" for row in p0_page_exec_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in p0_page_exec_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in p0_page_exec_rows)
+        and p0_page_exec_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时页列核页执行队列不含私有路径、候选值、OCR原文、人工读数、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(p0_page_exec_public_text) is None
+        and "/Users/" not in p0_page_exec_public_text
+        and "/home/" not in p0_page_exec_public_text
+        and "/var/folders/" not in p0_page_exec_public_text
+        and "/private/" not in p0_page_exec_public_text
+        and "private/" not in p0_page_exec_public_text
+        and "private\\" not in p0_page_exec_public_text
+        and "ocr-runs" not in p0_page_exec_public_text
+        and "rendered-pages" not in p0_page_exec_public_text
+        and ".png" not in p0_page_exec_public_text
+        and ".jpg" not in p0_page_exec_public_text
+        and ".jpeg" not in p0_page_exec_public_text
+        and ".webp" not in p0_page_exec_public_text
+        and ".tif" not in p0_page_exec_public_text
+        and ".tiff" not in p0_page_exec_public_text
+        and ".heic" not in p0_page_exec_public_text
+        and "Authorization" not in p0_page_exec_public_text
+        and "Bearer " not in p0_page_exec_public_text
+        and "Cookie" not in p0_page_exec_public_text
+        and "院校名称OCR" not in p0_page_exec_public_text
+        and "院校专业组代码OCR规范化" not in p0_page_exec_public_text
+        and "专业代号OCR" not in p0_page_exec_public_text
+        and "专业名称及备注" not in p0_page_exec_public_text
+        and "组内招生明细" not in p0_page_exec_public_text
+        and "机器候选字段值" not in p0_page_exec_public_text
+        and "机器候选规范值" not in p0_page_exec_public_text
+        and "高校官网字段候选值" not in p0_page_exec_public_text
+        and "高校官网字段规范值" not in p0_page_exec_public_text
+        and "裁图OCR候选字段值" not in p0_page_exec_public_text
+        and "裁图OCR候选规范值" not in p0_page_exec_public_text
+        and "裁图OCR候选行文本" not in p0_page_exec_public_text
+        and "PDF原页人工读数" not in p0_page_exec_public_text
+        and "湖北官方字段值" not in p0_page_exec_public_text
+        and "高校官网或招生章程字段值" not in p0_page_exec_public_text
+        and "字段确认值" not in p0_page_exec_public_text
+        and "OCR文本" not in p0_page_exec_public_text
+        and "OCR原文" not in p0_page_exec_public_text
+        and "已确认" not in p0_page_exec_public_text
+        and "已核准" not in p0_page_exec_public_text
+        and "最终推荐" not in p0_page_exec_public_text
+        and "最终方案" not in p0_page_exec_public_text
+        and "可填报" not in p0_page_exec_public_text
+        and "可排序" not in p0_page_exec_public_text
+        and not any(token in p0_page_exec_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
