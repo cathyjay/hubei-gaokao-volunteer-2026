@@ -69,6 +69,34 @@ def sha_list(values):
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
+def count_value(rows, field, value):
+    return sum(row.get(field, "") == value for row in rows)
+
+
+def unique_value_count(rows, field):
+    return len({row.get(field, "") for row in rows if row.get(field, "")})
+
+
+def page_side_key(row):
+    return (str(row.get("来源页码", "")).strip(), str(row.get("版面列", "")).strip())
+
+
+def group_by_page_side(rows):
+    grouped = defaultdict(list)
+    for row in rows:
+        grouped[page_side_key(row)].append(row)
+    return grouped
+
+
+def group_by_major_page_side(rows, major_to_page_side):
+    grouped = defaultdict(list)
+    for row in rows:
+        key = major_to_page_side.get(row.get("专业行ID", ""))
+        if key:
+            grouped[key].append(row)
+    return grouped
+
+
 def script_list_constant(path, name):
     tree = ast.parse(path.read_text(encoding="utf-8"))
     for node in tree.body:
@@ -16109,6 +16137,442 @@ def main():
         and "ready_for_discussion" not in page_manifest_public_text
         and "已确认" not in page_manifest_public_text
         and not any(token in page_manifest_public_text for token in shared_forbidden_tokens),
+    ))
+
+    ps_register_summary_path = (
+        ROOT / "data/working/issue19-page-side-foundation-risk-register-summary.json"
+    )
+    ps_register_csv = ROOT / "data/working/issue19-page-side-foundation-risk-register.csv"
+    ps_master_csv = ROOT / "data/working/issue19-admission-detail-master-workbench.csv"
+    ps_field_page_csv = ROOT / "data/working/issue19-field-fact-page-side-verification-queue.csv"
+    ps_structural_csv = ROOT / "data/working/issue19-admission-detail-structural-fidelity-register.csv"
+    ps_structural_risk_csv = ROOT / "data/working/issue19-structural-risk-major-line-ledger.csv"
+    ps_layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
+    ps_code_order_risk_csv = ROOT / "data/working/issue19-major-code-order-risk-ledger.csv"
+    ps_official_collision_csv = ROOT / "data/working/issue19-hubei-official-query-key-collision-ledger.csv"
+    ps_moe_unmatched_csv = ROOT / "data/working/issue19-moe-unmatched-school-resolution-major-detail.csv"
+    ps_official_diff_csv = ROOT / "data/working/issue19-b0-b1-public-official-diff-ledger.csv"
+    ps_decision_gate_csv = ROOT / "data/working/issue19-major-decision-readiness-gates.csv"
+    ps_source_risk_csv = ROOT / "data/working/issue19-major-source-evidence-risk-sidecar.csv"
+
+    ps_register_summary = json.loads(ps_register_summary_path.read_text())
+    with ps_register_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_register_reader = csv.DictReader(f)
+        ps_register_rows = list(ps_register_reader)
+        ps_register_fields = ps_register_reader.fieldnames or []
+    with ps_master_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_master_rows = list(csv.DictReader(f))
+    with ps_field_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_field_page_rows = list(csv.DictReader(f))
+    with ps_structural_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_structural_rows = list(csv.DictReader(f))
+    with ps_structural_risk_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_structural_risk_rows = list(csv.DictReader(f))
+    with ps_layout_risk_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_layout_risk_rows = list(csv.DictReader(f))
+    with ps_code_order_risk_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_code_order_risk_rows = list(csv.DictReader(f))
+    with ps_official_collision_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_official_collision_rows = list(csv.DictReader(f))
+    with ps_moe_unmatched_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_moe_unmatched_rows = list(csv.DictReader(f))
+    with ps_official_diff_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_official_diff_rows = list(csv.DictReader(f))
+    with ps_decision_gate_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_decision_gate_rows = list(csv.DictReader(f))
+    with ps_source_risk_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_source_risk_rows = list(csv.DictReader(f))
+    expected_ps_register_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_risk_register.py",
+        "FIELDS",
+    )
+
+    def to_int(row, field):
+        return as_int(row.get(field)) or 0
+
+    def sum_field(rows, field):
+        return sum(to_int(row, field) for row in rows)
+
+    def ps_priority_for(data):
+        if (
+            data["结构R0专业行数"]
+            or data["源证据X1专业窗口P0行数"]
+            or data["源证据X2起始行P0_QC行数"]
+            or data["版面P0风险事件数"]
+            or data["官方查询键碰撞行数"]
+        ):
+            return (
+                "Z0-结构源证据或官方消歧阻断页列先核",
+                "0",
+                "先核结构边界、源证据和官方查询键消歧，再处理字段读数。",
+            )
+        if (
+            data["字段Q0无候选阻断任务数"]
+            or data["结构R1专业行数"]
+            or data["结构R2专业行数"]
+            or data["版面P1风险事件数"]
+            or data["专业代号P1风险事件数"]
+            or data["教育部未匹配校名专业行数"]
+            or data["官网计划数冲突行数"]
+        ):
+            return (
+                "Z1-字段缺口和结构风险并行核页",
+                "1",
+                "并行核字段缺口、结构归属、校名待核和计划数冲突。",
+            )
+        if (
+            data["字段Q1有候选待人工核验任务数"]
+            or data["官网辅证线索行数"]
+            or data["源证据X3优先复核行数"]
+            or data["专业代号P2风险事件数"]
+        ):
+            return (
+                "Z2-候选字段和辅证线索核验页列",
+                "2",
+                "核对候选字段和高校辅证线索，仍需 PDF 原页与湖北官方侧闭环。",
+            )
+        return (
+            "Z3-常规三方闭环抽检页列",
+            "3",
+            "执行常规 PDF 原页、湖北官方侧和必要高校辅证闭环抽检。",
+        )
+
+    ps_master_major_ids = [row.get("专业行ID", "") for row in ps_master_rows]
+    ps_master_by_major_id = {row.get("专业行ID", ""): row for row in ps_master_rows}
+    ps_major_to_page_side = {
+        row.get("专业行ID", ""): page_side_key(row)
+        for row in ps_master_rows
+        if row.get("专业行ID")
+    }
+    ps_structural_by_major_id = {
+        row.get("专业行ID", ""): row for row in ps_structural_rows
+    }
+    ps_master_id_ok = (
+        len(ps_master_rows) == 13736
+        and "" not in ps_master_major_ids
+        and len(set(ps_master_major_ids)) == 13736
+        and len(ps_major_to_page_side) == 13736
+    )
+    ps_structural_identity_ok = (
+        len(ps_structural_rows) == 13736
+        and set(ps_structural_by_major_id) == set(ps_master_by_major_id)
+        and all(
+            page_side_key(row) == ps_major_to_page_side.get(row.get("专业行ID", ""))
+            for row in ps_structural_rows
+        )
+    )
+    ps_one_to_one_sidecars_ok = (
+        {row.get("专业行ID") for row in ps_decision_gate_rows} == set(ps_master_by_major_id)
+        and {row.get("专业行ID") for row in ps_source_risk_rows} == set(ps_master_by_major_id)
+        and all(
+            page_side_key(row) == ps_major_to_page_side.get(row.get("专业行ID", ""))
+            for row in ps_decision_gate_rows + ps_source_risk_rows
+        )
+    )
+    ps_event_subset_ok = (
+        {row.get("专业行ID") for row in ps_structural_risk_rows}.issubset(set(ps_master_by_major_id))
+        and {row.get("专业行ID") for row in ps_layout_risk_rows}.issubset(set(ps_master_by_major_id))
+        and {row.get("专业行ID") for row in ps_code_order_risk_rows}.issubset(set(ps_master_by_major_id))
+        and {row.get("专业行ID") for row in ps_official_collision_rows}.issubset(set(ps_master_by_major_id))
+        and {row.get("专业行ID") for row in ps_moe_unmatched_rows}.issubset(set(ps_master_by_major_id))
+        and {row.get("专业行ID") for row in ps_official_diff_rows}.issubset(set(ps_master_by_major_id))
+        and all(
+            page_side_key(row) == ps_major_to_page_side.get(row.get("专业行ID", ""))
+            for row in ps_layout_risk_rows + ps_code_order_risk_rows
+        )
+    )
+    checks.append(ok(
+        "第 19 期页列底座综合风险登记源表专业行ID、页列映射和事件子集稳定",
+        ps_master_id_ok
+        and ps_structural_identity_ok
+        and ps_one_to_one_sidecars_ok
+        and ps_event_subset_ok,
+    ))
+
+    ps_field_page_by_side = {
+        page_side_key(row): row for row in ps_field_page_rows
+    }
+    ps_structural_by_side = group_by_page_side(ps_structural_rows)
+    ps_structural_risk_by_side = group_by_major_page_side(
+        ps_structural_risk_rows,
+        ps_major_to_page_side,
+    )
+    ps_layout_risk_by_side = group_by_page_side(ps_layout_risk_rows)
+    ps_code_order_risk_by_side = group_by_page_side(ps_code_order_risk_rows)
+    ps_official_collision_by_side = group_by_major_page_side(
+        ps_official_collision_rows,
+        ps_major_to_page_side,
+    )
+    ps_moe_unmatched_by_side = group_by_major_page_side(
+        ps_moe_unmatched_rows,
+        ps_major_to_page_side,
+    )
+    ps_official_diff_by_side = group_by_major_page_side(
+        ps_official_diff_rows,
+        ps_major_to_page_side,
+    )
+    ps_decision_gate_by_side = group_by_page_side(ps_decision_gate_rows)
+    ps_source_risk_by_side = group_by_page_side(ps_source_risk_rows)
+
+    ps_register_join_ok = True
+    for row in ps_register_rows:
+        key = page_side_key(row)
+        base = ps_field_page_by_side.get(key, {})
+        structural = ps_structural_by_side.get(key, [])
+        structural_risk = ps_structural_risk_by_side.get(key, [])
+        layout_risk = ps_layout_risk_by_side.get(key, [])
+        code_order_risk = ps_code_order_risk_by_side.get(key, [])
+        official_collision = ps_official_collision_by_side.get(key, [])
+        moe_unmatched = ps_moe_unmatched_by_side.get(key, [])
+        official_diff = ps_official_diff_by_side.get(key, [])
+        decision_gate = ps_decision_gate_by_side.get(key, [])
+        source_risk = ps_source_risk_by_side.get(key, [])
+
+        structural_priority = Counter(item.get("结构保真优先级", "") for item in structural)
+        structural_risk_type = Counter(item.get("结构风险类型", "") for item in structural_risk)
+        layout_risk_level = Counter(item.get("风险等级", "") for item in layout_risk)
+        code_order_risk_level = Counter(item.get("风险等级", "") for item in code_order_risk)
+        moe_level = Counter(item.get("候选综合等级", "") for item in moe_unmatched)
+        official_source_status = Counter(item.get("官网来源状态", "") for item in official_diff)
+        decision_status = Counter(item.get("候选初筛闸门状态", "") for item in decision_gate)
+        decision_action = Counter(item.get("初筛动作桶", "") for item in decision_gate)
+        source_layer = Counter(item.get("源证据下沉分层", "") for item in source_risk)
+        priority_data = {
+            "字段Q0无候选阻断任务数": to_int(base, "包内Q0无候选阻断任务数"),
+            "字段Q1有候选待人工核验任务数": to_int(base, "包内Q1有候选待人工核验任务数"),
+            "结构R0专业行数": structural_priority.get("R0-结构边界阻断优先核", 0),
+            "结构R1专业行数": structural_priority.get("R1-归属或结构异常先核", 0),
+            "结构R2专业行数": structural_priority.get("R2-原页上下文补证", 0),
+            "版面P0风险事件数": layout_risk_level.get("P0-版面边界先核", 0),
+            "版面P1风险事件数": layout_risk_level.get("P1-相邻行顺序核验", 0),
+            "专业代号P1风险事件数": code_order_risk_level.get("P1-专业代号先核", 0),
+            "专业代号P2风险事件数": code_order_risk_level.get("P2-专业代号序列复核", 0),
+            "官方查询键碰撞行数": len(official_collision),
+            "教育部未匹配校名专业行数": len(moe_unmatched),
+            "官网计划数冲突行数": count_value(official_diff, "计划数核验状态", "官网专业名匹配但计划数冲突-优先核页"),
+            "官网辅证线索行数": len(official_diff),
+            "源证据X1专业窗口P0行数": source_layer.get("X1-专业窗口P0先核", 0),
+            "源证据X2起始行P0_QC行数": source_layer.get("X2-起始行P0_QC先核", 0),
+            "源证据X3优先复核行数": source_layer.get("X3-源证据优先复核", 0),
+        }
+        expected_bucket, expected_priority, expected_action = ps_priority_for(priority_data)
+        ps_register_join_ok = (
+            ps_register_join_ok
+            and bool(base)
+            and row.get("页列底座综合风险登记ID")
+            == stable_id("PSFOUNDATIONRISK", [row.get("来源页码", ""), row.get("版面列", "")])
+            and row.get("来源全量字段页列核验队列")
+            == "data/working/issue19-field-fact-page-side-verification-queue.csv"
+            and row.get("来源单一逐专业招生明细总工作台")
+            == "data/working/issue19-admission-detail-master-workbench.csv"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_page_side_foundation_risk_register"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×底座综合风险"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("页码版面键") == base.get("页码版面键")
+            and row.get("综合风险优先级桶") == expected_bucket
+            and row.get("综合风险优先级数值") == expected_priority
+            and row.get("页列首要核验动作") == expected_action
+            and row.get("字段页列核验队列ID") == base.get("全量字段页列核验队列ID")
+            and row.get("字段页列核验优先级桶") == base.get("页列核验优先级桶")
+            and row.get("包内专业行数") == base.get("包内专业行数")
+            and row.get("包内字段任务数") == base.get("包内字段任务数")
+            and row.get("字段Q0无候选阻断任务数") == base.get("包内Q0无候选阻断任务数")
+            and row.get("字段Q1有候选待人工核验任务数") == base.get("包内Q1有候选待人工核验任务数")
+            and row.get("字段Q2待三方闭环任务数") == base.get("包内Q2OCR齐全待三方闭环任务数")
+            and row.get("PDF原页核验待完成任务数") == base.get("包内PDF原页核验待完成任务数")
+            and row.get("湖北官方核验待完成任务数") == base.get("包内湖北官方核验待完成任务数")
+            and to_int(row, "结构R0专业行数") == priority_data["结构R0专业行数"]
+            and to_int(row, "结构R1专业行数") == priority_data["结构R1专业行数"]
+            and to_int(row, "结构R2专业行数") == priority_data["结构R2专业行数"]
+            and to_int(row, "结构R3专业行数") == structural_priority.get("R3-结构常规抽检", 0)
+            and to_int(row, "结构风险事件数") == len(structural_risk)
+            and to_int(row, "结构风险专业行数") == unique_value_count(structural_risk, "专业行ID")
+            and row.get("结构风险类型分布") == counter_text(structural_risk_type)
+            and to_int(row, "版面风险事件数") == len(layout_risk)
+            and to_int(row, "版面风险专业行数") == unique_value_count(layout_risk, "专业行ID")
+            and row.get("版面风险等级分布") == counter_text(layout_risk_level)
+            and to_int(row, "专业代号风险事件数") == len(code_order_risk)
+            and to_int(row, "专业代号风险专业行数") == unique_value_count(code_order_risk, "专业行ID")
+            and row.get("专业代号风险等级分布") == counter_text(code_order_risk_level)
+            and to_int(row, "官方查询键碰撞行数") == len(official_collision)
+            and to_int(row, "官方查询键碰撞键数") == unique_value_count(official_collision, "碰撞键")
+            and to_int(row, "教育部未匹配校名专业行数") == len(moe_unmatched)
+            and row.get("教育部未匹配校名等级分布") == counter_text(moe_level)
+            and to_int(row, "官网辅证线索行数") == len(official_diff)
+            and to_int(row, "官网计划数冲突行数") == priority_data["官网计划数冲突行数"]
+            and to_int(row, "官网未匹配专业行数") == count_value(official_diff, "官网证据匹配状态", "unmatched")
+            and row.get("官网来源状态分布") == counter_text(official_source_status)
+            and to_int(row, "决策G0结构或归属未闭环行数") == decision_status.get("G0-结构或归属未闭环", 0)
+            and to_int(row, "决策G1家庭底线风险待确认行数") == decision_status.get("G1-家庭底线风险待确认", 0)
+            and to_int(row, "决策G2字段缺口未闭环行数") == decision_status.get("G2-字段缺口未闭环", 0)
+            and to_int(row, "决策G3机器预筛线索行数") == decision_status.get("G3-可作机器预筛线索但不可定案", 0)
+            and to_int(row, "决策G4常规留存行数") == decision_status.get("G4-常规留存但不可定案", 0)
+            and row.get("决策动作桶分布") == counter_text(decision_action)
+            and to_int(row, "源证据X1专业窗口P0行数") == source_layer.get("X1-专业窗口P0先核", 0)
+            and to_int(row, "源证据X2起始行P0_QC行数") == source_layer.get("X2-起始行P0_QC先核", 0)
+            and to_int(row, "源证据X3优先复核行数") == source_layer.get("X3-源证据优先复核", 0)
+            and to_int(row, "源证据X4低风险抽检行数") == source_layer.get("X4-源证据低风险抽检但仍需三方闭环", 0)
+            and to_int(row, "源证据优先核页行数") == count_value(source_risk, "是否进入源证据优先核页清单", "true")
+            and to_int(row, "低置信度页专业行数") == count_value(source_risk, "低置信度页标记", "true")
+            and row.get("专业行ID集合SHA256") == base.get("专业行ID集合SHA256")
+            and row.get("专业行ID集合SHA256") == sha_list(item.get("专业行ID", "") for item in structural)
+            and row.get("专业组出现ID集合SHA256") == base.get("专业组出现ID集合SHA256")
+            and row.get("院校代码集合SHA256") == base.get("院校代码集合SHA256")
+            and row.get("结构风险事件ID集合SHA256") == sha_list(item.get("结构风险事件ID", "") for item in structural_risk)
+            and row.get("版面风险ID集合SHA256") == sha_list(item.get("版面连续性风险ID", "") for item in layout_risk)
+            and row.get("专业代号风险ID集合SHA256") == sha_list(item.get("专业代号顺序风险ID", "") for item in code_order_risk)
+            and row.get("官方查询键碰撞ID集合SHA256") == sha_list(item.get("官方查询键碰撞ID", "") for item in official_collision)
+            and row.get("教育部未匹配解析ID集合SHA256") == sha_list(item.get("未匹配校名解析ID", "") for item in moe_unmatched)
+            and row.get("官网差异账ID集合SHA256") == sha_list(item.get("公开官网差异账ID", "") for item in official_diff)
+            and row.get("决策闸门ID集合SHA256") == sha_list(item.get("决策闸门ID", "") for item in decision_gate)
+            and row.get("源证据风险侧账ID集合SHA256") == sha_list(item.get("源证据风险侧账ID", "") for item in source_risk)
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("字段事实写回状态") == "blocked_until_page_side_foundation_risks_verified"
+        )
+
+    ps_register_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [ps_register_summary_path, ps_register_csv]
+    )
+    ps_register_expected_priority_counts = {
+        "Z0-结构源证据或官方消歧阻断页列先核": 460,
+        "Z1-字段缺口和结构风险并行核页": 2,
+    }
+    checks.append(ok(
+        "第 19 期页列底座综合风险登记摘要和聚合守恒正确",
+        ps_register_summary.get("status") == "issue19_page_side_foundation_risk_register_not_final"
+        and ps_register_summary.get("generated_by")
+        == "build_issue19_page_side_foundation_risk_register.py"
+        and ps_register_summary.get("source_field_page_side_queue")
+        == "data/working/issue19-field-fact-page-side-verification-queue.csv"
+        and ps_register_summary.get("source_master_workbench")
+        == "data/working/issue19-admission-detail-master-workbench.csv"
+        and ps_register_summary.get("output_table")
+        == "data/working/issue19-page-side-foundation-risk-register.csv"
+        and ps_register_summary.get("row_count") == len(ps_register_rows) == 462
+        and ps_register_summary.get("unique_page_side_count") == 462
+        and ps_register_summary.get("unique_pdf_page_count") == 231
+        and ps_register_summary.get("source_major_line_count") == len(ps_master_rows) == 13736
+        and ps_register_summary.get("source_structural_major_line_count") == len(ps_structural_rows) == 13736
+        and ps_register_summary.get("source_field_task_count") == 41208
+        and ps_register_summary.get("priority_bucket_counts") == ps_register_expected_priority_counts
+        and ps_register_summary.get("field_q0_task_count") == 15813
+        and ps_register_summary.get("field_q1_task_count") == 21606
+        and ps_register_summary.get("field_q2_task_count") == 3789
+        and ps_register_summary.get("field_q0_task_count")
+        + ps_register_summary.get("field_q1_task_count")
+        + ps_register_summary.get("field_q2_task_count")
+        == ps_register_summary.get("source_field_task_count")
+        and ps_register_summary.get("structural_r0_major_line_count") == 129
+        and ps_register_summary.get("structural_r1_major_line_count") == 4330
+        and ps_register_summary.get("structural_r2_major_line_count") == 1544
+        and ps_register_summary.get("structural_r3_major_line_count") == 7733
+        and ps_register_summary.get("structural_r0_major_line_count")
+        + ps_register_summary.get("structural_r1_major_line_count")
+        + ps_register_summary.get("structural_r2_major_line_count")
+        + ps_register_summary.get("structural_r3_major_line_count")
+        == 13736
+        and ps_register_summary.get("structural_risk_event_count") == len(ps_structural_risk_rows) == 3108
+        and ps_register_summary.get("layout_risk_event_count") == len(ps_layout_risk_rows) == 1934
+        and ps_register_summary.get("code_order_risk_event_count") == len(ps_code_order_risk_rows) == 355
+        and ps_register_summary.get("official_key_collision_row_count") == len(ps_official_collision_rows) == 118
+        and ps_register_summary.get("moe_unmatched_major_line_count") == len(ps_moe_unmatched_rows) == 385
+        and ps_register_summary.get("official_diff_row_count") == len(ps_official_diff_rows) == 854
+        and ps_register_summary.get("official_plan_conflict_row_count") == 18
+        and ps_register_summary.get("official_unmatched_major_row_count") == 31
+        and ps_register_summary.get("decision_g0_count") == 4459
+        and ps_register_summary.get("decision_g1_count") == 2342
+        and ps_register_summary.get("decision_g2_count") == 6218
+        and ps_register_summary.get("decision_g3_count") == 350
+        and ps_register_summary.get("decision_g4_count") == 367
+        and ps_register_summary.get("source_x1_count") == 13
+        and ps_register_summary.get("source_x2_count") == 6086
+        and ps_register_summary.get("source_x3_count") == 7019
+        and ps_register_summary.get("source_x4_count") == 618
+        and ps_register_summary.get("source_priority_review_major_line_count") == 13118
+        and ps_register_summary.get("final_available_count") == 0
+        and ps_register_summary.get("next_stage_available_count") == 0
+        and ps_register_summary.get("recommendation_basis_allowed_count") == 0
+        and ps_register_summary.get("school_major_suggestion_allowed_count") == 0
+        and sum_field(ps_register_rows, "包内专业行数") == 13736
+        and sum_field(ps_register_rows, "包内字段任务数") == 41208
+        and sum_field(ps_register_rows, "字段Q0无候选阻断任务数") == 15813
+        and sum_field(ps_register_rows, "字段Q1有候选待人工核验任务数") == 21606
+        and sum_field(ps_register_rows, "字段Q2待三方闭环任务数") == 3789
+        and sum_field(ps_register_rows, "结构风险事件数") == 3108
+        and sum_field(ps_register_rows, "版面风险事件数") == 1934
+        and sum_field(ps_register_rows, "专业代号风险事件数") == 355
+        and Counter(row.get("综合风险优先级桶") for row in ps_register_rows)
+        == ps_register_expected_priority_counts,
+        f"{len(ps_register_rows)} page-side risk rows",
+    ))
+    checks.append(ok(
+        "第 19 期页列底座综合风险登记字段、主键、排序和逐页列回链正确",
+        ps_register_fields == expected_ps_register_fields
+        and len({row.get("页列底座综合风险登记ID") for row in ps_register_rows}) == 462
+        and len({page_side_key(row) for row in ps_register_rows}) == 462
+        and {page_side_key(row) for row in ps_register_rows} == set(ps_field_page_by_side)
+        and [as_int(row.get("页列综合风险总序")) for row in ps_register_rows] == list(range(1, 463))
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in ps_register_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in ps_register_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in ps_register_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in ps_register_rows)
+        and ps_register_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期页列底座综合风险登记公开文件不含私有路径、候选值、OCR原文、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(ps_register_public_text) is None
+        and "/Users/" not in ps_register_public_text
+        and "/home/" not in ps_register_public_text
+        and "/var/folders/" not in ps_register_public_text
+        and "/private/" not in ps_register_public_text
+        and "private/" not in ps_register_public_text
+        and "private\\" not in ps_register_public_text
+        and "ocr-runs" not in ps_register_public_text
+        and "rendered-pages" not in ps_register_public_text
+        and ".png" not in ps_register_public_text
+        and ".jpg" not in ps_register_public_text
+        and ".jpeg" not in ps_register_public_text
+        and ".webp" not in ps_register_public_text
+        and ".tif" not in ps_register_public_text
+        and ".tiff" not in ps_register_public_text
+        and ".heic" not in ps_register_public_text
+        and "Authorization" not in ps_register_public_text
+        and "Bearer " not in ps_register_public_text
+        and "Cookie" not in ps_register_public_text
+        and "院校名称OCR" not in ps_register_public_text
+        and "院校专业组代码OCR规范化" not in ps_register_public_text
+        and "专业代号OCR" not in ps_register_public_text
+        and "专业名称及备注" not in ps_register_public_text
+        and "组内招生明细" not in ps_register_public_text
+        and "机器候选字段值" not in ps_register_public_text
+        and "机器候选规范值" not in ps_register_public_text
+        and "高校官网字段候选值" not in ps_register_public_text
+        and "高校官网字段规范值" not in ps_register_public_text
+        and "裁图OCR候选字段值" not in ps_register_public_text
+        and "裁图OCR候选规范值" not in ps_register_public_text
+        and "裁图OCR候选行文本" not in ps_register_public_text
+        and "PDF原页人工读数" not in ps_register_public_text
+        and "湖北官方字段值" not in ps_register_public_text
+        and "高校官网或招生章程字段值" not in ps_register_public_text
+        and "字段确认值" not in ps_register_public_text
+        and "OCR文本" not in ps_register_public_text
+        and "OCR原文" not in ps_register_public_text
+        and "已确认" not in ps_register_public_text
+        and "已核准" not in ps_register_public_text
+        and "最终推荐" not in ps_register_public_text
+        and "最终方案" not in ps_register_public_text
+        and "可填报" not in ps_register_public_text
+        and "可排序" not in ps_register_public_text
+        and not any(token in ps_register_public_text for token in shared_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
