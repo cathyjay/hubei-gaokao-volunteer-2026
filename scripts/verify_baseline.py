@@ -49,6 +49,21 @@ def stable_id(prefix, parts):
     return f"{prefix}-{hashlib.sha1(text.encode('utf-8')).hexdigest()[:16]}"
 
 
+def counter_text(counter):
+    return "；".join(f"{key}:{value}" for key, value in sorted(counter.items())) if counter else ""
+
+
+def join_unique(rows, field):
+    values = []
+    seen = set()
+    for row in rows:
+        value = row.get(field, "")
+        if value and value not in seen:
+            seen.add(value)
+            values.append(value)
+    return "；".join(values)
+
+
 def script_list_constant(path, name):
     tree = ast.parse(path.read_text(encoding="utf-8"))
     for node in tree.body:
@@ -14522,6 +14537,394 @@ def main():
         and "可填报" not in p0_field_confirm_public_text
         and "可排序" not in p0_field_confirm_public_text
         and not any(token in p0_field_confirm_public_text for token in shared_forbidden_tokens),
+    ))
+
+    p0_field_confirm_mode_status_counts = Counter(
+        (
+            row.get("人工核验方式"),
+            row.get("是否需要双人复核"),
+            row.get("双人复核公开状态"),
+        )
+        for row in p0_field_confirm_rows
+    )
+    checks.append(ok(
+        "第 19 期 P0 即时字段确认双人复核状态机不按人工核验方式误判",
+        p0_field_confirm_mode_status_counts == {
+            ("双人复核", "true", "pending_double_review"): 288,
+            ("三方线索优先核验", "false", "double_review_not_required"): 26,
+            ("三方线索优先核验", "true", "pending_double_review"): 2,
+            ("单人初核加抽检", "false", "double_review_not_required"): 3,
+        }
+        and all(
+            (row.get("是否需要双人复核") == "true")
+            == (row.get("双人复核公开状态") == "pending_double_review")
+            for row in p0_field_confirm_rows
+        )
+        and all(
+            (row.get("是否有高校字段线索") == "true")
+            == (row.get("高校辅证私有记录状态") == "pending_private_school_reading")
+            for row in p0_field_confirm_rows
+        ),
+    ))
+
+    p0_page_packet_summary_path = ROOT / "data/working/issue19-p0-immediate-page-review-packets-summary.json"
+    p0_page_packet_csv = ROOT / "data/working/issue19-p0-immediate-page-review-packets.csv"
+    p0_page_packet_summary = json.loads(p0_page_packet_summary_path.read_text())
+    with p0_page_packet_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_page_packet_reader = csv.DictReader(f)
+        p0_page_packet_rows = list(p0_page_packet_reader)
+        p0_page_packet_fields = p0_page_packet_reader.fieldnames or []
+    expected_p0_page_packet_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_p0_immediate_page_review_packets.py",
+        "FIELDS",
+    )
+
+    def p0_page_packet_sort_key(row):
+        priority = as_int(row.get("人工核验优先级数值"))
+        order = as_int(row.get("字段确认公开账本总序"))
+        return (
+            priority if priority is not None else 9999,
+            order if order is not None else 9999,
+            row.get("P0字段即时复核任务ID", ""),
+        )
+
+    def p0_page_packet_priority(rows):
+        values = [
+            as_int(row.get("人工核验优先级数值"))
+            for row in rows
+            if as_int(row.get("人工核验优先级数值")) is not None
+        ]
+        return min(values) if values else 9999
+
+    p0_page_packet_groups = defaultdict(list)
+    for row in p0_field_confirm_rows:
+        p0_page_packet_groups[(as_int(row.get("来源页码")), row.get("版面列"))].append(row)
+    p0_page_packet_by_key = {
+        (as_int(row.get("来源页码")), row.get("版面列")): row for row in p0_page_packet_rows
+    }
+    p0_page_packet_hash_re = re.compile(r"^[0-9a-f]{64}$")
+    p0_page_packet_join_ok = True
+    p0_page_packet_seen_task_ids = []
+    for key, group_rows in p0_page_packet_groups.items():
+        packet_row = p0_page_packet_by_key.get(key, {})
+        group_rows = sorted(group_rows, key=p0_page_packet_sort_key)
+        page, side = key
+        crop_rows = [
+            p0_crop_by_task_id.get(row.get("P0字段即时复核任务ID", ""), {})
+            for row in group_rows
+        ]
+        packet_id = stable_id(
+            "P0PAGEPACK",
+            [
+                page,
+                side,
+                len(group_rows),
+                group_rows[0].get("P0字段即时复核任务ID", ""),
+            ],
+        )
+        field_counter = Counter(row.get("字段名") for row in group_rows)
+        lane_counter = Counter(row.get("人工核验泳道") for row in group_rows)
+        batch_counter = Counter(row.get("执行批次") for row in group_rows)
+        helper_counter = Counter(row.get("裁图OCR三方辅助桶") for row in group_rows)
+        p0_page_packet_seen_task_ids.extend(
+            row.get("P0字段即时复核任务ID", "") for row in group_rows
+        )
+        p0_page_packet_join_ok = (
+            p0_page_packet_join_ok
+            and bool(packet_row)
+            and packet_row.get("P0即时按页核页包ID") == packet_id
+            and packet_row.get("来源P0即时字段确认公开账本")
+            == "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv"
+            and packet_row.get("来源私有裁图索引") == "private_crop_index_not_public"
+            and packet_row.get("来源私有字段确认工作台")
+            == "private_field_confirmation_workbench_not_public"
+            and packet_row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and packet_row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and packet_row.get("数据阶段") == "issue19_p0_immediate_page_review_packets"
+            and packet_row.get("主表粒度") == "PDF页码×版面列"
+            and packet_row.get("任务粒度") == "PDF页码×版面列×P0字段确认核页包"
+            and packet_row.get("最终可用") == "false"
+            and packet_row.get("可进入下一阶段") == "false"
+            and packet_row.get("机器是否允许自动写回主表") == "false"
+            and packet_row.get("机器是否允许自动回填候选") == "false"
+            and packet_row.get("是否允许写回字段") == "false"
+            and packet_row.get("是否允许作为志愿推荐依据") == "false"
+            and packet_row.get("是否允许生成学校专业建议") == "false"
+            and packet_row.get("页码版面键") == f"{page:03d}-{side}"
+            and as_int(packet_row.get("包内字段任务数")) == len(group_rows)
+            and as_int(packet_row.get("包内专业行数"))
+            == len({row.get("专业行ID") for row in group_rows})
+            and as_int(packet_row.get("包内裁图证据数"))
+            == len({row.get("裁图证据编号") for row in group_rows})
+            and packet_row.get("包内字段名分布") == counter_text(field_counter)
+            and packet_row.get("包内人工核验泳道分布") == counter_text(lane_counter)
+            and packet_row.get("包内执行批次分布") == counter_text(batch_counter)
+            and packet_row.get("包内裁图OCR辅助桶分布") == counter_text(helper_counter)
+            and as_int(packet_row.get("包内最高优先级数值")) == p0_page_packet_priority(group_rows)
+            and (packet_row.get("包内是否含冲突优先任务") == "true")
+            == any("冲突" in row.get("人工核验泳道", "") for row in group_rows)
+            and (packet_row.get("包内是否含计划数偏大任务") == "true")
+            == any("计划数偏大" in row.get("人工核验泳道", "") for row in group_rows)
+            and (packet_row.get("包内是否含裁图未稳定补读任务") == "true")
+            == any("未稳定补读" in row.get("人工核验泳道", "") for row in group_rows)
+            and (packet_row.get("包内是否含高校辅证线索") == "true")
+            == any(row.get("高校辅证私有记录状态") == "pending_private_school_reading" for row in group_rows)
+            and (packet_row.get("包内是否需要双人复核") == "true")
+            == any(row.get("是否需要双人复核") == "true" for row in group_rows)
+            and as_int(packet_row.get("包内双人复核任务数"))
+            == sum(row.get("是否需要双人复核") == "true" for row in group_rows)
+            and as_int(packet_row.get("包内高校辅证私有记录待完成数"))
+            == sum(row.get("高校辅证私有记录状态") == "pending_private_school_reading" for row in group_rows)
+            and as_int(packet_row.get("包内PDF私有记录待完成数"))
+            == sum(row.get("PDF原页私有记录状态") == "pending_private_pdf_reading" for row in group_rows)
+            and as_int(packet_row.get("包内湖北官方私有记录待完成数"))
+            == sum(row.get("湖北官方私有记录状态") == "pending_private_hubei_reading" for row in group_rows)
+            and as_int(packet_row.get("包内字段写回评估可进入数"))
+            == sum(row.get("字段事实写回评估状态") == "ready_for_manual_field_writeback_review" for row in group_rows)
+            and as_int(packet_row.get("包内字段冲突阻断数"))
+            == sum(row.get("字段事实写回评估状态") == "blocked_conflict_needs_manual_resolution" for row in group_rows)
+            and packet_row.get("字段确认公开账本ID集合") == join_unique(group_rows, "P0即时字段确认公开账本ID")
+            and packet_row.get("P0字段即时复核任务ID集合") == join_unique(group_rows, "P0字段即时复核任务ID")
+            and packet_row.get("裁图证据编号集合") == join_unique(group_rows, "裁图证据编号")
+            and packet_row.get("裁图文件SHA256集合") == join_unique(group_rows, "裁图文件SHA256")
+            and packet_row.get("裁图规格SHA256集合") == join_unique(group_rows, "裁图规格SHA256")
+            and packet_row.get("裁图bbox归一化集合") == join_unique(group_rows, "裁图bbox归一化")
+            and packet_row.get("私有页图证据编号集合") == join_unique(crop_rows, "私有页图证据编号")
+            and packet_row.get("私有页图SHA256集合") == join_unique(crop_rows, "私有页图SHA256")
+            and packet_row.get("私有审阅HTML证据编号") == f"PRIVATEHTML-{packet_id}"
+            and bool(p0_page_packet_hash_re.match(packet_row.get("私有审阅HTML_SHA256", "")))
+            and bool(p0_page_packet_hash_re.match(packet_row.get("私有审阅任务CSV_SHA256", "")))
+            and packet_row.get("私有审阅材料状态") == "private_page_side_review_material_generated"
+            and packet_row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and packet_row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and packet_row.get("高校官网或招生章程辅证状态") == "pending_if_school_clue_present"
+            and packet_row.get("三方字段一致性状态") == "pending_private_three_way_field_confirmation"
+            and packet_row.get("字段事实写回状态") == "blocked_until_required_private_readings_complete"
+        )
+    p0_page_packet_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_page_packet_summary_path, p0_page_packet_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 即时按页核页包摘要、页列聚合和任务守恒正确",
+        p0_page_packet_summary.get("status") == "issue19_p0_immediate_page_review_packets_not_final"
+        and p0_page_packet_summary.get("generated_by")
+        == "build_issue19_p0_immediate_page_review_packets.py"
+        and p0_page_packet_summary.get("source_field_confirmation_public_ledger")
+        == "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv"
+        and p0_page_packet_summary.get("source_private_crop_index") == "private_crop_index_not_public"
+        and p0_page_packet_summary.get("source_private_field_confirmation_workbench")
+        == "private_field_confirmation_workbench_not_public"
+        and p0_page_packet_summary.get("output_table")
+        == "data/working/issue19-p0-immediate-page-review-packets.csv"
+        and p0_page_packet_summary.get("row_grain") == "PDF页码×版面列"
+        and p0_page_packet_summary.get("source_issue") == "湖北招生考试2026年19期·本科普通批（下）"
+        and p0_page_packet_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and p0_page_packet_summary.get("row_count") == 148
+        and p0_page_packet_summary.get("private_page_side_review_material_generated") is True
+        and p0_page_packet_summary.get("unique_packet_id_count") == 148
+        and p0_page_packet_summary.get("unique_pdf_page_count") == 114
+        and p0_page_packet_summary.get("unique_page_side_count") == 148
+        and p0_page_packet_summary.get("total_field_task_count") == 319
+        and p0_page_packet_summary.get("total_crop_evidence_count") == 319
+        and p0_page_packet_summary.get("total_double_review_task_count") == 290
+        and p0_page_packet_summary.get("total_school_private_record_pending_count") == 75
+        and p0_page_packet_summary.get("total_pdf_private_record_pending_count") == 319
+        and p0_page_packet_summary.get("total_hubei_private_record_pending_count") == 319
+        and p0_page_packet_summary.get("total_field_writeback_ready_count") == 0
+        and p0_page_packet_summary.get("total_field_conflict_blocked_count") == 0
+        and p0_page_packet_summary.get("packet_task_count_distribution") == {
+            "1": 82,
+            "2": 33,
+            "3": 17,
+            "4": 6,
+            "5": 1,
+            "6": 3,
+            "8": 2,
+            "10": 2,
+            "17": 1,
+            "20": 1,
+        }
+        and p0_page_packet_summary.get("page_side_counts") == {
+            "left": 59,
+            "right": 89,
+        }
+        and p0_page_packet_summary.get("packets_with_conflict_priority_count") == 11
+        and p0_page_packet_summary.get("packets_with_large_plan_count") == 8
+        and p0_page_packet_summary.get("packets_with_unstable_crop_ocr_count") == 38
+        and p0_page_packet_summary.get("packets_with_school_clue_count") == 11
+        and p0_page_packet_summary.get("packets_requiring_double_review_count") == 148
+        and p0_page_packet_summary.get("final_available_count") == 0
+        and p0_page_packet_summary.get("next_stage_available_count") == 0
+        and p0_page_packet_summary.get("field_writeback_allowed_count") == 0
+        and p0_page_packet_summary.get("recommendation_basis_allowed_count") == 0
+        and p0_page_packet_summary.get("school_major_suggestion_allowed_count") == 0
+        and len(p0_page_packet_rows) == 148
+        and len(p0_page_packet_groups) == 148
+        and len({key[0] for key in p0_page_packet_groups}) == 114
+        and Counter(row.get("版面列") for row in p0_page_packet_rows) == {"left": 59, "right": 89}
+        and len(p0_page_packet_seen_task_ids) == 319
+        and len(set(p0_page_packet_seen_task_ids)) == 319
+        and set(p0_page_packet_seen_task_ids)
+        == {row.get("P0字段即时复核任务ID") for row in p0_field_confirm_rows},
+        f"{len(p0_page_packet_rows)} page-side packets",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时按页核页包字段、门禁、页列主键和证据聚合正确",
+        p0_page_packet_fields == expected_p0_page_packet_fields
+        and [as_int(row.get("按页核页包总序")) for row in p0_page_packet_rows] == list(range(1, 149))
+        and len({row.get("P0即时按页核页包ID") for row in p0_page_packet_rows}) == 148
+        and len({(row.get("来源页码"), row.get("版面列")) for row in p0_page_packet_rows}) == 148
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in p0_page_packet_rows)
+        and all(row.get("是否允许写回字段") == "false" for row in p0_page_packet_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in p0_page_packet_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in p0_page_packet_rows)
+        and p0_page_packet_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时按页核页包公开文件不含私有路径、图片路径、候选读数、识别文本、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(p0_page_packet_public_text) is None
+        and "/Users/" not in p0_page_packet_public_text
+        and "/home/" not in p0_page_packet_public_text
+        and "/var/folders/" not in p0_page_packet_public_text
+        and "/private/" not in p0_page_packet_public_text
+        and "private/" not in p0_page_packet_public_text
+        and "private\\" not in p0_page_packet_public_text
+        and "ocr-runs" not in p0_page_packet_public_text
+        and "rendered-pages" not in p0_page_packet_public_text
+        and ".png" not in p0_page_packet_public_text
+        and ".jpg" not in p0_page_packet_public_text
+        and ".jpeg" not in p0_page_packet_public_text
+        and ".webp" not in p0_page_packet_public_text
+        and ".tif" not in p0_page_packet_public_text
+        and ".tiff" not in p0_page_packet_public_text
+        and ".heic" not in p0_page_packet_public_text
+        and "Authorization" not in p0_page_packet_public_text
+        and "Bearer " not in p0_page_packet_public_text
+        and "Cookie" not in p0_page_packet_public_text
+        and "院校名称OCR" not in p0_page_packet_public_text
+        and "院校专业组代码OCR规范化" not in p0_page_packet_public_text
+        and "专业代号OCR" not in p0_page_packet_public_text
+        and "专业名称及备注" not in p0_page_packet_public_text
+        and "组内招生明细" not in p0_page_packet_public_text
+        and "机器候选字段值" not in p0_page_packet_public_text
+        and "机器候选规范值" not in p0_page_packet_public_text
+        and "高校官网字段候选值" not in p0_page_packet_public_text
+        and "高校官网字段规范值" not in p0_page_packet_public_text
+        and "裁图OCR候选字段值" not in p0_page_packet_public_text
+        and "裁图OCR候选规范值" not in p0_page_packet_public_text
+        and "裁图OCR候选行文本" not in p0_page_packet_public_text
+        and "PDF原页人工读数" not in p0_page_packet_public_text
+        and "湖北官方字段值" not in p0_page_packet_public_text
+        and "高校官网或招生章程字段值" not in p0_page_packet_public_text
+        and "字段确认值" not in p0_page_packet_public_text
+        and "OCR文本" not in p0_page_packet_public_text
+        and "OCR原文" not in p0_page_packet_public_text
+        and "已确认" not in p0_page_packet_public_text
+        and "已核准" not in p0_page_packet_public_text
+        and "最终推荐" not in p0_page_packet_public_text
+        and "最终方案" not in p0_page_packet_public_text
+        and "可填报" not in p0_page_packet_public_text
+        and "可排序" not in p0_page_packet_public_text
+        and not any(token in p0_page_packet_public_text for token in shared_forbidden_tokens),
+    ))
+
+    p0_page_private_index_path = (
+        ROOT / "private/review-assets/issue19-p0-immediate-page-review-packets/page-side-packets-private-index.csv"
+    )
+    p0_page_private_master_html_path = (
+        ROOT / "private/review-assets/issue19-p0-immediate-page-review-packets/index.html"
+    )
+    p0_private_crop_index_path = ROOT / "private/review-assets/issue19-p0-immediate-pdf-crops/crop-index.csv"
+    p0_private_field_workbench_path = (
+        ROOT / "private/review-assets/issue19-p0-immediate-field-confirmation/field-confirmation-private-workbench.csv"
+    )
+    p0_page_private_paths = [
+        p0_page_private_index_path,
+        p0_page_private_master_html_path,
+        p0_private_crop_index_path,
+        p0_private_field_workbench_path,
+    ]
+    p0_page_private_optional_ok = True
+    p0_page_private_detail = "private assets absent"
+    if any(path.exists() for path in p0_page_private_paths):
+        p0_page_private_optional_ok = all(path.exists() for path in p0_page_private_paths)
+        if p0_page_private_optional_ok:
+            with p0_page_private_index_path.open(newline="", encoding="utf-8-sig") as f:
+                p0_page_private_rows = list(csv.DictReader(f))
+            with p0_private_crop_index_path.open(newline="", encoding="utf-8-sig") as f:
+                p0_private_crop_rows = list(csv.DictReader(f))
+            with p0_private_field_workbench_path.open(newline="", encoding="utf-8-sig") as f:
+                p0_private_field_rows = list(csv.DictReader(f))
+            p0_page_packet_public_by_id = {
+                row.get("P0即时按页核页包ID"): row for row in p0_page_packet_rows
+            }
+            private_task_total = 0
+            private_packet_files_ok = True
+            for private_row in p0_page_private_rows:
+                public_row = p0_page_packet_public_by_id.get(private_row.get("P0即时按页核页包ID", ""), {})
+                html_path = ROOT / private_row.get("私有审阅HTML相对路径", "")
+                task_csv_path = ROOT / private_row.get("私有审阅任务CSV相对路径", "")
+                private_packet_files_ok = (
+                    private_packet_files_ok
+                    and bool(public_row)
+                    and html_path.exists()
+                    and task_csv_path.exists()
+                    and sha256(html_path) == public_row.get("私有审阅HTML_SHA256")
+                    and sha256(task_csv_path) == public_row.get("私有审阅任务CSV_SHA256")
+                )
+                if task_csv_path.exists():
+                    with task_csv_path.open(newline="", encoding="utf-8-sig") as f:
+                        task_rows = list(csv.DictReader(f))
+                    private_task_total += len(task_rows)
+                    private_packet_files_ok = (
+                        private_packet_files_ok
+                        and len(task_rows) == as_int(public_row.get("包内字段任务数"))
+                    )
+            p0_private_blank_fields = [
+                "PDF原页人工读数",
+                "湖北官方字段值",
+                "高校官网或招生章程字段值",
+                "字段确认值",
+                "PDF核页复核人A",
+                "PDF核页复核人B",
+                "湖北官方核验人",
+                "高校辅证核验人",
+                "人工复核备注",
+            ]
+            p0_page_private_optional_ok = (
+                len(p0_page_private_rows) == 148
+                and len(p0_private_crop_rows) == 319
+                and len(p0_private_field_rows) == 319
+                and private_packet_files_ok
+                and private_task_total == 319
+                and p0_page_private_master_html_path.exists()
+                and all(
+                    (p0_private_crop_index_path.parent / row.get("本地裁图文件名", "")).exists()
+                    for row in p0_private_crop_rows
+                )
+                and all(row.get("私有OCR图片本地路径") for row in p0_private_field_rows)
+                and all(
+                    not row.get(field)
+                    for row in p0_private_field_rows
+                    for field in p0_private_blank_fields
+                )
+                and Counter(row.get("高校辅证私有记录状态") for row in p0_private_field_rows)
+                == {
+                    "pending_private_school_reading": 75,
+                    "not_applicable_no_school_field_clue": 244,
+                }
+                and Counter(row.get("双人复核公开状态") for row in p0_private_field_rows)
+                == {
+                    "pending_double_review": 290,
+                    "double_review_not_required": 29,
+                }
+            )
+            p0_page_private_detail = "private assets present"
+    checks.append(ok(
+        "第 19 期 P0 即时私有页列核页材料存在时本地文件、空白人工字段和状态计数一致",
+        p0_page_private_optional_ok,
+        p0_page_private_detail,
     ))
 
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
