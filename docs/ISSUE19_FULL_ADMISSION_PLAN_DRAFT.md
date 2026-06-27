@@ -88,6 +88,8 @@
 | `data/working/issue19-major-source-evidence-risk-sidecar-summary.json` | 逐专业源证据风险侧账摘要 | 看 X1/X2/X3/X4 源证据下沉分层、优先核页数量、P0 工作清单覆盖和不可推荐门禁 |
 | `data/working/issue19-field-fact-closure-ledger.csv` | 字段事实闭环总账 | 覆盖全部 13736 条招生专业明细；把再选科目、专业计划数、学费三项关键字段的 OCR 候选、字段缺口候选、PDF 原页待核、湖北官方待核和下一步补证入口合到同一条 `专业行ID` |
 | `data/working/issue19-field-fact-closure-ledger-summary.json` | 字段事实闭环摘要 | 看 L0-L4 字段闭环等级、Q0-Q2 阻断等级、K0/K1/K2 三字段状态、字段候选任务 19065 条和非空候选 7621 条 |
+| `data/working/issue19-field-fact-verification-tasks.csv` | 字段事实核验任务队列 | 覆盖 41208 条逐字段任务；每条招生专业明细拆成再选科目、专业计划数、学费三项任务，回连字段总账和页级保真队列 |
+| `data/working/issue19-field-fact-verification-tasks-summary.json` | 字段事实核验任务摘要 | 看 K0 无候选原页重读 11444 条、K1 有候选待核 7621 条、K2 OCR 候选待三方闭环 22143 条；全部仍非最终 |
 | `data/working/issue19-major-line-layout-continuity-risk-ledger.csv` | 专业行版面连续性风险清单 | 1934 条风险事件；只用公开原页锚点字段检查行号和坐标连续性 |
 | `data/working/issue19-major-code-order-risk-ledger.csv` | 专业代号顺序风险清单 | 355 条风险事件；检查专业代号无法解析、相邻不递增和大跳变 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |
@@ -507,8 +509,9 @@ OCR 字段不等于最终事实。
 47. **官方公开入口状态快照**：`data/working/issue19-official-public-entry-status.json` 记录 2026-06-27 湖北教育考试网招生计划页面和索引页公开 HTTP 复核状态，计划页 SHA 为 `5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776` 且仍含“持续更新中/敬请期待”；湖北招生数智平台无登录探针仍为 401。该快照只说明当前官方公开入口边界，不能替代第 19 期逐专业明细、湖北官方系统字段核验和高校章程交叉核验。
 48. **未匹配校名逐专业解析**：`data/working/issue19-moe-unmatched-school-resolution-major-detail.csv` 把教育部未匹配的 385 条专业明细展开为核名工作台；历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则候选 90 条，但 `机器能否自动替换校名=false` 全量保持，任何校名修正必须回看 PDF 原页、湖北官方系统和学校官网/章程。
 49. **版面和代号侧账**：`data/working/issue19-major-line-layout-continuity-risk-ledger.csv` 和 `data/working/issue19-major-code-order-risk-ledger.csv` 分别记录版面连续性和专业代号顺序风险，只用于核页派单和消歧，不自动修正 OCR。
-50. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
-51. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
+50. **字段事实核验任务**：`data/working/issue19-field-fact-verification-tasks.csv` 把 13736 条招生专业明细拆成 41208 条逐字段核验任务，一行一个 `专业行ID × 字段名`。它只安排再选科目、专业计划数、学费的原页重读、候选值回看和湖北官方核验顺序，不写回主表，不生成学校或专业建议。
+51. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
+52. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
 
 ## 五、下一步复核优先级
 

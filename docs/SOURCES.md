@@ -258,6 +258,8 @@
 - `data/working/issue19-major-source-evidence-risk-sidecar-summary.json`：逐专业源证据风险侧账摘要；记录 X1 专业窗口 P0 先核 13 条、X2 起始行 P0_QC 先核 6086 条、X3 源证据优先复核 7019 条、X4 低风险抽检 618 条，源证据优先核页合计 13118 条；所有行仍禁止自动写回和禁止作为志愿推荐依据。
 - `data/working/issue19-field-fact-closure-ledger.csv`：第 19 期字段事实闭环总账，13736 行；一行一个招生专业明细，把单一逐专业招生明细总工作台、源证据风险侧账、字段缺口候选表、湖北官方系统核验包、B0/B1 官网证据旁挂表和逐专业决策闸门合到同一条 `专业行ID`。当前只核再选科目、专业计划数、学费三项关键字段的事实状态、候选任务、官方/PDF 待核状态和下一步补证入口，不生成志愿推荐。
 - `data/working/issue19-field-fact-closure-ledger-summary.json`：字段事实闭环总账摘要；记录 L0 三字段缺口 693 条、L1 两字段缺口 5206 条、L2 单字段缺口有候选 3803 条、L3 单字段缺口无候选 2771 条、L4 三字段 OCR 齐全但待三方闭环 1263 条；字段候选任务 19065 条、非空候选 7621 条，PDF 原页和湖北官方字段核验仍全部待核。
+- `data/working/issue19-field-fact-verification-tasks.csv`：第 19 期字段事实核验任务队列，41208 行；一行对应一个招生专业明细和一个关键字段，即 13736 条专业明细 × 再选科目、专业计划数、学费。用于逐字段安排原页重读、候选值回看、湖北官方系统核验和高校官网/章程辅证，全部不自动写回、不生成学校或专业建议。
+- `data/working/issue19-field-fact-verification-tasks-summary.json`：字段事实核验任务摘要；记录三字段各 13736 条任务，K0 无候选原页重读 11444 条、K1 有候选待核 7621 条、K2 OCR 候选待三方闭环 22143 条，页级保真队列命中 41208 条。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -360,6 +362,7 @@
 - `scripts/build_issue19_official_public_entry_status_snapshot.py`：生成官方公开入口状态快照；只记录公开页面 SHA 和无登录探针边界，不保存登录态。
 - `scripts/build_issue19_major_source_evidence_risk_sidecar.py`：生成逐专业源证据风险侧账，把原始源证据风险、底座稳定性、闭环缺口和 P0 复核任务下沉到 `专业行ID`。
 - `scripts/build_issue19_field_fact_closure_ledger.py`：生成字段事实闭环总账，逐专业汇总再选科目、专业计划数、学费的 OCR 候选、字段缺口候选、PDF/湖北官方待核状态和禁止写回边界。
+- `scripts/build_issue19_field_fact_verification_tasks.py`：生成字段事实核验任务队列，把每条招生专业明细拆成再选科目、专业计划数、学费三项字段任务，并回连字段事实总账和页级保真队列。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

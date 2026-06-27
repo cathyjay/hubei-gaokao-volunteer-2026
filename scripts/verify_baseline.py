@@ -11461,6 +11461,248 @@ def main():
         and not any(token in field_fact_public_text for token in shared_forbidden_tokens),
     ))
 
+    field_fact_tasks_summary_path = ROOT / "data/working/issue19-field-fact-verification-tasks-summary.json"
+    field_fact_tasks_csv = ROOT / "data/working/issue19-field-fact-verification-tasks.csv"
+    field_fact_tasks_summary = json.loads(field_fact_tasks_summary_path.read_text())
+    with field_fact_tasks_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_fact_tasks_reader = csv.DictReader(f)
+        field_fact_tasks_rows = list(field_fact_tasks_reader)
+        field_fact_tasks_fields = field_fact_tasks_reader.fieldnames or []
+    expected_field_fact_tasks_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_field_fact_verification_tasks.py",
+        "FIELDS",
+    )
+    field_fact_by_major_id = {row.get("专业行ID"): row for row in field_fact_rows}
+    field_fact_task_fields_by_major_id = defaultdict(set)
+    for row in field_fact_tasks_rows:
+        field_fact_task_fields_by_major_id[row.get("专业行ID", "")].add(row.get("字段名", ""))
+
+    def verify_field_task_priority(status):
+        if status.startswith("K0-"):
+            return "P0-字段无候选原页重读"
+        if status.startswith("K1-"):
+            return "P1-字段有候选回看原页和官方"
+        if status.startswith("K2-"):
+            return "P3-OCR齐全字段三方闭环"
+        return "P4-人工确认或异常字段最终门禁复核"
+
+    field_fact_task_page_counts = Counter(row.get("来源页码") for row in field_fact_tasks_rows)
+    field_fact_task_page_k0_counts = Counter(
+        row.get("来源页码")
+        for row in field_fact_tasks_rows
+        if row.get("字段事实状态", "").startswith("K0-")
+    )
+    field_fact_task_page_k1_counts = Counter(
+        row.get("来源页码")
+        for row in field_fact_tasks_rows
+        if row.get("字段事实状态", "").startswith("K1-")
+    )
+    field_fact_task_page_k2_counts = Counter(
+        row.get("来源页码")
+        for row in field_fact_tasks_rows
+        if row.get("字段事实状态", "").startswith("K2-")
+    )
+    field_fact_task_page_sequence = Counter()
+    field_fact_task_join_ok = True
+    for index, row in enumerate(field_fact_tasks_rows, start=1):
+        major_id = row.get("专业行ID", "")
+        field_name = row.get("字段名", "")
+        fact_row = field_fact_by_major_id.get(major_id, {})
+        page_row = page_fidelity_by_page.get(as_int(row.get("来源页码")))
+        field_fact_task_page_sequence[row.get("来源页码", "")] += 1
+        field_fact_task_join_ok = (
+            field_fact_task_join_ok
+            and bool(fact_row)
+            and bool(page_row)
+            and field_name in {"再选科目", "专业计划数", "学费"}
+            and row.get("字段事实核验任务ID")
+            == stable_id("FIELDVERIFY", [major_id, field_name, issue19_source["source"]["sha256"]])
+            and row.get("来源字段事实闭环总账")
+            == "data/working/issue19-field-fact-closure-ledger.csv"
+            and row.get("来源页级保真复核队列")
+            == "data/working/issue19-page-fidelity-review-queue.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_field_fact_verification_tasks"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×关键字段"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("任务状态") == "pending_field_fact_verification"
+            and row.get("字段核验优先级") == verify_field_task_priority(row.get("字段事实状态", ""))
+            and as_int(row.get("字段核验优先序")) == index
+            and as_int(row.get("页内字段任务序")) == field_fact_task_page_sequence[row.get("来源页码", "")]
+            and as_int(row.get("页内字段任务数")) == field_fact_task_page_counts[row.get("来源页码")]
+            and as_int(row.get("页内阻断字段任务数")) == field_fact_task_page_k0_counts[row.get("来源页码")]
+            and as_int(row.get("页内无候选字段任务数")) == field_fact_task_page_k0_counts[row.get("来源页码")]
+            and as_int(row.get("页内有候选字段任务数")) == field_fact_task_page_k1_counts[row.get("来源页码")]
+            and as_int(row.get("页内OCR齐全待核字段任务数")) == field_fact_task_page_k2_counts[row.get("来源页码")]
+            and row.get("字段事实闭环ID") == fact_row.get("字段事实闭环ID")
+            and row.get("专业组出现ID") == fact_row.get("专业组出现ID")
+            and row.get("院校代码") == fact_row.get("院校代码")
+            and row.get("院校名称OCR") == fact_row.get("院校名称OCR")
+            and row.get("院校专业组代码OCR规范化")
+            == fact_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == fact_row.get("来源页码")
+            and row.get("版面列") == fact_row.get("版面列")
+            and row.get("专业组内专业序号") == fact_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == fact_row.get("专业代号OCR")
+            and row.get("专业名称及备注短摘") == fact_row.get("专业名称及备注短摘")
+            and row.get("字段OCR候选") == fact_row.get(f"{field_name}OCR候选")
+            and row.get("字段人工确认") == fact_row.get(f"{field_name}人工确认")
+            and row.get("字段事实状态") == fact_row.get(f"{field_name}字段事实状态")
+            and row.get("字段候选任务数") == fact_row.get(f"{field_name}候选任务数")
+            and row.get("字段非空候选数") == fact_row.get(f"{field_name}非空候选数")
+            and row.get("字段候选值集合") == fact_row.get(f"{field_name}候选值集合")
+            and row.get("字段候选来源类型集合") == fact_row.get(f"{field_name}候选来源类型集合")
+            and row.get("字段候选置信等级集合") == fact_row.get(f"{field_name}候选置信等级集合")
+            and row.get("字段候选状态集合") == fact_row.get(f"{field_name}候选状态集合")
+            and row.get("字段PDF核验状态") == fact_row.get(f"{field_name}PDF核验状态")
+            and row.get("字段湖北官方核验状态") == fact_row.get(f"{field_name}官方核验状态")
+            and row.get("字段下一步") == fact_row.get(f"{field_name}下一步")
+            and row.get("字段事实闭环等级") == fact_row.get("字段事实闭环等级")
+            and row.get("字段事实阻断等级") == fact_row.get("字段事实阻断等级")
+            and row.get("字段事实缺口类型") == fact_row.get("字段事实缺口类型")
+            and row.get("字段缺口数") == fact_row.get("字段缺口数")
+            and row.get("字段缺口字段") == fact_row.get("字段缺口字段")
+            and row.get("三字段OCR完整状态") == fact_row.get("三字段OCR完整状态")
+            and row.get("源证据下沉分层") == fact_row.get("源证据下沉分层")
+            and row.get("源证据核页优先级") == fact_row.get("源证据核页优先级")
+            and row.get("底座稳定性等级") == fact_row.get("底座稳定性等级")
+            and row.get("看板动作桶") == fact_row.get("看板动作桶")
+            and row.get("风险阻断等级") == fact_row.get("风险阻断等级")
+            and row.get("候选初筛闸门状态") == fact_row.get("候选初筛闸门状态")
+            and row.get("初筛动作桶") == fact_row.get("初筛动作桶")
+            and row.get("湖北官方核验包任务ID") == fact_row.get("湖北官方核验包任务ID")
+            and row.get("高校官网证据匹配状态") == fact_row.get("高校官网证据匹配状态")
+            and row.get("B0B1官网证据任务数") == fact_row.get("B0B1官网证据任务数")
+            and row.get("官网证据能否替代湖北官方计划")
+            == fact_row.get("官网证据能否替代湖北官方计划")
+            and row.get("页级保真队列ID") == page_row.get("页级保真队列ID")
+            and row.get("页面复核优先级") == page_row.get("页面复核优先级")
+            and row.get("页面阻断等级") == page_row.get("页面阻断等级")
+            and row.get("私有页图证据编号") == page_row.get("私有页图证据编号")
+            and row.get("私有页图SHA256") == page_row.get("私有页图SHA256")
+            and row.get("私有OCR文本证据编号") == page_row.get("私有OCR文本证据编号")
+            and row.get("私有OCR文本SHA256") == page_row.get("私有OCR文本SHA256")
+            and row.get("OCR平均置信度") == page_row.get("OCR平均置信度")
+            and row.get("OCR_QC_P0数") == page_row.get("OCR_QC_P0数")
+            and row.get("OCR_QC_P1数") == page_row.get("OCR_QC_P1数")
+            and row.get("页面专业明细数") == page_row.get("页面专业明细数")
+            and row.get("页面结构异常数") == page_row.get("页面结构异常数")
+            and row.get("页面高严重结构异常数") == page_row.get("页面高严重结构异常数")
+            and "不得用于志愿推荐" in row.get("不得进入原因", "")
+        )
+    field_fact_tasks_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [field_fact_tasks_summary_path, field_fact_tasks_csv]
+    )
+    checks.append(ok(
+        "第 19 期字段事实核验任务队列摘要、行数和分布正确",
+        field_fact_tasks_summary.get("status") == "issue19_field_fact_verification_tasks_not_final"
+        and field_fact_tasks_summary.get("generated_by")
+        == "build_issue19_field_fact_verification_tasks.py"
+        and field_fact_tasks_summary.get("output_table")
+        == "data/working/issue19-field-fact-verification-tasks.csv"
+        and field_fact_tasks_summary.get("row_grain") == "逐专业招生明细×关键字段"
+        and field_fact_tasks_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and field_fact_tasks_summary.get("row_count") == 41208
+        and field_fact_tasks_summary.get("unique_task_id_count") == 41208
+        and field_fact_tasks_summary.get("unique_major_line_id_count") == 13736
+        and field_fact_tasks_summary.get("unique_pdf_page_count") == 231
+        and field_fact_tasks_summary.get("source_counts") == {
+            "field_fact_ledger_row_count": 13736,
+            "page_fidelity_queue_row_count": 231,
+        }
+        and field_fact_tasks_summary.get("field_counts") == {
+            "专业计划数": 13736,
+            "再选科目": 13736,
+            "学费": 13736,
+        }
+        and field_fact_tasks_summary.get("field_status_counts") == {
+            "K0-字段缺口无候选需原页重读": 11444,
+            "K1-字段缺口有候选待PDF原页和官方核验": 7621,
+            "K2-OCR候选存在但三方核验未闭环": 22143,
+        }
+        and field_fact_tasks_summary.get("field_priority_counts") == {
+            "P0-字段无候选原页重读": 11444,
+            "P1-字段有候选回看原页和官方": 7621,
+            "P3-OCR齐全字段三方闭环": 22143,
+        }
+        and field_fact_tasks_summary.get("field_candidate_task_total_count") == 19065
+        and field_fact_tasks_summary.get("field_candidate_non_empty_total_count") == 7621
+        and field_fact_tasks_summary.get("page_fidelity_hit_task_count") == 41208
+        and field_fact_tasks_summary.get("final_available_count") == 0
+        and field_fact_tasks_summary.get("next_stage_available_count") == 0
+        and field_fact_tasks_summary.get("auto_writeback_allowed_count") == 0
+        and field_fact_tasks_summary.get("recommendation_basis_allowed_count") == 0
+        and field_fact_tasks_summary.get("school_major_suggestion_allowed_count") == 0
+        and len(field_fact_tasks_rows) == 41208,
+        f"{len(field_fact_tasks_rows)} field verification tasks",
+    ))
+    checks.append(ok(
+        "第 19 期字段事实核验任务队列字段、主键和逐字段来源闭环正确",
+        field_fact_tasks_fields == expected_field_fact_tasks_fields
+        and len({row.get("字段事实核验任务ID") for row in field_fact_tasks_rows}) == 41208
+        and {row.get("专业行ID") for row in field_fact_tasks_rows}
+        == {row.get("专业行ID") for row in field_fact_rows}
+        and all(
+            fields == {"再选科目", "专业计划数", "学费"}
+            for fields in field_fact_task_fields_by_major_id.values()
+        )
+        and len(field_fact_task_fields_by_major_id) == 13736
+        and Counter(row.get("字段名") for row in field_fact_tasks_rows)
+        == Counter(field_fact_tasks_summary.get("field_counts", {}))
+        and Counter(row.get("字段事实状态") for row in field_fact_tasks_rows)
+        == Counter(field_fact_tasks_summary.get("field_status_counts", {}))
+        and Counter(row.get("字段核验优先级") for row in field_fact_tasks_rows)
+        == Counter(field_fact_tasks_summary.get("field_priority_counts", {}))
+        and dict(field_fact_task_page_counts.most_common(30))
+        == field_fact_tasks_summary.get("page_task_count_top30")
+        and dict(field_fact_task_page_k0_counts.most_common(30))
+        == field_fact_tasks_summary.get("page_blocking_field_task_count_top30")
+        and sum(as_int(row.get("字段候选任务数")) or 0 for row in field_fact_tasks_rows) == 19065
+        and sum(as_int(row.get("字段非空候选数")) or 0 for row in field_fact_tasks_rows) == 7621
+        and sum(1 for row in field_fact_tasks_rows if row.get("页级保真队列ID")) == 41208
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("字段PDF核验状态") == "has_page_hash_pending_manual_pdf_review"
+            and row.get("字段湖北官方核验状态") == "pending_hubei_official_plan_review"
+            for row in field_fact_tasks_rows
+        )
+        and field_fact_task_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期字段事实核验任务队列公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(field_fact_tasks_public_text) is None
+        and "private/" not in field_fact_tasks_public_text
+        and "private\\" not in field_fact_tasks_public_text
+        and "/Users/" not in field_fact_tasks_public_text
+        and "ocr-runs" not in field_fact_tasks_public_text
+        and "rendered-pages" not in field_fact_tasks_public_text
+        and ".png" not in field_fact_tasks_public_text
+        and ".jpg" not in field_fact_tasks_public_text
+        and ".jpeg" not in field_fact_tasks_public_text
+        and "Authorization" not in field_fact_tasks_public_text
+        and "Bearer " not in field_fact_tasks_public_text
+        and "Cookie" not in field_fact_tasks_public_text
+        and "final_allowed" not in field_fact_tasks_public_text
+        and "ready_for_discussion" not in field_fact_tasks_public_text
+        and "已确认" not in field_fact_tasks_public_text
+        and "已核准" not in field_fact_tasks_public_text
+        and "最终推荐" not in field_fact_tasks_public_text
+        and "最终方案" not in field_fact_tasks_public_text
+        and "可填报" not in field_fact_tasks_public_text
+        and "可排序" not in field_fact_tasks_public_text
+        and not any(token in field_fact_tasks_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
