@@ -12871,6 +12871,326 @@ def main():
         and not any(token in field_p0_semantic_public_text for token in shared_forbidden_tokens),
     ))
 
+    field_p0_triage_summary_path = ROOT / "data/working/issue19-field-fact-p0-triage-execution-workbench-summary.json"
+    field_p0_triage_csv = ROOT / "data/working/issue19-field-fact-p0-triage-execution-workbench.csv"
+    field_p0_triage_summary = json.loads(field_p0_triage_summary_path.read_text())
+    with field_p0_triage_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_p0_triage_reader = csv.DictReader(f)
+        field_p0_triage_rows = list(field_p0_triage_reader)
+        field_p0_triage_fields = field_p0_triage_reader.fieldnames or []
+    expected_field_p0_triage_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_field_fact_p0_triage_execution_workbench.py",
+        "FIELDS",
+    )
+    field_p0_semantic_by_id = {
+        row.get("P0字段语义多源审计ID"): row for row in field_p0_semantic_rows
+    }
+    field_p0_triage_anchor_by_major_id = {
+        row.get("专业行ID"): row for row in pdf_anchor_rows
+    }
+    triage_priority_order = {
+        "S1-多源字段冲突优先核页": "10",
+        "S2-机器候选语义异常优先排除": "20",
+        "S5-机器候选偏大重点核页": "30",
+        "S3-机器与高校辅证一致优先核PDF和湖北官方": "40",
+        "S4-高校辅证补缺线索优先核PDF": "50",
+        "S6-多值坐标冲突核页": "60",
+        "S8-机器候选语义通过常规核页": "70",
+        "S7-无坐标候选重读": "80",
+        "S9-无机器候选保持原页重读": "90",
+    }
+
+    def field_p0_triage_batch(priority):
+        if priority in {"S1-多源字段冲突优先核页", "S2-机器候选语义异常优先排除"}:
+            return "EXEC-01-冲突异常立即核页"
+        if priority == "S5-机器候选偏大重点核页":
+            return "EXEC-02-计划数偏大重点核页"
+        if priority in {
+            "S3-机器与高校辅证一致优先核PDF和湖北官方",
+            "S4-高校辅证补缺线索优先核PDF",
+        }:
+            return "EXEC-03-高校辅证线索三方核验"
+        if priority == "S6-多值坐标冲突核页":
+            return "EXEC-04-多值坐标冲突核页"
+        if priority == "S8-机器候选语义通过常规核页":
+            return "EXEC-05-常规机器候选核页"
+        if priority == "S7-无坐标候选重读":
+            return "EXEC-06-无候选原页重读"
+        return "EXEC-99-其他待判"
+
+    def field_p0_triage_mode(priority):
+        if priority in {
+            "S1-多源字段冲突优先核页",
+            "S2-机器候选语义异常优先排除",
+            "S5-机器候选偏大重点核页",
+            "S6-多值坐标冲突核页",
+        }:
+            return "双人复核"
+        if priority in {
+            "S3-机器与高校辅证一致优先核PDF和湖北官方",
+            "S4-高校辅证补缺线索优先核PDF",
+        }:
+            return "三方线索优先核验"
+        if priority == "S8-机器候选语义通过常规核页":
+            return "常规核页抽检"
+        if priority == "S7-无坐标候选重读":
+            return "人工重读或高分辨率OCR"
+        return "待判"
+
+    field_p0_triage_join_ok = True
+    for row in field_p0_triage_rows:
+        semantic_row = field_p0_semantic_by_id.get(row.get("P0字段语义多源审计ID", ""), {})
+        anchor_row = field_p0_triage_anchor_by_major_id.get(row.get("专业行ID", ""), {})
+        hubei_row = hubei_official_by_major_id_for_p0.get(row.get("专业行ID", ""), {})
+        priority = row.get("语义多源优先桶", "")
+        expected_mode = field_p0_triage_mode(priority)
+        field_p0_triage_join_ok = (
+            field_p0_triage_join_ok
+            and bool(semantic_row)
+            and bool(anchor_row)
+            and bool(hubei_row)
+            and row.get("P0字段三方核验任务ID")
+            == stable_id(
+                "P0TRIAGE",
+                [
+                    row.get("P0字段语义多源审计ID", ""),
+                    row.get("专业行ID", ""),
+                    row.get("字段名", ""),
+                ],
+            )
+            and row.get("P0字段三方核验执行包ID")
+            == stable_id(
+                "P0TRIAGEPACK",
+                [
+                    row.get("来源页码", ""),
+                    row.get("版面列", ""),
+                    row.get("院校代码", ""),
+                    priority,
+                    row.get("字段名", ""),
+                    issue19_source["source"]["sha256"],
+                ],
+            )
+            and row.get("来源P0字段语义与多源线索审计表")
+            == "data/working/issue19-field-fact-p0-semantic-crosssource-audit.csv"
+            and row.get("来源专业行原页证据锚点表")
+            == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+            and row.get("来源P0字段闭环推进工作台")
+            == semantic_row.get("来源P0字段闭环推进工作台")
+            and row.get("来源湖北官方系统核验包")
+            == semantic_row.get("来源湖北官方系统核验包")
+            and row.get("来源B0B1高校官网辅证旁挂表")
+            == semantic_row.get("来源B0B1高校官网辅证旁挂表")
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_field_fact_p0_triage_execution_workbench"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×P0字段×PDF原页锚点×湖北官方待核包×高校辅证线索"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("P0字段闭环推进任务ID") == semantic_row.get("P0字段闭环推进任务ID")
+            and row.get("P0字段机器候选任务ID") == semantic_row.get("P0字段机器候选任务ID")
+            and row.get("来源P0字段原页重读任务ID") == semantic_row.get("来源P0字段原页重读任务ID")
+            and row.get("来源字段事实核验任务ID") == semantic_row.get("来源字段事实核验任务ID")
+            and row.get("字段事实闭环ID") == semantic_row.get("字段事实闭环ID")
+            and row.get("专业行ID") == semantic_row.get("专业行ID")
+            and row.get("专业组出现ID") == semantic_row.get("专业组出现ID")
+            and row.get("院校代码") == semantic_row.get("院校代码")
+            and row.get("来源页码") == semantic_row.get("来源页码")
+            and row.get("版面列") == semantic_row.get("版面列")
+            and row.get("字段名") == semantic_row.get("字段名")
+            and row.get("执行批次") == field_p0_triage_batch(priority)
+            and row.get("执行方式") == expected_mode
+            and row.get("是否需要双人复核") == ("true" if expected_mode == "双人复核" else "false")
+            and row.get("执行优先级数值") == triage_priority_order.get(priority, "999")
+            and row.get("语义多源执行优先级") == semantic_row.get("语义多源执行优先级")
+            and row.get("P0闭环动作桶") == semantic_row.get("P0闭环动作桶")
+            and row.get("P0闭环批次") == semantic_row.get("P0闭环批次")
+            and row.get("专业行原页证据锚点ID") == anchor_row.get("专业行原页证据锚点ID")
+            and row.get("专业起始行号") == anchor_row.get("专业起始行号")
+            and row.get("专业窗口行号范围") == anchor_row.get("专业窗口行号范围")
+            and row.get("私有页图证据编号") == anchor_row.get("私有页图证据编号")
+            and row.get("私有页图SHA256") == anchor_row.get("私有页图SHA256")
+            and row.get("私有OCR文本证据编号") == anchor_row.get("私有OCR文本证据编号")
+            and row.get("私有OCR文本SHA256") == anchor_row.get("私有OCR文本SHA256")
+            and row.get("机器候选状态") == semantic_row.get("机器候选状态")
+            and row.get("机器候选字段值") == semantic_row.get("机器候选字段值")
+            and row.get("机器候选规范值") == semantic_row.get("机器候选规范值")
+            and row.get("机器候选语义状态") == semantic_row.get("机器候选语义状态")
+            and row.get("机器候选语义后可作为核页线索") == semantic_row.get("机器候选语义后可作为核页线索")
+            and row.get("高校官网字段候选值") == semantic_row.get("高校官网字段候选值")
+            and row.get("高校官网字段规范值") == semantic_row.get("高校官网字段规范值")
+            and row.get("高校官网字段来源文件") == semantic_row.get("高校官网字段来源文件")
+            and row.get("机器候选与高校辅证关系") == semantic_row.get("机器候选与高校辅证关系")
+            and row.get("湖北官方核验包任务ID") == semantic_row.get("湖北官方核验包任务ID")
+            and row.get("湖北官方核验包任务ID") == hubei_row.get("湖北官方核验包任务ID")
+            and row.get("湖北官方字段核验状态") == semantic_row.get("湖北官方字段核验状态")
+            and row.get("湖北官方平台匹配状态") == hubei_row.get("平台匹配状态")
+            and row.get("湖北官方证据编号") == semantic_row.get("湖北官方证据编号")
+            and row.get("湖北官方证据SHA256") == semantic_row.get("湖北官方证据SHA256")
+            and row.get("PDF原页核页状态") == "pending_pdf_manual_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_plan_review"
+            and row.get("三方字段一致性状态") == "pending_three_way_closure"
+            and row.get("字段事实写回状态") == "blocked_until_pdf_hubei_school_three_way_closure"
+            and not row.get("PDF原页人工读数")
+            and not row.get("湖北官方字段值")
+            and not row.get("高校官网或招生章程字段值")
+            and p0_semantic_public_school_source_ok(row.get("高校官网字段来源文件", ""))
+        )
+    field_p0_triage_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [field_p0_triage_summary_path, field_p0_triage_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 字段三方核验执行工作台摘要、行数和分布正确",
+        field_p0_triage_summary.get("status") == "issue19_field_fact_p0_triage_execution_workbench_not_final"
+        and field_p0_triage_summary.get("generated_by")
+        == "build_issue19_field_fact_p0_triage_execution_workbench.py"
+        and field_p0_triage_summary.get("source_semantic_audit")
+        == "data/working/issue19-field-fact-p0-semantic-crosssource-audit.csv"
+        and field_p0_triage_summary.get("source_pdf_anchors")
+        == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+        and field_p0_triage_summary.get("source_hubei_official_packets")
+        == "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv"
+        and field_p0_triage_summary.get("source_b0_b1_sidecar")
+        == "data/working/issue19-b0-b1-official-evidence-by-major-line.csv"
+        and field_p0_triage_summary.get("output_table")
+        == "data/working/issue19-field-fact-p0-triage-execution-workbench.csv"
+        and field_p0_triage_summary.get("row_count") == 11444
+        and field_p0_triage_summary.get("unique_triage_task_id_count") == 11444
+        and field_p0_triage_summary.get("unique_execution_package_id_count") == 2779
+        and field_p0_triage_summary.get("unique_semantic_audit_id_count") == 11444
+        and field_p0_triage_summary.get("unique_p0_action_task_id_count") == 11444
+        and field_p0_triage_summary.get("unique_major_line_id_count") == 8536
+        and field_p0_triage_summary.get("unique_pdf_page_count") == 231
+        and field_p0_triage_summary.get("unique_school_code_count") == 967
+        and field_p0_triage_summary.get("field_counts") == {
+            "专业计划数": 5739,
+            "学费": 1031,
+            "再选科目": 4674,
+        }
+        and field_p0_triage_summary.get("execution_batch_counts") == {
+            "EXEC-01-冲突异常立即核页": 16,
+            "EXEC-02-计划数偏大重点核页": 11,
+            "EXEC-03-高校辅证线索三方核验": 74,
+            "EXEC-04-多值坐标冲突核页": 218,
+            "EXEC-05-常规机器候选核页": 4791,
+            "EXEC-06-无候选原页重读": 6334,
+        }
+        and field_p0_triage_summary.get("execution_mode_counts") == {
+            "双人复核": 245,
+            "三方线索优先核验": 74,
+            "常规核页抽检": 4791,
+            "人工重读或高分辨率OCR": 6334,
+        }
+        and field_p0_triage_summary.get("semantic_priority_bucket_counts") == {
+            "S1-多源字段冲突优先核页": 1,
+            "S2-机器候选语义异常优先排除": 15,
+            "S5-机器候选偏大重点核页": 11,
+            "S3-机器与高校辅证一致优先核PDF和湖北官方": 22,
+            "S4-高校辅证补缺线索优先核PDF": 52,
+            "S6-多值坐标冲突核页": 218,
+            "S8-机器候选语义通过常规核页": 4791,
+            "S7-无坐标候选重读": 6334,
+        }
+        and field_p0_triage_summary.get("double_review_required_count") == 245
+        and field_p0_triage_summary.get("pdf_anchor_link_count") == 11444
+        and field_p0_triage_summary.get("hubei_official_packet_link_count") == 11444
+        and field_p0_triage_summary.get("school_sidecar_row_count") == 624
+        and field_p0_triage_summary.get("school_sidecar_field_value_count") == 75
+        and field_p0_triage_summary.get("school_source_bad_count") == 0
+        and len(field_p0_triage_rows) == 11444,
+        f"{len(field_p0_triage_rows)} p0 triage rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段三方核验执行工作台字段、来源闭环和门禁正确",
+        field_p0_triage_fields == expected_field_p0_triage_fields
+        and len({row.get("P0字段三方核验任务ID") for row in field_p0_triage_rows}) == 11444
+        and len({(row.get("专业行ID"), row.get("字段名")) for row in field_p0_triage_rows}) == 11444
+        and {row.get("P0字段语义多源审计ID") for row in field_p0_triage_rows}
+        == set(field_p0_semantic_by_id)
+        and [as_int(row.get("执行总序")) for row in field_p0_triage_rows] == list(range(1, 11445))
+        and Counter(row.get("执行批次") for row in field_p0_triage_rows)
+        == Counter(field_p0_triage_summary.get("execution_batch_counts", {}))
+        and Counter(row.get("执行方式") for row in field_p0_triage_rows)
+        == Counter(field_p0_triage_summary.get("execution_mode_counts", {}))
+        and Counter(row.get("语义多源优先桶") for row in field_p0_triage_rows)
+        == Counter(field_p0_triage_summary.get("semantic_priority_bucket_counts", {}))
+        and Counter(row.get("机器候选语义状态") for row in field_p0_triage_rows)
+        == Counter(field_p0_triage_summary.get("machine_semantic_status_counts", {}))
+        and Counter(row.get("机器候选与高校辅证关系") for row in field_p0_triage_rows)
+        == Counter(field_p0_triage_summary.get("crosssource_relation_counts", {}))
+        and Counter(row.get("P0闭环动作桶") for row in field_p0_triage_rows) == {
+            "A1-单一坐标候选先核PDF原页": 4768,
+            "A1R-重复同值坐标候选先核PDF原页": 72,
+            "A2-多值坐标冲突先核PDF原页": 218,
+            "A3-无坐标候选需人工重读或高分辨率OCR": 6386,
+        }
+        and Counter(row.get("P0闭环批次") for row in field_p0_triage_rows) == {
+            "BATCH-A1-快速候选核页": 4840,
+            "BATCH-A2-冲突候选核页": 218,
+            "BATCH-A3-无候选重读": 6386,
+        }
+        and sum(row.get("是否需要双人复核") == "true" for row in field_p0_triage_rows) == 245
+        and field_p0_triage_summary.get("pdf_manual_review_pending_count") == 11444
+        and field_p0_triage_summary.get("hubei_official_review_pending_count") == 11444
+        and field_p0_triage_summary.get("three_way_closure_pending_count") == 11444
+        and field_p0_triage_summary.get("pdf_confirmed_count") == 0
+        and field_p0_triage_summary.get("official_confirmed_count") == 0
+        and field_p0_triage_summary.get("school_official_confirmed_count") == 0
+        and field_p0_triage_summary.get("field_writeback_ready_count") == 0
+        and field_p0_triage_summary.get("final_available_count") == 0
+        and field_p0_triage_summary.get("next_stage_available_count") == 0
+        and field_p0_triage_summary.get("auto_writeback_allowed_count") == 0
+        and field_p0_triage_summary.get("auto_candidate_fill_allowed_count") == 0
+        and field_p0_triage_summary.get("field_writeback_allowed_count") == 0
+        and field_p0_triage_summary.get("recommendation_basis_allowed_count") == 0
+        and field_p0_triage_summary.get("school_major_suggestion_allowed_count") == 0
+        and all(
+            "PDF原页" in row.get("必须核验步骤", "")
+            and "湖北官方" in row.get("必须核验步骤", "")
+            and "高校官网" in row.get("必须核验步骤", "")
+            and "三方字段一致性" in row.get("必须核验步骤", "")
+            and "三方闭环" in row.get("不得进入原因", "")
+            for row in field_p0_triage_rows
+        )
+        and field_p0_triage_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段三方核验执行工作台公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(field_p0_triage_public_text) is None
+        and "private/" not in field_p0_triage_public_text
+        and "private\\" not in field_p0_triage_public_text
+        and "/Users/" not in field_p0_triage_public_text
+        and "ocr-runs" not in field_p0_triage_public_text
+        and "rendered-pages" not in field_p0_triage_public_text
+        and ".png" not in field_p0_triage_public_text
+        and ".jpg" not in field_p0_triage_public_text
+        and ".jpeg" not in field_p0_triage_public_text
+        and "Authorization" not in field_p0_triage_public_text
+        and "Bearer " not in field_p0_triage_public_text
+        and "Cookie" not in field_p0_triage_public_text
+        and "院校名称OCR" not in field_p0_triage_public_text
+        and "院校专业组代码OCR规范化" not in field_p0_triage_public_text
+        and "专业代号OCR" not in field_p0_triage_public_text
+        and "专业名称及备注短摘" not in field_p0_triage_public_text
+        and "组内招生明细" not in field_p0_triage_public_text
+        and "字段确认值" not in field_p0_triage_public_text
+        and "原始接口响应保存位置" not in field_p0_triage_public_text
+        and "final_allowed" not in field_p0_triage_public_text
+        and "ready_for_discussion" not in field_p0_triage_public_text
+        and "已确认" not in field_p0_triage_public_text
+        and "已核准" not in field_p0_triage_public_text
+        and "最终推荐" not in field_p0_triage_public_text
+        and "最终方案" not in field_p0_triage_public_text
+        and "可填报" not in field_p0_triage_public_text
+        and "可排序" not in field_p0_triage_public_text
+        and not any(token in field_p0_triage_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())

@@ -268,6 +268,8 @@
 - `data/working/issue19-field-fact-p0-closure-action-workbench-summary.json`：P0 字段闭环推进摘要；记录动作桶、批次、三方待核状态、人工/官方/高校字段确认计数和全部非最终门禁。该表不产生字段事实，只安排核页和闭环动作。
 - `data/working/issue19-field-fact-p0-semantic-crosssource-audit.csv`：第 19 期 P0 字段语义与多源线索审计表，11444 行；严格继承 P0 字段闭环推进工作台任务粒度，把机器候选语义风险、B0/B1 高校官网/章程字段线索和湖北官方待核状态并列。当前机器候选语义异常 15 条、计划数偏大需重点核页 11 条；机器候选与高校辅证一致 22 条、冲突 1 条、官网有规范字段但机器无候选 52 条。
 - `data/working/issue19-field-fact-p0-semantic-crosssource-audit-summary.json`：P0 字段语义与多源线索摘要；记录语义状态、跨源关系、语义多源优先桶、湖北官方待核状态和全部非最终门禁。该表不产生字段事实，只用于防止机器候选噪声进入普通核页队列。
+- `data/working/issue19-field-fact-p0-triage-execution-workbench.csv`：第 19 期 P0 字段三方核验执行工作台，11444 行；严格继承 P0 字段语义与多源线索审计表任务粒度，把执行总序、执行批次、执行方式、PDF 原页锚点、机器候选、高校官网/章程字段线索和湖北官方待核包合到同一条字段任务。当前冲突异常立即核页 16 条、计划数偏大重点核页 11 条、高校辅证线索三方核验 74 条、多值坐标冲突核页 218 条、常规机器候选核页 4791 条、无候选原页重读 6334 条；245 条要求双人复核。
+- `data/working/issue19-field-fact-p0-triage-execution-workbench-summary.json`：P0 字段三方核验执行摘要；记录执行批次、执行方式、语义优先桶、原页锚点命中、湖北官方核验包命中、高校辅证字段线索和全部非最终门禁。该表只做核验派单，PDF 原页人工读数、湖北官方字段值和高校官网/章程字段值仍为空。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -375,6 +377,7 @@
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。
 - `scripts/build_issue19_field_fact_p0_semantic_crosssource_audit.py`：生成 P0 字段语义与多源线索审计表，把机器候选语义异常、计划数偏大、高校官网/章程字段补缺线索和机器/高校辅证冲突标到同一条字段任务；公开输出仍不写回字段事实。
+- `scripts/build_issue19_field_fact_p0_triage_execution_workbench.py`：生成 P0 字段三方核验执行工作台，把 11444 条 P0 字段任务排成稳定执行顺序，并逐行回连 PDF 原页锚点、湖北官方待核包和高校辅证线索；公开输出仍不写回字段事实。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。
