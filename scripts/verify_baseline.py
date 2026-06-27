@@ -6438,6 +6438,203 @@ def main():
         and "可排序" not in full_major_evidence_public_text
         and not any(token in full_major_evidence_public_text for token in shared_forbidden_tokens),
     ))
+
+    full_major_closure_summary_path = (
+        ROOT / "data/working/issue19-full-major-evidence-closure-tasks-summary.json"
+    )
+    full_major_closure_csv = (
+        ROOT / "data/working/issue19-full-major-evidence-closure-tasks.csv"
+    )
+    full_major_closure_summary = json.loads(
+        full_major_closure_summary_path.read_text()
+    )
+    with full_major_closure_csv.open(newline="", encoding="utf-8-sig") as f:
+        full_major_closure_reader = csv.DictReader(f)
+        full_major_closure_rows = list(full_major_closure_reader)
+        full_major_closure_fields = set(full_major_closure_reader.fieldnames or [])
+    required_full_major_closure_fields = {
+        "证据闭环任务ID",
+        "来源全量证据工作台ID",
+        "最终可用",
+        "是否可升级",
+        "任务状态",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "全量证据执行优先级",
+        "证据项排序",
+        "证据项",
+        "证据任务优先级",
+        "证据任务状态",
+        "需要核验字段",
+        "执行动作代码",
+        "阻断或待核原因",
+    }
+    full_major_evidence_by_workbench_id = {
+        row.get("全量证据工作台ID"): row for row in full_major_evidence_rows
+    }
+    full_major_closure_ids = {
+        row.get("证据闭环任务ID") for row in full_major_closure_rows
+    }
+    full_major_closure_major_ids = {
+        row.get("专业行ID") for row in full_major_closure_rows
+    }
+    full_major_closure_item_counts = Counter(
+        row.get("证据项") for row in full_major_closure_rows
+    )
+    full_major_closure_priority_counts = Counter(
+        row.get("证据任务优先级") for row in full_major_closure_rows
+    )
+    full_major_closure_status_counts = Counter(
+        row.get("证据任务状态") for row in full_major_closure_rows
+    )
+    full_major_closure_execution_counts = Counter(
+        row.get("全量证据执行优先级") for row in full_major_closure_rows
+    )
+    full_major_closure_distribution_ok = True
+    for row in full_major_closure_rows:
+        source_row = full_major_evidence_by_workbench_id.get(
+            row.get("来源全量证据工作台ID")
+        )
+        full_major_closure_distribution_ok = (
+            full_major_closure_distribution_ok
+            and bool(source_row)
+            and row.get("专业行ID") == source_row.get("专业行ID")
+            and row.get("专业组出现ID") == source_row.get("专业组出现ID")
+            and row.get("院校代码") == source_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化")
+            == source_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == source_row.get("来源页码")
+            and row.get("全量证据执行优先级")
+            == source_row.get("全量证据执行优先级")
+        )
+    full_major_closure_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [full_major_closure_summary_path, full_major_closure_csv]
+    )
+    checks.append(ok(
+        "第 19 期全量逐专业证据闭环任务队列摘要和行数正确",
+        full_major_closure_summary.get("status")
+        == "issue19_full_major_evidence_closure_tasks_not_final"
+        and full_major_closure_summary.get("generated_by")
+        == "build_issue19_full_major_evidence_closure_tasks.py"
+        and full_major_closure_summary.get("source_full_major_evidence_workbench")
+        == "data/working/issue19-full-major-evidence-workbench.csv"
+        and full_major_closure_summary.get("output_table")
+        == "data/working/issue19-full-major-evidence-closure-tasks.csv"
+        and full_major_closure_summary.get("source_major_row_count") == 13736
+        and full_major_closure_summary.get("task_row_count") == 94935
+        and full_major_closure_summary.get("unique_task_id_count") == 94935
+        and full_major_closure_summary.get("unique_major_line_id_count") == 13736
+        and full_major_closure_summary.get("base_task_count") == 82416
+        and full_major_closure_summary.get("conditional_field_gap_task_count") == 12473
+        and full_major_closure_summary.get("conditional_b0_b1_task_count") == 46
+        and full_major_closure_summary.get("auto_upgrade_allowed_count") == 0
+        and full_major_closure_summary.get("final_available_count") == 0
+        and len(full_major_closure_rows) == 94935,
+        f"{len(full_major_closure_rows)} closure tasks",
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业证据闭环任务队列字段、主键和非最终门禁正确",
+        required_full_major_closure_fields.issubset(full_major_closure_fields)
+        and len(full_major_closure_ids) == len(full_major_closure_rows)
+        and full_major_closure_major_ids == full_major_evidence_ids
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("是否可升级") == "false"
+            and row.get("任务状态") == "pending_evidence_closure"
+            and row.get("来源全量证据工作台ID") in full_major_evidence_by_workbench_id
+            and row.get("证据项")
+            in {
+                "PDF原页核验",
+                "湖北官方系统/省招办计划核验",
+                "高校官网/章程辅证",
+                "家庭接受度核验",
+                "同组调剂结论核验",
+                "三年投档稳定性核验",
+                "字段完整性补证",
+                "B0/B1官网冲突或未匹配复核",
+            }
+            for row in full_major_closure_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业证据闭环任务队列任务分布和来源闭环正确",
+        full_major_closure_item_counts
+        == Counter(full_major_closure_summary.get("evidence_item_counts", {}))
+        and full_major_closure_priority_counts
+        == Counter(full_major_closure_summary.get("task_priority_counts", {}))
+        and full_major_closure_status_counts
+        == Counter(full_major_closure_summary.get("task_status_counts", {}))
+        and full_major_closure_execution_counts
+        == Counter(full_major_closure_summary.get("execution_priority_counts", {}))
+        and full_major_closure_summary.get("evidence_item_counts") == {
+            "PDF原页核验": 13736,
+            "湖北官方系统/省招办计划核验": 13736,
+            "高校官网/章程辅证": 13736,
+            "家庭接受度核验": 13736,
+            "同组调剂结论核验": 13736,
+            "三年投档稳定性核验": 13736,
+            "字段完整性补证": 12473,
+            "B0/B1官网冲突或未匹配复核": 46,
+        }
+        and full_major_closure_summary.get("task_priority_counts") == {
+            "P0-B0B1冲突/未匹配先核": 46,
+            "P0-三方证据闭环先核": 2526,
+            "P0-先核PDF结构阻断": 4047,
+            "P1-字段补证": 59261,
+            "P1-家庭底线和调剂风险": 6594,
+            "P2-常规证据闭环": 22461,
+        }
+        and full_major_closure_summary.get("task_status_counts") == {
+            "has_charter_or_rules_but_no_plan_detail": 63,
+            "has_d0_page_ocr_evidence_pending_original_pdf_review": 56,
+            "has_historical_line_pending_stability_review": 11722,
+            "has_partial_school_source_pending_followup": 412,
+            "has_school_plan_source_pending_crosscheck": 194,
+            "pending_b0_b1_plan_conflict_review": 18,
+            "pending_b0_b1_unmatched_major_review": 28,
+            "pending_family_acceptance_review": 13736,
+            "pending_field_gap_review": 12473,
+            "pending_full_group_adjustment_review": 13736,
+            "pending_group_code_change_or_missing_history_review": 2014,
+            "pending_hubei_official_plan_review": 13736,
+            "pending_original_pdf_page_review": 13680,
+            "pending_school_plan_or_charter_review": 12882,
+            "pending_school_plan_source_search": 167,
+            "school_source_conflict_pending_pdf_and_hubei_review": 18,
+        }
+        and full_major_closure_distribution_ok,
+    ))
+    checks.append(ok(
+        "第 19 期全量逐专业证据闭环任务队列公开文件不含本地路径、图片扩展名、身份信息、登录态和最终建议结论",
+        "private/" not in full_major_closure_public_text
+        and "private\\" not in full_major_closure_public_text
+        and "/Users/" not in full_major_closure_public_text
+        and "ocr-runs" not in full_major_closure_public_text
+        and "rendered-pages" not in full_major_closure_public_text
+        and ".png" not in full_major_closure_public_text
+        and ".jpg" not in full_major_closure_public_text
+        and ".jpeg" not in full_major_closure_public_text
+        and "Authorization" not in full_major_closure_public_text
+        and "Bearer " not in full_major_closure_public_text
+        and "Cookie" not in full_major_closure_public_text
+        and "final_allowed" not in full_major_closure_public_text
+        and "ready_for_discussion" not in full_major_closure_public_text
+        and "已确认" not in full_major_closure_public_text
+        and "已核准" not in full_major_closure_public_text
+        and "最终推荐" not in full_major_closure_public_text
+        and "最终方案" not in full_major_closure_public_text
+        and "可填报" not in full_major_closure_public_text
+        and "可排序" not in full_major_closure_public_text
+        and not any(token in full_major_closure_public_text for token in shared_forbidden_tokens),
+    ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
         "final_allowed" not in page_manifest_public_text

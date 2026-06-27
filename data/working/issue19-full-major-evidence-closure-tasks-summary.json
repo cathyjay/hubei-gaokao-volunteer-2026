@@ -1,0 +1,70 @@
+{
+  "status": "issue19_full_major_evidence_closure_tasks_not_final",
+  "generated_by": "build_issue19_full_major_evidence_closure_tasks.py",
+  "source_full_major_evidence_workbench": "data/working/issue19-full-major-evidence-workbench.csv",
+  "output_table": "data/working/issue19-full-major-evidence-closure-tasks.csv",
+  "source_major_row_count": 13736,
+  "task_row_count": 94935,
+  "unique_task_id_count": 94935,
+  "unique_major_line_id_count": 13736,
+  "base_task_count": 82416,
+  "conditional_field_gap_task_count": 12473,
+  "conditional_b0_b1_task_count": 46,
+  "auto_upgrade_allowed_count": 0,
+  "final_available_count": 0,
+  "evidence_item_counts": {
+    "PDF原页核验": 13736,
+    "湖北官方系统/省招办计划核验": 13736,
+    "高校官网/章程辅证": 13736,
+    "家庭接受度核验": 13736,
+    "同组调剂结论核验": 13736,
+    "三年投档稳定性核验": 13736,
+    "字段完整性补证": 12473,
+    "B0/B1官网冲突或未匹配复核": 46
+  },
+  "task_priority_counts": {
+    "P0-先核PDF结构阻断": 4047,
+    "P2-常规证据闭环": 22461,
+    "P1-家庭底线和调剂风险": 6594,
+    "P1-字段补证": 59261,
+    "P0-B0B1冲突/未匹配先核": 46,
+    "P0-三方证据闭环先核": 2526
+  },
+  "task_status_counts": {
+    "pending_original_pdf_page_review": 13680,
+    "pending_hubei_official_plan_review": 13736,
+    "pending_school_plan_or_charter_review": 12882,
+    "pending_family_acceptance_review": 13736,
+    "pending_full_group_adjustment_review": 13736,
+    "has_historical_line_pending_stability_review": 11722,
+    "pending_field_gap_review": 12473,
+    "pending_group_code_change_or_missing_history_review": 2014,
+    "has_partial_school_source_pending_followup": 412,
+    "has_school_plan_source_pending_crosscheck": 194,
+    "school_source_conflict_pending_pdf_and_hubei_review": 18,
+    "pending_b0_b1_plan_conflict_review": 18,
+    "pending_b0_b1_unmatched_major_review": 28,
+    "has_d0_page_ocr_evidence_pending_original_pdf_review": 56,
+    "has_charter_or_rules_but_no_plan_detail": 63,
+    "pending_school_plan_source_search": 167
+  },
+  "execution_priority_counts": {
+    "E0-PDF原页/组边界阻断先核": 9511,
+    "F0-非优先包PDF原页/结构阻断先核": 18546,
+    "E4-计划学费选科字段先补证": 34059,
+    "F2-非优先包计划学费选科字段补证": 20337,
+    "E5-同组调剂风险先核": 1038,
+    "F1-非优先包已有官网辅证先交叉": 1787,
+    "E2-数字媒体技术三方证据先核": 2832,
+    "E3-已有高校官网辅证先交叉": 1017,
+    "F3-非优先包家庭底线/调剂风险先核": 750,
+    "E6-其他偏好整组按页推进": 726,
+    "E1-历史候选/样本三方证据先核": 3078,
+    "F4-非优先包低风险抽检但非最终": 1254
+  },
+  "notes": [
+    "本表是一行一个专业行和一个证据项的闭环任务，不替代全量逐专业证据工作台。",
+    "专业名称只保留短摘，完整OCR原文以专业行ID回链到全量证据工作台。",
+    "所有任务仍需PDF原页、湖北官方系统/省招办计划、高校官网/章程、家庭接受度和调剂结论闭环。"
+  ]
+}
