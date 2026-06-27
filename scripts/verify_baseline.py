@@ -10914,6 +10914,221 @@ def main():
         and "可排序" not in raw_source_public_text,
     ))
 
+    source_risk_sidecar_summary_path = ROOT / "data/working/issue19-major-source-evidence-risk-sidecar-summary.json"
+    source_risk_sidecar_csv = ROOT / "data/working/issue19-major-source-evidence-risk-sidecar.csv"
+    source_risk_sidecar_summary = json.loads(source_risk_sidecar_summary_path.read_text())
+    with source_risk_sidecar_csv.open(newline="", encoding="utf-8-sig") as f:
+        source_risk_sidecar_reader = csv.DictReader(f)
+        source_risk_sidecar_rows = list(source_risk_sidecar_reader)
+        source_risk_sidecar_fields = source_risk_sidecar_reader.fieldnames or []
+    expected_source_risk_sidecar_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_major_source_evidence_risk_sidecar.py",
+        "FIELDS",
+    )
+    p0_review_rows_by_major_id = defaultdict(list)
+    for row in p0_review_rows:
+        p0_review_rows_by_major_id[row.get("专业行ID")].append(row)
+    source_risk_join_ok = True
+    for row in source_risk_sidecar_rows:
+        major_id = row.get("专业行ID", "")
+        raw_row = raw_source_by_major_id.get(major_id, {})
+        stability_row = stability_dashboard_by_major_id.get(major_id, {})
+        gap_row = gap_scorecard_by_major_id.get(major_id, {})
+        master_row = admission_master_by_major_id.get(major_id, {})
+        p0_rows_for_major = p0_review_rows_by_major_id.get(major_id, [])
+        expected_layer = (
+            "X1-专业窗口P0先核"
+            if raw_row.get("源证据风险等级", "").startswith("R2-锚点窗口阻断")
+            else "X2-起始行P0_QC先核"
+            if raw_row.get("源证据风险等级", "").startswith("R2-起始行P0_QC")
+            else "X3-源证据优先复核"
+            if raw_row.get("源证据风险等级", "").startswith("R3-")
+            else "X4-源证据低风险抽检但仍需三方闭环"
+        )
+        source_risk_join_ok = (
+            source_risk_join_ok
+            and bool(raw_row)
+            and bool(stability_row)
+            and bool(gap_row)
+            and bool(master_row)
+            and row.get("源证据风险侧账ID")
+            == stable_id("SOURCERISK", [major_id, issue19_source["source"]["sha256"]])
+            and row.get("原始专业行源证据审计ID") == raw_row.get("原始专业行源证据审计ID")
+            and row.get("底座稳定性看板ID") == stability_row.get("底座稳定性看板ID")
+            and row.get("闭环缺口看板ID") == gap_row.get("闭环缺口看板ID")
+            and row.get("招生明细总工作台ID") == master_row.get("招生明细总工作台ID")
+            and row.get("数据阶段") == "issue19_major_source_evidence_risk_sidecar"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("专业组出现ID") == raw_row.get("专业组出现ID")
+            and row.get("院校代码") == raw_row.get("院校代码")
+            and row.get("院校名称OCR") == raw_row.get("院校名称OCR")
+            and row.get("院校专业组代码OCR规范化")
+            == raw_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == raw_row.get("来源页码")
+            and row.get("版面列") == raw_row.get("版面列")
+            and row.get("专业组内专业序号") == raw_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == raw_row.get("专业代号OCR")
+            and row.get("专业起始行号") == raw_row.get("专业起始行号")
+            and row.get("专业起始y") == raw_row.get("专业起始y")
+            and row.get("OCR置信度") == raw_row.get("OCR置信度")
+            and row.get("源证据覆盖结论") == raw_row.get("源证据覆盖结论")
+            and row.get("源证据风险等级") == raw_row.get("源证据风险等级")
+            and row.get("源证据风险标签") == raw_row.get("源证据风险标签")
+            and row.get("源证据下沉分层") == expected_layer
+            and row.get("是否进入源证据优先核页清单")
+            == ("false" if expected_layer.startswith("X4-") else "true")
+            and row.get("私有OCR起始行匹配状态") == raw_row.get("私有OCR起始行匹配状态")
+            and row.get("私有OCR起始行哈希与公开锚点一致")
+            == raw_row.get("私有OCR起始行哈希与公开锚点一致")
+            and row.get("私有OCR起始行专业代号匹配")
+            == raw_row.get("私有OCR起始行专业代号匹配")
+            and row.get("起始行QC_P0数") == raw_row.get("起始行QC_P0数")
+            and row.get("起始行QC_P1数") == raw_row.get("起始行QC_P1数")
+            and row.get("公开页级manifest匹配状态")
+            == raw_row.get("公开页级manifest匹配状态")
+            and row.get("私有页级manifest匹配状态")
+            == raw_row.get("私有页级manifest匹配状态")
+            and row.get("公开锚点匹配状态") == raw_row.get("公开锚点匹配状态")
+            and row.get("专业行原页证据锚点ID") == raw_row.get("专业行原页证据锚点ID")
+            and row.get("证据锚点状态") == raw_row.get("证据锚点状态")
+            and row.get("窗口文本SHA256") == raw_row.get("窗口文本SHA256")
+            and row.get("私有窗口JSONL匹配状态") == raw_row.get("私有窗口JSONL匹配状态")
+            and row.get("私有窗口证据编号") == raw_row.get("私有窗口证据编号")
+            and row.get("私有窗口SHA一致") == raw_row.get("私有窗口SHA一致")
+            and row.get("底座稳定性等级") == stability_row.get("底座稳定性等级")
+            and row.get("闭环执行批次") == gap_row.get("闭环执行批次")
+            and row.get("看板动作桶") == gap_row.get("看板动作桶")
+            and row.get("风险阻断等级") == gap_row.get("风险阻断等级")
+            and row.get("PDF原页锚点状态") == stability_row.get("PDF原页锚点状态")
+            and row.get("湖北官方平台字段核验状态")
+            == stability_row.get("湖北官方平台字段核验状态")
+            and row.get("字段缺口数") == gap_row.get("字段缺口数")
+            and row.get("字段缺口字段") == gap_row.get("字段缺口字段")
+            and row.get("字段候选任务数") == gap_row.get("字段候选任务数")
+            and row.get("非空字段候选数") == gap_row.get("非空字段候选数")
+            and row.get("家庭接受度结论") == gap_row.get("家庭接受度结论")
+            and row.get("同组调剂结论") == gap_row.get("同组调剂结论")
+            and row.get("调剂影响等级") == gap_row.get("调剂影响等级")
+            and row.get("首要核验动作") == gap_row.get("首要核验动作")
+            and row.get("闭环执行动作集合") == gap_row.get("闭环执行动作集合")
+            and row.get("P0复核任务数") == gap_row.get("P0复核任务数")
+            and row.get("P0证据项") == gap_row.get("P0证据项")
+            and as_int(row.get("P0复核工作清单任务数")) == len(p0_rows_for_major)
+            and "issue19-raw-major-source-evidence-audit.csv" in row.get("建议下钻入口", "")
+            and "源证据风险已下沉" in row.get("源证据下沉结论", "")
+            and "不得直接用于志愿推荐" in row.get("不得进入原因", "")
+        )
+    source_risk_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [source_risk_sidecar_summary_path, source_risk_sidecar_csv]
+    )
+    checks.append(ok(
+        "第 19 期逐专业源证据风险侧账摘要、行数和分布正确",
+        source_risk_sidecar_summary.get("status")
+        == "issue19_major_source_evidence_risk_sidecar_not_final"
+        and source_risk_sidecar_summary.get("generated_by")
+        == "build_issue19_major_source_evidence_risk_sidecar.py"
+        and source_risk_sidecar_summary.get("output_table")
+        == "data/working/issue19-major-source-evidence-risk-sidecar.csv"
+        and source_risk_sidecar_summary.get("row_grain") == "逐专业招生明细"
+        and source_risk_sidecar_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and source_risk_sidecar_summary.get("row_count") == 13736
+        and source_risk_sidecar_summary.get("unique_sidecar_id_count") == 13736
+        and source_risk_sidecar_summary.get("unique_major_line_id_count") == 13736
+        and source_risk_sidecar_summary.get("source_counts") == {
+            "raw_source_audit_row_count": 13736,
+            "stability_dashboard_row_count": 13736,
+            "gap_scorecard_row_count": 13736,
+            "master_workbench_row_count": 13736,
+            "p0_review_worklist_row_count": 6619,
+            "p0_review_worklist_major_line_count": 5310,
+        }
+        and source_risk_sidecar_summary.get("join_match_counts") == {
+            "raw_source_audit_match_count": 13736,
+            "stability_dashboard_match_count": 13736,
+            "gap_scorecard_match_count": 13736,
+            "master_workbench_match_count": 13736,
+            "p0_review_worklist_major_line_count": 5310,
+        }
+        and source_risk_sidecar_summary.get("source_bridge_layer_counts") == {
+            "X3-源证据优先复核": 7019,
+            "X4-源证据低风险抽检但仍需三方闭环": 618,
+            "X2-起始行P0_QC先核": 6086,
+            "X1-专业窗口P0先核": 13,
+        }
+        and source_risk_sidecar_summary.get("source_review_priority_counts") == {
+            "P1-源证据优先复核": 7019,
+            "P3-低风险抽检但仍待三方闭环": 618,
+            "P0-起始行QC先核": 6086,
+            "P0-专业窗口或锚点阻断先核": 13,
+        }
+        and source_risk_sidecar_summary.get("source_priority_review_major_line_count") == 13118
+        and source_risk_sidecar_summary.get("source_low_risk_sample_major_line_count") == 618
+        and source_risk_sidecar_summary.get("anchor_status_counts") == {
+            "P2-已生成专业行级OCR证据锚点": 12596,
+            "P1-缺少组标题上下文": 1127,
+            "P0-专业窗口为空": 13,
+        }
+        and source_risk_sidecar_summary.get("start_line_qc_p0_row_count") == 6092
+        and source_risk_sidecar_summary.get("start_line_qc_p1_row_count") == 6966
+        and source_risk_sidecar_summary.get("start_line_qc_p0_total_count") == 6092
+        and source_risk_sidecar_summary.get("start_line_qc_p1_total_count") == 6966
+        and source_risk_sidecar_summary.get("low_confidence_page_major_line_count") == 291
+        and source_risk_sidecar_summary.get("p0_review_worklist_task_total_count") == 6619
+        and source_risk_sidecar_summary.get("p0_review_worklist_major_line_count") == 5310
+        and source_risk_sidecar_summary.get("final_available_count") == 0
+        and source_risk_sidecar_summary.get("next_stage_available_count") == 0
+        and source_risk_sidecar_summary.get("auto_writeback_allowed_count") == 0
+        and source_risk_sidecar_summary.get("recommendation_basis_allowed_count") == 0
+        and source_risk_sidecar_summary.get("school_major_suggestion_allowed_count") == 0
+        and len(source_risk_sidecar_rows) == 13736,
+        f"{len(source_risk_sidecar_rows)} source risk rows",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业源证据风险侧账字段、主键和下游回链正确",
+        source_risk_sidecar_fields == expected_source_risk_sidecar_fields
+        and len({row.get("源证据风险侧账ID") for row in source_risk_sidecar_rows}) == 13736
+        and {row.get("专业行ID") for row in source_risk_sidecar_rows}
+        == {row.get("专业行ID") for row in admission_master_rows}
+        == {row.get("专业行ID") for row in raw_source_rows}
+        == {row.get("专业行ID") for row in stability_dashboard_rows}
+        == {row.get("专业行ID") for row in gap_scorecard_rows}
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("私有OCR起始行匹配状态") == "exact_private_ocr_start_line_hit"
+            and row.get("私有OCR起始行哈希与公开锚点一致") == "true"
+            and row.get("私有OCR起始行专业代号匹配") == "true"
+            and row.get("源证据覆盖结论")
+            == "S0-私有OCR起始行、页级manifest、窗口证据和公开锚点均已回连"
+            for row in source_risk_sidecar_rows
+        )
+        and source_risk_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期逐专业源证据风险侧账公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(source_risk_public_text) is None
+        and "private/" not in source_risk_public_text
+        and "/Users/" not in source_risk_public_text
+        and "final_allowed" not in source_risk_public_text
+        and "ready_for_discussion" not in source_risk_public_text
+        and "已确认" not in source_risk_public_text
+        and "已核准" not in source_risk_public_text
+        and "最终推荐" not in source_risk_public_text
+        and "最终方案" not in source_risk_public_text
+        and "可填报" not in source_risk_public_text
+        and "可排序" not in source_risk_public_text,
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())

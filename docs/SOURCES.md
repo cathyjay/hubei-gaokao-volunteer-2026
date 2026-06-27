@@ -254,6 +254,8 @@
 - `data/working/issue19-raw-major-lineage-consistency-audit-summary.json`：原始逐专业明细血缘审计摘要；记录 13736 条原始 OCR 专业行、13736 个唯一 `专业行ID`、3289 个专业组出现 ID、8 张核心下游表全部 13736 行回连、核心字段漂移行数 0、A0 全链路回连且核心 OCR 字段一致 13736 条。该摘要只证明原始数据结构化血缘和字段传递稳定，不证明 OCR 字段已经等于官方最终事实。
 - `data/working/issue19-raw-major-source-evidence-audit.csv`：第 19 期原始逐专业明细源证据审计表，13736 行；一行一个招生专业明细，使用 `来源页码+版面列+专业起始行号` 回连私有 OCR 起始行，再按 `专业行ID` 回连公开页级 manifest、专业行原页证据锚点、私有窗口 JSONL 和原始血缘审计表。公开表只保存页码、行号、置信度、证据编号、哈希、QC 计数和状态，不保存 OCR 窗口原文、页图路径或登录态。
 - `data/working/issue19-raw-major-source-evidence-audit-summary.json`：原始逐专业明细源证据审计摘要；记录 13736 条专业明细全部 S0 回连到私有 OCR 起始行、页级 manifest、窗口证据和公开锚点，起始行哈希、窗口哈希、页图 SHA、OCR 行数和页均置信度均满匹配。风险分层为 R2 起始行 P0_QC 6086 条、R2 锚点窗口阻断 13 条、R3 需优先复核 7019 条、R4 未触发起始行 QC 风险 618 条；这些风险只安排核页顺序，不生成志愿建议。
+- `data/working/issue19-major-source-evidence-risk-sidecar.csv`：第 19 期逐专业源证据风险侧账，13736 行；一行一个招生专业明细，把源证据覆盖结论、风险等级、起始行 QC、窗口哈希、底座稳定性、闭环缺口和 P0 复核任务下沉到同一条 `专业行ID`。该表是新增城市、学校或专业方向时的源证据默认下钻入口之一。
+- `data/working/issue19-major-source-evidence-risk-sidecar-summary.json`：逐专业源证据风险侧账摘要；记录 X1 专业窗口 P0 先核 13 条、X2 起始行 P0_QC 先核 6086 条、X3 源证据优先复核 7019 条、X4 低风险抽检 618 条，源证据优先核页合计 13118 条；所有行仍禁止自动写回和禁止作为志愿推荐依据。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。

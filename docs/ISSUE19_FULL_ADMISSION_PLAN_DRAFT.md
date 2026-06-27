@@ -84,6 +84,8 @@
 | `data/working/issue19-raw-major-lineage-consistency-audit-summary.json` | 原始专业行血缘审计摘要 | 看全链路回连计数、核心字段漂移计数、稳定性等级分布、字段候选/结构风险/官方查询键碰撞聚合和全部不可推荐门禁 |
 | `data/working/issue19-raw-major-source-evidence-audit.csv` | 原始专业行源证据审计表 | 覆盖全部 13736 条招生专业明细；按 `来源页码+版面列+专业起始行号` 回连私有 OCR 起始行，并与页级 manifest、公开原页锚点、私有窗口 JSONL 和原始血缘审计表闭合 |
 | `data/working/issue19-raw-major-source-evidence-audit-summary.json` | 原始专业行源证据审计摘要 | 看源头 OCR 行、页级 manifest、窗口哈希、QC 计数、锚点状态和不可推荐门禁 |
+| `data/working/issue19-major-source-evidence-risk-sidecar.csv` | 逐专业源证据风险侧账 | 覆盖全部 13736 条招生专业明细；把源证据风险、底座稳定性、闭环缺口和 P0 复核任务合并到同一条 `专业行ID` |
+| `data/working/issue19-major-source-evidence-risk-sidecar-summary.json` | 逐专业源证据风险侧账摘要 | 看 X1/X2/X3/X4 源证据下沉分层、优先核页数量、P0 工作清单覆盖和不可推荐门禁 |
 | `data/working/issue19-major-line-layout-continuity-risk-ledger.csv` | 专业行版面连续性风险清单 | 1934 条风险事件；只用公开原页锚点字段检查行号和坐标连续性 |
 | `data/working/issue19-major-code-order-risk-ledger.csv` | 专业代号顺序风险清单 | 355 条风险事件；检查专业代号无法解析、相邻不递增和大跳变 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |
@@ -262,6 +264,8 @@
 | 源证据 S0 满回连专业明细 | 13736 |
 | 源证据 R2/R3 需优先或阻断级核页 | 13118 |
 | 源证据 R4 未触发起始行 QC 风险 | 618 |
+| 源证据风险侧账逐专业明细 | 13736 |
+| 源证据风险侧账优先核页明细 | 13118 |
 | 结构风险事件派单 | 3108 |
 | 唯一组码回退归属专业明细 | 1838 |
 | 组内专业代号重复专业明细 | 116 |
@@ -485,23 +489,24 @@ OCR 字段不等于最终事实。
 31. **底座闭环执行批次**：`data/working/issue19-foundation-closure-major-batches.csv` 保留 C0/C1/C3/C4 主批次；C2 主批次当前为 0，是因为官网辅证任务被 C0/C1 更高优先级覆盖。页级和学校级索引只服务核页与补源，不产生可报结论。
 32. **专业行原页证据锚点**：`data/working/issue19-major-line-pdf-evidence-anchors.csv` 给每条招生专业明细生成原页 OCR 行号范围、坐标摘要和窗口哈希；公开表不保存 OCR 窗口原文，私有 JSONL 仅用于人工回看。
 33. **原始专业行源证据审计**：`data/working/issue19-raw-major-source-evidence-audit.csv` 用 `来源页码+版面列+专业起始行号` 回连私有 OCR 起始行，再对齐页级 manifest、公开锚点、私有窗口 JSONL 和血缘审计。当前 S0 满回连 13736 条，但 R2/R3 仍需按原页或 QC 风险人工核页；它证明源证据闭合，不证明字段已是最终事实。
-34. **逐专业闭环缺口看板**：`data/working/issue19-foundation-closure-gap-scorecard.csv` 是今晚实际推进入口；它仍是一行一个招生专业明细，把字段候选、B0/B1 官网旁证、原页锚点和官方/家庭/调剂门禁合并到同一行，方便按 S0-S8 动作桶推进。
-35. **三年投档线索旁挂**：`data/working/issue19-major-line-historical-toudang-sidecar.csv` 把 2023/2024/2025 同代码投档线下沉到逐专业明细，但只作冲稳保筛选线索；同代码命中不能证明 2026 专业组、计划数、选科、备注或组内专业保持不变。
-36. **单一招生明细总工作台**：`data/working/issue19-admission-detail-master-workbench.csv` 是后续讨论的默认入口；它不是学校/专业组两层摘要，而是 13736 行逐专业招生明细，并把 PDF 原页锚点、字段缺口、官网旁证、家庭/调剂门禁和三年投档线索放在同一行。
-37. **结构保真显式化**：`data/working/issue19-admission-detail-structural-fidelity-register.csv` 和 `data/working/issue19-structural-risk-major-line-ledger.csv` 把 1838 条唯一组码回退归属、116 条组内专业代号重复、14 条重复组码、13 条原页窗口 P0 和 1127 条原页窗口 P1 显式下沉到逐专业明细或风险事件，避免只停留在 summary 统计。
-38. **0 明细占位保护**：`data/working/issue19-zero-detail-group-placeholder-workbench.csv` 保留 40 个无专业明细专业组，但它们不是招生专业行，不能参与专业接受度、调剂结论或候选排序。
-39. **候选筛选准备**：`data/working/issue19-candidate-filter-prep-major-detail.csv` 只支持机器预筛和核验排序；城市只是院校名关键词候选，公办/民办、办学属性、校区、实际办学地点全部保持 pending。
-40. **决策闸门显式化**：`data/working/issue19-major-decision-readiness-gates.csv` 把 PDF 原页、湖北官方系统、办学属性、公办民办、城市/校区、家庭接受度、同组调剂、字段缺口全部列成逐专业阻断闸门；G3 也只表示“可作机器预筛线索”，不能定案。
-41. **官方回填消歧**：`data/working/issue19-hubei-official-query-key-collision-ledger.csv` 记录 59 个非唯一官方查询三元组、118 条专业明细；后续回填官方系统结果必须按 `专业行ID`、原页位置和官方返回行证据消歧。
-41. **教育部学校属性逐专业核验**：`data/working/issue19-moe-school-attribute-major-detail.csv` 覆盖 13736 条招生专业明细；教育部精确匹配 13161 条、父校/校区类保守匹配 190 条、未匹配待核 385 条。民办线索 2230 条、合作办学线索 34 条、职业本科名称线索 241 条都下沉到逐专业行。教育部所在地只作登记地线索，备注为空不能等于公办最终结论，所有行仍需 2026 湖北招生计划和招生章程闭环。
-42. **未匹配校名风险账本**：`data/working/issue19-moe-school-attribute-unmatched-schools.csv` 保留 49 个未匹配院校代码+校名，覆盖 OCR 错字、省名截断、特殊院校、港澳台/境外主体、新设/更名学校和职业本科线索；该清单只安排核名和补证，不生成候选结论。
-43. **底座稳定性总看板**：`data/working/issue19-foundation-stability-dashboard.csv` 覆盖 13736 条招生专业明细，把 PDF 锚点、教育部属性、湖北官方待核、官网差异、字段缺口、结构风险、官方查询键碰撞、三年投档线索、家庭接受度和同组调剂门禁合并到同一行。B0=2663、B1=4370、B2=5962、B3=542、B4=199；这些等级只说明先核什么，不生成填报建议或录取概率。
-44. **逐专业稳定化任务**：`data/working/issue19-foundation-stabilization-major-detail-tasks.csv` 覆盖 B0/B1/B2 共 12995 条招生专业明细；它不是学校/专业组层派单，而是一行一个专业，记录第一核验动作、保真证据链、需双重佐证字段、字段候选、官网差异、结构风险、官方查询键碰撞和阻断原因。所有行 `机器是否允许自动写回主表=false`、`是否允许作为志愿推荐依据=false`。
-45. **官方公开入口状态快照**：`data/working/issue19-official-public-entry-status.json` 记录 2026-06-27 湖北教育考试网招生计划页面和索引页公开 HTTP 复核状态，计划页 SHA 为 `5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776` 且仍含“持续更新中/敬请期待”；湖北招生数智平台无登录探针仍为 401。该快照只说明当前官方公开入口边界，不能替代第 19 期逐专业明细、湖北官方系统字段核验和高校章程交叉核验。
-46. **未匹配校名逐专业解析**：`data/working/issue19-moe-unmatched-school-resolution-major-detail.csv` 把教育部未匹配的 385 条专业明细展开为核名工作台；历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则候选 90 条，但 `机器能否自动替换校名=false` 全量保持，任何校名修正必须回看 PDF 原页、湖北官方系统和学校官网/章程。
-47. **版面和代号侧账**：`data/working/issue19-major-line-layout-continuity-risk-ledger.csv` 和 `data/working/issue19-major-code-order-risk-ledger.csv` 分别记录版面连续性和专业代号顺序风险，只用于核页派单和消歧，不自动修正 OCR。
-46. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
-47. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
+34. **逐专业源证据风险侧账**：`data/working/issue19-major-source-evidence-risk-sidecar.csv` 把源证据风险下沉到默认入口，避免只在审计表里看到 R2/R3 风险。当前 X1 13 条、X2 6086 条、X3 7019 条、X4 618 条；它用于核页优先级和证据解释，不生成学校或专业建议。
+35. **逐专业闭环缺口看板**：`data/working/issue19-foundation-closure-gap-scorecard.csv` 是今晚实际推进入口；它仍是一行一个招生专业明细，把字段候选、B0/B1 官网旁证、原页锚点和官方/家庭/调剂门禁合并到同一行，方便按 S0-S8 动作桶推进。
+36. **三年投档线索旁挂**：`data/working/issue19-major-line-historical-toudang-sidecar.csv` 把 2023/2024/2025 同代码投档线下沉到逐专业明细，但只作冲稳保筛选线索；同代码命中不能证明 2026 专业组、计划数、选科、备注或组内专业保持不变。
+37. **单一招生明细总工作台**：`data/working/issue19-admission-detail-master-workbench.csv` 是后续讨论的默认入口；它不是学校/专业组两层摘要，而是 13736 行逐专业招生明细，并把 PDF 原页锚点、字段缺口、官网旁证、家庭/调剂门禁和三年投档线索放在同一行。
+38. **结构保真显式化**：`data/working/issue19-admission-detail-structural-fidelity-register.csv` 和 `data/working/issue19-structural-risk-major-line-ledger.csv` 把 1838 条唯一组码回退归属、116 条组内专业代号重复、14 条重复组码、13 条原页窗口 P0 和 1127 条原页窗口 P1 显式下沉到逐专业明细或风险事件，避免只停留在 summary 统计。
+39. **0 明细占位保护**：`data/working/issue19-zero-detail-group-placeholder-workbench.csv` 保留 40 个无专业明细专业组，但它们不是招生专业行，不能参与专业接受度、调剂结论或候选排序。
+40. **候选筛选准备**：`data/working/issue19-candidate-filter-prep-major-detail.csv` 只支持机器预筛和核验排序；城市只是院校名关键词候选，公办/民办、办学属性、校区、实际办学地点全部保持 pending。
+41. **决策闸门显式化**：`data/working/issue19-major-decision-readiness-gates.csv` 把 PDF 原页、湖北官方系统、办学属性、公办民办、城市/校区、家庭接受度、同组调剂、字段缺口全部列成逐专业阻断闸门；G3 也只表示“可作机器预筛线索”，不能定案。
+42. **官方回填消歧**：`data/working/issue19-hubei-official-query-key-collision-ledger.csv` 记录 59 个非唯一官方查询三元组、118 条专业明细；后续回填官方系统结果必须按 `专业行ID`、原页位置和官方返回行证据消歧。
+43. **教育部学校属性逐专业核验**：`data/working/issue19-moe-school-attribute-major-detail.csv` 覆盖 13736 条招生专业明细；教育部精确匹配 13161 条、父校/校区类保守匹配 190 条、未匹配待核 385 条。民办线索 2230 条、合作办学线索 34 条、职业本科名称线索 241 条都下沉到逐专业行。教育部所在地只作登记地线索，备注为空不能等于公办最终结论，所有行仍需 2026 湖北招生计划和招生章程闭环。
+44. **未匹配校名风险账本**：`data/working/issue19-moe-school-attribute-unmatched-schools.csv` 保留 49 个未匹配院校代码+校名，覆盖 OCR 错字、省名截断、特殊院校、港澳台/境外主体、新设/更名学校和职业本科线索；该清单只安排核名和补证，不生成候选结论。
+45. **底座稳定性总看板**：`data/working/issue19-foundation-stability-dashboard.csv` 覆盖 13736 条招生专业明细，把 PDF 锚点、教育部属性、湖北官方待核、官网差异、字段缺口、结构风险、官方查询键碰撞、三年投档线索、家庭接受度和同组调剂门禁合并到同一行。B0=2663、B1=4370、B2=5962、B3=542、B4=199；这些等级只说明先核什么，不生成填报建议或录取概率。
+46. **逐专业稳定化任务**：`data/working/issue19-foundation-stabilization-major-detail-tasks.csv` 覆盖 B0/B1/B2 共 12995 条招生专业明细；它不是学校/专业组层派单，而是一行一个专业，记录第一核验动作、保真证据链、需双重佐证字段、字段候选、官网差异、结构风险、官方查询键碰撞和阻断原因。所有行 `机器是否允许自动写回主表=false`、`是否允许作为志愿推荐依据=false`。
+47. **官方公开入口状态快照**：`data/working/issue19-official-public-entry-status.json` 记录 2026-06-27 湖北教育考试网招生计划页面和索引页公开 HTTP 复核状态，计划页 SHA 为 `5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776` 且仍含“持续更新中/敬请期待”；湖北招生数智平台无登录探针仍为 401。该快照只说明当前官方公开入口边界，不能替代第 19 期逐专业明细、湖北官方系统字段核验和高校章程交叉核验。
+48. **未匹配校名逐专业解析**：`data/working/issue19-moe-unmatched-school-resolution-major-detail.csv` 把教育部未匹配的 385 条专业明细展开为核名工作台；历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则候选 90 条，但 `机器能否自动替换校名=false` 全量保持，任何校名修正必须回看 PDF 原页、湖北官方系统和学校官网/章程。
+49. **版面和代号侧账**：`data/working/issue19-major-line-layout-continuity-risk-ledger.csv` 和 `data/working/issue19-major-code-order-risk-ledger.csv` 分别记录版面连续性和专业代号顺序风险，只用于核页派单和消歧，不自动修正 OCR。
+50. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
+51. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
 
 ## 五、下一步复核优先级
 
