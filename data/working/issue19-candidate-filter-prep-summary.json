@@ -32,6 +32,20 @@
     "pending_campus_or_location_review": 8545,
     "machine_ocr_remark_candidate_unverified": 5191
   },
+  "pdf_field_review_status_counts": {
+    "has_page_hash_pending_manual_pdf_review": 13736
+  },
+  "hubei_official_field_review_status_counts": {
+    "pending_hubei_official_plan_review": 13736
+  },
+  "school_source_review_status_counts": {
+    "not_yet_school_source_searched_in_full_workbench": 12882,
+    "has_partial_source_needs_followup": 412,
+    "has_reusable_2026_hubei_plan_source": 194,
+    "官网专业名匹配但计划数冲突-优先核页": 18,
+    "charter_or_rules_only_no_plan": 63,
+    "needs_official_plan_source_search": 167
+  },
   "machine_action_counts": {
     "K3-城市偏好命中待核": 555,
     "K0-默认阻断风险先排除或低优先核": 3516,

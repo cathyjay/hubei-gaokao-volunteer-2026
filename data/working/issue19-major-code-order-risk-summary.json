@@ -1,0 +1,28 @@
+{
+  "status": "issue19_major_code_order_risk_not_final",
+  "generated_by": "build_issue19_major_code_order_risk_ledger.py",
+  "output_table": "data/working/issue19-major-code-order-risk-ledger.csv",
+  "source_anchor_table": "data/working/issue19-major-line-pdf-evidence-anchors.csv",
+  "source_row_count": 13736,
+  "risk_event_count": 355,
+  "unique_risk_id_count": 355,
+  "unique_major_line_id_count": 574,
+  "unique_group_occurrence_id_count": 220,
+  "risk_rule_counts": {
+    "C01_MAJOR_CODE_UNPARSEABLE": 29,
+    "C02_MAJOR_CODE_NOT_INCREASING": 170,
+    "C03_MAJOR_CODE_JUMP_GT_5": 156
+  },
+  "risk_level_counts": {
+    "P1-专业代号先核": 199,
+    "P2-专业代号序列复核": 156
+  },
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "machine_auto_fix_count": 0,
+  "notes": [
+    "本表用保守规则解析专业代号，数字、一位数字、A0/A1、AA/AB 等常见代号可解析；疑似OCR混淆仍保留为风险。",
+    "专业代号顺序风险只用于排核验顺序，不直接判定OCR错误或志愿可用性。",
+    "所有行均保持最终可用=false、可进入下一阶段=false、机器能否自动修复=false。"
+  ]
+}

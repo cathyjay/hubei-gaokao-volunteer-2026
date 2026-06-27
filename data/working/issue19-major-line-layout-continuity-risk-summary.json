@@ -1,0 +1,32 @@
+{
+  "status": "issue19_major_line_layout_continuity_risk_not_final",
+  "generated_by": "build_issue19_major_line_layout_continuity_risk_ledger.py",
+  "output_table": "data/working/issue19-major-line-layout-continuity-risk-ledger.csv",
+  "source_anchor_table": "data/working/issue19-major-line-pdf-evidence-anchors.csv",
+  "source_row_count": 13736,
+  "risk_event_count": 1934,
+  "unique_risk_id_count": 1934,
+  "unique_major_line_id_count": 1541,
+  "unique_group_occurrence_id_count": 351,
+  "risk_rule_counts": {
+    "L01_START_LINE_NOT_AFTER_GROUP_TITLE": 950,
+    "L02_ADJACENT_Y_DIRECTION_REVERSED": 280,
+    "L04_ADJACENT_Y_LARGE_DELTA": 364,
+    "L06_ADJACENT_LINE_GAP_GT_12": 195,
+    "L05_ADJACENT_LINE_NOT_INCREASING": 138,
+    "L03_ADJACENT_Y_ZERO_DELTA": 7
+  },
+  "risk_level_counts": {
+    "P0-版面边界先核": 950,
+    "P1-相邻行顺序核验": 425,
+    "P2-版面跨度复核": 559
+  },
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "machine_auto_fix_count": 0,
+  "notes": [
+    "本表只使用公开锚点字段生成，不保存OCR窗口原文或私有页图路径。",
+    "版面连续性风险只用于排核验顺序，不直接判定OCR错误或志愿可用性。",
+    "所有行均保持最终可用=false、可进入下一阶段=false、机器能否自动修复=false。"
+  ]
+}

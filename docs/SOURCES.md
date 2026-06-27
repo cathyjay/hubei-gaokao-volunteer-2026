@@ -228,6 +228,14 @@
 - `data/working/issue19-zero-detail-group-placeholder-workbench.csv`：0 明细专业组占位表，40 行；只保留专业组占位和补明细任务，不伪造专业代号或专业名称，不能作为招生专业明细参与候选筛选。
 - `data/working/issue19-candidate-filter-prep-major-detail.csv`：逐专业候选筛选准备表，13736 行；一行一个招生专业明细，合并家庭偏好、城市关键词候选、学费数字线索、结构保真、调剂上下文和证据门禁。城市、办学属性、公办民办、校区均保持机器候选或 pending，不是确认事实。
 - `data/working/issue19-candidate-filter-prep-summary.json`：候选筛选准备摘要；记录当前城市关键词命中 1723 条、办学属性待核 13736 条、学费超预算机器线索 1862 条、学费字段待核 1262 条，以及全部非最终门禁。
+- `data/working/issue19-major-decision-readiness-gates.csv`：逐专业决策闸门表，13736 行；一行一个招生专业明细，显式列出 PDF 原页、湖北官方系统、办学属性、城市/校区、家庭接受度、同组调剂、字段缺口等阻断闸门。该表只用于机器预筛和核验排序，不是候选方案。
+- `data/working/issue19-major-decision-readiness-gates-summary.json`：逐专业决策闸门摘要；记录 G0 结构或归属未闭环 4459 条、G1 家庭底线风险 2342 条、G2 字段缺口 6218 条、G3 可作机器预筛线索 350 条、G4 常规留存 367 条，全部不可进入下一阶段。
+- `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
+- `data/working/issue19-hubei-official-query-key-collision-summary.json`：官方查询键碰撞摘要；记录碰撞键 59 个、碰撞行 118 条，所有行均需用 `专业行ID`、原页位置和官方返回行证据消歧。
+- `data/working/issue19-major-line-layout-continuity-risk-ledger.csv`：专业行版面连续性风险清单，1934 条风险事件；只用公开原页锚点字段生成，检查专业起始行号、相邻 y 坐标、相邻行号递增和大跨度异常。
+- `data/working/issue19-major-line-layout-continuity-risk-summary.json`：版面连续性风险摘要；记录 1541 条专业明细、351 个专业组涉及版面连续性风险，所有事件仅用于核页派单。
+- `data/working/issue19-major-code-order-risk-ledger.csv`：专业代号顺序风险清单，355 条风险事件；用保守解析规则检查专业代号无法解析、相邻代号不递增和大跳变。
+- `data/working/issue19-major-code-order-risk-summary.json`：专业代号顺序风险摘要；记录 574 条专业明细、220 个专业组涉及专业代号顺序风险。该表不判定 OCR 一定错误，只要求回看原页和湖北官方系统确认。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。

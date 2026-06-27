@@ -9531,6 +9531,9 @@ def main():
             == master_row.get("院校专业组代码OCR规范化")
             and row.get("专业代号OCR") == master_row.get("专业代号OCR")
             and row.get("结构保真优先级") == structure_row.get("结构保真优先级")
+            and row.get("PDF字段核验状态") == master_row.get("PDF原页证据状态")
+            and row.get("湖北官方系统字段核验状态") == master_row.get("湖北官方平台字段核验状态")
+            and row.get("高校官网/章程字段核验状态") == master_row.get("高校官网/章程辅证状态")
             and "不得进入最终志愿排序" in row.get("不得进入原因", "")
         )
     filter_prep_public_text = "\n".join(
@@ -9576,6 +9579,20 @@ def main():
             "pending_campus_or_location_review": 8545,
             "machine_ocr_remark_candidate_unverified": 5191,
         }
+        and filter_prep_summary.get("pdf_field_review_status_counts") == {
+            "has_page_hash_pending_manual_pdf_review": 13736,
+        }
+        and filter_prep_summary.get("hubei_official_field_review_status_counts") == {
+            "pending_hubei_official_plan_review": 13736,
+        }
+        and filter_prep_summary.get("school_source_review_status_counts") == {
+            "not_yet_school_source_searched_in_full_workbench": 12882,
+            "has_partial_source_needs_followup": 412,
+            "has_reusable_2026_hubei_plan_source": 194,
+            "官网专业名匹配但计划数冲突-优先核页": 18,
+            "charter_or_rules_only_no_plan": 63,
+            "needs_official_plan_source_search": 167,
+        }
         and filter_prep_summary.get("final_available_count") == 0
         and filter_prep_summary.get("next_stage_available_count") == 0
         and filter_prep_summary.get("pending_school_attribute_review_count") == 13736,
@@ -9589,6 +9606,8 @@ def main():
         and {row.get("专业行ID") for row in filter_prep_rows}
         == {row.get("专业行ID") for row in admission_master_rows}
         and all(row.get("办学属性核验状态") == "pending_school_attribute_review" for row in filter_prep_rows)
+        and all(row.get("PDF字段核验状态") == "has_page_hash_pending_manual_pdf_review" for row in filter_prep_rows)
+        and all(row.get("湖北官方系统字段核验状态") == "pending_hubei_official_plan_review" for row in filter_prep_rows)
         and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in filter_prep_rows)
         and filter_prep_join_ok,
     ))
@@ -9604,6 +9623,394 @@ def main():
         and "最终方案" not in filter_prep_public_text
         and "可填报" not in filter_prep_public_text
         and "可排序" not in filter_prep_public_text,
+    ))
+
+    decision_gates_summary_path = ROOT / "data/working/issue19-major-decision-readiness-gates-summary.json"
+    decision_gates_csv = ROOT / "data/working/issue19-major-decision-readiness-gates.csv"
+    decision_gates_summary = json.loads(decision_gates_summary_path.read_text())
+    with decision_gates_csv.open(newline="", encoding="utf-8-sig") as f:
+        decision_gates_reader = csv.DictReader(f)
+        decision_gates_rows = list(decision_gates_reader)
+        decision_gates_fields = decision_gates_reader.fieldnames or []
+    expected_decision_gates_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_major_decision_readiness_gates.py",
+        "FIELDS",
+    )
+    filter_prep_by_major_id = {row.get("专业行ID"): row for row in filter_prep_rows}
+    decision_gates_join_ok = True
+    for row in decision_gates_rows:
+        major_id = row.get("专业行ID", "")
+        filter_row = filter_prep_by_major_id.get(major_id, {})
+        master_row = admission_master_by_major_id.get(major_id, {})
+        structure_row = structural_by_major_id.get(major_id, {})
+        decision_gates_join_ok = (
+            decision_gates_join_ok
+            and bool(filter_row)
+            and bool(master_row)
+            and bool(structure_row)
+            and row.get("决策闸门ID") == stable_id("DECISIONGATE", [major_id])
+            and row.get("来源候选筛选准备表")
+            == "data/working/issue19-candidate-filter-prep-major-detail.csv"
+            and row.get("来源单一逐专业招生明细总工作台")
+            == "data/working/issue19-admission-detail-master-workbench.csv"
+            and row.get("来源结构保真登记表")
+            == "data/working/issue19-admission-detail-structural-fidelity-register.csv"
+            and row.get("数据阶段") == "issue19_major_decision_readiness_gates"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("专业组出现ID") == master_row.get("专业组出现ID")
+            and row.get("城市字段状态") == filter_row.get("城市字段状态")
+            and row.get("办学属性核验状态") == "pending_school_attribute_review"
+            and row.get("PDF字段核验状态") == "has_page_hash_pending_manual_pdf_review"
+            and row.get("湖北官方系统字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("家庭接受度核验状态") == "pending_family_acceptance_review"
+            and row.get("同组调剂结论") == "pending_transfer_decision"
+            and row.get("结构保真优先级") == structure_row.get("结构保真优先级")
+            and "不得进入志愿排序" in row.get("不得进入原因", "")
+        )
+    decision_gates_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [decision_gates_summary_path, decision_gates_csv]
+    )
+    checks.append(ok(
+        "第 19 期逐专业决策闸门表摘要、行数和阻断门禁正确",
+        decision_gates_summary.get("status") == "issue19_major_decision_readiness_gates_not_final"
+        and decision_gates_summary.get("generated_by")
+        == "build_issue19_major_decision_readiness_gates.py"
+        and decision_gates_summary.get("output_table")
+        == "data/working/issue19-major-decision-readiness-gates.csv"
+        and decision_gates_summary.get("row_count") == 13736
+        and decision_gates_summary.get("unique_gate_id_count") == 13736
+        and decision_gates_summary.get("unique_major_line_id_count") == 13736
+        and decision_gates_summary.get("missing_join_counts") == {}
+        and decision_gates_summary.get("readiness_status_counts") == {
+            "G2-字段缺口未闭环": 6218,
+            "G1-家庭底线风险待确认": 2342,
+            "G0-结构或归属未闭环": 4459,
+            "G3-可作机器预筛线索但不可定案": 350,
+            "G4-常规留存但不可定案": 367,
+        }
+        and decision_gates_summary.get("action_bucket_counts") == {
+            "D2-计划学费选科字段先补": 6218,
+            "D1-家庭底线风险先确认": 2342,
+            "D0-结构归属和PDF原页先核": 4459,
+            "D3-偏好专业线索优先核": 125,
+            "D6-常规留存待了解": 367,
+            "D4-城市偏好线索待位置核": 48,
+            "D5-调剂风险先核": 177,
+        }
+        and decision_gates_summary.get("blocking_gate_counts", {}).get("PDF原页待核") == 13736
+        and decision_gates_summary.get("blocking_gate_counts", {}).get("湖北官方系统待核") == 13736
+        and decision_gates_summary.get("blocking_gate_counts", {}).get("办学属性待核") == 13736
+        and decision_gates_summary.get("blocking_gate_counts", {}).get("家庭接受度待核") == 13736
+        and decision_gates_summary.get("blocking_gate_counts", {}).get("同组调剂结论待核") == 13736
+        and decision_gates_summary.get("pdf_field_review_status_counts") == {
+            "has_page_hash_pending_manual_pdf_review": 13736,
+        }
+        and decision_gates_summary.get("hubei_official_field_review_status_counts") == {
+            "pending_hubei_official_plan_review": 13736,
+        }
+        and decision_gates_summary.get("school_attribute_gate_counts") == {
+            "pending_school_attribute_review": 13736,
+        }
+        and decision_gates_summary.get("family_acceptance_status_counts") == {
+            "pending_family_acceptance_review": 13736,
+        }
+        and decision_gates_summary.get("transfer_decision_status_counts") == {
+            "pending_transfer_decision": 13736,
+        }
+        and decision_gates_summary.get("final_available_count") == 0
+        and decision_gates_summary.get("next_stage_available_count") == 0
+        and decision_gates_summary.get("candidate_decision_allowed_count") == 0,
+        f"{len(decision_gates_rows)} decision gate rows",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业决策闸门表字段、主键和来源闭环正确",
+        decision_gates_fields == expected_decision_gates_fields
+        and len(decision_gates_rows) == 13736
+        and len({row.get("决策闸门ID") for row in decision_gates_rows}) == 13736
+        and {row.get("专业行ID") for row in decision_gates_rows}
+        == {row.get("专业行ID") for row in admission_master_rows}
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in decision_gates_rows)
+        and decision_gates_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期逐专业决策闸门表公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(decision_gates_public_text) is None
+        and "private/" not in decision_gates_public_text
+        and "final_allowed" not in decision_gates_public_text
+        and "ready_for_discussion" not in decision_gates_public_text
+        and "已确认" not in decision_gates_public_text
+        and "已核准" not in decision_gates_public_text
+        and "最终推荐" not in decision_gates_public_text
+        and "最终方案" not in decision_gates_public_text
+        and "可填报" not in decision_gates_public_text
+        and "可排序" not in decision_gates_public_text,
+    ))
+
+    official_collision_summary_path = ROOT / "data/working/issue19-hubei-official-query-key-collision-summary.json"
+    official_collision_csv = ROOT / "data/working/issue19-hubei-official-query-key-collision-ledger.csv"
+    official_collision_summary = json.loads(official_collision_summary_path.read_text())
+    with official_collision_csv.open(newline="", encoding="utf-8-sig") as f:
+        official_collision_reader = csv.DictReader(f)
+        official_collision_rows = list(official_collision_reader)
+        official_collision_fields = official_collision_reader.fieldnames or []
+    expected_official_collision_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_hubei_official_query_key_collision_ledger.py",
+        "FIELDS",
+    )
+    hubei_official_by_major_id = {row.get("专业行ID"): row for row in hubei_official_rows}
+    official_collision_join_ok = True
+    for row in official_collision_rows:
+        major_id = row.get("专业行ID", "")
+        official_row = hubei_official_by_major_id.get(major_id, {})
+        official_collision_join_ok = (
+            official_collision_join_ok
+            and bool(official_row)
+            and row.get("官方查询键碰撞ID")
+            == stable_id("OFFICIALKEYCOLLISION", [row.get("碰撞键", ""), major_id])
+            and row.get("来源湖北官方系统逐专业核验包")
+            == "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv"
+            and row.get("数据阶段") == "issue19_hubei_official_query_key_collision_ledger"
+            and row.get("主表粒度") == "逐专业招生明细×官方查询键碰撞"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("平台字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("专业组出现ID") == official_row.get("专业组出现ID")
+            and row.get("平台查询院校代码") == official_row.get("平台查询院校代码")
+            and row.get("平台查询专业组代码") == official_row.get("平台查询专业组代码")
+            and row.get("平台查询专业代号") == official_row.get("平台查询专业代号")
+            and "不得只按院校代码+专业组代码+专业代号合并" in row.get("消歧要求", "")
+        )
+    official_collision_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [official_collision_summary_path, official_collision_csv]
+    )
+    checks.append(ok(
+        "第 19 期湖北官方查询键碰撞清单摘要和行数正确",
+        official_collision_summary.get("status") == "issue19_hubei_official_query_key_collision_not_final"
+        and official_collision_summary.get("generated_by")
+        == "build_issue19_hubei_official_query_key_collision_ledger.py"
+        and official_collision_summary.get("output_table")
+        == "data/working/issue19-hubei-official-query-key-collision-ledger.csv"
+        and official_collision_summary.get("source_hubei_official_packets")
+        == "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv"
+        and official_collision_summary.get("source_row_count") == 13736
+        and official_collision_summary.get("collision_key_count") == 59
+        and official_collision_summary.get("collision_row_count") == 118
+        and official_collision_summary.get("unique_collision_id_count") == 118
+        and official_collision_summary.get("unique_major_line_id_count") == 118
+        and official_collision_summary.get("collision_size_counts") == {"2": 59}
+        and official_collision_summary.get("platform_field_review_status_counts") == {
+            "pending_hubei_official_plan_review": 118,
+        }
+        and official_collision_summary.get("final_available_count") == 0
+        and official_collision_summary.get("next_stage_available_count") == 0,
+        f"{len(official_collision_rows)} collision rows",
+    ))
+    checks.append(ok(
+        "第 19 期湖北官方查询键碰撞清单字段、主键和消歧门禁正确",
+        official_collision_fields == expected_official_collision_fields
+        and len(official_collision_rows) == 118
+        and len({row.get("官方查询键碰撞ID") for row in official_collision_rows}) == 118
+        and len({row.get("碰撞键") for row in official_collision_rows}) == 59
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in official_collision_rows)
+        and official_collision_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期湖北官方查询键碰撞清单公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(official_collision_public_text) is None
+        and "private/" not in official_collision_public_text
+        and "final_allowed" not in official_collision_public_text
+        and "ready_for_discussion" not in official_collision_public_text
+        and "已确认" not in official_collision_public_text
+        and "已核准" not in official_collision_public_text
+        and "最终推荐" not in official_collision_public_text
+        and "最终方案" not in official_collision_public_text
+        and "可填报" not in official_collision_public_text
+        and "可排序" not in official_collision_public_text,
+    ))
+
+    layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
+    layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
+    layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
+    with layout_risk_csv.open(newline="", encoding="utf-8-sig") as f:
+        layout_risk_reader = csv.DictReader(f)
+        layout_risk_rows = list(layout_risk_reader)
+        layout_risk_fields = layout_risk_reader.fieldnames or []
+    expected_layout_risk_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_major_line_layout_continuity_risk_ledger.py",
+        "FIELDS",
+    )
+    pdf_anchor_by_major_id = {row.get("专业行ID"): row for row in pdf_anchor_rows}
+    layout_involved_major_ids = set()
+    layout_risk_join_ok = True
+    for row in layout_risk_rows:
+        anchor_row = pdf_anchor_by_major_id.get(row.get("专业行ID"), {})
+        layout_involved_major_ids.add(row.get("专业行ID", ""))
+        if row.get("相邻前一专业行ID"):
+            layout_involved_major_ids.add(row.get("相邻前一专业行ID", ""))
+        layout_risk_join_ok = (
+            layout_risk_join_ok
+            and bool(anchor_row)
+            and row.get("版面连续性风险ID")
+            == stable_id(
+                "LAYOUTRISK",
+                [row.get("风险规则ID", ""), row.get("专业行ID", ""), row.get("相邻前一专业行ID", "")],
+            )
+            and row.get("来源专业行原页证据锚点表")
+            == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+            and row.get("数据阶段") == "issue19_major_line_layout_continuity_risk_ledger"
+            and row.get("主表粒度") == "逐专业招生明细×版面连续性风险事件"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器能否自动修复") == "false"
+            and row.get("专业组出现ID") == anchor_row.get("专业组出现ID")
+            and row.get("来源页码") == anchor_row.get("来源页码")
+            and row.get("版面列") == anchor_row.get("版面列")
+        )
+    layout_risk_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [layout_risk_summary_path, layout_risk_csv]
+    )
+    checks.append(ok(
+        "第 19 期专业行版面连续性风险清单摘要和计数正确",
+        layout_risk_summary.get("status") == "issue19_major_line_layout_continuity_risk_not_final"
+        and layout_risk_summary.get("generated_by")
+        == "build_issue19_major_line_layout_continuity_risk_ledger.py"
+        and layout_risk_summary.get("output_table")
+        == "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
+        and layout_risk_summary.get("source_anchor_table")
+        == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+        and layout_risk_summary.get("source_row_count") == 13736
+        and layout_risk_summary.get("risk_event_count") == 1934
+        and layout_risk_summary.get("unique_risk_id_count") == 1934
+        and layout_risk_summary.get("unique_major_line_id_count") == 1541
+        and layout_risk_summary.get("unique_group_occurrence_id_count") == 351
+        and layout_risk_summary.get("risk_rule_counts") == {
+            "L01_START_LINE_NOT_AFTER_GROUP_TITLE": 950,
+            "L02_ADJACENT_Y_DIRECTION_REVERSED": 280,
+            "L04_ADJACENT_Y_LARGE_DELTA": 364,
+            "L06_ADJACENT_LINE_GAP_GT_12": 195,
+            "L05_ADJACENT_LINE_NOT_INCREASING": 138,
+            "L03_ADJACENT_Y_ZERO_DELTA": 7,
+        }
+        and layout_risk_summary.get("final_available_count") == 0
+        and layout_risk_summary.get("next_stage_available_count") == 0
+        and layout_risk_summary.get("machine_auto_fix_count") == 0,
+        f"{len(layout_risk_rows)} layout risk rows",
+    ))
+    checks.append(ok(
+        "第 19 期专业行版面连续性风险清单字段、主键和锚点回链正确",
+        layout_risk_fields == expected_layout_risk_fields
+        and len(layout_risk_rows) == 1934
+        and len({row.get("版面连续性风险ID") for row in layout_risk_rows}) == 1934
+        and len(layout_involved_major_ids - {""}) == 1541
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in layout_risk_rows)
+        and all(row.get("机器能否自动修复") == "false" for row in layout_risk_rows)
+        and layout_risk_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期专业行版面连续性风险清单公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(layout_risk_public_text) is None
+        and "private/" not in layout_risk_public_text
+        and "final_allowed" not in layout_risk_public_text
+        and "ready_for_discussion" not in layout_risk_public_text
+        and "已确认" not in layout_risk_public_text
+        and "已核准" not in layout_risk_public_text
+        and "最终推荐" not in layout_risk_public_text
+        and "最终方案" not in layout_risk_public_text
+        and "可填报" not in layout_risk_public_text
+        and "可排序" not in layout_risk_public_text,
+    ))
+
+    code_order_summary_path = ROOT / "data/working/issue19-major-code-order-risk-summary.json"
+    code_order_csv = ROOT / "data/working/issue19-major-code-order-risk-ledger.csv"
+    code_order_summary = json.loads(code_order_summary_path.read_text())
+    with code_order_csv.open(newline="", encoding="utf-8-sig") as f:
+        code_order_reader = csv.DictReader(f)
+        code_order_rows = list(code_order_reader)
+        code_order_fields = code_order_reader.fieldnames or []
+    expected_code_order_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_major_code_order_risk_ledger.py",
+        "FIELDS",
+    )
+    code_involved_major_ids = set()
+    code_order_join_ok = True
+    for row in code_order_rows:
+        anchor_row = pdf_anchor_by_major_id.get(row.get("专业行ID"), {})
+        code_involved_major_ids.add(row.get("专业行ID", ""))
+        if row.get("相邻前一专业行ID"):
+            code_involved_major_ids.add(row.get("相邻前一专业行ID", ""))
+        code_order_join_ok = (
+            code_order_join_ok
+            and bool(anchor_row)
+            and row.get("专业代号顺序风险ID")
+            == stable_id(
+                "CODERISK",
+                [row.get("风险规则ID", ""), row.get("专业行ID", ""), row.get("相邻前一专业行ID", "")],
+            )
+            and row.get("来源专业行原页证据锚点表")
+            == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+            and row.get("数据阶段") == "issue19_major_code_order_risk_ledger"
+            and row.get("主表粒度") == "逐专业招生明细×专业代号顺序风险事件"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器能否自动修复") == "false"
+            and row.get("专业组出现ID") == anchor_row.get("专业组出现ID")
+            and row.get("专业代号OCR") == anchor_row.get("专业代号OCR")
+        )
+    code_order_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [code_order_summary_path, code_order_csv]
+    )
+    checks.append(ok(
+        "第 19 期专业代号顺序风险清单摘要和计数正确",
+        code_order_summary.get("status") == "issue19_major_code_order_risk_not_final"
+        and code_order_summary.get("generated_by")
+        == "build_issue19_major_code_order_risk_ledger.py"
+        and code_order_summary.get("output_table")
+        == "data/working/issue19-major-code-order-risk-ledger.csv"
+        and code_order_summary.get("source_anchor_table")
+        == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+        and code_order_summary.get("source_row_count") == 13736
+        and code_order_summary.get("risk_event_count") == 355
+        and code_order_summary.get("unique_risk_id_count") == 355
+        and code_order_summary.get("unique_major_line_id_count") == 574
+        and code_order_summary.get("unique_group_occurrence_id_count") == 220
+        and code_order_summary.get("risk_rule_counts") == {
+            "C01_MAJOR_CODE_UNPARSEABLE": 29,
+            "C02_MAJOR_CODE_NOT_INCREASING": 170,
+            "C03_MAJOR_CODE_JUMP_GT_5": 156,
+        }
+        and code_order_summary.get("final_available_count") == 0
+        and code_order_summary.get("next_stage_available_count") == 0
+        and code_order_summary.get("machine_auto_fix_count") == 0,
+        f"{len(code_order_rows)} code order risk rows",
+    ))
+    checks.append(ok(
+        "第 19 期专业代号顺序风险清单字段、主键和锚点回链正确",
+        code_order_fields == expected_code_order_fields
+        and len(code_order_rows) == 355
+        and len({row.get("专业代号顺序风险ID") for row in code_order_rows}) == 355
+        and len(code_involved_major_ids - {""}) == 574
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in code_order_rows)
+        and all(row.get("机器能否自动修复") == "false" for row in code_order_rows)
+        and code_order_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期专业代号顺序风险清单公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(code_order_public_text) is None
+        and "private/" not in code_order_public_text
+        and "final_allowed" not in code_order_public_text
+        and "ready_for_discussion" not in code_order_public_text
+        and "已确认" not in code_order_public_text
+        and "已核准" not in code_order_public_text
+        and "最终推荐" not in code_order_public_text
+        and "最终方案" not in code_order_public_text
+        and "可填报" not in code_order_public_text
+        and "可排序" not in code_order_public_text,
     ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",

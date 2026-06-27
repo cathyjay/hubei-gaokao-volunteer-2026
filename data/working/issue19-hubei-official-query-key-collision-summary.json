@@ -1,0 +1,24 @@
+{
+  "status": "issue19_hubei_official_query_key_collision_not_final",
+  "generated_by": "build_issue19_hubei_official_query_key_collision_ledger.py",
+  "output_table": "data/working/issue19-hubei-official-query-key-collision-ledger.csv",
+  "source_hubei_official_packets": "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv",
+  "source_row_count": 13736,
+  "collision_key_count": 59,
+  "collision_row_count": 118,
+  "unique_collision_id_count": 118,
+  "unique_major_line_id_count": 118,
+  "collision_size_counts": {
+    "2": 59
+  },
+  "platform_field_review_status_counts": {
+    "pending_hubei_official_plan_review": 118
+  },
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "notes": [
+    "本表只记录官方查询键碰撞，防止后续按非唯一三元组回填官方计划。",
+    "回填官方系统结果必须使用专业行ID和原页位置消歧。",
+    "所有行均保持最终可用=false、可进入下一阶段=false。"
+  ]
+}
