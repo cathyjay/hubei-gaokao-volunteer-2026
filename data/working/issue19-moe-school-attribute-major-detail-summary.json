@@ -1,0 +1,54 @@
+{
+  "status": "issue19_moe_school_attribute_major_detail_not_final",
+  "generated_by": "build_issue19_moe_school_attribute_major_detail.py",
+  "output_table": "data/working/issue19-moe-school-attribute-major-detail.csv",
+  "support_unmatched_school_table": "data/working/issue19-moe-school-attribute-unmatched-schools.csv",
+  "source_master_workbench": "data/working/issue19-admission-detail-master-workbench.csv",
+  "source_filter_prep": "data/working/issue19-candidate-filter-prep-major-detail.csv",
+  "source_moe_normalized": "data/working/moe-2025-regular-higher-schools-normalized.csv",
+  "source_page_url": "https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/202506/t20250627_1195683.html",
+  "source_attachment_url": "https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/202506/W020250729615142156867.xls",
+  "row_count": 13736,
+  "unique_attribute_id_count": 13736,
+  "unique_major_line_id_count": 13736,
+  "unique_school_code_name_count": 1100,
+  "match_status_counts": {
+    "exact_school_name_match": 13161,
+    "parent_school_name_match_location_not_campus": 190,
+    "unmatched_needs_school_name_or_special_school_review": 385
+  },
+  "matched_school_count_by_status": {
+    "exact_school_name_match": 1034,
+    "parent_school_name_match_location_not_campus": 17,
+    "unmatched_needs_school_name_or_special_school_review": 49
+  },
+  "public_private_machine_signal_counts": {
+    "非民办线索-教育部名单未备注民办": 11087,
+    "未匹配-待核": 385,
+    "民办-教育部备注民办": 2230,
+    "中外合作或港澳合作办学线索-教育部备注": 34
+  },
+  "family_attribute_action_counts": {
+    "继续核公办普通学费-非民办线索": 10934,
+    "先核学校名称或特殊院校": 385,
+    "单独讨论-职业本科名称线索": 153,
+    "默认不进主方案-民办线索": 2230,
+    "单独讨论-中外合作或港澳合作办学线索": 34
+  },
+  "attribute_gate_counts": {
+    "G1-教育部名单命中仍待2026计划和章程核验": 10744,
+    "G1-父校线索待校区核验": 190,
+    "G0-校名未匹配阻断": 385,
+    "G1-职业本科需家庭确认": 153,
+    "G0-民办线索阻断": 2230,
+    "G0-合作办学/高收费线索阻断": 34
+  },
+  "vocational_name_signal_count": 241,
+  "moe_location_preferred_city_hit_count": 3074,
+  "unmatched_school_count": 49,
+  "unmatched_major_line_count": 385,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "location_boundary": "教育部所在地只作学校登记地线索，不替代2026招生计划或招生章程中的实际校区/办学地点。",
+  "public_private_boundary": "教育部备注为空只能表示名单备注列未标注民办或合作办学，不能单独等于公办最终结论。"
+}

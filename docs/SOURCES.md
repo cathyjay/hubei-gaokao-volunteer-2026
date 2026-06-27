@@ -66,6 +66,15 @@
    - 2026-06-27 当前资源 SHA：`index-Cut-ZwER.js=191ac7517cf0c9ea22cb82d98c381664ba439ffe485936b600405b92593e4de4`、`planQuery-DaPwtzYm.js=1013eb61f6f142b97d439269397b4674d778cf2c00483120462d83748cfd90ee`、`index-BjY7ltef.js=63e980b0c2d033d8cfcc5e46c21690abd9f2b776d940a1f02be7d75d67358522`。
    - 用途：登录后查询或导出 2026 招生计划；未登录状态不能作为完整数据来源。接口结构化时一行一个招生专业，院校专业组只作索引。
 
+10. 教育部，全国高等学校名单
+   - 页面 URL：https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/202506/t20250627_1195683.html
+   - 普通高校名单附件 URL：https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/202506/W020250729615142156867.xls
+   - 本地网页：`data/official/moe-2025-national-higher-school-list/source-page.html`
+   - 本地 XLS：`data/official/moe-2025-national-higher-school-list/national-regular-higher-schools-2025.xls`
+   - SHA256：网页 `6e262bdd12284183d55f5979d212e7ca2f476fb27cb3df102e3eecb4facea48f`，XLS `af6f0192c29fb412b441fb55a13311479d08f861d68257960c5edb2e4dfb55af`。
+   - 用途：核验学校名称、学校标识码、主管部门、所在地、办学层次和教育部备注；辅助识别民办、合作办学、职业本科和校名 OCR 风险。
+   - 限制：该名单截至 2025-06-20，不包含港澳台地区高等学校；`所在地` 是学校登记地线索，不等于 2026 招生专业实际就读校区；`备注` 为空不能直接等于公办最终结论；最终仍需湖北 2026 招生计划和招生章程闭环。
+
 ## 交叉校验来源
 
 1. static-data.gaokao.cn 一分一段 JSON
@@ -230,6 +239,11 @@
 - `data/working/issue19-candidate-filter-prep-summary.json`：候选筛选准备摘要；记录当前城市关键词命中 1723 条、办学属性待核 13736 条、学费超预算机器线索 1862 条、学费字段待核 1262 条，以及全部非最终门禁。
 - `data/working/issue19-major-decision-readiness-gates.csv`：逐专业决策闸门表，13736 行；一行一个招生专业明细，显式列出 PDF 原页、湖北官方系统、办学属性、城市/校区、家庭接受度、同组调剂、字段缺口等阻断闸门。该表只用于机器预筛和核验排序，不是候选方案。
 - `data/working/issue19-major-decision-readiness-gates-summary.json`：逐专业决策闸门摘要；记录 G0 结构或归属未闭环 4459 条、G1 家庭底线风险 2342 条、G2 字段缺口 6218 条、G3 可作机器预筛线索 350 条、G4 常规留存 367 条，全部不可进入下一阶段。
+- `data/working/moe-2025-regular-higher-schools-normalized.csv`：教育部 2025 全国普通高等学校名单标准化表，2919 行；其中本科 1365 所、专科 1554 所，备注为民办 829 所、合作办学 14 所。该表只作学校登记信息官方基准。
+- `data/working/moe-2025-regular-higher-schools-summary.json`：教育部普通高校名单标准化摘要，记录来源网页/XLS SHA、发布日期 2025-06-27、截至日期 2025-06-20、行数、层次和备注分布。
+- `data/working/issue19-moe-school-attribute-major-detail.csv`：第 19 期逐专业教育部学校属性核验表，13736 行；一行一个招生专业明细，把教育部学校名称、标识码、主管部门、所在地、办学层次、备注、民办/合作办学/职业本科机器线索、父校/校区匹配边界下沉到每条专业行。
+- `data/working/issue19-moe-school-attribute-major-detail-summary.json`：逐专业教育部学校属性核验摘要；记录精确匹配 13161 条、父校/校区类保守匹配 190 条、未匹配待核 385 条、未匹配学校 49 个、民办线索 2230 条、合作办学线索 34 条、职业本科名称线索 241 条，全部保持 `最终可用=false`。
+- `data/working/issue19-moe-school-attribute-unmatched-schools.csv`：教育部名单未匹配学校支持清单，49 行；只用于回看 PDF 原页、湖北官方系统、学校官网或招生章程核校名和特殊院校性质，不能替代逐专业主表。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
 - `data/working/issue19-hubei-official-query-key-collision-summary.json`：官方查询键碰撞摘要；记录碰撞键 59 个、碰撞行 118 条，所有行均需用 `专业行ID`、原页位置和官方返回行证据消歧。
 - `data/working/issue19-major-line-layout-continuity-risk-ledger.csv`：专业行版面连续性风险清单，1934 条风险事件；只用公开原页锚点字段生成，检查专业起始行号、相邻 y 坐标、相邻行号递增和大跨度异常。
@@ -324,6 +338,7 @@
 - `scripts/build_issue19_candidate_v3_major_field_fidelity_ledger.py`：根据候选 V3 全量逐专业招生明细主表、逐专业复核队列、全量逐专业质量工作台、D0 原页证据和 B0/B1 保真队列生成全量字段保真总账；总账是逐专业明细粒度，不产生最终推荐。
 - `scripts/build_issue19_b0_b1_fidelity_review_queues.py`：从 B0/B1 逐专业证据合并表生成计划数冲突、专业未匹配和学校补源缺口三类保真复核队列；只安排人工核验顺序，不生成可填报结论。
 - `scripts/fetch_hubei_plan_platform.py`：湖北招生数智综合平台逐专业计划抓取脚手架；token 只从环境变量读取，原始分页响应默认保存在 Git 忽略的 `private/hubei-plan-platform/raw/`，公开输出为逐专业规范化 CSV 和摘要。
+- `scripts/build_issue19_moe_school_attribute_major_detail.py`：读取教育部 2025 全国普通高等学校名单 XLS，生成教育部名单标准化表、逐专业学校属性核验表和未匹配学校支持清单；所有属性线索都下沉到 `专业行ID`，不生成学校级候选结论。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

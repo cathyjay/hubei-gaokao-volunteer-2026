@@ -175,6 +175,19 @@ OCR 初稿 / 最终可用=false
 - 后续新增城市、学校或专业方向时，应先从全量保真总账或全量证据工作台检索逐专业明细，再决定是否进入候选 V3 或新候选表；不能只在已有 V3 候选子集里找。
 - 逐专业工作台仍是待核表，不得出现 `final_allowed`、`ready_for_discussion`、`已确认` 等最终可用结论。
 
+教育部学校属性核验表的使用方式：
+
+- `data/official/moe-2025-national-higher-school-list/source-page.html` 和 `data/official/moe-2025-national-higher-school-list/national-regular-higher-schools-2025.xls` 是教育部全国高等学校名单留存源，必须用 SHA256 校验；网页 SHA 为 `6e262bdd12284183d55f5979d212e7ca2f476fb27cb3df102e3eecb4facea48f`，XLS SHA 为 `af6f0192c29fb412b441fb55a13311479d08f861d68257960c5edb2e4dfb55af`。
+- `data/working/moe-2025-regular-higher-schools-normalized.csv` 必须固定为 2919 行，其中本科 1365 行、专科 1554 行、备注民办 829 行、合作办学 14 行；这些数字来自教育部源页和 XLS 双重校验。
+- `data/working/issue19-moe-school-attribute-major-detail.csv` 必须覆盖第 19 期全部 13736 条招生专业明细，且 `专业行ID` 与 `issue19-admission-detail-master-workbench.csv` 完全一致；该表不是学校汇总表，也不是候选方案。
+- 当前教育部匹配只允许三类状态：`exact_school_name_match` 13161 条、`parent_school_name_match_location_not_campus` 190 条、`unmatched_needs_school_name_or_special_school_review` 385 条。父校/校区/医学部匹配只能作为线索，必须写明“父校所在地不能当实际校区”。
+- `data/working/issue19-moe-school-attribute-unmatched-schools.csv` 是 49 个未匹配院校代码+校名的支持清单；它只用于核 OCR 校名、特殊院校、港澳台/境外主体、新设/更名学校和职业本科风险，不得替代逐专业主表。
+- 教育部 `备注=民办` 是强风险线索，当前 2230 条逐专业明细必须标记为默认不进主方案；教育部备注中的合作办学线索 34 条必须单独讨论费用和家庭接受度。
+- 教育部备注为空只能解释为“教育部名单备注列未标注民办或合作办学”，不能自动等于公办最终结论。最终公办/民办、学费、校区和专业计划仍要回到 2026 湖北招生计划和招生章程。
+- 教育部 `所在地` 只能作为学校登记地线索，不能用于直接判断就读城市。带 `校区`、`分校`、`医学部`、`马来西亚校区` 等字样的行，必须另核招生章程和 2026 招生计划中的办学地点。
+- 职业本科/职业大学名称线索当前 241 条；家庭偏好默认优先公办普通本科，职业本科必须单独确认培养定位、学费、校区和家庭接受度。
+- 该表所有行必须保持 `最终可用=false`、`可进入下一阶段=false`；即便教育部精确命中，也只说明学校登记信息有官方线索，不说明专业字段、计划数、学费、调剂和录取概率已经可用。
+
 最终依据禁止项：
 
 - 学校级表、组级索引表、页级队列、P0 执行包、官网补源队列和摘要 JSON 都不能作为最终志愿依据。

@@ -9749,6 +9749,224 @@ def main():
         and "可排序" not in decision_gates_public_text,
     ))
 
+    moe_source_page = ROOT / "data/official/moe-2025-national-higher-school-list/source-page.html"
+    moe_xls = ROOT / "data/official/moe-2025-national-higher-school-list/national-regular-higher-schools-2025.xls"
+    moe_normalized_summary_path = ROOT / "data/working/moe-2025-regular-higher-schools-summary.json"
+    moe_normalized_csv = ROOT / "data/working/moe-2025-regular-higher-schools-normalized.csv"
+    moe_attribute_summary_path = ROOT / "data/working/issue19-moe-school-attribute-major-detail-summary.json"
+    moe_attribute_csv = ROOT / "data/working/issue19-moe-school-attribute-major-detail.csv"
+    moe_unmatched_csv = ROOT / "data/working/issue19-moe-school-attribute-unmatched-schools.csv"
+    moe_source_text = moe_source_page.read_text(encoding="utf-8", errors="ignore")
+    moe_normalized_summary = json.loads(moe_normalized_summary_path.read_text())
+    moe_attribute_summary = json.loads(moe_attribute_summary_path.read_text())
+    with moe_normalized_csv.open(newline="", encoding="utf-8-sig") as f:
+        moe_normalized_reader = csv.DictReader(f)
+        moe_normalized_rows = list(moe_normalized_reader)
+        moe_normalized_fields = moe_normalized_reader.fieldnames or []
+    with moe_attribute_csv.open(newline="", encoding="utf-8-sig") as f:
+        moe_attribute_reader = csv.DictReader(f)
+        moe_attribute_rows = list(moe_attribute_reader)
+        moe_attribute_fields = moe_attribute_reader.fieldnames or []
+    with moe_unmatched_csv.open(newline="", encoding="utf-8-sig") as f:
+        moe_unmatched_reader = csv.DictReader(f)
+        moe_unmatched_rows = list(moe_unmatched_reader)
+        moe_unmatched_fields = moe_unmatched_reader.fieldnames or []
+    expected_moe_normalized_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_moe_school_attribute_major_detail.py",
+        "NORMALIZED_FIELDS",
+    )
+    expected_moe_attribute_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_moe_school_attribute_major_detail.py",
+        "MAJOR_FIELDS",
+    )
+    expected_moe_unmatched_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_moe_school_attribute_major_detail.py",
+        "UNMATCHED_FIELDS",
+    )
+    moe_attribute_by_major_id = {row.get("专业行ID"): row for row in moe_attribute_rows}
+    moe_attribute_join_ok = True
+    for row in moe_attribute_rows:
+        major_id = row.get("专业行ID", "")
+        master_row = admission_master_by_major_id.get(major_id, {})
+        filter_row = filter_prep_by_major_id.get(major_id, {})
+        moe_attribute_join_ok = (
+            moe_attribute_join_ok
+            and bool(master_row)
+            and bool(filter_row)
+            and row.get("学校属性核验ID") == stable_id("MOEATTR", [major_id])
+            and row.get("来源候选筛选准备表")
+            == "data/working/issue19-candidate-filter-prep-major-detail.csv"
+            and row.get("来源单一逐专业招生明细总工作台")
+            == "data/working/issue19-admission-detail-master-workbench.csv"
+            and row.get("来源教育部全国普通高等学校名单")
+            == "data/official/moe-2025-national-higher-school-list/national-regular-higher-schools-2025.xls"
+            and row.get("数据阶段") == "issue19_moe_school_attribute_major_detail"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("专业组出现ID") == master_row.get("专业组出现ID")
+            and row.get("院校专业组代码OCR规范化")
+            == master_row.get("院校专业组代码OCR规范化")
+            and row.get("专业代号OCR") == master_row.get("专业代号OCR")
+            and row.get("城市字段状态") == filter_row.get("城市字段状态")
+            and row.get("校区字段状态") == filter_row.get("校区字段状态")
+            and row.get("同组调剂结论") == "pending_transfer_decision"
+            and "不能替代2026湖北招生计划" in row.get("不得进入原因", "")
+        )
+    moe_attribute_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            moe_normalized_summary_path,
+            moe_normalized_csv,
+            moe_attribute_summary_path,
+            moe_attribute_csv,
+            moe_unmatched_csv,
+        ]
+    )
+    checks.append(ok(
+        "教育部 2025 全国普通高等学校名单官方源已留存且计数正确",
+        moe_source_page.exists()
+        and moe_xls.exists()
+        and sha256(moe_source_page)
+        == "6e262bdd12284183d55f5979d212e7ca2f476fb27cb3df102e3eecb4facea48f"
+        and sha256(moe_xls)
+        == "af6f0192c29fb412b441fb55a13311479d08f861d68257960c5edb2e4dfb55af"
+        and "截至2025年6月20日" in moe_source_text
+        and "普通高等学校2919所" in moe_source_text
+        and "本科学校1365所" in moe_source_text
+        and "高职（专科）学校1554所" in moe_source_text
+        and moe_normalized_summary.get("row_count") == 2919
+        and moe_normalized_summary.get("undergraduate_count") == 1365
+        and moe_normalized_summary.get("junior_college_count") == 1554
+        and moe_normalized_summary.get("remark_counts", {}).get("民办") == 829
+        and moe_normalized_summary.get("remark_counts", {}).get("中外合作办学及内地与港澳合作办学") == 14
+        and len(moe_normalized_rows) == 2919,
+        f"{len(moe_normalized_rows)} MOE rows",
+    ))
+    checks.append(ok(
+        "教育部普通高校名单标准化表字段和主键正确",
+        moe_normalized_fields == expected_moe_normalized_fields
+        and len({row.get("教育部名单行ID") for row in moe_normalized_rows}) == 2919
+        and len({row.get("学校名称") for row in moe_normalized_rows}) == 2919
+        and len({row.get("学校标识码") for row in moe_normalized_rows}) == 2919
+        and sum(row.get("办学层次") == "本科" for row in moe_normalized_rows) == 1365
+        and sum(row.get("备注") == "民办" for row in moe_normalized_rows) == 829
+        and any(
+            row.get("学校名称") == "武汉东湖学院"
+            and row.get("备注") == "民办"
+            and row.get("省份分组") == "湖北省"
+            for row in moe_normalized_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期逐专业教育部学校属性核验表摘要、行数和保守边界正确",
+        moe_attribute_summary.get("status") == "issue19_moe_school_attribute_major_detail_not_final"
+        and moe_attribute_summary.get("generated_by")
+        == "build_issue19_moe_school_attribute_major_detail.py"
+        and moe_attribute_summary.get("output_table")
+        == "data/working/issue19-moe-school-attribute-major-detail.csv"
+        and moe_attribute_summary.get("source_master_workbench")
+        == "data/working/issue19-admission-detail-master-workbench.csv"
+        and moe_attribute_summary.get("source_filter_prep")
+        == "data/working/issue19-candidate-filter-prep-major-detail.csv"
+        and moe_attribute_summary.get("source_moe_normalized")
+        == "data/working/moe-2025-regular-higher-schools-normalized.csv"
+        and moe_attribute_summary.get("row_count") == 13736
+        and moe_attribute_summary.get("unique_attribute_id_count") == 13736
+        and moe_attribute_summary.get("unique_major_line_id_count") == 13736
+        and moe_attribute_summary.get("unique_school_code_name_count") == 1100
+        and moe_attribute_summary.get("match_status_counts") == {
+            "exact_school_name_match": 13161,
+            "parent_school_name_match_location_not_campus": 190,
+            "unmatched_needs_school_name_or_special_school_review": 385,
+        }
+        and moe_attribute_summary.get("matched_school_count_by_status") == {
+            "exact_school_name_match": 1034,
+            "parent_school_name_match_location_not_campus": 17,
+            "unmatched_needs_school_name_or_special_school_review": 49,
+        }
+        and moe_attribute_summary.get("public_private_machine_signal_counts") == {
+            "非民办线索-教育部名单未备注民办": 11087,
+            "未匹配-待核": 385,
+            "民办-教育部备注民办": 2230,
+            "中外合作或港澳合作办学线索-教育部备注": 34,
+        }
+        and moe_attribute_summary.get("vocational_name_signal_count") == 241
+        and moe_attribute_summary.get("unmatched_school_count") == 49
+        and moe_attribute_summary.get("unmatched_major_line_count") == 385
+        and moe_attribute_summary.get("final_available_count") == 0
+        and moe_attribute_summary.get("next_stage_available_count") == 0
+        and "备注为空" in moe_attribute_summary.get("public_private_boundary", ""),
+        f"{len(moe_attribute_rows)} MOE attribute rows",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业教育部学校属性核验表字段、主键和逐专业来源闭环正确",
+        moe_attribute_fields == expected_moe_attribute_fields
+        and len(moe_attribute_rows) == 13736
+        and len({row.get("学校属性核验ID") for row in moe_attribute_rows}) == 13736
+        and {row.get("专业行ID") for row in moe_attribute_rows}
+        == {row.get("专业行ID") for row in admission_master_rows}
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in moe_attribute_rows)
+        and sum(row.get("教育部匹配状态") == "parent_school_name_match_location_not_campus" for row in moe_attribute_rows) == 190
+        and all(
+            "父校登记地线索" in row.get("所在地使用边界", "")
+            for row in moe_attribute_rows
+            if row.get("教育部匹配状态") == "parent_school_name_match_location_not_campus"
+        )
+        and all(
+            row.get("家庭底线属性动作") == "默认不进主方案-民办线索"
+            for row in moe_attribute_rows
+            if row.get("公办民办机器线索") == "民办-教育部备注民办"
+        )
+        and all(
+            row.get("办学属性核验状态") == "pending_school_name_or_special_school_review"
+            for row in moe_attribute_rows
+            if row.get("教育部匹配状态") == "unmatched_needs_school_name_or_special_school_review"
+        )
+        and any(
+            row.get("院校名称OCR") == "电子科技大学（沙河校区）"
+            and row.get("教育部匹配学校名称") == "电子科技大学"
+            and row.get("教育部匹配状态") == "parent_school_name_match_location_not_campus"
+            for row in moe_attribute_rows
+        )
+        and any(
+            row.get("院校名称OCR") == "武汉东湖学院"
+            and row.get("公办民办机器线索") == "民办-教育部备注民办"
+            for row in moe_attribute_rows
+        )
+        and moe_attribute_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期教育部未匹配学校支持清单字段、行数和待核边界正确",
+        moe_unmatched_fields == expected_moe_unmatched_fields
+        and len(moe_unmatched_rows) == 49
+        and {
+            (row.get("院校代码"), row.get("院校名称OCR"))
+            for row in moe_unmatched_rows
+        } == {
+            (row.get("院校代码"), row.get("院校名称OCR"))
+            for row in moe_attribute_rows
+            if row.get("教育部匹配状态")
+            == "unmatched_needs_school_name_or_special_school_review"
+        }
+        and any(row.get("院校名称OCR") == "复且大学医学院" for row in moe_unmatched_rows)
+        and any(row.get("院校名称OCR") == "北师香港浸会大学" for row in moe_unmatched_rows)
+        and any("职业本科" in row.get("疑似风险类型", "") for row in moe_unmatched_rows),
+    ))
+    checks.append(ok(
+        "第 19 期教育部学校属性公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(moe_attribute_public_text) is None
+        and "private/" not in moe_attribute_public_text
+        and "final_allowed" not in moe_attribute_public_text
+        and "ready_for_discussion" not in moe_attribute_public_text
+        and "已确认" not in moe_attribute_public_text
+        and "已核准" not in moe_attribute_public_text
+        and "最终推荐" not in moe_attribute_public_text
+        and "最终方案" not in moe_attribute_public_text
+        and "可填报" not in moe_attribute_public_text
+        and "可排序" not in moe_attribute_public_text,
+    ))
+
     official_collision_summary_path = ROOT / "data/working/issue19-hubei-official-query-key-collision-summary.json"
     official_collision_csv = ROOT / "data/working/issue19-hubei-official-query-key-collision-ledger.csv"
     official_collision_summary = json.loads(official_collision_summary_path.read_text())
