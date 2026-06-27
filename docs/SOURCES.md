@@ -52,7 +52,8 @@
    - 2026 招生计划页面：http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html
    - 本地网页：`data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html`
    - 本地网页：`data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html`
-   - 当前状态：2026 页面已公开，但正文显示“持续更新中，敬请期待”。
+   - SHA256：索引页 `804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50`，2026 页面 `5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776`。
+   - 当前状态：2026-06-27 公开 HTTP 复核返回 200；2026 页面已公开，但正文显示“持续更新中，敬请期待”。
    - 用途：等待官方公开完整 2026 招生计划。
 
 9. 湖北省招生数智综合平台
@@ -152,6 +153,7 @@
 - `data/derived/initial-city-pool-2023-2025.tsv`：按初始城市关键词生成的初筛池，不是最终志愿表。
 - `data/working/family-preferences.json`：当前家庭偏好和筛选底线。
 - `data/working/2026-admission-plan-source-status.json`：2026 招生计划来源状态。
+- `data/working/issue19-official-public-entry-status.json`：第 19 期底座相关官方公开入口状态快照，记录湖北教育考试网计划页/索引页 SHA、平台无登录 401 探针和当前不能直接定稿的边界。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
 - `data/working/issue19-pdf-source.json`：第 19 期 PDF 元数据和私有留存边界。
 - `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。
@@ -246,6 +248,8 @@
 - `data/working/issue19-moe-school-attribute-unmatched-schools.csv`：教育部名单未匹配学校支持清单，49 行；只用于回看 PDF 原页、湖北官方系统、学校官网或招生章程核校名和特殊院校性质，不能替代逐专业主表。
 - `data/working/issue19-foundation-stability-dashboard.csv`：第 19 期底座稳定性总看板，13736 行；一行一个招生专业明细，把统一底座、决策闸门、教育部属性、湖北官方待核、官网差异、字段缺口、结构风险、官方查询键碰撞、三年投档线索和 PDF 锚点合并到同一行；只用于安排核验顺序和解释缺口。
 - `data/working/issue19-foundation-stability-dashboard-summary.json`：底座稳定性总看板摘要；记录 B0 校名/结构/官方查询键强阻断 2663 条、B1 P0 原页或官网冲突优先 4370 条、B2 字段缺口补证优先 5962 条、B3 三方官方闭环待核 542 条、B4 低风险抽检但仍非最终 199 条，最终可用和可进入下一阶段均为 0。
+- `data/working/issue19-foundation-stabilization-major-detail-tasks.csv`：第 19 期逐专业稳定化任务表，12995 行；从 B0/B1/B2 抽取一行一个招生专业明细，逐行列出第一核验动作、保真证据链、需双重佐证字段、字段候选、官网差异、结构风险、官方查询键碰撞和阻断原因；全部不得自动写回或作为志愿推荐依据。
+- `data/working/issue19-foundation-stabilization-major-detail-tasks-summary.json`：逐专业稳定化任务摘要；记录 B0=2663、B1=4370、B2=5962，字段候选任务 19065，非空候选 7621，官网差异 854，结构风险专业明细 2334，官方查询键碰撞 118，未匹配校名解析 385，最终可用和可进入下一阶段均为 0。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -344,6 +348,8 @@
 - `scripts/fetch_hubei_plan_platform.py`：湖北招生数智综合平台逐专业计划抓取脚手架；token 只从环境变量读取，原始分页响应默认保存在 Git 忽略的 `private/hubei-plan-platform/raw/`，公开输出为逐专业规范化 CSV 和摘要。
 - `scripts/build_issue19_moe_school_attribute_major_detail.py`：读取教育部 2025 全国普通高等学校名单 XLS，生成教育部名单标准化表、逐专业学校属性核验表和未匹配学校支持清单；所有属性线索都下沉到 `专业行ID`，不生成学校级候选结论。
 - `scripts/build_issue19_foundation_stability_dashboard.py`：生成底座稳定性总看板和教育部未匹配校名逐专业解析表；所有输出保持逐专业粒度、非最终门禁和 pending 边界。
+- `scripts/build_issue19_foundation_stabilization_major_detail_tasks.py`：生成 B0/B1/B2 逐专业稳定化任务表；用于把底座保真任务落到招生专业明细，不生成学校/专业组层推荐。
+- `scripts/build_issue19_official_public_entry_status_snapshot.py`：生成官方公开入口状态快照；只记录公开页面 SHA 和无登录探针边界，不保存登录态。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

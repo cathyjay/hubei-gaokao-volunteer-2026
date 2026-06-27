@@ -77,6 +77,9 @@
 | `data/working/issue19-moe-school-attribute-major-detail.csv` | 教育部学校属性逐专业核验表 | 覆盖全部 13736 条专业明细；把教育部学校名称、标识码、主管部门、所在地、层次、备注、民办/合作办学/职业本科线索下沉到每条专业行 |
 | `data/working/issue19-moe-school-attribute-unmatched-schools.csv` | 教育部未匹配学校支持清单 | 49 个院校代码+校名待核，只用于核 OCR 校名、特殊院校和职业本科风险，不替代逐专业主表 |
 | `data/working/issue19-hubei-official-query-key-collision-ledger.csv` | 湖北官方查询键碰撞清单 | 118 条碰撞专业明细；防止后续按非唯一的院校代码+专业组代码+专业代号回填官方系统结果 |
+| `data/working/issue19-foundation-stabilization-major-detail-tasks.csv` | 逐专业稳定化任务表 | 从 B0/B1/B2 抽取 12995 条招生专业明细；一行一个专业，保留第一核验动作、保真证据链、双重佐证字段和阻断原因 |
+| `data/working/issue19-foundation-stabilization-major-detail-tasks-summary.json` | 逐专业稳定化任务摘要 | 看 B0/B1/B2 任务分布、字段候选、官网差异、结构风险、官方查询键碰撞和未匹配校名解析计数 |
+| `data/working/issue19-official-public-entry-status.json` | 官方公开入口状态快照 | 记录 2026-06-27 湖北教育考试网公开入口 SHA 和平台无登录 401 探针；说明当前公开入口尚不能替代逐专业核验 |
 | `data/working/issue19-major-line-layout-continuity-risk-ledger.csv` | 专业行版面连续性风险清单 | 1934 条风险事件；只用公开原页锚点字段检查行号和坐标连续性 |
 | `data/working/issue19-major-code-order-risk-ledger.csv` | 专业代号顺序风险清单 | 355 条风险事件；检查专业代号无法解析、相邻不递增和大跳变 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |
@@ -268,6 +271,13 @@
 | B2 字段缺口补证优先 | 5962 |
 | B3 三方官方闭环待核 | 542 |
 | B4 低风险抽检但仍非最终 | 199 |
+| 逐专业稳定化任务表 | 12995 |
+| 稳定化任务 P0 强阻断 | 2663 |
+| 稳定化任务 P0 原页或官网冲突 | 4370 |
+| 稳定化任务 P1 字段缺口补证 | 5962 |
+| 稳定化任务字段候选任务 | 19065 |
+| 稳定化任务非空字段候选 | 7621 |
+| 稳定化任务最终可用 | 0 |
 | 教育部未匹配校名逐专业解析表 | 385 |
 | 未匹配校名历史同代码候选 | 281 |
 | 未匹配校名教育部相似候选 | 232 |
@@ -385,6 +395,8 @@ candidate_v2_evidence_ledgers_pending_manual_review
 full_quality_tiers_need_manual_pdf_review
 full_major_detail_quality_need_manual_pdf_review
 issue19_foundation_machine_checks_passed_need_pdf_official_review
+issue19_foundation_stabilization_major_detail_tasks_not_final
+issue19_official_public_entry_status_not_final
 ```
 
 所有明细行的 `最终可用` 均为：
@@ -413,6 +425,8 @@ false
 - 把 `机器初判` 当成报考建议。
 - 把关键词命中当成精确专业分类。
 - 把质量分层或 P0/P1/P3 当成可报结论。
+
+当前底座数据“坐稳”的阶段性含义是：原始招生计划明细正在被准确结构化、逐专业回链和保真排队；它不代表目标院校、目标专业、冲稳保顺序或服从调剂结论已经确定。固定输入是考生成绩、位次、选科和家庭底线，目标院校与专业方向后续会根据完整底座、家庭讨论和专业研究继续调整。
 
 特别注意：
 
@@ -470,8 +484,10 @@ OCR 字段不等于最终事实。
 41. **教育部学校属性逐专业核验**：`data/working/issue19-moe-school-attribute-major-detail.csv` 覆盖 13736 条招生专业明细；教育部精确匹配 13161 条、父校/校区类保守匹配 190 条、未匹配待核 385 条。民办线索 2230 条、合作办学线索 34 条、职业本科名称线索 241 条都下沉到逐专业行。教育部所在地只作登记地线索，备注为空不能等于公办最终结论，所有行仍需 2026 湖北招生计划和招生章程闭环。
 42. **未匹配校名风险账本**：`data/working/issue19-moe-school-attribute-unmatched-schools.csv` 保留 49 个未匹配院校代码+校名，覆盖 OCR 错字、省名截断、特殊院校、港澳台/境外主体、新设/更名学校和职业本科线索；该清单只安排核名和补证，不生成候选结论。
 43. **底座稳定性总看板**：`data/working/issue19-foundation-stability-dashboard.csv` 覆盖 13736 条招生专业明细，把 PDF 锚点、教育部属性、湖北官方待核、官网差异、字段缺口、结构风险、官方查询键碰撞、三年投档线索、家庭接受度和同组调剂门禁合并到同一行。B0=2663、B1=4370、B2=5962、B3=542、B4=199；这些等级只说明先核什么，不生成填报建议或录取概率。
-44. **未匹配校名逐专业解析**：`data/working/issue19-moe-unmatched-school-resolution-major-detail.csv` 把教育部未匹配的 385 条专业明细展开为核名工作台；历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则候选 90 条，但 `机器能否自动替换校名=false` 全量保持，任何校名修正必须回看 PDF 原页、湖北官方系统和学校官网/章程。
-45. **版面和代号侧账**：`data/working/issue19-major-line-layout-continuity-risk-ledger.csv` 和 `data/working/issue19-major-code-order-risk-ledger.csv` 分别记录版面连续性和专业代号顺序风险，只用于核页派单和消歧，不自动修正 OCR。
+44. **逐专业稳定化任务**：`data/working/issue19-foundation-stabilization-major-detail-tasks.csv` 覆盖 B0/B1/B2 共 12995 条招生专业明细；它不是学校/专业组层派单，而是一行一个专业，记录第一核验动作、保真证据链、需双重佐证字段、字段候选、官网差异、结构风险、官方查询键碰撞和阻断原因。所有行 `机器是否允许自动写回主表=false`、`是否允许作为志愿推荐依据=false`。
+45. **官方公开入口状态快照**：`data/working/issue19-official-public-entry-status.json` 记录 2026-06-27 湖北教育考试网招生计划页面和索引页公开 HTTP 复核状态，计划页 SHA 为 `5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776` 且仍含“持续更新中/敬请期待”；湖北招生数智平台无登录探针仍为 401。该快照只说明当前官方公开入口边界，不能替代第 19 期逐专业明细、湖北官方系统字段核验和高校章程交叉核验。
+46. **未匹配校名逐专业解析**：`data/working/issue19-moe-unmatched-school-resolution-major-detail.csv` 把教育部未匹配的 385 条专业明细展开为核名工作台；历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则候选 90 条，但 `机器能否自动替换校名=false` 全量保持，任何校名修正必须回看 PDF 原页、湖北官方系统和学校官网/章程。
+47. **版面和代号侧账**：`data/working/issue19-major-line-layout-continuity-risk-ledger.csv` 和 `data/working/issue19-major-code-order-risk-ledger.csv` 分别记录版面连续性和专业代号顺序风险，只用于核页派单和消歧，不自动修正 OCR。
 46. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
 47. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
 

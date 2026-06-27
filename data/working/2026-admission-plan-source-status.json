@@ -1,15 +1,17 @@
 {
-  "last_updated": "2026-06-26",
+  "last_updated": "2026-06-27",
   "official_plan_page": {
     "url": "http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html",
     "local_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html",
+    "sha256": "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776",
     "status": "页面已公开，但正文显示“持续更新中，敬请期待”。",
-    "checked_note": "2026-06-26 使用 HTTP 复核；HTTPS 抓取存在证书主机名不匹配。"
+    "checked_note": "2026-06-27 使用公开 HTTP 复核返回 200；SHA256 与本地留存一致。"
   },
   "official_plan_index": {
     "url": "http://www.hbccks.cn/html/gkgzzt/gkzsjh/",
     "local_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html",
-    "status": "已留存索引页。"
+    "sha256": "804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50",
+    "status": "已留存索引页；2026-06-27 公开 HTTP 复核返回 200。"
   },
   "zspt_platform": {
     "url": "https://zspt.hubzs.com.cn",
@@ -21,6 +23,7 @@
       "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-yxList-2026-wuhan-no-token.json"
     ],
     "status": "已发现计划查询接口，但无登录请求返回 401。",
+    "status_snapshot": "data/working/issue19-official-public-entry-status.json",
     "unauthenticated_probe_result": {
       "endpoint": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/nfs",
       "response": {"code": 401, "msg": "令牌不能为空"}

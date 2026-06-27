@@ -10320,6 +10320,189 @@ def main():
         and "可排序" not in stability_dashboard_public_text,
     ))
 
+    stabilization_tasks_summary_path = ROOT / "data/working/issue19-foundation-stabilization-major-detail-tasks-summary.json"
+    stabilization_tasks_csv = ROOT / "data/working/issue19-foundation-stabilization-major-detail-tasks.csv"
+    official_public_entry_status_path = ROOT / "data/working/issue19-official-public-entry-status.json"
+    admission_plan_source_status_path = ROOT / "data/working/2026-admission-plan-source-status.json"
+    stabilization_tasks_summary = json.loads(stabilization_tasks_summary_path.read_text())
+    official_public_entry_status = json.loads(official_public_entry_status_path.read_text())
+    admission_plan_source_status = json.loads(admission_plan_source_status_path.read_text())
+    with stabilization_tasks_csv.open(newline="", encoding="utf-8-sig") as f:
+        stabilization_tasks_reader = csv.DictReader(f)
+        stabilization_tasks_rows = list(stabilization_tasks_reader)
+        stabilization_tasks_fields = stabilization_tasks_reader.fieldnames or []
+    expected_stabilization_tasks_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_foundation_stabilization_major_detail_tasks.py",
+        "FIELDS",
+    )
+    stability_dashboard_by_major_id = {row.get("专业行ID"): row for row in stability_dashboard_rows}
+    stabilization_target_major_ids = {
+        row.get("专业行ID")
+        for row in stability_dashboard_rows
+        if row.get("底座稳定性等级")
+        in {
+            "B0-校名/结构/官方查询键强阻断",
+            "B1-P0原页或官网冲突优先",
+            "B2-字段缺口补证优先",
+        }
+    }
+    stabilization_join_ok = True
+    for row in stabilization_tasks_rows:
+        major_id = row.get("专业行ID", "")
+        stability_row = stability_dashboard_by_major_id.get(major_id, {})
+        gap_row = gap_scorecard_by_major_id.get(major_id, {})
+        anchor_row = anchor_by_major_id.get(major_id, {})
+        history_row = historical_sidecar_by_major_id.get(major_id, {})
+        field_rows = field_candidate_rows_by_major_id.get(major_id, [])
+        diff_rows = b0_b1_diff_by_major_id_for_stability.get(major_id)
+        structural_events = structural_event_rows_by_major_id.get(major_id, [])
+        official_collisions = official_collision_rows_by_major_id.get(major_id, [])
+        stabilization_join_ok = (
+            stabilization_join_ok
+            and bool(stability_row)
+            and bool(gap_row)
+            and bool(anchor_row)
+            and bool(history_row)
+            and row.get("稳定化逐专业任务ID") == stable_id("STABILIZEMAJOR", [major_id])
+            and row.get("底座稳定性看板ID") == stability_row.get("底座稳定性看板ID")
+            and row.get("闭环缺口看板ID") == gap_row.get("闭环缺口看板ID")
+            and row.get("专业行原页证据锚点ID") == anchor_row.get("专业行原页证据锚点ID")
+            and row.get("三年投档旁挂ID") == history_row.get("三年投档旁挂ID")
+            and row.get("数据阶段") == "issue19_foundation_stabilization_major_detail_tasks"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("湖北官方平台字段核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("家庭接受度结论") == "pending_family_acceptance_review"
+            and row.get("同组调剂结论") == "pending_transfer_decision"
+            and as_int(row.get("字段候选任务数")) == len(field_rows)
+            and as_int(row.get("非空字段候选数"))
+            == sum(1 for field_row in field_rows if field_row.get("候选值"))
+            and as_int(row.get("B0B1官网差异任务数")) == (1 if diff_rows else 0)
+            and as_int(row.get("结构风险事件数")) == len(structural_events)
+            and row.get("湖北官方查询键是否碰撞") == ("true" if official_collisions else "false")
+            and "未闭环前不得用于志愿推荐" in row.get("保真校验规则集合", "")
+        )
+    stabilization_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            stabilization_tasks_summary_path,
+            stabilization_tasks_csv,
+            official_public_entry_status_path,
+            admission_plan_source_status_path,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期逐专业稳定化任务表摘要、行数和分布正确",
+        stabilization_tasks_summary.get("status")
+        == "issue19_foundation_stabilization_major_detail_tasks_not_final"
+        and stabilization_tasks_summary.get("generated_by")
+        == "build_issue19_foundation_stabilization_major_detail_tasks.py"
+        and stabilization_tasks_summary.get("output_table")
+        == "data/working/issue19-foundation-stabilization-major-detail-tasks.csv"
+        and stabilization_tasks_summary.get("row_grain") == "逐专业招生明细"
+        and stabilization_tasks_summary.get("task_grain") == "逐专业招生明细"
+        and stabilization_tasks_summary.get("row_count") == 12995
+        and stabilization_tasks_summary.get("unique_task_id_count") == 12995
+        and stabilization_tasks_summary.get("unique_major_line_id_count") == 12995
+        and stabilization_tasks_summary.get("unique_group_occurrence_id_count") == 3081
+        and stabilization_tasks_summary.get("unique_school_code_name_count") == 1098
+        and stabilization_tasks_summary.get("stability_level_counts") == {
+            "B2-字段缺口补证优先": 5962,
+            "B1-P0原页或官网冲突优先": 4370,
+            "B0-校名/结构/官方查询键强阻断": 2663,
+        }
+        and stabilization_tasks_summary.get("task_priority_counts") == {
+            "P1-字段缺口逐专业补证": 5962,
+            "P0-原页或官网冲突逐专业核验": 4370,
+            "P0-强阻断逐专业核验": 2663,
+        }
+        and stabilization_tasks_summary.get("scorecard_action_bucket_counts") == {
+            "S4-字段缺口无候选需原页重读": 3360,
+            "S2-P0原页结构和字段先核": 5176,
+            "S3-字段缺口有候选先核": 4248,
+            "S6-常规三方闭环": 67,
+            "S1-P0原页+官网辅证同步核": 116,
+            "S0-B0B1冲突+P0原页优先": 18,
+            "S8-低风险抽检": 8,
+            "S7-低风险但证据锚点异常抽检": 2,
+        }
+        and stabilization_tasks_summary.get("field_gap_major_line_count") == 12473
+        and stabilization_tasks_summary.get("field_candidate_task_count") == 19065
+        and stabilization_tasks_summary.get("non_empty_field_candidate_count") == 7621
+        and stabilization_tasks_summary.get("b0_b1_official_diff_major_line_count") == 854
+        and stabilization_tasks_summary.get("structural_risk_major_line_count") == 2334
+        and stabilization_tasks_summary.get("official_query_collision_major_line_count") == 118
+        and stabilization_tasks_summary.get("unmatched_school_resolution_major_line_count") == 385
+        and stabilization_tasks_summary.get("auto_writeback_allowed_count") == 0
+        and stabilization_tasks_summary.get("recommendation_basis_allowed_count") == 0
+        and stabilization_tasks_summary.get("final_available_count") == 0
+        and stabilization_tasks_summary.get("next_stage_available_count") == 0
+        and len(stabilization_tasks_rows) == 12995,
+        f"{len(stabilization_tasks_rows)} stabilization rows",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业稳定化任务表字段、主键和保真边界正确",
+        stabilization_tasks_fields == expected_stabilization_tasks_fields
+        and len({row.get("稳定化逐专业任务ID") for row in stabilization_tasks_rows}) == 12995
+        and {row.get("专业行ID") for row in stabilization_tasks_rows}
+        == stabilization_target_major_ids
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            for row in stabilization_tasks_rows
+        )
+        and Counter(row.get("底座稳定性等级") for row in stabilization_tasks_rows)
+        == Counter(stabilization_tasks_summary.get("stability_level_counts", {}))
+        and sum(as_int(row.get("字段候选任务数")) or 0 for row in stabilization_tasks_rows) == 19065
+        and sum(as_int(row.get("非空字段候选数")) or 0 for row in stabilization_tasks_rows) == 7621
+        and sum(1 for row in stabilization_tasks_rows if row.get("专业行原页证据锚点ID")) == 12995
+        and sum(1 for row in stabilization_tasks_rows if row.get("三年投档旁挂ID")) == 12995
+        and stabilization_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期官方公开入口状态快照边界正确",
+        official_public_entry_status.get("status")
+        == "issue19_official_public_entry_status_not_final"
+        and official_public_entry_status.get("generated_by")
+        == "build_issue19_official_public_entry_status_snapshot.py"
+        and official_public_entry_status.get("checked_at") == "2026-06-27"
+        and official_public_entry_status.get("official_plan_page", {}).get("sha256")
+        == "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776"
+        and official_public_entry_status.get("official_plan_page", {}).get("contains_waiting_notice") is True
+        and official_public_entry_status.get("official_plan_index", {}).get("sha256")
+        == "804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50"
+        and official_public_entry_status.get("official_plan_index", {}).get("contains_2026_plan_link") is True
+        and all(
+            probe.get("is_unauthenticated_blocked") is True
+            for probe in official_public_entry_status.get("zspt_platform", {}).get("unauthenticated_probe_results", [])
+        )
+        and admission_plan_source_status.get("last_updated") == "2026-06-27"
+        and admission_plan_source_status.get("zspt_platform", {}).get("status_snapshot")
+        == "data/working/issue19-official-public-entry-status.json",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业稳定化和官方入口新增公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(stabilization_public_text) is None
+        and "private/" not in stabilization_public_text
+        and "/Users/" not in stabilization_public_text
+        and "final_allowed" not in stabilization_public_text
+        and "ready_for_discussion" not in stabilization_public_text
+        and "已确认" not in stabilization_public_text
+        and "已核准" not in stabilization_public_text
+        and "最终推荐" not in stabilization_public_text
+        and "最终方案" not in stabilization_public_text
+        and "可填报" not in stabilization_public_text
+        and "可排序" not in stabilization_public_text,
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())

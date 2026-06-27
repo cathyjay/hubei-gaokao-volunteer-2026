@@ -1,0 +1,72 @@
+{
+  "status": "issue19_official_public_entry_status_not_final",
+  "generated_by": "build_issue19_official_public_entry_status_snapshot.py",
+  "checked_at": "2026-06-27",
+  "output_file": "data/working/issue19-official-public-entry-status.json",
+  "row_grain_policy": "本状态快照只判断官方公开入口可用性；招生计划底座仍以逐专业招生明细为主粒度。",
+  "official_plan_page": {
+    "url": "http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html",
+    "local_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html",
+    "sha256": "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776",
+    "title": "2026年普通高等学校招生计划 - 高考招生计划 - 湖北教育考试网",
+    "contains_2026_plan_title": true,
+    "contains_waiting_notice": true,
+    "live_check_note": "2026-06-27 使用公开 HTTP 拉取返回 200；SHA256 与本地留存一致。",
+    "foundation_meaning": "页面公开但正文仍含持续更新/敬请期待提示，不能单独作为最终招生计划底稿。"
+  },
+  "official_plan_index": {
+    "url": "http://www.hbccks.cn/html/gkgzzt/gkzsjh/",
+    "local_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html",
+    "sha256": "804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50",
+    "title": "高考招生计划 - 湖北教育考试网",
+    "contains_2026_plan_link": true,
+    "contains_waiting_notice": false,
+    "live_check_note": "2026-06-27 使用公开 HTTP 拉取返回 200；SHA256 与本地留存一致。",
+    "foundation_meaning": "索引能证明官方计划入口存在，但不能替代第19期逐专业明细和官方系统字段核验。"
+  },
+  "zspt_platform": {
+    "url": "https://zspt.hubzs.com.cn",
+    "local_copy": "data/official/hubei-2026-admission-plan-platform/index-live-20260627.html",
+    "sha256": "253e6dd5c05c99af0ca9f52ee72182fcdcb70f188eae1bd88df456009dc6298d",
+    "title": "湖北省招生数智综合平台",
+    "unauthenticated_probe_results": [
+      {
+        "local_copy": "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-nfs-no-token.json",
+        "sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+        "response": {
+          "code": 401,
+          "msg": "令牌不能为空"
+        },
+        "is_unauthenticated_blocked": true
+      },
+      {
+        "local_copy": "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-yxList-2026-wuhan-no-token.json",
+        "sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+        "response": {
+          "code": 401,
+          "msg": "令牌不能为空"
+        },
+        "is_unauthenticated_blocked": true
+      }
+    ],
+    "foundation_meaning": "平台前端和接口线索已留存；无登录请求返回 401，不能用无登录数据替代考生端官方查询结果。"
+  },
+  "current_foundation_boundary": {
+    "can_support": [
+      "确认湖北官方 2026 招生计划公开入口与平台入口存在。",
+      "确认无登录平台接口不能直接取得可定稿数据。",
+      "支撑 OCR 底座继续做逐专业保真核验任务。"
+    ],
+    "cannot_support": [
+      "不能直接生成最终志愿方案。",
+      "不能把 OCR 字段候选自动写回最终表。",
+      "不能把高校官网或第三方数据替代湖北省招办公布计划。"
+    ],
+    "required_before_final": [
+      "逐专业核第19期PDF原页或纸质版原页。",
+      "逐专业核湖北官方系统/省招办计划字段。",
+      "对候选院校专业组核官网/招生章程、学费、校区、特殊要求和调剂范围。",
+      "用近三年投档线只做冲稳保风险判断，不能替代2026招生计划。"
+    ]
+  }
+}

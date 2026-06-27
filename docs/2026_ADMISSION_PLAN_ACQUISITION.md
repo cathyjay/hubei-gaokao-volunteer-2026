@@ -19,8 +19,8 @@
 
 | 来源 | URL 或位置 | 当前状态 | 用途 |
 | --- | --- | --- | --- |
-| 湖北教育考试网招生计划专题 | http://www.hbccks.cn/html/gkgzzt/gkzsjh/ | 已留存索引页 | 官方公开入口 |
-| 2026 年普通高等学校招生计划页面 | http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html | 页面显示“持续更新中，敬请期待” | 等待官方公开完整计划 |
+| 湖北教育考试网招生计划专题 | http://www.hbccks.cn/html/gkgzzt/gkzsjh/ | 已留存索引页；2026-06-27 公开 HTTP 复核返回 200 | 官方公开入口 |
+| 2026 年普通高等学校招生计划页面 | http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html | 2026-06-27 公开 HTTP 复核返回 200，但页面显示“持续更新中，敬请期待” | 等待官方公开完整计划 |
 | 湖北招生数智综合平台 | https://zspt.hubzs.com.cn | 2026-06-27 首页和当前前端资源已留存 | 官方志愿系统和智能参考系统 |
 | 平台计划查询接口 | `/prod-api/planQuery/plan/*` | 无登录请求返回 `401 令牌不能为空`；已写可复跑抓取脚本 | 需要考生登录态或平台权限 |
 | 《湖北招生考试》杂志 | 第 13、16、19、22 期 | 需人工获取 | 官方纸质/电子招生计划来源 |
@@ -35,10 +35,12 @@
 - `data/official/hubei-2026-admission-plan-platform/index-live-20260627.html`
 - `data/official/hubei-2026-admission-plan-platform/assets/`
 - `data/official/hubei-2026-admission-plan-platform/api-probes/`
+- `data/working/issue19-official-public-entry-status.json`
 - `data/official/hubei-2026-volunteer-policy/143022-policy.html`
 - `data/external/school-plan-crosschecks/`
 
 补充说明：湖北教育考试网招生计划页面当前使用 HTTP 地址留存；同路径 HTTPS 抓取存在证书主机名不匹配问题，不能因此判断页面不存在。
+`issue19-official-public-entry-status.json` 只记录公开入口状态和无登录探针结果；它能说明现阶段官方公开入口尚不足以直接定稿，不能替代第 19 期逐专业招生明细和湖北官方系统字段核验。
 
 ## 三、已发现的平台接口
 
@@ -162,6 +164,7 @@ python3 scripts/fetch_hubei_plan_platform.py \
 - 按家庭底线剔除明显不合适项。
 - 按城市和专业方向列出待查学校清单。
 - 从学校官网或公众号补充 2026 湖北计划线索。
+- 把第 19 期 OCR 明细逐专业结构化并保真核验，优先处理 B0/B1/B2 的 12995 条稳定化任务。
 
 但这些只能作为候选池，不能进入最终志愿表。
 
