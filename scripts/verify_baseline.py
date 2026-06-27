@@ -13466,6 +13466,274 @@ def main():
         and not any(token in p0_immediate_public_text for token in shared_forbidden_tokens),
     ))
 
+    p0_crop_summary_path = ROOT / "data/working/issue19-p0-immediate-pdf-crop-evidence-index-summary.json"
+    p0_crop_csv = ROOT / "data/working/issue19-p0-immediate-pdf-crop-evidence-index.csv"
+    p0_crop_summary = json.loads(p0_crop_summary_path.read_text())
+    with p0_crop_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_crop_reader = csv.DictReader(f)
+        p0_crop_rows = list(p0_crop_reader)
+        p0_crop_fields = p0_crop_reader.fieldnames or []
+    expected_p0_crop_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_p0_immediate_pdf_crop_evidence_index.py",
+        "FIELDS",
+    )
+    p0_immediate_by_task_id = {
+        row.get("P0字段即时复核任务ID"): row for row in p0_immediate_rows
+    }
+    pdf_anchor_by_anchor_id = {
+        row.get("专业行原页证据锚点ID"): row for row in pdf_anchor_rows
+    }
+    p0_crop_hash_re = re.compile(r"^[0-9a-f]{64}$")
+    p0_crop_bbox_norm_re = re.compile(
+        r"^x=([0-9.]+)-([0-9.]+);y_bottom_origin=([0-9.]+)-([0-9.]+)$"
+    )
+    p0_crop_bbox_px_re = re.compile(r"^x=(\d+)-(\d+);y=(\d+)-(\d+)$")
+    p0_crop_join_ok = True
+    for row in p0_crop_rows:
+        immediate_row = p0_immediate_by_task_id.get(row.get("来源P0字段即时复核任务ID", ""), {})
+        anchor_row = pdf_anchor_by_anchor_id.get(row.get("专业行原页证据锚点ID", ""), {})
+        page_row = page_manifest_by_page.get(as_int(row.get("来源页码")))
+        bbox_norm_match = p0_crop_bbox_norm_re.match(row.get("裁图bbox归一化", ""))
+        bbox_px_match = p0_crop_bbox_px_re.match(row.get("裁图bbox像素", ""))
+        bbox_norm_ok = False
+        if bbox_norm_match:
+            x1, x2, y1, y2 = [float(value) for value in bbox_norm_match.groups()]
+            bbox_norm_ok = 0 <= x1 < x2 <= 1 and 0 <= y1 < y2 <= 1
+        bbox_px_ok = False
+        if bbox_px_match:
+            x1, x2, y1, y2 = [as_int(value) for value in bbox_px_match.groups()]
+            bbox_px_ok = (
+                0 <= x1 < x2 <= as_int(row.get("源页图宽度px"))
+                and 0 <= y1 < y2 <= as_int(row.get("源页图高度px"))
+                and as_int(row.get("裁图宽度px")) == x2 - x1
+                and as_int(row.get("裁图高度px")) == y2 - y1
+            )
+        p0_crop_join_ok = (
+            p0_crop_join_ok
+            and bool(immediate_row)
+            and bool(anchor_row)
+            and bool(page_row)
+            and row.get("P0即时复核裁图证据索引ID")
+            == stable_id(
+                "P0CROPINDEX",
+                [
+                    row.get("裁图证据编号", ""),
+                    row.get("来源P0字段即时复核任务ID", ""),
+                    row.get("裁图规格SHA256", ""),
+                ],
+            )
+            and row.get("裁图证据编号")
+            == stable_id(
+                "P0CROP",
+                [
+                    row.get("来源PDF_SHA256", ""),
+                    row.get("来源P0字段即时复核任务ID", ""),
+                    row.get("专业行ID", ""),
+                    row.get("字段名", ""),
+                ],
+            )
+            and row.get("来源P0字段即时复核包")
+            == "data/working/issue19-field-fact-p0-immediate-review-packet.csv"
+            and row.get("来源专业行原页证据锚点表")
+            == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+            and row.get("来源页级manifest") == "data/working/issue19-page-manifest.csv"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_p0_immediate_pdf_crop_evidence_index"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×P0字段×即时复核裁图证据"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("裁图生成状态") == "local_crop_generated_hash_recorded"
+            and row.get("裁图坐标来源") == "window_and_candidate_coordinates"
+            and p0_crop_hash_re.match(row.get("裁图文件SHA256", ""))
+            and p0_crop_hash_re.match(row.get("裁图规格SHA256", ""))
+            and as_int(row.get("裁图字节数")) > 1000
+            and bbox_norm_ok
+            and bbox_px_ok
+            and "coord_y_origin=bottom" in row.get("裁图生成参数摘要", "")
+            and "不提供字段读数" in row.get("证据索引用途", "")
+            and "三方闭环" in row.get("下一步", "")
+            and row.get("字段事实写回状态") == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(
+                row.get(field, "") == immediate_row.get(field, "")
+                for field in [
+                    "来源P0字段三方核验任务ID",
+                    "来源P0字段三方核验执行包ID",
+                    "即时复核总序",
+                    "执行总序",
+                    "执行批次",
+                    "即时复核阶段",
+                    "字段名",
+                    "专业行ID",
+                    "专业组出现ID",
+                    "院校代码",
+                    "来源页码",
+                    "版面列",
+                    "专业行原页证据锚点ID",
+                    "私有页图证据编号",
+                    "私有页图SHA256",
+                    "私有OCR文本证据编号",
+                    "私有OCR文本SHA256",
+                    "私有窗口证据编号",
+                    "窗口文本SHA256",
+                    "窗口坐标摘要",
+                    "机器候选状态",
+                    "机器候选置信等级",
+                    "高校官网辅证覆盖状态",
+                    "机器候选与高校辅证关系",
+                    "语义多源优先桶",
+                    "是否需要双人复核",
+                    "PDF原页核页状态",
+                    "湖北官方系统或省招办计划核验状态",
+                    "高校官网或招生章程辅证状态",
+                    "三方字段一致性状态",
+                    "字段事实写回状态",
+                ]
+            )
+            and row.get("私有页图SHA256") == page_row.get("私有页图SHA256")
+            and row.get("私有OCR文本SHA256") == page_row.get("私有OCR文本SHA256")
+            and row.get("专业行ID") == anchor_row.get("专业行ID")
+            and row.get("窗口文本SHA256") == anchor_row.get("窗口文本SHA256")
+        )
+    p0_crop_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_crop_summary_path, p0_crop_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 即时复核裁图证据索引摘要、任务集合和分布正确",
+        p0_crop_summary.get("status") == "issue19_p0_immediate_pdf_crop_evidence_index_not_final"
+        and p0_crop_summary.get("generated_by")
+        == "build_issue19_p0_immediate_pdf_crop_evidence_index.py"
+        and p0_crop_summary.get("source_immediate_packet")
+        == "data/working/issue19-field-fact-p0-immediate-review-packet.csv"
+        and p0_crop_summary.get("source_pdf_anchor_table")
+        == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+        and p0_crop_summary.get("source_page_manifest") == "data/working/issue19-page-manifest.csv"
+        and p0_crop_summary.get("output_table")
+        == "data/working/issue19-p0-immediate-pdf-crop-evidence-index.csv"
+        and p0_crop_summary.get("row_count") == 319
+        and p0_crop_summary.get("local_crop_asset_count") == 319
+        and p0_crop_summary.get("local_crop_index_generated") is True
+        and p0_crop_summary.get("unique_crop_index_id_count") == 319
+        and p0_crop_summary.get("unique_crop_evidence_id_count") == 319
+        and p0_crop_summary.get("unique_immediate_task_id_count") == 319
+        and p0_crop_summary.get("unique_source_triage_task_id_count") == 319
+        and p0_crop_summary.get("unique_major_line_id_count") == 319
+        and p0_crop_summary.get("unique_major_field_pair_count") == 319
+        and p0_crop_summary.get("unique_pdf_page_count") == 114
+        and p0_crop_summary.get("unique_page_side_count") == 148
+        and p0_crop_summary.get("field_counts") == {
+            "专业计划数": 281,
+            "学费": 19,
+            "再选科目": 19,
+        }
+        and p0_crop_summary.get("execution_batch_counts") == {
+            "EXEC-01-冲突异常立即核页": 16,
+            "EXEC-02-计划数偏大重点核页": 11,
+            "EXEC-03-高校辅证线索三方核验": 74,
+            "EXEC-04-多值坐标冲突核页": 218,
+        }
+        and p0_crop_summary.get("immediate_stage_counts") == {
+            "IR-01-冲突异常和偏大先核": 27,
+            "IR-02-高校辅证线索先核": 74,
+            "IR-03-多值坐标冲突先核": 218,
+        }
+        and p0_crop_summary.get("side_counts") == {"left": 136, "right": 183}
+        and p0_crop_summary.get("crop_coordinate_source_counts") == {
+            "window_and_candidate_coordinates": 319,
+        }
+        and p0_crop_summary.get("crop_status_counts") == {
+            "local_crop_generated_hash_recorded": 319,
+        }
+        and p0_crop_summary.get("crop_file_hash_count") == 319
+        and p0_crop_summary.get("crop_spec_hash_count") == 319
+        and p0_crop_summary.get("pdf_anchor_link_count") == 319
+        and p0_crop_summary.get("page_manifest_link_count") == 319
+        and len(p0_crop_rows) == 319
+        and {row.get("来源P0字段即时复核任务ID") for row in p0_crop_rows}
+        == set(p0_immediate_by_task_id)
+        and {row.get("来源P0字段三方核验任务ID") for row in p0_crop_rows}
+        == {row.get("来源P0字段三方核验任务ID") for row in p0_immediate_rows},
+        f"{len(p0_crop_rows)} crop evidence rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时复核裁图证据索引字段、哈希、bbox 和门禁正确",
+        p0_crop_fields == expected_p0_crop_fields
+        and len({row.get("P0即时复核裁图证据索引ID") for row in p0_crop_rows}) == 319
+        and len({row.get("裁图证据编号") for row in p0_crop_rows}) == 319
+        and len({(row.get("专业行ID"), row.get("字段名")) for row in p0_crop_rows}) == 319
+        and [as_int(row.get("即时复核总序")) for row in p0_crop_rows] == list(range(1, 320))
+        and [as_int(row.get("执行总序")) for row in p0_crop_rows] == list(range(1, 320))
+        and p0_crop_summary.get("pdf_manual_review_pending_count") == 319
+        and p0_crop_summary.get("hubei_official_review_pending_count") == 319
+        and p0_crop_summary.get("three_way_closure_pending_count") == 319
+        and p0_crop_summary.get("field_writeback_ready_count") == 0
+        and p0_crop_summary.get("final_available_count") == 0
+        and p0_crop_summary.get("next_stage_available_count") == 0
+        and p0_crop_summary.get("auto_writeback_allowed_count") == 0
+        and p0_crop_summary.get("auto_candidate_fill_allowed_count") == 0
+        and p0_crop_summary.get("field_writeback_allowed_count") == 0
+        and p0_crop_summary.get("recommendation_basis_allowed_count") == 0
+        and p0_crop_summary.get("school_major_suggestion_allowed_count") == 0
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in p0_crop_rows)
+        and all(row.get("字段事实写回状态") == "blocked_until_pdf_hubei_school_three_way_closure" for row in p0_crop_rows)
+        and not any(field in p0_crop_fields for field in [
+            "机器候选字段值",
+            "机器候选规范值",
+            "高校官网字段候选值",
+            "高校官网字段规范值",
+            "PDF原页人工读数",
+            "湖北官方字段值",
+            "高校官网或招生章程字段值",
+            "字段确认值",
+        ])
+        and p0_crop_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时复核裁图证据索引公开文件不含私有路径、图片路径、字段读数、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(p0_crop_public_text) is None
+        and "private/" not in p0_crop_public_text
+        and "private\\" not in p0_crop_public_text
+        and "/Users/" not in p0_crop_public_text
+        and "ocr-runs" not in p0_crop_public_text
+        and "rendered-pages" not in p0_crop_public_text
+        and ".png" not in p0_crop_public_text
+        and ".jpg" not in p0_crop_public_text
+        and ".jpeg" not in p0_crop_public_text
+        and "Authorization" not in p0_crop_public_text
+        and "Bearer " not in p0_crop_public_text
+        and "Cookie" not in p0_crop_public_text
+        and "院校名称OCR" not in p0_crop_public_text
+        and "院校专业组代码OCR规范化" not in p0_crop_public_text
+        and "专业代号OCR" not in p0_crop_public_text
+        and "专业名称及备注" not in p0_crop_public_text
+        and "组内招生明细" not in p0_crop_public_text
+        and "机器候选字段值" not in p0_crop_public_text
+        and "机器候选规范值" not in p0_crop_public_text
+        and "高校官网字段候选值" not in p0_crop_public_text
+        and "高校官网字段规范值" not in p0_crop_public_text
+        and "PDF原页人工读数" not in p0_crop_public_text
+        and "湖北官方字段值" not in p0_crop_public_text
+        and "高校官网或招生章程字段值" not in p0_crop_public_text
+        and "字段确认值" not in p0_crop_public_text
+        and "原始接口响应保存位置" not in p0_crop_public_text
+        and "final_allowed" not in p0_crop_public_text
+        and "ready_for_discussion" not in p0_crop_public_text
+        and "已确认" not in p0_crop_public_text
+        and "已核准" not in p0_crop_public_text
+        and "最终推荐" not in p0_crop_public_text
+        and "最终方案" not in p0_crop_public_text
+        and "可填报" not in p0_crop_public_text
+        and "可排序" not in p0_crop_public_text
+        and not any(token in p0_crop_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
