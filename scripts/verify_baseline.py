@@ -12240,6 +12240,284 @@ def main():
         and not any(token in field_p0_machine_public_text for token in shared_forbidden_tokens),
     ))
 
+    field_p0_action_summary_path = ROOT / "data/working/issue19-field-fact-p0-closure-action-workbench-summary.json"
+    field_p0_action_csv = ROOT / "data/working/issue19-field-fact-p0-closure-action-workbench.csv"
+    field_p0_action_summary = json.loads(field_p0_action_summary_path.read_text())
+    with field_p0_action_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_p0_action_reader = csv.DictReader(f)
+        field_p0_action_rows = list(field_p0_action_reader)
+        field_p0_action_fields = field_p0_action_reader.fieldnames or []
+    expected_field_p0_action_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_field_fact_p0_closure_action_workbench.py",
+        "FIELDS",
+    )
+    field_p0_machine_by_id = {
+        row.get("P0字段机器候选任务ID"): row
+        for row in field_p0_machine_rows
+    }
+    field_fact_by_id = {
+        row.get("字段事实闭环ID"): row
+        for row in field_fact_rows
+    }
+    field_p0_action_non_empty_rows = [
+        row for row in field_p0_action_rows if row.get("机器候选字段值")
+    ]
+    expected_p0_action_by_status = {
+        "P0C1-单一坐标候选待人工核验": (
+            "A1-单一坐标候选先核PDF原页",
+            "10",
+            "BATCH-A1-快速候选核页",
+            "true",
+        ),
+        "P0C1-重复同值坐标候选待人工核验": (
+            "A1R-重复同值坐标候选先核PDF原页",
+            "20",
+            "BATCH-A1-快速候选核页",
+            "true",
+        ),
+        "P0C2-多值坐标候选冲突待人工核页": (
+            "A2-多值坐标冲突先核PDF原页",
+            "30",
+            "BATCH-A2-冲突候选核页",
+            "false",
+        ),
+        "P0C0-未找到坐标候选仍需人工原页重读": (
+            "A3-无坐标候选需人工重读或高分辨率OCR",
+            "40",
+            "BATCH-A3-无候选重读",
+            "false",
+        ),
+    }
+    field_p0_action_join_ok = True
+    for row in field_p0_action_rows:
+        machine_row = field_p0_machine_by_id.get(row.get("P0字段机器候选任务ID", ""), {})
+        reread_row = field_p0_reread_by_task_id.get(row.get("来源P0字段原页重读任务ID", ""), {})
+        field_fact_row = field_fact_by_id.get(row.get("字段事实闭环ID", ""), {})
+        expected_action = expected_p0_action_by_status.get(row.get("机器候选状态", ""), ("", "", "", ""))
+        blank_confirmation_columns = [
+            "PDF原页人工读数",
+            "PDF原页人工核验人",
+            "PDF原页人工核验时间",
+            "PDF原页证据编号",
+            "PDF原页证据SHA256",
+            "PDF核页差异类型",
+            "湖北官方字段值",
+            "湖北官方证据编号",
+            "湖北官方证据SHA256",
+            "高校官网或招生章程字段值",
+            "高校官网或招生章程证据编号",
+            "高校官网或招生章程证据SHA256",
+        ]
+        field_p0_action_join_ok = (
+            field_p0_action_join_ok
+            and bool(machine_row)
+            and bool(reread_row)
+            and bool(field_fact_row)
+            and row.get("P0字段闭环推进任务ID")
+            == stable_id(
+                "P0FIELDACTION",
+                [
+                    row.get("P0字段机器候选任务ID", ""),
+                    row.get("来源P0字段原页重读任务ID", ""),
+                    row.get("字段名", ""),
+                    issue19_source["source"]["sha256"],
+                ],
+            )
+            and row.get("来源P0字段机器候选表")
+            == "data/working/issue19-field-fact-p0-reread-machine-candidates.csv"
+            and row.get("来源P0字段原页重读工作清单")
+            == "data/working/issue19-field-fact-p0-reread-worklist.csv"
+            and row.get("来源字段事实闭环总账")
+            == "data/working/issue19-field-fact-closure-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_field_fact_p0_closure_action_workbench"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×K0字段×P0闭环推进动作"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("机器是否已解决字段事实") == "false"
+            and row.get("仍需PDF原页核验") == "true"
+            and row.get("仍需湖北官方系统或省招办计划核验") == "true"
+            and row.get("仍需高校官网或招生章程辅证") == "true"
+            and row.get("字段闭环阶段") == "P0-待PDF原页人工核页和官方闭环"
+            and row.get("字段事实状态Before") == "K0-字段缺口无候选需原页重读"
+            and row.get("字段事实状态After建议")
+            == "保持K0，待PDF原页、湖北官方系统或省招办计划、高校官网或招生章程闭环后人工判定"
+            and row.get("PDF原页核页状态") == "pending_pdf_manual_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网或招生章程辅证状态") == "pending_school_official_or_charter_review"
+            and row.get("三方字段一致性状态") == "pending_three_way_closure"
+            and all(row.get(field, "") == "" for field in blank_confirmation_columns)
+            and row.get("P0闭环动作桶") == expected_action[0]
+            and row.get("P0闭环执行优先级") == expected_action[1]
+            and row.get("P0闭环批次") == expected_action[2]
+            and row.get("候选是否可作为人工核页线索") == expected_action[3]
+            and row.get("来源字段事实核验任务ID") == machine_row.get("来源字段事实核验任务ID")
+            and row.get("字段事实闭环ID") == machine_row.get("字段事实闭环ID")
+            and row.get("专业行ID") == machine_row.get("专业行ID")
+            and row.get("专业组出现ID") == machine_row.get("专业组出现ID")
+            and row.get("院校代码") == machine_row.get("院校代码")
+            and row.get("来源页码") == machine_row.get("来源页码")
+            and row.get("版面列") == machine_row.get("版面列")
+            and row.get("字段名") == machine_row.get("字段名")
+            and row.get("字段事实状态") == machine_row.get("字段事实状态")
+            and row.get("机器候选状态") == machine_row.get("机器候选状态")
+            and row.get("机器候选置信等级") == machine_row.get("机器候选置信等级")
+            and row.get("机器候选规则ID") == machine_row.get("机器候选规则ID")
+            and row.get("机器候选字段值") == machine_row.get("机器候选字段值")
+            and row.get("机器候选值集合") == machine_row.get("机器候选值集合")
+            and row.get("候选证据行号集合") == machine_row.get("候选证据行号集合")
+            and row.get("页级保真队列ID") == machine_row.get("页级保真队列ID")
+            and row.get("原始专业行源证据审计ID") == machine_row.get("原始专业行源证据审计ID")
+            and row.get("专业行原页证据锚点ID") == machine_row.get("专业行原页证据锚点ID")
+            and row.get("窗口文本SHA256") == machine_row.get("窗口文本SHA256")
+            and row.get("字段事实闭环等级") == field_fact_row.get("字段事实闭环等级")
+            and row.get("字段事实阻断等级") == field_fact_row.get("字段事实阻断等级")
+            and row.get("字段事实缺口类型") == field_fact_row.get("字段事实缺口类型")
+            and "机器候选只缩短人工定位路径" in row.get("闭环推进说明", "")
+            and "不得写回主表" in row.get("不得进入原因", "")
+            and "志愿排序" in row.get("不得进入原因", "")
+        )
+    field_p0_action_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [field_p0_action_summary_path, field_p0_action_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 字段闭环推进工作台摘要、行数和动作分布正确",
+        field_p0_action_summary.get("status") == "issue19_field_fact_p0_closure_action_workbench_not_final"
+        and field_p0_action_summary.get("generated_by")
+        == "build_issue19_field_fact_p0_closure_action_workbench.py"
+        and field_p0_action_summary.get("source_machine_candidates")
+        == "data/working/issue19-field-fact-p0-reread-machine-candidates.csv"
+        and field_p0_action_summary.get("source_p0_reread_worklist")
+        == "data/working/issue19-field-fact-p0-reread-worklist.csv"
+        and field_p0_action_summary.get("source_field_fact_ledger")
+        == "data/working/issue19-field-fact-closure-ledger.csv"
+        and field_p0_action_summary.get("output_table")
+        == "data/working/issue19-field-fact-p0-closure-action-workbench.csv"
+        and field_p0_action_summary.get("row_grain") == "逐专业招生明细×K0字段×P0闭环推进动作"
+        and field_p0_action_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and field_p0_action_summary.get("row_count") == 11444
+        and field_p0_action_summary.get("unique_action_task_id_count") == 11444
+        and field_p0_action_summary.get("unique_machine_candidate_task_id_count") == 11444
+        and field_p0_action_summary.get("unique_source_p0_reread_task_id_count") == 11444
+        and field_p0_action_summary.get("unique_major_line_id_count") == 8536
+        and field_p0_action_summary.get("unique_pdf_page_count") == 231
+        and field_p0_action_summary.get("unique_school_code_count") == 967
+        and field_p0_action_summary.get("field_counts") == {
+            "专业计划数": 5739,
+            "再选科目": 4674,
+            "学费": 1031,
+        }
+        and field_p0_action_summary.get("machine_candidate_status_counts")
+        == field_p0_machine_summary.get("candidate_status_counts")
+        and field_p0_action_summary.get("action_bucket_counts") == {
+            "A1-单一坐标候选先核PDF原页": 4768,
+            "A1R-重复同值坐标候选先核PDF原页": 72,
+            "A2-多值坐标冲突先核PDF原页": 218,
+            "A3-无坐标候选需人工重读或高分辨率OCR": 6386,
+        }
+        and field_p0_action_summary.get("action_batch_counts") == {
+            "BATCH-A1-快速候选核页": 4840,
+            "BATCH-A2-冲突候选核页": 218,
+            "BATCH-A3-无候选重读": 6386,
+        }
+        and field_p0_action_summary.get("manual_pdf_check_with_machine_candidate_count") == 4840
+        and field_p0_action_summary.get("machine_candidate_non_empty_value_count") == 4840
+        and field_p0_action_summary.get("multi_value_conflict_action_count") == 218
+        and field_p0_action_summary.get("no_coordinate_action_count") == 6386
+        and len(field_p0_action_rows) == 11444,
+        f"{len(field_p0_action_rows)} p0 action rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段闭环推进工作台字段、主键、来源闭环和非最终门禁正确",
+        field_p0_action_fields == expected_field_p0_action_fields
+        and len({row.get("P0字段闭环推进任务ID") for row in field_p0_action_rows}) == 11444
+        and {row.get("P0字段机器候选任务ID") for row in field_p0_action_rows}
+        == set(field_p0_machine_by_id)
+        and {row.get("来源P0字段原页重读任务ID") for row in field_p0_action_rows}
+        == set(field_p0_reread_by_task_id)
+        and Counter(row.get("字段名") for row in field_p0_action_rows)
+        == Counter(field_p0_action_summary.get("field_counts", {}))
+        and Counter(row.get("机器候选状态") for row in field_p0_action_rows)
+        == Counter(field_p0_action_summary.get("machine_candidate_status_counts", {}))
+        and Counter(row.get("P0闭环动作桶") for row in field_p0_action_rows)
+        == Counter(field_p0_action_summary.get("action_bucket_counts", {}))
+        and Counter(row.get("P0闭环批次") for row in field_p0_action_rows)
+        == Counter(field_p0_action_summary.get("action_batch_counts", {}))
+        and sum(bool(row.get("机器候选字段值")) for row in field_p0_action_rows) == 4840
+        and dict(Counter(row.get("来源页码") for row in field_p0_action_rows).most_common(30))
+        == field_p0_action_summary.get("page_action_count_top30")
+        and dict(Counter(row.get("来源页码") for row in field_p0_action_non_empty_rows).most_common(30))
+        == field_p0_action_summary.get("page_machine_candidate_count_top30")
+        and field_p0_action_summary.get("manual_pdf_required_count") == 11444
+        and field_p0_action_summary.get("hubei_official_required_count") == 11444
+        and field_p0_action_summary.get("school_official_required_count") == 11444
+        and field_p0_action_summary.get("pdf_manual_review_pending_count") == 11444
+        and field_p0_action_summary.get("hubei_official_review_pending_count") == 11444
+        and field_p0_action_summary.get("school_official_review_pending_count") == 11444
+        and field_p0_action_summary.get("three_way_closure_pending_count") == 11444
+        and field_p0_action_summary.get("pdf_confirmed_count") == 0
+        and field_p0_action_summary.get("official_confirmed_count") == 0
+        and field_p0_action_summary.get("school_official_confirmed_count") == 0
+        and field_p0_action_summary.get("three_way_closed_count") == 0
+        and field_p0_action_summary.get("final_available_count") == 0
+        and field_p0_action_summary.get("next_stage_available_count") == 0
+        and field_p0_action_summary.get("auto_writeback_allowed_count") == 0
+        and field_p0_action_summary.get("auto_candidate_fill_allowed_count") == 0
+        and field_p0_action_summary.get("field_writeback_allowed_count") == 0
+        and field_p0_action_summary.get("machine_solved_field_fact_count") == 0
+        and field_p0_action_summary.get("recommendation_basis_allowed_count") == 0
+        and field_p0_action_summary.get("school_major_suggestion_allowed_count") == 0
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("机器是否已解决字段事实") == "false"
+            for row in field_p0_action_rows
+        )
+        and field_p0_action_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段闭环推进工作台公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(field_p0_action_public_text) is None
+        and "private/" not in field_p0_action_public_text
+        and "private\\" not in field_p0_action_public_text
+        and "/Users/" not in field_p0_action_public_text
+        and "ocr-runs" not in field_p0_action_public_text
+        and "rendered-pages" not in field_p0_action_public_text
+        and ".png" not in field_p0_action_public_text
+        and ".jpg" not in field_p0_action_public_text
+        and ".jpeg" not in field_p0_action_public_text
+        and "Authorization" not in field_p0_action_public_text
+        and "Bearer " not in field_p0_action_public_text
+        and "Cookie" not in field_p0_action_public_text
+        and "院校名称OCR" not in field_p0_action_public_text
+        and "院校专业组代码OCR规范化" not in field_p0_action_public_text
+        and "专业代号OCR" not in field_p0_action_public_text
+        and "专业名称及备注短摘" not in field_p0_action_public_text
+        and "组内招生明细" not in field_p0_action_public_text
+        and "字段确认值" not in field_p0_action_public_text
+        and "final_allowed" not in field_p0_action_public_text
+        and "ready_for_discussion" not in field_p0_action_public_text
+        and "已确认" not in field_p0_action_public_text
+        and "已核准" not in field_p0_action_public_text
+        and "最终推荐" not in field_p0_action_public_text
+        and "最终方案" not in field_p0_action_public_text
+        and "可填报" not in field_p0_action_public_text
+        and "可排序" not in field_p0_action_public_text
+        and not any(token in field_p0_action_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
