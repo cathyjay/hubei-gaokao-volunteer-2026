@@ -1,0 +1,34 @@
+{
+  "status": "issue19_b0_b1_public_official_diff_ledger_not_final",
+  "generated_by": "build_issue19_major_level_evidence_worktables.py",
+  "source_full_major_evidence_workbench": "data/working/issue19-full-major-evidence-workbench.csv",
+  "source_b0_b1_retained_official_plan_normalized": "data/working/issue19-b0-b1-retained-official-plan-normalized.csv",
+  "source_b0_b1_official_evidence_match": "data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv",
+  "output_table": "data/working/issue19-b0-b1-public-official-diff-ledger.csv",
+  "row_count": 854,
+  "unique_diff_id_count": 854,
+  "unique_major_line_id_count": 854,
+  "school_source_status_counts": {
+    "has_partial_source_needs_followup": 412,
+    "has_reusable_2026_hubei_plan_source": 194,
+    "官网专业名匹配但计划数冲突-优先核页": 18,
+    "charter_or_rules_only_no_plan": 63,
+    "needs_official_plan_source_search": 167
+  },
+  "match_status_counts": {
+    "": 533,
+    "no_school_source": 137,
+    "matched": 152,
+    "unmatched": 31,
+    "possible_match": 1
+  },
+  "plan_conflict_count": 18,
+  "unmatched_major_count": 28,
+  "source_match_hit_count": 153,
+  "final_available_count": 0,
+  "next_stage_allowed_count": 0,
+  "notes": [
+    "本表一行一个已有官网/章程辅证线索的招生专业明细。",
+    "高校官网/API/PDF/图片抽取只作辅证，不替代湖北官方系统或省招办计划。"
+  ]
+}

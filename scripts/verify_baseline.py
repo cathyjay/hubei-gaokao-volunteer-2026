@@ -6877,6 +6877,688 @@ def main():
         and "可排序" not in p0_execution_public_text
         and not any(token in p0_execution_public_text for token in shared_forbidden_tokens),
     ))
+
+    p0_review_summary_path = (
+        ROOT / "data/working/issue19-p0-evidence-review-worklist-summary.json"
+    )
+    p0_review_csv = ROOT / "data/working/issue19-p0-evidence-review-worklist.csv"
+    p0_review_summary = json.loads(p0_review_summary_path.read_text())
+    with p0_review_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_review_reader = csv.DictReader(f)
+        p0_review_rows = list(p0_review_reader)
+        p0_review_fields = set(p0_review_reader.fieldnames or [])
+    required_p0_review_fields = {
+        "P0复核工作清单ID",
+        "来源P0执行包表",
+        "来源P0执行包任务ID",
+        "来源P0执行包ID",
+        "来源证据闭环任务ID",
+        "来源全量证据工作台ID",
+        "来源全量证据工作台",
+        "来源页级manifest",
+        "来源页级保真复核队列",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "主表粒度",
+        "任务粒度",
+        "最终可用",
+        "是否可升级",
+        "是否可进入最终专业列表",
+        "可进入下一阶段",
+        "P0复核结论状态",
+        "P0执行包类型",
+        "P0页码优先序",
+        "P0学校优先序",
+        "P0页内任务数",
+        "P0学校任务数",
+        "证据项",
+        "证据任务优先级",
+        "证据任务状态",
+        "需要核验字段",
+        "执行动作代码",
+        "阻断或待核原因",
+        "PDF页码",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "页面复核优先级",
+        "页面阻断等级",
+        "页面专业明细数",
+        "页面结构异常数",
+        "页面高严重结构异常数",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "再选科目OCR候选",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "高校官网/章程辅证状态",
+        "计划数核验状态",
+        "证据缺口",
+        "PDF原页人工核验结论状态",
+        "湖北官方系统证据状态",
+        "湖北官方系统人工核验结论状态",
+        "高校官网/章程人工核验结论状态",
+        "家庭接受度人工结论状态",
+        "同组调剂人工结论状态",
+        "湖北官方系统证据编号",
+        "湖北官方系统证据SHA256",
+        "高校官网/章程证据编号",
+        "高校官网/章程证据SHA256",
+        "人工核验人",
+        "人工核验时间",
+        "人工核验备注",
+        "下一步",
+    }
+    p0_execution_by_task_id = {
+        row.get("P0执行包任务ID"): row for row in p0_execution_rows
+    }
+    p0_review_ids = {row.get("P0复核工作清单ID") for row in p0_review_rows}
+    p0_review_source_task_ids = {
+        row.get("来源P0执行包任务ID") for row in p0_review_rows
+    }
+    p0_review_source_closure_ids = {
+        row.get("来源证据闭环任务ID") for row in p0_review_rows
+    }
+    p0_review_major_ids = {row.get("专业行ID") for row in p0_review_rows}
+    p0_review_packet_ids = {row.get("来源P0执行包ID") for row in p0_review_rows}
+    p0_review_packet_type_counts = Counter(row.get("P0执行包类型") for row in p0_review_rows)
+    p0_review_status_counts = Counter(row.get("证据任务状态") for row in p0_review_rows)
+    p0_review_item_counts = Counter(row.get("证据项") for row in p0_review_rows)
+    p0_review_school_source_counts = Counter(row.get("高校官网/章程辅证状态") for row in p0_review_rows)
+    p0_review_gate_counts = {
+        "P0复核结论状态": Counter(row.get("P0复核结论状态") for row in p0_review_rows),
+        "PDF原页人工核验结论状态": Counter(row.get("PDF原页人工核验结论状态") for row in p0_review_rows),
+        "湖北官方系统人工核验结论状态": Counter(row.get("湖北官方系统人工核验结论状态") for row in p0_review_rows),
+        "高校官网/章程人工核验结论状态": Counter(row.get("高校官网/章程人工核验结论状态") for row in p0_review_rows),
+        "家庭接受度人工结论状态": Counter(row.get("家庭接受度人工结论状态") for row in p0_review_rows),
+        "同组调剂人工结论状态": Counter(row.get("同组调剂人工结论状态") for row in p0_review_rows),
+    }
+    p0_review_join_ok = True
+    for row in p0_review_rows:
+        p0_row = p0_execution_by_task_id.get(row.get("来源P0执行包任务ID"))
+        full_row = full_major_evidence_by_workbench_id.get(row.get("来源全量证据工作台ID"))
+        manifest_row = page_manifest_by_page.get(as_int(row.get("PDF页码")))
+        page_row = page_fidelity_by_page.get(as_int(row.get("PDF页码")))
+        p0_review_join_ok = (
+            p0_review_join_ok
+            and bool(p0_row)
+            and bool(full_row)
+            and bool(manifest_row)
+            and bool(page_row)
+            and row.get("P0复核工作清单ID")
+            == stable_id(
+                "P0REVIEW",
+                [
+                    row.get("来源P0执行包任务ID", ""),
+                    row.get("来源全量证据工作台ID", ""),
+                ],
+            )
+            and row.get("来源P0执行包ID") == p0_row.get("P0执行包ID")
+            and row.get("来源证据闭环任务ID") == p0_row.get("来源证据闭环任务ID")
+            and row.get("P0执行包类型") == p0_row.get("P0执行包类型")
+            and row.get("P0页码优先序") == p0_row.get("P0页码优先序")
+            and row.get("P0学校优先序") == p0_row.get("P0学校优先序")
+            and row.get("P0页内任务数") == p0_row.get("P0页内任务数")
+            and row.get("P0学校任务数") == p0_row.get("P0学校任务数")
+            and row.get("证据项") == p0_row.get("证据项")
+            and row.get("证据任务优先级") == p0_row.get("证据任务优先级")
+            and row.get("证据任务状态") == p0_row.get("证据任务状态")
+            and row.get("需要核验字段") == p0_row.get("需要核验字段")
+            and row.get("执行动作代码") == p0_row.get("执行动作代码")
+            and row.get("阻断或待核原因") == p0_row.get("阻断或待核原因")
+            and row.get("PDF页码") == p0_row.get("来源页码")
+            and row.get("专业行ID") == p0_row.get("专业行ID")
+            and row.get("专业组出现ID") == p0_row.get("专业组出现ID")
+            and row.get("院校代码") == p0_row.get("院校代码")
+            and row.get("院校名称OCR") == p0_row.get("院校名称OCR")
+            and row.get("院校专业组代码OCR规范化")
+            == p0_row.get("院校专业组代码OCR规范化")
+            and row.get("专业组内专业序号") == p0_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == p0_row.get("专业代号OCR")
+            and row.get("来源期号") == full_row.get("来源期号")
+            and row.get("来源PDF_SHA256") == full_row.get("来源PDF_SHA256")
+            and row.get("专业名称及备注OCR") == full_row.get("专业名称及备注OCR")
+            and row.get("再选科目OCR候选") == full_row.get("再选科目OCR候选")
+            and row.get("专业计划数OCR候选") == full_row.get("专业计划数OCR候选")
+            and row.get("学费OCR候选") == full_row.get("学费OCR候选")
+            and row.get("高校官网/章程辅证状态") == full_row.get("高校官网/章程辅证状态")
+            and row.get("计划数核验状态") == full_row.get("计划数核验状态")
+            and row.get("证据缺口") == full_row.get("证据缺口")
+            and row.get("湖北官方系统证据状态") == full_row.get("湖北官方系统证据状态")
+            and row.get("私有页图证据编号") == manifest_row.get("私有页图证据编号")
+            and row.get("私有OCR文本证据编号") == manifest_row.get("私有OCR文本证据编号")
+            and row.get("私有页图SHA256") == manifest_row.get("私有页图SHA256")
+            and row.get("私有OCR文本SHA256") == manifest_row.get("私有OCR文本SHA256")
+            and row.get("OCR平均置信度") == manifest_row.get("OCR平均置信度")
+            and row.get("OCR_QC_P0数") == manifest_row.get("OCR_QC_P0数")
+            and row.get("OCR_QC_P1数") == manifest_row.get("OCR_QC_P1数")
+            and row.get("页面复核优先级") == page_row.get("页面复核优先级")
+            and row.get("页面阻断等级") == page_row.get("页面阻断等级")
+            and row.get("页面专业明细数") == page_row.get("页面专业明细数")
+            and row.get("页面结构异常数") == page_row.get("页面结构异常数")
+            and row.get("页面高严重结构异常数") == page_row.get("页面高严重结构异常数")
+            and row.get("风险字段Top") == page_row.get("风险字段Top")
+            and row.get("风险规则Top") == page_row.get("风险规则Top")
+            and re.fullmatch(r"page-\d{3}", row.get("私有页图证据编号", "")) is not None
+            and re.fullmatch(r"\d{3}_page-\d{3}", row.get("私有OCR文本证据编号", "")) is not None
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有页图SHA256", "")) is not None
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有OCR文本SHA256", "")) is not None
+        )
+    p0_review_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_review_summary_path, p0_review_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 逐专业复核工作清单摘要和行数正确",
+        p0_review_summary.get("status") == "issue19_p0_evidence_review_worklist_not_final"
+        and p0_review_summary.get("generated_by") == "build_issue19_p0_evidence_review_worklist.py"
+        and p0_review_summary.get("source_p0_execution_packets")
+        == "data/working/issue19-p0-evidence-execution-packets.csv"
+        and p0_review_summary.get("source_full_major_evidence_workbench")
+        == "data/working/issue19-full-major-evidence-workbench.csv"
+        and p0_review_summary.get("source_page_manifest")
+        == "data/working/issue19-page-manifest.csv"
+        and p0_review_summary.get("source_page_fidelity_review_queue")
+        == "data/working/issue19-page-fidelity-review-queue.csv"
+        and p0_review_summary.get("output_table")
+        == "data/working/issue19-p0-evidence-review-worklist.csv"
+        and p0_review_summary.get("source_p0_task_row_count") == 6619
+        and p0_review_summary.get("worklist_row_count") == 6619
+        and p0_review_summary.get("unique_worklist_id_count") == 6619
+        and p0_review_summary.get("unique_source_p0_task_id_count") == 6619
+        and p0_review_summary.get("unique_source_closure_task_id_count") == 6619
+        and p0_review_summary.get("unique_major_line_id_count") == 5310
+        and p0_review_summary.get("unique_packet_id_count") == 2282
+        and p0_review_summary.get("unique_pdf_page_count") == 231
+        and p0_review_summary.get("unique_school_count") == 1056
+        and p0_review_summary.get("full_evidence_hit_count") == 6619
+        and p0_review_summary.get("page_manifest_hit_count") == 6619
+        and p0_review_summary.get("page_fidelity_hit_count") == 6619
+        and len(p0_review_rows) == 6619,
+        f"{len(p0_review_rows)} P0 review rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 逐专业复核工作清单字段、主键和门禁正确",
+        required_p0_review_fields.issubset(p0_review_fields)
+        and len(p0_review_ids) == len(p0_review_rows)
+        and p0_review_source_task_ids == p0_execution_task_ids
+        and p0_review_source_closure_ids == p0_execution_source_task_ids
+        and p0_review_major_ids == p0_execution_major_ids
+        and p0_review_packet_ids == p0_execution_packet_ids
+        and p0_review_summary.get("final_available_count") == 0
+        and p0_review_summary.get("auto_upgrade_allowed_count") == 0
+        and p0_review_summary.get("next_stage_allowed_count") == 0
+        and p0_review_summary.get("final_major_list_candidate_count") == 0
+        and all(
+            row.get("来源P0执行包表")
+            == "data/working/issue19-p0-evidence-execution-packets.csv"
+            and row.get("来源全量证据工作台")
+            == "data/working/issue19-full-major-evidence-workbench.csv"
+            and row.get("来源页级manifest")
+            == "data/working/issue19-page-manifest.csv"
+            and row.get("来源页级保真复核队列")
+            == "data/working/issue19-page-fidelity-review-queue.csv"
+            and row.get("数据阶段") == "issue19_p0_evidence_review_worklist"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×P0证据项"
+            and row.get("最终可用") == "false"
+            and row.get("是否可升级") == "false"
+            and row.get("是否可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("P0复核结论状态") == "pending_p0_manual_review"
+            and row.get("PDF原页人工核验结论状态") == "pending_original_pdf_page_review"
+            and row.get("湖北官方系统人工核验结论状态") == "pending_hubei_official_plan_review"
+            and row.get("高校官网/章程人工核验结论状态") == "pending_school_plan_or_charter_review"
+            and row.get("家庭接受度人工结论状态") == "pending_family_acceptance_review"
+            and row.get("同组调剂人工结论状态") == "pending_transfer_decision"
+            and not row.get("湖北官方系统证据编号")
+            and not row.get("湖北官方系统证据SHA256")
+            and not row.get("高校官网/章程证据编号")
+            and not row.get("高校官网/章程证据SHA256")
+            and not row.get("人工核验人")
+            and not row.get("人工核验时间")
+            for row in p0_review_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期 P0 逐专业复核工作清单与执行包、专业明细、页级证据逐行闭环",
+        p0_review_packet_type_counts == Counter(p0_review_summary.get("packet_type_counts", {}))
+        and p0_review_status_counts == Counter(p0_review_summary.get("task_status_counts", {}))
+        and p0_review_item_counts == Counter(p0_review_summary.get("evidence_item_counts", {}))
+        and p0_review_school_source_counts == Counter(p0_review_summary.get("school_source_status_counts", {}))
+        and {
+            key: dict(value) for key, value in p0_review_gate_counts.items()
+        } == p0_review_summary.get("manual_gate_status_counts")
+        and p0_review_summary.get("packet_type_counts") == {
+            "P0A-PDF原页结构阻断": 4047,
+            "P0B-三方证据闭环": 2526,
+            "P0C-B0B1差异复核": 46,
+        }
+        and p0_review_summary.get("evidence_item_counts") == {
+            "PDF原页核验": 4047,
+            "湖北官方系统/省招办计划核验": 1263,
+            "高校官网/章程辅证": 1263,
+            "B0/B1官网冲突或未匹配复核": 46,
+        }
+        and p0_review_summary.get("task_status_counts") == {
+            "pending_original_pdf_page_review": 3991,
+            "pending_hubei_official_plan_review": 1263,
+            "pending_school_plan_source_search": 148,
+            "pending_school_plan_or_charter_review": 581,
+            "has_school_plan_source_pending_crosscheck": 143,
+            "has_d0_page_ocr_evidence_pending_original_pdf_review": 56,
+            "has_partial_school_source_pending_followup": 346,
+            "pending_b0_b1_unmatched_major_review": 28,
+            "school_source_conflict_pending_pdf_and_hubei_review": 4,
+            "pending_b0_b1_plan_conflict_review": 18,
+            "has_charter_or_rules_but_no_plan_detail": 41,
+        }
+        and p0_review_summary.get("school_source_status_counts") == {
+            "needs_official_plan_source_search": 315,
+            "not_yet_school_source_searched_in_full_workbench": 5037,
+            "has_reusable_2026_hubei_plan_source": 343,
+            "has_partial_source_needs_followup": 780,
+            "官网专业名匹配但计划数冲突-优先核页": 40,
+            "charter_or_rules_only_no_plan": 104,
+        }
+        and p0_review_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 逐专业复核工作清单公开文件不含本地路径、图片扩展名、身份信息、登录态和最终建议结论",
+        "private/" not in p0_review_public_text
+        and "private\\" not in p0_review_public_text
+        and "/Users/" not in p0_review_public_text
+        and "ocr-runs" not in p0_review_public_text
+        and "rendered-pages" not in p0_review_public_text
+        and ".png" not in p0_review_public_text
+        and ".jpg" not in p0_review_public_text
+        and ".jpeg" not in p0_review_public_text
+        and "Authorization" not in p0_review_public_text
+        and "Bearer " not in p0_review_public_text
+        and "Cookie" not in p0_review_public_text
+        and "final_allowed" not in p0_review_public_text
+        and "ready_for_discussion" not in p0_review_public_text
+        and "已确认" not in p0_review_public_text
+        and "已核准" not in p0_review_public_text
+        and "最终推荐" not in p0_review_public_text
+        and "最终方案" not in p0_review_public_text
+        and "可填报" not in p0_review_public_text
+        and "可排序" not in p0_review_public_text
+        and not any(token in p0_review_public_text for token in shared_forbidden_tokens),
+    ))
+
+    field_gap_summary_path = ROOT / "data/working/issue19-p1-field-gap-evidence-repair-matrix-summary.json"
+    field_gap_csv = ROOT / "data/working/issue19-p1-field-gap-evidence-repair-matrix.csv"
+    hubei_official_summary_path = (
+        ROOT / "data/working/issue19-hubei-official-plan-major-crosscheck-packets-summary.json"
+    )
+    hubei_official_csv = (
+        ROOT / "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv"
+    )
+    b0_b1_diff_summary_path = ROOT / "data/working/issue19-b0-b1-public-official-diff-ledger-summary.json"
+    b0_b1_diff_csv = ROOT / "data/working/issue19-b0-b1-public-official-diff-ledger.csv"
+    field_gap_summary = json.loads(field_gap_summary_path.read_text())
+    hubei_official_summary = json.loads(hubei_official_summary_path.read_text())
+    b0_b1_diff_summary = json.loads(b0_b1_diff_summary_path.read_text())
+    with field_gap_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_gap_reader = csv.DictReader(f)
+        field_gap_rows = list(field_gap_reader)
+        field_gap_fields = set(field_gap_reader.fieldnames or [])
+    with hubei_official_csv.open(newline="", encoding="utf-8-sig") as f:
+        hubei_official_reader = csv.DictReader(f)
+        hubei_official_rows = list(hubei_official_reader)
+        hubei_official_fields = set(hubei_official_reader.fieldnames or [])
+    with b0_b1_diff_csv.open(newline="", encoding="utf-8-sig") as f:
+        b0_b1_diff_reader = csv.DictReader(f)
+        b0_b1_diff_rows = list(b0_b1_diff_reader)
+        b0_b1_diff_fields = set(b0_b1_diff_reader.fieldnames or [])
+    required_field_gap_fields = {
+        "字段补证任务ID",
+        "来源字段保真总账ID",
+        "来源全量证据工作台ID",
+        "来源证据闭环任务ID",
+        "数据阶段",
+        "主表粒度",
+        "任务粒度",
+        "最终可用",
+        "可进入下一阶段",
+        "证据状态",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "字段名",
+        "OCR候选值",
+        "OCR数字候选",
+        "字段问题类型",
+        "高风险字段集合",
+        "风险触发规则",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "核验动作代码",
+        "人工核验结论状态",
+    }
+    required_hubei_official_fields = {
+        "湖北官方核验包任务ID",
+        "来源证据闭环任务ID",
+        "来源全量证据工作台ID",
+        "数据阶段",
+        "主表粒度",
+        "任务粒度",
+        "最终可用",
+        "是否可升级",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "OCR再选科目",
+        "OCR专业计划数",
+        "OCR学费",
+        "平台查询院校代码",
+        "平台查询专业组代码",
+        "平台查询专业代号",
+        "平台匹配状态",
+        "平台字段核验状态",
+        "字段差异集合",
+        "官方系统证据编号",
+        "官方系统证据SHA256",
+        "原始接口响应保存位置",
+        "公开原始行SHA256",
+    }
+    required_b0_b1_diff_fields = {
+        "公开官网差异账ID",
+        "来源全量证据工作台ID",
+        "数据阶段",
+        "主表粒度",
+        "最终可用",
+        "可进入下一阶段",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "OCR计划数",
+        "OCR学费",
+        "OCR再选科目",
+        "高校官网/章程辅证状态",
+        "官网来源状态",
+        "官网证据匹配状态",
+        "最佳官网来源文件",
+        "最佳官网专业名称",
+        "最佳官网计划数",
+        "最佳官网学费",
+        "计划数核验状态",
+        "差异字段集合",
+        "仍需核验",
+    }
+    full_major_field_gap_task_by_major_id = {
+        row.get("专业行ID"): row
+        for row in full_major_closure_rows
+        if row.get("证据项") == "字段完整性补证"
+    }
+    full_major_hubei_task_by_major_id = {
+        row.get("专业行ID"): row
+        for row in full_major_closure_rows
+        if row.get("证据项") == "湖北官方系统/省招办计划核验"
+    }
+    field_gap_name_to_risk_field = {
+        "再选科目": "再选科目字段",
+        "专业计划数": "计划数字段",
+        "学费": "学费字段",
+    }
+    field_gap_name_to_source_field = {
+        "再选科目": "再选科目OCR候选",
+        "专业计划数": "专业计划数OCR候选",
+        "学费": "学费OCR候选",
+    }
+    field_gap_join_ok = True
+    for row in field_gap_rows:
+        fidelity_row = full_major_fidelity_by_major_id.get(row.get("专业行ID"))
+        full_row = full_major_evidence_by_workbench_id.get(row.get("来源全量证据工作台ID"))
+        task_row = full_major_field_gap_task_by_major_id.get(row.get("专业行ID"))
+        manifest_row = page_manifest_by_page.get(as_int(row.get("来源页码")))
+        page_row = page_fidelity_by_page.get(as_int(row.get("来源页码")))
+        field_name = row.get("字段名")
+        field_gap_join_ok = (
+            field_gap_join_ok
+            and bool(fidelity_row)
+            and bool(full_row)
+            and bool(task_row)
+            and bool(manifest_row)
+            and bool(page_row)
+            and row.get("字段补证任务ID")
+            == stable_id("FIELDGAP", [row.get("专业行ID", ""), field_name])
+            and row.get("来源字段保真总账ID") == fidelity_row.get("全量保真总账ID")
+            and row.get("来源证据闭环任务ID") == task_row.get("证据闭环任务ID")
+            and row.get("数据阶段") == "issue19_p1_field_gap_evidence_repair_matrix"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×字段缺口"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("证据状态") == "pending_field_gap_review"
+            and field_gap_name_to_risk_field.get(field_name) in split_cn_semicolon(fidelity_row.get("高风险字段集合"))
+            and row.get("OCR候选值") == fidelity_row.get(field_gap_name_to_source_field.get(field_name, ""), "")
+            and row.get("专业组出现ID") == fidelity_row.get("专业组出现ID") == full_row.get("专业组出现ID")
+            and row.get("院校代码") == fidelity_row.get("院校代码") == full_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化")
+            == fidelity_row.get("院校专业组代码OCR规范化")
+            == full_row.get("院校专业组代码OCR规范化")
+            and row.get("专业代号OCR") == fidelity_row.get("专业代号OCR") == full_row.get("专业代号OCR")
+            and row.get("私有页图证据编号") == manifest_row.get("私有页图证据编号")
+            and row.get("私有OCR文本证据编号") == manifest_row.get("私有OCR文本证据编号")
+            and row.get("私有页图SHA256") == manifest_row.get("私有页图SHA256")
+            and row.get("私有OCR文本SHA256") == manifest_row.get("私有OCR文本SHA256")
+            and row.get("页面复核优先级") == page_row.get("页面复核优先级")
+            and row.get("页面阻断等级") == page_row.get("页面阻断等级")
+            and re.fullmatch(r"page-\d{3}", row.get("私有页图证据编号", "")) is not None
+            and re.fullmatch(r"\d{3}_page-\d{3}", row.get("私有OCR文本证据编号", "")) is not None
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有页图SHA256", "")) is not None
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有OCR文本SHA256", "")) is not None
+            and row.get("人工核验结论状态") == "pending_manual_field_review"
+            and not row.get("人工确认值")
+            and not row.get("人工证据编号")
+            and not row.get("人工证据SHA256")
+        )
+    hubei_official_join_ok = True
+    for row in hubei_official_rows:
+        full_row = full_major_evidence_by_workbench_id.get(row.get("来源全量证据工作台ID"))
+        task_row = full_major_hubei_task_by_major_id.get(row.get("专业行ID"))
+        hubei_official_join_ok = (
+            hubei_official_join_ok
+            and bool(full_row)
+            and bool(task_row)
+            and row.get("湖北官方核验包任务ID")
+            == stable_id("HBPLAN", [row.get("专业行ID", ""), row.get("来源证据闭环任务ID", "")])
+            and row.get("来源证据闭环任务ID") == task_row.get("证据闭环任务ID")
+            and row.get("数据阶段") == "issue19_hubei_official_plan_major_crosscheck_packets"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×湖北官方系统核验"
+            and row.get("最终可用") == "false"
+            and row.get("是否可升级") == "false"
+            and row.get("专业组出现ID") == full_row.get("专业组出现ID")
+            and row.get("院校代码") == full_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化") == full_row.get("院校专业组代码OCR规范化")
+            and row.get("专业代号OCR") == full_row.get("专业代号OCR")
+            and row.get("OCR再选科目") == full_row.get("再选科目OCR候选")
+            and row.get("OCR专业计划数") == full_row.get("专业计划数OCR候选")
+            and row.get("OCR学费") == full_row.get("学费OCR候选")
+            and row.get("平台查询院校代码") == full_row.get("院校代码")
+            and row.get("平台查询专业组代码") == full_row.get("院校专业组代码OCR规范化")
+            and row.get("平台查询专业代号") == full_row.get("专业代号OCR")
+            and row.get("平台匹配状态") == "pending_hubei_official_platform_query"
+            and row.get("平台字段核验状态") == "pending_hubei_official_plan_review"
+            and not row.get("字段差异集合")
+            and not row.get("官方系统证据编号")
+            and not row.get("官方系统证据SHA256")
+            and not row.get("公开原始行SHA256")
+        )
+    b0_b1_diff_join_ok = True
+    for row in b0_b1_diff_rows:
+        full_row = full_major_evidence_by_workbench_id.get(row.get("来源全量证据工作台ID"))
+        b0_b1_diff_join_ok = (
+            b0_b1_diff_join_ok
+            and bool(full_row)
+            and row.get("公开官网差异账ID") == stable_id("B0B1DIFF", [row.get("专业行ID", "")])
+            and row.get("数据阶段") == "issue19_b0_b1_public_official_diff_ledger"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("专业行ID") == full_row.get("专业行ID")
+            and row.get("专业组出现ID") == full_row.get("专业组出现ID")
+            and row.get("院校代码") == full_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化") == full_row.get("院校专业组代码OCR规范化")
+            and row.get("专业代号OCR") == full_row.get("专业代号OCR")
+            and row.get("OCR计划数") == full_row.get("专业计划数OCR候选")
+            and row.get("OCR学费") == full_row.get("学费OCR候选")
+            and row.get("OCR再选科目") == full_row.get("再选科目OCR候选")
+            and row.get("高校官网/章程辅证状态") == full_row.get("高校官网/章程辅证状态")
+            and row.get("高校官网/章程辅证状态")
+            != "not_yet_school_source_searched_in_full_workbench"
+        )
+    new_major_worktable_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            field_gap_summary_path,
+            field_gap_csv,
+            hubei_official_summary_path,
+            hubei_official_csv,
+            b0_b1_diff_summary_path,
+            b0_b1_diff_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期字段缺口逐专业修复矩阵摘要、字段分布和行数正确",
+        field_gap_summary.get("status") == "issue19_p1_field_gap_evidence_repair_matrix_not_final"
+        and field_gap_summary.get("generated_by") == "build_issue19_major_level_evidence_worktables.py"
+        and field_gap_summary.get("source_full_major_field_fidelity_ledger")
+        == "data/working/issue19-full-major-field-fidelity-ledger.csv"
+        and field_gap_summary.get("output_table")
+        == "data/working/issue19-p1-field-gap-evidence-repair-matrix.csv"
+        and field_gap_summary.get("row_count") == 19065
+        and field_gap_summary.get("unique_task_id_count") == 19065
+        and field_gap_summary.get("unique_major_line_id_count") == 12473
+        and field_gap_summary.get("unique_pdf_page_count") == 231
+        and field_gap_summary.get("field_counts") == {
+            "再选科目": 11456,
+            "专业计划数": 6347,
+            "学费": 1262,
+        }
+        and field_gap_summary.get("final_available_count") == 0
+        and field_gap_summary.get("next_stage_allowed_count") == 0
+        and len(field_gap_rows) == 19065,
+        f"{len(field_gap_rows)} field gap rows",
+    ))
+    checks.append(ok(
+        "第 19 期字段缺口逐专业修复矩阵字段、主键和来源闭环正确",
+        required_field_gap_fields.issubset(field_gap_fields)
+        and len({row.get("字段补证任务ID") for row in field_gap_rows}) == len(field_gap_rows)
+        and Counter(row.get("字段名") for row in field_gap_rows)
+        == Counter(field_gap_summary.get("field_counts", {}))
+        and {row.get("专业行ID") for row in field_gap_rows}.issubset(full_major_evidence_ids)
+        and field_gap_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期湖北官方计划逐专业核验包摘要、字段和来源闭环正确",
+        hubei_official_summary.get("status") == "issue19_hubei_official_plan_major_crosscheck_packets_not_final"
+        and hubei_official_summary.get("generated_by") == "build_issue19_major_level_evidence_worktables.py"
+        and hubei_official_summary.get("output_table")
+        == "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv"
+        and hubei_official_summary.get("row_count") == 13736
+        and hubei_official_summary.get("unique_task_id_count") == 13736
+        and hubei_official_summary.get("unique_major_line_id_count") == 13736
+        and hubei_official_summary.get("unique_source_closure_task_id_count") == 13736
+        and hubei_official_summary.get("platform_status_counts")
+        == {"pending_hubei_official_plan_review": 13736}
+        and hubei_official_summary.get("final_available_count") == 0
+        and hubei_official_summary.get("auto_upgrade_allowed_count") == 0
+        and required_hubei_official_fields.issubset(hubei_official_fields)
+        and len({row.get("湖北官方核验包任务ID") for row in hubei_official_rows})
+        == len(hubei_official_rows)
+        and {row.get("专业行ID") for row in hubei_official_rows} == full_major_evidence_ids
+        and hubei_official_join_ok
+        and len(hubei_official_rows) == 13736,
+        f"{len(hubei_official_rows)} hubei official rows",
+    ))
+    checks.append(ok(
+        "第 19 期 B0/B1 逐专业官网差异账摘要、字段和来源闭环正确",
+        b0_b1_diff_summary.get("status") == "issue19_b0_b1_public_official_diff_ledger_not_final"
+        and b0_b1_diff_summary.get("generated_by") == "build_issue19_major_level_evidence_worktables.py"
+        and b0_b1_diff_summary.get("output_table")
+        == "data/working/issue19-b0-b1-public-official-diff-ledger.csv"
+        and b0_b1_diff_summary.get("row_count") == 854
+        and b0_b1_diff_summary.get("unique_diff_id_count") == 854
+        and b0_b1_diff_summary.get("unique_major_line_id_count") == 854
+        and b0_b1_diff_summary.get("school_source_status_counts") == {
+            "has_partial_source_needs_followup": 412,
+            "has_reusable_2026_hubei_plan_source": 194,
+            "官网专业名匹配但计划数冲突-优先核页": 18,
+            "charter_or_rules_only_no_plan": 63,
+            "needs_official_plan_source_search": 167,
+        }
+        and b0_b1_diff_summary.get("match_status_counts") == {
+            "": 533,
+            "no_school_source": 137,
+            "matched": 152,
+            "unmatched": 31,
+            "possible_match": 1,
+        }
+        and b0_b1_diff_summary.get("plan_conflict_count") == 18
+        and b0_b1_diff_summary.get("unmatched_major_count") == 28
+        and b0_b1_diff_summary.get("source_match_hit_count") == 153
+        and b0_b1_diff_summary.get("final_available_count") == 0
+        and b0_b1_diff_summary.get("next_stage_allowed_count") == 0
+        and required_b0_b1_diff_fields.issubset(b0_b1_diff_fields)
+        and len({row.get("公开官网差异账ID") for row in b0_b1_diff_rows}) == len(b0_b1_diff_rows)
+        and Counter(row.get("高校官网/章程辅证状态") for row in b0_b1_diff_rows)
+        == Counter(b0_b1_diff_summary.get("school_source_status_counts", {}))
+        and b0_b1_diff_join_ok
+        and len(b0_b1_diff_rows) == 854,
+        f"{len(b0_b1_diff_rows)} b0/b1 diff rows",
+    ))
+    checks.append(ok(
+        "第 19 期新增逐专业保真工作表公开文件不含本地路径、图片扩展名、身份信息、登录态和最终建议结论",
+        "private/" not in new_major_worktable_public_text
+        and "private\\" not in new_major_worktable_public_text
+        and "/Users/" not in new_major_worktable_public_text
+        and "ocr-runs" not in new_major_worktable_public_text
+        and "rendered-pages" not in new_major_worktable_public_text
+        and ".png" not in new_major_worktable_public_text
+        and ".jpg" not in new_major_worktable_public_text
+        and ".jpeg" not in new_major_worktable_public_text
+        and "Authorization" not in new_major_worktable_public_text
+        and "Bearer " not in new_major_worktable_public_text
+        and "Cookie" not in new_major_worktable_public_text
+        and "Admin-Token" not in new_major_worktable_public_text
+        and "HUBEI_PLAN_TOKEN" not in new_major_worktable_public_text
+        and "final_allowed" not in new_major_worktable_public_text
+        and "ready_for_discussion" not in new_major_worktable_public_text
+        and "已确认" not in new_major_worktable_public_text
+        and "已核准" not in new_major_worktable_public_text
+        and "最终推荐" not in new_major_worktable_public_text
+        and "最终方案" not in new_major_worktable_public_text
+        and "可填报" not in new_major_worktable_public_text
+        and "可排序" not in new_major_worktable_public_text
+        and not any(token in new_major_worktable_public_text for token in shared_forbidden_tokens),
+    ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
         "final_allowed" not in page_manifest_public_text

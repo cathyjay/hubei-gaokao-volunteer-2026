@@ -1,0 +1,25 @@
+{
+  "status": "issue19_p1_field_gap_evidence_repair_matrix_not_final",
+  "generated_by": "build_issue19_major_level_evidence_worktables.py",
+  "source_full_major_field_fidelity_ledger": "data/working/issue19-full-major-field-fidelity-ledger.csv",
+  "source_full_major_evidence_workbench": "data/working/issue19-full-major-evidence-workbench.csv",
+  "source_closure_tasks": "data/working/issue19-full-major-evidence-closure-tasks.csv",
+  "source_page_manifest": "data/working/issue19-page-manifest.csv",
+  "source_page_fidelity_review_queue": "data/working/issue19-page-fidelity-review-queue.csv",
+  "output_table": "data/working/issue19-p1-field-gap-evidence-repair-matrix.csv",
+  "row_count": 19065,
+  "unique_task_id_count": 19065,
+  "unique_major_line_id_count": 12473,
+  "unique_pdf_page_count": 231,
+  "field_counts": {
+    "专业计划数": 6347,
+    "再选科目": 11456,
+    "学费": 1262
+  },
+  "final_available_count": 0,
+  "next_stage_allowed_count": 0,
+  "notes": [
+    "本表一行一个招生专业明细和一个字段缺口。",
+    "字段缺口来自全量逐专业字段保真总账的高风险字段集合，不把空值解释为不限或无计划。"
+  ]
+}

@@ -195,6 +195,14 @@
 - `data/working/issue19-full-major-evidence-closure-tasks-summary.json`：证据闭环任务摘要；记录 82416 条基础任务、12473 条字段完整性补证任务、46 条 B0/B1 官网冲突或未匹配任务、P0/P1/P2 优先级和全部非最终门禁。
 - `data/working/issue19-p0-evidence-execution-packets.csv`：第 19 期 P0 证据执行包，严格从证据闭环任务队列中抽取 `P0-` 任务，当前 6619 条任务、5310 条招生专业明细、2282 个执行包、231 个 PDF 页、1056 所学校；一行对应一个专业行和一个 P0 证据项，`P0执行包ID` 只用于按页/学校/类型批量执行。
 - `data/working/issue19-p0-evidence-execution-packets-summary.json`：P0 证据执行包摘要；记录 P0A PDF 原页结构阻断 4047 条、P0B 三方证据闭环 2526 条、P0C B0/B1 差异复核 46 条，以及全部不可升级、不可最终可用的门禁。
+- `data/working/issue19-p0-evidence-review-worklist.csv`：第 19 期 P0 逐专业复核工作清单，覆盖同一批 6619 条 P0 任务；一行仍是一个招生专业明细和一个 P0 证据项，但额外带出全量证据工作台字段、页级 manifest 证据编号和 SHA、页级保真风险、人工核验闸口。该表用于人工逐行核验，不是最终志愿表。
+- `data/working/issue19-p0-evidence-review-worklist-summary.json`：P0 逐专业复核工作清单摘要；记录 5310 条唯一招生专业明细、2282 个执行包、231 个 PDF 页、1056 所学校、6619/6619 上游回链命中，以及全部 `pending` 和不可升级门禁。
+- `data/working/issue19-p1-field-gap-evidence-repair-matrix.csv`：字段缺口逐专业修复矩阵，19065 行；一行对应一个招生专业明细和一个字段缺口，其中再选科目 11456、专业计划数 6347、学费 1262。用于逐字段补证，不把空值解释为不限、无计划或无学费。
+- `data/working/issue19-p1-field-gap-evidence-repair-matrix-summary.json`：字段缺口矩阵摘要；记录字段分布、12473 个唯一专业行、231 个 PDF 页和全部非最终门禁。
+- `data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv`：湖北官方系统逐专业核验包，13736 行；一行对应一个招生专业明细和一个湖北官方系统/省招办计划核验任务，预留官方系统证据编号、字段差异和公开原始行 SHA。
+- `data/working/issue19-hubei-official-plan-major-crosscheck-packets-summary.json`：湖北官方系统核验包摘要；记录 13736 个唯一专业行和 13736 个官方核验任务，当前全部 `pending_hubei_official_plan_review`。
+- `data/working/issue19-b0-b1-public-official-diff-ledger.csv`：B0/B1 逐专业官网差异账，854 行；只覆盖已有高校官网/章程辅证线索的招生专业明细，记录官网匹配字段、计划数冲突、官网未匹配和仍需核验项。
+- `data/working/issue19-b0-b1-public-official-diff-ledger-summary.json`：B0/B1 逐专业官网差异账摘要；记录 18 条计划数冲突、28 条官网未匹配、153 条已有最佳官网来源文件，以及全部非最终门禁。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。
