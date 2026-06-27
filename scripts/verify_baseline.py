@@ -9229,6 +9229,7 @@ def main():
     }
     gap_scorecard_by_major_id = {row.get("专业行ID"): row for row in gap_scorecard_rows}
     historical_sidecar_by_major_id = {row.get("专业行ID"): row for row in historical_sidecar_rows}
+    admission_master_by_major_id = {row.get("专业行ID"): row for row in admission_master_rows}
     admission_master_join_ok = True
     for row in admission_master_rows:
         major_id = row.get("专业行ID")
@@ -9340,6 +9341,269 @@ def main():
         and "最终方案" not in admission_master_public_text
         and "可填报" not in admission_master_public_text
         and "可排序" not in admission_master_public_text,
+    ))
+
+    structural_summary_path = ROOT / "data/working/issue19-admission-detail-structural-fidelity-summary.json"
+    structural_register_csv = ROOT / "data/working/issue19-admission-detail-structural-fidelity-register.csv"
+    structural_event_csv = ROOT / "data/working/issue19-structural-risk-major-line-ledger.csv"
+    zero_detail_csv = ROOT / "data/working/issue19-zero-detail-group-placeholder-workbench.csv"
+    structural_summary = json.loads(structural_summary_path.read_text())
+    with structural_register_csv.open(newline="", encoding="utf-8-sig") as f:
+        structural_register_reader = csv.DictReader(f)
+        structural_register_rows = list(structural_register_reader)
+        structural_register_fields = structural_register_reader.fieldnames or []
+    with structural_event_csv.open(newline="", encoding="utf-8-sig") as f:
+        structural_event_reader = csv.DictReader(f)
+        structural_event_rows = list(structural_event_reader)
+        structural_event_fields = structural_event_reader.fieldnames or []
+    with zero_detail_csv.open(newline="", encoding="utf-8-sig") as f:
+        zero_detail_reader = csv.DictReader(f)
+        zero_detail_rows = list(zero_detail_reader)
+        zero_detail_fields = zero_detail_reader.fieldnames or []
+    expected_structural_register_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_admission_detail_structural_fidelity_register.py",
+        "REGISTER_FIELDS",
+    )
+    expected_structural_event_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_admission_detail_structural_fidelity_register.py",
+        "RISK_EVENT_FIELDS",
+    )
+    expected_zero_detail_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_admission_detail_structural_fidelity_register.py",
+        "ZERO_DETAIL_FIELDS",
+    )
+    structural_by_major_id = {row.get("专业行ID"): row for row in structural_register_rows}
+    structural_event_join_ok = True
+    for row in structural_event_rows:
+        register_row = structural_by_major_id.get(row.get("专业行ID"), {})
+        structural_event_join_ok = (
+            structural_event_join_ok
+            and bool(register_row)
+            and row.get("结构风险事件ID")
+            == stable_id("STRUCTEVENT", [row.get("专业行ID", ""), row.get("结构风险类型", "")])
+            and row.get("来源结构保真登记表")
+            == "data/working/issue19-admission-detail-structural-fidelity-register.csv"
+            and row.get("来源单一逐专业招生明细总工作台")
+            == "data/working/issue19-admission-detail-master-workbench.csv"
+            and row.get("数据阶段") == "issue19_structural_risk_major_line_ledger"
+            and row.get("主表粒度") == "逐专业招生明细×结构风险事件"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器能否自动修复") == "false"
+            and row.get("专业组出现ID") == register_row.get("专业组出现ID")
+            and row.get("院校专业组代码OCR规范化")
+            == register_row.get("院校专业组代码OCR规范化")
+            and "确认前不得进入最终志愿排序" in row.get("不得进入原因", "")
+        )
+    structural_register_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [structural_summary_path, structural_register_csv, structural_event_csv, zero_detail_csv]
+    )
+    checks.append(ok(
+        "第 19 期逐专业结构保真登记摘要、风险事件和0明细占位正确",
+        structural_summary.get("status") == "issue19_admission_detail_structural_fidelity_not_final"
+        and structural_summary.get("generated_by")
+        == "build_issue19_admission_detail_structural_fidelity_register.py"
+        and structural_summary.get("output_table")
+        == "data/working/issue19-admission-detail-structural-fidelity-register.csv"
+        and structural_summary.get("risk_event_output_table")
+        == "data/working/issue19-structural-risk-major-line-ledger.csv"
+        and structural_summary.get("zero_detail_output_table")
+        == "data/working/issue19-zero-detail-group-placeholder-workbench.csv"
+        and structural_summary.get("source_master_workbench")
+        == "data/working/issue19-admission-detail-master-workbench.csv"
+        and structural_summary.get("row_count") == 13736
+        and structural_summary.get("unique_register_id_count") == 13736
+        and structural_summary.get("unique_major_line_id_count") == 13736
+        and structural_summary.get("assignment_method_counts") == {
+            "exact_group_header_match": 11898,
+            "fallback_unique_group_code": 1838,
+        }
+        and structural_summary.get("fallback_unique_group_code_major_count") == 1838
+        and structural_summary.get("duplicate_normalized_group_code_major_count") == 14
+        and structural_summary.get("duplicate_major_code_row_count") == 116
+        and structural_summary.get("duplicate_major_code_group_count") == 31
+        and structural_summary.get("anchor_status_counts") == {
+            "P2-已生成专业行级OCR证据锚点": 12596,
+            "P1-缺少组标题上下文": 1127,
+            "P0-专业窗口为空": 13,
+        }
+        and structural_summary.get("risk_event_count") == 3108
+        and structural_summary.get("risk_event_type_counts") == {
+            "唯一组码回退归属": 1838,
+            "原页缺少组标题上下文": 1127,
+            "组内专业代号重复": 116,
+            "原页专业窗口为空": 13,
+            "2026规范化专业组代码重复": 14,
+        }
+        and structural_summary.get("zero_detail_group_count") == 40
+        and structural_summary.get("final_available_count") == 0
+        and structural_summary.get("next_stage_available_count") == 0
+        and structural_summary.get("machine_auto_fix_count") == 0,
+        f"{len(structural_register_rows)} structural rows, {len(structural_event_rows)} events, {len(zero_detail_rows)} zero-detail groups",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业结构保真登记字段、主键和来源闭环正确",
+        structural_register_fields == expected_structural_register_fields
+        and structural_event_fields == expected_structural_event_fields
+        and zero_detail_fields == expected_zero_detail_fields
+        and len(structural_register_rows) == 13736
+        and len(structural_event_rows) == 3108
+        and len(zero_detail_rows) == 40
+        and len({row.get("结构保真登记ID") for row in structural_register_rows}) == 13736
+        and len({row.get("结构风险事件ID") for row in structural_event_rows}) == 3108
+        and len({row.get("0明细占位ID") for row in zero_detail_rows}) == 40
+        and {row.get("专业行ID") for row in structural_register_rows}
+        == {row.get("专业行ID") for row in admission_master_rows}
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("必须人工核PDF原页") == "true"
+            and row.get("必须湖北官方系统或省招办计划核验") == "true"
+            and row.get("机器能否自动修复") == "false"
+            for row in structural_register_rows
+        )
+        and sum(row.get("是否唯一组码回退归属") == "true" for row in structural_register_rows) == 1838
+        and sum(row.get("是否组内专业代号重复") == "true" for row in structural_register_rows) == 116
+        and sum(row.get("规范化专业组代码是否重复") == "是" for row in structural_register_rows) == 14
+        and sum(row.get("原页证据锚点状态") == "P0-专业窗口为空" for row in structural_register_rows) == 13
+        and sum(row.get("原页证据锚点状态") == "P1-缺少组标题上下文" for row in structural_register_rows) == 1127
+        and structural_event_join_ok
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("是否真实招生明细") == "false"
+            and row.get("是否0明细占位") == "true"
+            and row.get("是否可作为招生明细行") == "false"
+            for row in zero_detail_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期逐专业结构保真登记公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(structural_register_public_text) is None
+        and "private/" not in structural_register_public_text
+        and "final_allowed" not in structural_register_public_text
+        and "ready_for_discussion" not in structural_register_public_text
+        and "已确认" not in structural_register_public_text
+        and "已核准" not in structural_register_public_text
+        and "最终推荐" not in structural_register_public_text
+        and "最终方案" not in structural_register_public_text
+        and "可填报" not in structural_register_public_text
+        and "可排序" not in structural_register_public_text,
+    ))
+
+    filter_prep_summary_path = ROOT / "data/working/issue19-candidate-filter-prep-summary.json"
+    filter_prep_csv = ROOT / "data/working/issue19-candidate-filter-prep-major-detail.csv"
+    filter_prep_summary = json.loads(filter_prep_summary_path.read_text())
+    with filter_prep_csv.open(newline="", encoding="utf-8-sig") as f:
+        filter_prep_reader = csv.DictReader(f)
+        filter_prep_rows = list(filter_prep_reader)
+        filter_prep_fields = filter_prep_reader.fieldnames or []
+    expected_filter_prep_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_candidate_filter_prep_major_detail.py",
+        "FIELDS",
+    )
+    filter_prep_join_ok = True
+    for row in filter_prep_rows:
+        master_row = admission_master_by_major_id.get(row.get("专业行ID"), {})
+        structure_row = structural_by_major_id.get(row.get("专业行ID"), {})
+        filter_prep_join_ok = (
+            filter_prep_join_ok
+            and bool(master_row)
+            and bool(structure_row)
+            and row.get("候选筛选准备ID") == stable_id("FILTERPREP", [row.get("专业行ID", "")])
+            and row.get("来源单一逐专业招生明细总工作台")
+            == "data/working/issue19-admission-detail-master-workbench.csv"
+            and row.get("来源家庭底线逐专业筛选表")
+            == "data/working/issue19-family-fit-major-detail.csv"
+            and row.get("来源结构保真登记表")
+            == "data/working/issue19-admission-detail-structural-fidelity-register.csv"
+            and row.get("数据阶段") == "issue19_candidate_filter_prep_major_detail"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("候选筛选可用状态")
+            == "pending_pdf_official_attribute_family_transfer_review"
+            and row.get("办学属性核验状态") == "pending_school_attribute_review"
+            and row.get("公办民办初判") == "pending_school_attribute_review"
+            and row.get("专业组出现ID") == master_row.get("专业组出现ID")
+            and row.get("院校专业组代码OCR规范化")
+            == master_row.get("院校专业组代码OCR规范化")
+            and row.get("专业代号OCR") == master_row.get("专业代号OCR")
+            and row.get("结构保真优先级") == structure_row.get("结构保真优先级")
+            and "不得进入最终志愿排序" in row.get("不得进入原因", "")
+        )
+    filter_prep_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [filter_prep_summary_path, filter_prep_csv]
+    )
+    checks.append(ok(
+        "第 19 期逐专业候选筛选准备表摘要、行数和 pending 边界正确",
+        filter_prep_summary.get("status") == "issue19_candidate_filter_prep_not_final"
+        and filter_prep_summary.get("generated_by")
+        == "build_issue19_candidate_filter_prep_major_detail.py"
+        and filter_prep_summary.get("output_table")
+        == "data/working/issue19-candidate-filter-prep-major-detail.csv"
+        and filter_prep_summary.get("source_master_workbench")
+        == "data/working/issue19-admission-detail-master-workbench.csv"
+        and filter_prep_summary.get("source_family_fit_major")
+        == "data/working/issue19-family-fit-major-detail.csv"
+        and filter_prep_summary.get("source_structural_register")
+        == "data/working/issue19-admission-detail-structural-fidelity-register.csv"
+        and filter_prep_summary.get("row_count") == 13736
+        and filter_prep_summary.get("unique_filter_prep_id_count") == 13736
+        and filter_prep_summary.get("unique_major_line_id_count") == 13736
+        and filter_prep_summary.get("missing_join_counts") == {}
+        and filter_prep_summary.get("city_hit_counts") == {
+            "北京": 456,
+            "未命中当前城市偏好": 12013,
+            "武汉": 835,
+            "西安": 273,
+            "成都": 159,
+        }
+        and filter_prep_summary.get("city_status_counts") == {
+            "machine_school_name_keyword_unverified": 1723,
+            "pending_school_location_review": 12013,
+        }
+        and filter_prep_summary.get("school_attribute_status_counts")
+        == {"pending_school_attribute_review": 13736}
+        and filter_prep_summary.get("tuition_over_budget_machine_counts") == {
+            "false": 10612,
+            "true": 1862,
+            "pending_tuition_field_review": 1262,
+        }
+        and filter_prep_summary.get("campus_status_counts") == {
+            "pending_campus_or_location_review": 8545,
+            "machine_ocr_remark_candidate_unverified": 5191,
+        }
+        and filter_prep_summary.get("final_available_count") == 0
+        and filter_prep_summary.get("next_stage_available_count") == 0
+        and filter_prep_summary.get("pending_school_attribute_review_count") == 13736,
+        f"{len(filter_prep_rows)} filter prep rows",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业候选筛选准备表字段、主键和来源闭环正确",
+        filter_prep_fields == expected_filter_prep_fields
+        and len(filter_prep_rows) == 13736
+        and len({row.get("候选筛选准备ID") for row in filter_prep_rows}) == 13736
+        and {row.get("专业行ID") for row in filter_prep_rows}
+        == {row.get("专业行ID") for row in admission_master_rows}
+        and all(row.get("办学属性核验状态") == "pending_school_attribute_review" for row in filter_prep_rows)
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in filter_prep_rows)
+        and filter_prep_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期逐专业候选筛选准备表公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(filter_prep_public_text) is None
+        and "private/" not in filter_prep_public_text
+        and "final_allowed" not in filter_prep_public_text
+        and "ready_for_discussion" not in filter_prep_public_text
+        and "已确认" not in filter_prep_public_text
+        and "已核准" not in filter_prep_public_text
+        and "最终推荐" not in filter_prep_public_text
+        and "最终方案" not in filter_prep_public_text
+        and "可填报" not in filter_prep_public_text
+        and "可排序" not in filter_prep_public_text,
     ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",

@@ -223,6 +223,11 @@
 - `data/working/issue19-major-line-historical-toudang-sidecar-summary.json`：逐专业三年投档线索摘要；记录同代码 3 年命中 5836 条、2 年命中 3946 条、1 年命中 1940 条、0 年命中 2014 条；2025 历史投档表存在重复 code `H51001`，当前 2026 底座无对应专业明细行。
 - `data/working/issue19-admission-detail-master-workbench.csv`：单一逐专业招生明细总工作台，13736 行；一行一个招生专业明细，把统一逐专业底座入口、逐专业闭环缺口看板、专业行原页证据锚点和三年投档线索旁挂表合并到同一行。后续新增城市、学校、专业方向或家庭讨论时默认先看这张表；院校、专业组、页码字段只是索引和调剂上下文。
 - `data/working/issue19-admission-detail-master-workbench-summary.json`：单一逐专业招生明细总工作台摘要；记录四张来源表全部 13736 行 join 成功、`最终可用=0`、`可进入下一阶段=0`、官网证据不可替代湖北官方计划、PDF/湖北官方/家庭/调剂四类核验均为 13736 条必核。
+- `data/working/issue19-admission-detail-structural-fidelity-register.csv`：逐专业结构保真登记表，13736 行；一行一个招生专业明细，显式标记专业组归属方式、唯一组码回退归属、重复组码、组内专业代号重复、结构异常和原页锚点状态。
+- `data/working/issue19-structural-risk-major-line-ledger.csv`：逐专业结构风险事件派单表，3108 行；按风险事件展开，包含 1838 条唯一组码回退归属、116 条组内专业代号重复、14 条 2026 规范化专业组代码重复、13 条原页专业窗口为空和 1127 条缺少组标题上下文。
+- `data/working/issue19-zero-detail-group-placeholder-workbench.csv`：0 明细专业组占位表，40 行；只保留专业组占位和补明细任务，不伪造专业代号或专业名称，不能作为招生专业明细参与候选筛选。
+- `data/working/issue19-candidate-filter-prep-major-detail.csv`：逐专业候选筛选准备表，13736 行；一行一个招生专业明细，合并家庭偏好、城市关键词候选、学费数字线索、结构保真、调剂上下文和证据门禁。城市、办学属性、公办民办、校区均保持机器候选或 pending，不是确认事实。
+- `data/working/issue19-candidate-filter-prep-summary.json`：候选筛选准备摘要；记录当前城市关键词命中 1723 条、办学属性待核 13736 条、学费超预算机器线索 1862 条、学费字段待核 1262 条，以及全部非最终门禁。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。

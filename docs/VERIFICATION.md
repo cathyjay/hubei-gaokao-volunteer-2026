@@ -165,6 +165,9 @@ OCR 初稿 / 最终可用=false
 - `data/working/issue19-major-line-historical-toudang-sidecar.csv` 是逐专业三年投档线索旁挂表：13736 行、13736 个唯一 `专业行ID`，同代码 3 年命中 5836 条、2 年命中 3946 条、1 年命中 1940 条、0 年命中 2014 条。该表只能用于后续冲稳保筛选前置参照，不能证明 2026 专业组存在、组内专业不变、计划数准确或投档位次可沿用。
 - `data/working/issue19-admission-detail-master-workbench.csv` 是后续讨论和筛选的默认单一入口：13736 行、13736 个唯一 `专业行ID`，一行一个招生专业明细，已把统一底座、闭环缺口、PDF 原页锚点和三年投档线索合并到同一行。
 - 单一逐专业招生明细总工作台必须满足四个强约束：不得降格为学校/专业组两层摘要；四张来源表必须按 `专业行ID` 全量 join 成功；所有行仍为 `最终可用=false`、`可进入下一阶段=false`；所有行都必须继续保留 PDF 原页、湖北官方系统或省招办计划、家庭接受度和同组调剂结论核验。
+- `data/working/issue19-admission-detail-structural-fidelity-register.csv` 和 `data/working/issue19-structural-risk-major-line-ledger.csv` 用来把结构风险显式下沉到逐专业明细或逐专业风险事件；1838 条唯一组码回退归属、116 条组内专业代号重复、14 条重复规范化专业组代码、13 条原页窗口 P0 和 1127 条原页窗口 P1 必须能直接筛出。
+- `data/working/issue19-zero-detail-group-placeholder-workbench.csv` 只处理 40 个无专业明细专业组，占位行 `是否真实招生明细=false`、`是否0明细占位=true`，不得伪造专业代号、专业名称或进入调剂接受度判断。
+- `data/working/issue19-candidate-filter-prep-major-detail.csv` 是候选筛选准备表，不是候选方案。城市命中只能解释为院校名称 OCR 关键词线索；办学属性、公办民办、校区、实际办学地点必须保持 pending，直到湖北官方系统、学校章程或人工证据闭环。
 - 三年投档线索只按同院校专业组代码挂接，用于稳定性参考；它不能证明 2026 年专业组存在、专业组成不变或计划数准确。
 - 后续新增城市、学校或专业方向时，应先从全量保真总账或全量证据工作台检索逐专业明细，再决定是否进入候选 V3 或新候选表；不能只在已有 V3 候选子集里找。
 - 逐专业工作台仍是待核表，不得出现 `final_allowed`、`ready_for_discussion`、`已确认` 等最终可用结论。

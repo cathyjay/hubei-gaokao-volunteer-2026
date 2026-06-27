@@ -1,0 +1,46 @@
+{
+  "status": "issue19_candidate_filter_prep_not_final",
+  "generated_by": "build_issue19_candidate_filter_prep_major_detail.py",
+  "output_table": "data/working/issue19-candidate-filter-prep-major-detail.csv",
+  "source_master_workbench": "data/working/issue19-admission-detail-master-workbench.csv",
+  "source_family_fit_major": "data/working/issue19-family-fit-major-detail.csv",
+  "source_structural_register": "data/working/issue19-admission-detail-structural-fidelity-register.csv",
+  "row_count": 13736,
+  "unique_filter_prep_id_count": 13736,
+  "unique_major_line_id_count": 13736,
+  "missing_join_counts": {},
+  "city_hit_counts": {
+    "北京": 456,
+    "未命中当前城市偏好": 12013,
+    "武汉": 835,
+    "西安": 273,
+    "成都": 159
+  },
+  "city_status_counts": {
+    "machine_school_name_keyword_unverified": 1723,
+    "pending_school_location_review": 12013
+  },
+  "school_attribute_status_counts": {
+    "pending_school_attribute_review": 13736
+  },
+  "tuition_over_budget_machine_counts": {
+    "false": 10612,
+    "true": 1862,
+    "pending_tuition_field_review": 1262
+  },
+  "campus_status_counts": {
+    "pending_campus_or_location_review": 8545,
+    "machine_ocr_remark_candidate_unverified": 5191
+  },
+  "machine_action_counts": {
+    "K3-城市偏好命中待核": 555,
+    "K0-默认阻断风险先排除或低优先核": 3516,
+    "K2-偏好专业优先核验": 1210,
+    "K1-结构保真先核": 3285,
+    "K5-普通待了解": 2806,
+    "K4-调剂风险先核": 2364
+  },
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "pending_school_attribute_review_count": 13736
+}

@@ -1,0 +1,54 @@
+{
+  "status": "issue19_admission_detail_structural_fidelity_not_final",
+  "generated_by": "build_issue19_admission_detail_structural_fidelity_register.py",
+  "output_table": "data/working/issue19-admission-detail-structural-fidelity-register.csv",
+  "risk_event_output_table": "data/working/issue19-structural-risk-major-line-ledger.csv",
+  "zero_detail_output_table": "data/working/issue19-zero-detail-group-placeholder-workbench.csv",
+  "source_master_workbench": "data/working/issue19-admission-detail-master-workbench.csv",
+  "source_major_ocr_draft": "data/working/issue19-full-admission-plan-major-ocr-draft.csv",
+  "source_group_ocr_draft": "data/working/issue19-full-admission-plan-group-ocr-draft.csv",
+  "source_major_quality_workbench": "data/working/issue19-full-major-detail-quality-workbench.csv",
+  "row_count": 13736,
+  "unique_register_id_count": 13736,
+  "unique_major_line_id_count": 13736,
+  "assignment_method_counts": {
+    "exact_group_header_match": 11898,
+    "fallback_unique_group_code": 1838
+  },
+  "fallback_unique_group_code_major_count": 1838,
+  "duplicate_normalized_group_code_major_count": 14,
+  "duplicate_major_code_row_count": 116,
+  "duplicate_major_code_group_count": 31,
+  "anchor_status_counts": {
+    "P2-已生成专业行级OCR证据锚点": 12596,
+    "P1-缺少组标题上下文": 1127,
+    "P0-专业窗口为空": 13
+  },
+  "risk_label_counts": {
+    "暂未触发结构保真专项风险": 7733,
+    "高严重结构异常": 2862,
+    "唯一组码回退归属": 1838,
+    "原页缺少组标题上下文": 1127,
+    "结构异常": 1547,
+    "组内专业代号重复": 116,
+    "原页专业窗口为空": 13
+  },
+  "structural_priority_counts": {
+    "R3-结构常规抽检": 7733,
+    "R1-归属或结构异常先核": 4330,
+    "R2-原页上下文补证": 1544,
+    "R0-结构边界阻断优先核": 129
+  },
+  "risk_event_count": 3108,
+  "risk_event_type_counts": {
+    "唯一组码回退归属": 1838,
+    "原页缺少组标题上下文": 1127,
+    "组内专业代号重复": 116,
+    "原页专业窗口为空": 13,
+    "2026规范化专业组代码重复": 14
+  },
+  "zero_detail_group_count": 40,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "machine_auto_fix_count": 0
+}
