@@ -152,3 +152,4 @@
 - 新增官方不可得抽样执行明细：`data/working/issue19-official-unavailable-sampling-execution-detail.csv` 将门禁下沉到 153 条逐专业招生明细，其中 104 条高风险 100% 核验、24 条 C2 强辅证抽样、25 条 P3 低风险抽样，49 条需要双人复核。该表作为人工核 PDF 原页、核湖北官方侧和处理抽检失败升级的逐专业入口，仍不确认字段事实。
 - 新增官方不可得抽样复核 Overlay：`data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv` 将 153 条执行明细接到 Git 忽略的本地复核表。公开账本只保留记录 SHA、三类证据填写计数、抽检失败/升级状态和非最终门禁；学校专业明细、字段读数、复核记录和备注正文不公开。当前 153 条全部 R0 未填写，字段写回、志愿推荐、学校专业建议和最终可用仍为 0。
 - 新增官方不可得抽样页列核验包：`data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv` 将 153 条抽样复核明细压缩为 46 个 `PDF页码×版面列` 私有 HTML/CSV 核页包，覆盖 40 个 PDF 页。公开层只保存页列计数、证据编号、SHA 和 R0 状态；页图、OCR 行、学校专业线索和人工填写栏只留在 Git 忽略的私有包。该包用于降低人工核验工作量，不改变抽样范围，不确认字段事实。
+- 新增官方不可得抽样页列执行队列：`data/working/issue19-official-unavailable-sampling-review-execution-queue.csv` 将 46 个页列核验包排成 E0-E4 风险泳道，其中 E0 冲突/错位 6 个、E1 官网未匹配 11 个、E2 官网补缺 3 个、E3 强辅证抽检 2 个、E4 低风险抽检 24 个。该队列用于最小化人工核验路径；当前 46 个页列全部 R0 未开始，字段写回、志愿推荐、学校专业建议和最终可用仍为 0。

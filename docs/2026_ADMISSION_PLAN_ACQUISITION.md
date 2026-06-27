@@ -49,6 +49,8 @@
 - `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger-summary.json`
 - `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv`
 - `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger-summary.json`
+- `data/working/issue19-official-unavailable-sampling-review-execution-queue.csv`
+- `data/working/issue19-official-unavailable-sampling-review-execution-queue-summary.json`
 - `data/official/hubei-2026-volunteer-policy/143022-policy.html`
 - `data/external/school-plan-crosschecks/`
 
@@ -116,6 +118,7 @@
 - 已新增 `data/working/issue19-official-unavailable-sampling-execution-detail.csv` 作为逐专业执行明细。它把 C0/C1/C7 直接展开到 104 条必核专业明细，把 C2 强辅证池抽出 24 条明细，把 P3 低风险池抽出 25 条明细，合计 153 条；人工执行时优先从这张表回看 PDF 原页、核湖北官方侧、核高校官网或章程辅证并记录三方一致性。
 - 已新增 `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv` 作为上述 153 条执行明细的公开进度账本，并在 Git 忽略的本地目录生成可填写复核表。公开层只同步记录 SHA、PDF 原页/湖北官方侧/高校辅证填写计数、抽检失败和升级状态；字段读数、学校专业明细、复核记录和备注正文不进入公开仓库。该账本只证明人工复核入口已建立，不证明字段事实闭环。
 - 已新增 `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv` 作为上述复核 Overlay 的页列核验包账本。它把 153 条逐专业复核明细压缩成 46 个 `PDF页码×版面列` 私有核页包，覆盖 40 个 PDF 页；公开层只保留页列计数、证据编号、SHA 和 R0 状态，私有 HTML/CSV 才展示页图、OCR 行、学校专业线索和人工填写栏。该账本只降低人工定位成本，不改变抽样门禁，也不替代湖北官方计划。
+- 已新增 `data/working/issue19-official-unavailable-sampling-review-execution-queue.csv` 作为 46 个页列核验包的公开执行顺序。它把任务分为 E0 冲突/错位先核 6 个、E1 官网未匹配专业名归属 11 个、E2 官网补缺候选核页 3 个、E3 C2 强辅证抽检 2 个、E4 P3 低风险抽检 24 个；人工可以按队列打开私有 HTML/CSV 和原页核验，但字段写回、推荐依据和最终可用仍全部关闭。
 - 第 19 期 PDF 原页或纸质原页仍作为省招办原件层，优先核最终候选、冲稳保边界、B0/B1 优先组、计划数冲突、官网未匹配、补源缺口和字段空缺但进入候选的专业。
 - 高校官网/API/XLSX/PDF/图片只用于自动 double check 专业名、计划数、学费、选科、校区、学制和章程限制；专业组边界、调剂范围和最终志愿系统代码仍必须回到湖北省招办渠道。
 - `strong_support`、计划数一致或官网字段齐全的行只能进入分层抽检，不能自动定稿。抽样出现结构错误、关键限定词丢失、计划数冲突、OCR 把学费读成计划数、物理/历史未拆分、官网来源不是 2026 湖北物理普通本科，或同组存在家庭不能接受专业时，同页列、同校或同组升级 100% 人工核验。

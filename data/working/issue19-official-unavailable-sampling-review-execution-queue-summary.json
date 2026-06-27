@@ -1,0 +1,51 @@
+{
+  "status": "issue19_official_unavailable_sampling_review_execution_queue_not_final",
+  "generated_by": "build_issue19_official_unavailable_sampling_review_execution_queue.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_packets": "data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv",
+  "source_overlay": "data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv",
+  "output_table": "data/working/issue19-official-unavailable-sampling-review-execution-queue.csv",
+  "row_grain": "PDF页码×版面列",
+  "row_count": 46,
+  "unique_page_side_count": 46,
+  "unique_pdf_page_count": 40,
+  "sampling_detail_count": 153,
+  "high_risk_100pct_detail_count": 104,
+  "c0_conflict_detail_count": 18,
+  "c1_fill_candidate_detail_count": 55,
+  "c7_unmatched_detail_count": 31,
+  "c2_sample_detail_count": 24,
+  "p3_sample_detail_count": 25,
+  "double_review_required_count": 49,
+  "pdf_required_detail_count": 153,
+  "hubei_official_required_detail_count": 153,
+  "school_support_required_detail_count": 128,
+  "school_support_pending_source_detail_count": 25,
+  "pdf_page_filled_field_count": 0,
+  "hubei_official_filled_field_count": 0,
+  "school_support_filled_field_count": 0,
+  "tri_consistency_assessable_count": 0,
+  "sampling_failure_count": 0,
+  "escalation_required_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "execution_lane_counts": {
+    "E0-冲突/错位先核": 6,
+    "E1-官网未匹配专业名归属": 11,
+    "E2-官网补缺候选核页": 3,
+    "E3-C2强辅证抽检": 2,
+    "E4-P3低风险抽检": 24
+  },
+  "completion_status_counts": {
+    "R0-未开始私有核验记录": 46
+  },
+  "policy": {
+    "boundary": "本队列只安排人工核验顺序和状态同步，不确认字段、不写回、不生成学校专业建议或志愿推荐。",
+    "minimum_manual_scope": "46个页列包；153条抽样明细；PDF原页和湖北官方侧均需闭环。"
+  }
+}

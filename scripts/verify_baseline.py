@@ -10392,6 +10392,12 @@ def main():
     official_unavailable_sampling_review_packets_csv = (
         ROOT / "data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv"
     )
+    official_unavailable_sampling_review_execution_queue_summary_path = (
+        ROOT / "data/working/issue19-official-unavailable-sampling-review-execution-queue-summary.json"
+    )
+    official_unavailable_sampling_review_execution_queue_csv = (
+        ROOT / "data/working/issue19-official-unavailable-sampling-review-execution-queue.csv"
+    )
     admission_plan_source_status_path = ROOT / "data/working/2026-admission-plan-source-status.json"
     stabilization_tasks_summary = json.loads(stabilization_tasks_summary_path.read_text())
     official_public_entry_status = json.loads(official_public_entry_status_path.read_text())
@@ -10409,6 +10415,9 @@ def main():
     )
     official_unavailable_sampling_review_packets_summary = json.loads(
         official_unavailable_sampling_review_packets_summary_path.read_text()
+    )
+    official_unavailable_sampling_review_execution_queue_summary = json.loads(
+        official_unavailable_sampling_review_execution_queue_summary_path.read_text()
     )
     admission_plan_source_status = json.loads(admission_plan_source_status_path.read_text())
     with stabilization_tasks_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -10445,6 +10454,14 @@ def main():
         official_unavailable_sampling_review_packets_fields = (
             official_unavailable_sampling_review_packets_reader.fieldnames or []
         )
+    with official_unavailable_sampling_review_execution_queue_csv.open(newline="", encoding="utf-8-sig") as f:
+        official_unavailable_sampling_review_execution_queue_reader = csv.DictReader(f)
+        official_unavailable_sampling_review_execution_queue_rows = list(
+            official_unavailable_sampling_review_execution_queue_reader
+        )
+        official_unavailable_sampling_review_execution_queue_fields = (
+            official_unavailable_sampling_review_execution_queue_reader.fieldnames or []
+        )
     expected_stabilization_tasks_fields = script_list_constant(
         ROOT / "scripts/build_issue19_foundation_stabilization_major_detail_tasks.py",
         "FIELDS",
@@ -10476,6 +10493,10 @@ def main():
     expected_official_unavailable_sampling_review_packets_private_packet_fields = script_list_constant(
         ROOT / "scripts/build_issue19_official_unavailable_sampling_review_packets.py",
         "PRIVATE_PACKET_FIELDS",
+    )
+    expected_official_unavailable_sampling_review_execution_queue_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_official_unavailable_sampling_review_execution_queue.py",
+        "FIELDS",
     )
     stability_dashboard_by_major_id = {row.get("专业行ID"): row for row in stability_dashboard_rows}
     stabilization_target_major_ids = {
@@ -10544,6 +10565,8 @@ def main():
             official_unavailable_sampling_review_overlay_csv,
             official_unavailable_sampling_review_packets_summary_path,
             official_unavailable_sampling_review_packets_csv,
+            official_unavailable_sampling_review_execution_queue_summary_path,
+            official_unavailable_sampling_review_execution_queue_csv,
             admission_plan_source_status_path,
         ]
     )
@@ -11469,6 +11492,213 @@ def main():
         and "字段读数" not in official_sampling_packets_public_text
         and not any(token in official_sampling_packets_public_text for token in shared_forbidden_tokens),
         "；".join(official_sampling_packets_sensitive_value_hits),
+    ))
+
+    official_sampling_packets_by_page_side = {
+        page_side_key(row): row
+        for row in official_unavailable_sampling_review_packets_rows
+    }
+    official_sampling_execution_join_ok = True
+    for row in official_unavailable_sampling_review_execution_queue_rows:
+        packet_row = official_sampling_packets_by_page_side.get(page_side_key(row), {})
+        official_sampling_execution_join_ok = official_sampling_execution_join_ok and (
+            bool(packet_row)
+            and row.get("官方不可得抽样页列执行队列ID")
+            == stable_id(
+                "SAMPLINGEXECQ",
+                [
+                    row.get("页码版面键", ""),
+                    issue19_source["source"]["sha256"],
+                    "issue19_official_unavailable_sampling_review_execution_queue",
+                ],
+            )
+            and row.get("来源抽样页列包公开账本")
+            == "data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv"
+            and row.get("来源抽样复核Overlay公开账本")
+            == "data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv"
+            and row.get("来源本地抽样复核Overlay") == "local_sampling_review_overlay_not_public"
+            and row.get("来源本地抽样页列核验包") == "local_sampling_review_packet_not_public"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_official_unavailable_sampling_review_execution_queue"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "官方不可得抽样页列核验执行队列"
+            and row.get("页列抽样明细数") == packet_row.get("页列抽样明细数")
+            and row.get("涉及专业行数") == packet_row.get("涉及专业行数")
+            and row.get("涉及专业组数") == packet_row.get("涉及专业组数")
+            and row.get("高风险100%核验明细数") == packet_row.get("高风险100%核验明细数")
+            and row.get("C0冲突明细数") == packet_row.get("C0冲突明细数")
+            and row.get("C1官网补缺明细数") == packet_row.get("C1官网补缺明细数")
+            and row.get("C7官网未匹配明细数") == packet_row.get("C7官网未匹配明细数")
+            and row.get("C2强辅证抽样明细数") == packet_row.get("C2强辅证抽样明细数")
+            and row.get("P3低风险抽样明细数") == packet_row.get("P3低风险抽样明细数")
+            and row.get("双人复核明细数") == packet_row.get("双人复核明细数")
+            and row.get("PDF原页必核明细数") == packet_row.get("页列抽样明细数")
+            and row.get("湖北官方侧必核明细数") == packet_row.get("页列抽样明细数")
+            and row.get("PDF原页已填字段数") == packet_row.get("PDF原页已填字段数")
+            and row.get("湖北官方侧已填字段数") == packet_row.get("湖北官方侧已填字段数")
+            and row.get("高校辅证已填字段数") == packet_row.get("高校辅证已填字段数")
+            and row.get("三方一致性可评估明细数") == packet_row.get("三方一致性可评估明细数")
+            and row.get("抽检失败明细数") == packet_row.get("抽检失败明细数")
+            and row.get("升级要求明细数") == packet_row.get("升级要求明细数")
+            and row.get("首轮复核完成明细数") == packet_row.get("首轮复核完成明细数")
+            and row.get("次轮复核完成明细数") == packet_row.get("次轮复核完成明细数")
+            and row.get("字段事实写回状态") == packet_row.get("字段事实写回状态")
+            and row.get("私有页图证据编号") == packet_row.get("私有页图证据编号")
+            and row.get("私有页图SHA256") == packet_row.get("私有页图SHA256")
+            and row.get("私有OCR摘要证据编号") == packet_row.get("私有OCR摘要证据编号")
+            and row.get("私有OCR摘要SHA256") == packet_row.get("私有OCR摘要SHA256")
+            and row.get("私有页列CSV证据编号") == packet_row.get("私有页列CSV证据编号")
+            and row.get("私有页列CSV_SHA256") == packet_row.get("私有页列CSV_SHA256")
+            and row.get("私有页列HTML证据编号") == packet_row.get("私有页列HTML证据编号")
+            and row.get("私有页列HTML_SHA256") == packet_row.get("私有页列HTML_SHA256")
+            and row.get("页列完成状态") == "R0-未开始私有核验记录"
+        )
+    checks.append(ok(
+        "湖北官方不可得时的抽样页列执行队列摘要、规模和优先级正确",
+        official_unavailable_sampling_review_execution_queue_summary.get("status")
+        == "issue19_official_unavailable_sampling_review_execution_queue_not_final"
+        and official_unavailable_sampling_review_execution_queue_summary.get("generated_by")
+        == "build_issue19_official_unavailable_sampling_review_execution_queue.py"
+        and official_unavailable_sampling_review_execution_queue_summary.get("source_packets")
+        == "data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv"
+        and official_unavailable_sampling_review_execution_queue_summary.get("source_overlay")
+        == "data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv"
+        and official_unavailable_sampling_review_execution_queue_summary.get("output_table")
+        == "data/working/issue19-official-unavailable-sampling-review-execution-queue.csv"
+        and official_unavailable_sampling_review_execution_queue_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and official_unavailable_sampling_review_execution_queue_summary.get("row_count")
+        == len(official_unavailable_sampling_review_execution_queue_rows)
+        == 46
+        and official_unavailable_sampling_review_execution_queue_summary.get("unique_page_side_count") == 46
+        and official_unavailable_sampling_review_execution_queue_summary.get("unique_pdf_page_count") == 40
+        and official_unavailable_sampling_review_execution_queue_summary.get("sampling_detail_count") == 153
+        and official_unavailable_sampling_review_execution_queue_summary.get("high_risk_100pct_detail_count") == 104
+        and official_unavailable_sampling_review_execution_queue_summary.get("c0_conflict_detail_count") == 18
+        and official_unavailable_sampling_review_execution_queue_summary.get("c1_fill_candidate_detail_count") == 55
+        and official_unavailable_sampling_review_execution_queue_summary.get("c7_unmatched_detail_count") == 31
+        and official_unavailable_sampling_review_execution_queue_summary.get("c2_sample_detail_count") == 24
+        and official_unavailable_sampling_review_execution_queue_summary.get("p3_sample_detail_count") == 25
+        and official_unavailable_sampling_review_execution_queue_summary.get("double_review_required_count") == 49
+        and official_unavailable_sampling_review_execution_queue_summary.get("pdf_required_detail_count") == 153
+        and official_unavailable_sampling_review_execution_queue_summary.get("hubei_official_required_detail_count") == 153
+        and official_unavailable_sampling_review_execution_queue_summary.get("school_support_required_detail_count") == 128
+        and official_unavailable_sampling_review_execution_queue_summary.get("school_support_pending_source_detail_count") == 25
+        and official_unavailable_sampling_review_execution_queue_summary.get("pdf_page_filled_field_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("hubei_official_filled_field_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("school_support_filled_field_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("tri_consistency_assessable_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("sampling_failure_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("escalation_required_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("field_writeback_allowed_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("recommendation_basis_allowed_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("school_major_suggestion_allowed_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("official_plan_replacement_allowed_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("final_available_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("next_stage_available_count") == 0
+        and official_unavailable_sampling_review_execution_queue_summary.get("execution_lane_counts")
+        == {
+            "E0-冲突/错位先核": 6,
+            "E1-官网未匹配专业名归属": 11,
+            "E2-官网补缺候选核页": 3,
+            "E3-C2强辅证抽检": 2,
+            "E4-P3低风险抽检": 24,
+        }
+        and official_unavailable_sampling_review_execution_queue_summary.get("completion_status_counts")
+        == {"R0-未开始私有核验记录": 46},
+    ))
+    checks.append(ok(
+        "湖北官方不可得时的抽样页列执行队列字段、回链、门禁和状态正确",
+        official_unavailable_sampling_review_execution_queue_fields
+        == expected_official_unavailable_sampling_review_execution_queue_fields
+        and len({row.get("官方不可得抽样页列执行队列ID") for row in official_unavailable_sampling_review_execution_queue_rows}) == 46
+        and len({row.get("页码版面键") for row in official_unavailable_sampling_review_execution_queue_rows}) == 46
+        and {page_side_key(row) for row in official_unavailable_sampling_review_execution_queue_rows}
+        == set(official_sampling_packets_by_page_side)
+        and [as_int(row.get("执行队列总序")) for row in official_unavailable_sampling_review_execution_queue_rows]
+        == list(range(1, 47))
+        and all(
+            row.get(field) == "false"
+            for row in official_unavailable_sampling_review_execution_queue_rows
+            for field in [
+                "最终可用",
+                "可进入下一阶段",
+                "是否允许作为志愿推荐依据",
+                "是否允许生成学校专业建议",
+                "是否允许自动写回主表",
+                "是否允许官网证据替代湖北官方计划",
+                "是否允许写回字段事实",
+            ]
+        )
+        and sum(as_int(row.get("页列抽样明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 153
+        and sum(as_int(row.get("PDF原页必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 153
+        and sum(as_int(row.get("湖北官方侧必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 153
+        and sum(as_int(row.get("高校辅证必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 128
+        and sum(as_int(row.get("高校辅证待补源明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 25
+        and all(row.get("页列完成状态") == "R0-未开始私有核验记录" for row in official_unavailable_sampling_review_execution_queue_rows)
+        and all(row.get("字段事实写回状态") == "blocked_until_private_overlay_pdf_hubei_review_closed" for row in official_unavailable_sampling_review_execution_queue_rows)
+        and official_sampling_execution_join_ok,
+    ))
+
+    official_sampling_execution_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            official_unavailable_sampling_review_execution_queue_summary_path,
+            official_unavailable_sampling_review_execution_queue_csv,
+        ]
+    )
+    official_sampling_execution_sensitive_value_hits = [
+        value
+        for value in official_sampling_packets_sensitive_values
+        if value and value in official_sampling_execution_public_text
+    ][:5]
+    checks.append(ok(
+        "湖北官方不可得时的抽样页列执行队列公开文件不含私有路径、字段读数、学校专业明细和最终误导结论",
+        foundation_release_sensitive_re.search(official_sampling_execution_public_text) is None
+        and not official_sampling_execution_sensitive_value_hits
+        and "/Users/" not in official_sampling_execution_public_text
+        and "/home/" not in official_sampling_execution_public_text
+        and "/var/folders/" not in official_sampling_execution_public_text
+        and "/private/" not in official_sampling_execution_public_text
+        and "private/" not in official_sampling_execution_public_text
+        and "private\\" not in official_sampling_execution_public_text
+        and "ocr-runs" not in official_sampling_execution_public_text
+        and "rendered-pages" not in official_sampling_execution_public_text
+        and ".png" not in official_sampling_execution_public_text
+        and ".jpg" not in official_sampling_execution_public_text
+        and ".jpeg" not in official_sampling_execution_public_text
+        and ".webp" not in official_sampling_execution_public_text
+        and ".tif" not in official_sampling_execution_public_text
+        and ".tiff" not in official_sampling_execution_public_text
+        and ".heic" not in official_sampling_execution_public_text
+        and "Authorization" not in official_sampling_execution_public_text
+        and "Bearer " not in official_sampling_execution_public_text
+        and "Cookie" not in official_sampling_execution_public_text
+        and "院校名称OCR" not in official_sampling_execution_public_text
+        and "院校代码" not in official_sampling_execution_public_text
+        and "院校专业组" not in official_sampling_execution_public_text
+        and "专业代号" not in official_sampling_execution_public_text
+        and "专业名称及备注" not in official_sampling_execution_public_text
+        and "OCR行文本" not in official_sampling_execution_public_text
+        and "OCR文本" not in official_sampling_execution_public_text
+        and "PDF原页人工读数" not in official_sampling_execution_public_text
+        and "湖北官方字段值" not in official_sampling_execution_public_text
+        and "高校辅证字段值" not in official_sampling_execution_public_text
+        and "人工备注" not in official_sampling_execution_public_text
+        and "复核人" not in official_sampling_execution_public_text
+        and "一审" not in official_sampling_execution_public_text
+        and "二审" not in official_sampling_execution_public_text
+        and "已确认" not in official_sampling_execution_public_text
+        and "已核准" not in official_sampling_execution_public_text
+        and "最终推荐" not in official_sampling_execution_public_text
+        and "最终方案" not in official_sampling_execution_public_text
+        and "可填报" not in official_sampling_execution_public_text
+        and "可排序" not in official_sampling_execution_public_text
+        and "字段读数" not in official_sampling_execution_public_text
+        and not any(token in official_sampling_execution_public_text for token in shared_forbidden_tokens),
+        "；".join(official_sampling_execution_sensitive_value_hits),
     ))
 
     checks.append(ok(
