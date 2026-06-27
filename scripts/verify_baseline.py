@@ -10050,6 +10050,276 @@ def main():
         and "可排序" not in official_collision_public_text,
     ))
 
+    stability_dashboard_summary_path = ROOT / "data/working/issue19-foundation-stability-dashboard-summary.json"
+    stability_dashboard_csv = ROOT / "data/working/issue19-foundation-stability-dashboard.csv"
+    unmatched_resolution_summary_path = ROOT / "data/working/issue19-moe-unmatched-school-resolution-summary.json"
+    unmatched_resolution_csv = ROOT / "data/working/issue19-moe-unmatched-school-resolution-major-detail.csv"
+    stability_dashboard_summary = json.loads(stability_dashboard_summary_path.read_text())
+    unmatched_resolution_summary = json.loads(unmatched_resolution_summary_path.read_text())
+    with stability_dashboard_csv.open(newline="", encoding="utf-8-sig") as f:
+        stability_dashboard_reader = csv.DictReader(f)
+        stability_dashboard_rows = list(stability_dashboard_reader)
+        stability_dashboard_fields = stability_dashboard_reader.fieldnames or []
+    with unmatched_resolution_csv.open(newline="", encoding="utf-8-sig") as f:
+        unmatched_resolution_reader = csv.DictReader(f)
+        unmatched_resolution_rows = list(unmatched_resolution_reader)
+        unmatched_resolution_fields = unmatched_resolution_reader.fieldnames or []
+    expected_stability_dashboard_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_foundation_stability_dashboard.py",
+        "STABILITY_FIELDS",
+    )
+    expected_unmatched_resolution_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_foundation_stability_dashboard.py",
+        "UNMATCHED_RESOLUTION_FIELDS",
+    )
+
+    decision_gates_by_major_id = {row.get("专业行ID"): row for row in decision_gates_rows}
+    b0_b1_diff_by_major_id_for_stability = {
+        row.get("专业行ID"): row for row in b0_b1_diff_rows
+    }
+    field_candidate_rows_by_major_id = defaultdict(list)
+    for row in field_gap_candidate_rows:
+        field_candidate_rows_by_major_id[row.get("专业行ID")].append(row)
+    structural_event_rows_by_major_id = defaultdict(list)
+    for row in structural_event_rows:
+        structural_event_rows_by_major_id[row.get("专业行ID")].append(row)
+    official_collision_rows_by_major_id = defaultdict(list)
+    for row in official_collision_rows:
+        official_collision_rows_by_major_id[row.get("专业行ID")].append(row)
+
+    stability_join_ok = True
+    for row in stability_dashboard_rows:
+        major_id = row.get("专业行ID", "")
+        master_row = admission_master_by_major_id.get(major_id, {})
+        release_row = foundation_release_by_major_id.get(major_id, {})
+        decision_row = decision_gates_by_major_id.get(major_id, {})
+        gap_row = gap_scorecard_by_major_id.get(major_id, {})
+        moe_row = moe_attribute_by_major_id.get(major_id, {})
+        official_row = hubei_official_by_major_id.get(major_id, {})
+        anchor_row = anchor_by_major_id.get(major_id, {})
+        history_row = historical_sidecar_by_major_id.get(major_id, {})
+        field_rows = field_candidate_rows_by_major_id.get(major_id, [])
+        structural_events = structural_event_rows_by_major_id.get(major_id, [])
+        official_collisions = official_collision_rows_by_major_id.get(major_id, [])
+        stability_join_ok = (
+            stability_join_ok
+            and bool(master_row)
+            and bool(release_row)
+            and bool(decision_row)
+            and bool(gap_row)
+            and bool(moe_row)
+            and bool(official_row)
+            and bool(anchor_row)
+            and bool(history_row)
+            and row.get("底座稳定性看板ID") == stable_id("STABILITY", [major_id])
+            and row.get("数据阶段") == "issue19_foundation_stability_dashboard"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("专业组出现ID") == master_row.get("专业组出现ID")
+            and row.get("院校专业组代码OCR规范化")
+            == master_row.get("院校专业组代码OCR规范化")
+            and row.get("PDF原页锚点状态") == anchor_row.get("证据锚点状态")
+            and row.get("湖北官方平台字段核验状态") == official_row.get("平台字段核验状态")
+            and row.get("教育部匹配状态") == moe_row.get("教育部匹配状态")
+            and row.get("教育部属性闸门等级") == moe_row.get("属性闸门等级")
+            and row.get("候选初筛闸门状态") == decision_row.get("候选初筛闸门状态")
+            and row.get("闭环执行批次") == gap_row.get("闭环执行批次")
+            and row.get("看板动作桶") == gap_row.get("看板动作桶")
+            and row.get("三年投档稳定性状态") == release_row.get("三年投档稳定性状态")
+            and row.get("家庭接受度结论") == "pending_family_acceptance_review"
+            and row.get("同组调剂结论") == "pending_transfer_decision"
+            and row.get("湖北官方查询键是否碰撞") == ("true" if official_collisions else "false")
+            and as_int(row.get("字段候选任务数")) == len(field_rows)
+            and as_int(row.get("非空字段候选数"))
+            == sum(1 for field_row in field_rows if field_row.get("候选值"))
+            and as_int(row.get("结构风险事件数")) == len(structural_events)
+            and row.get("B0B1官网差异任务数")
+            == release_row.get("B0B1官网差异任务数")
+        )
+    stability_dashboard_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            stability_dashboard_summary_path,
+            stability_dashboard_csv,
+            unmatched_resolution_summary_path,
+            unmatched_resolution_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期底座稳定性总看板摘要、行数和分布正确",
+        stability_dashboard_summary.get("status")
+        == "issue19_foundation_stability_dashboard_not_final"
+        and stability_dashboard_summary.get("generated_by")
+        == "build_issue19_foundation_stability_dashboard.py"
+        and stability_dashboard_summary.get("output_table")
+        == "data/working/issue19-foundation-stability-dashboard.csv"
+        and stability_dashboard_summary.get("row_count") == 13736
+        and stability_dashboard_summary.get("unique_stability_id_count") == 13736
+        and stability_dashboard_summary.get("unique_major_line_id_count") == 13736
+        and stability_dashboard_summary.get("unique_group_occurrence_id_count") == 3289
+        and stability_dashboard_summary.get("unique_school_code_name_count") == 1100
+        and stability_dashboard_summary.get("stability_level_counts") == {
+            "B2-字段缺口补证优先": 5962,
+            "B1-P0原页或官网冲突优先": 4370,
+            "B3-三方官方闭环待核": 542,
+            "B0-校名/结构/官方查询键强阻断": 2663,
+            "B4-低风险抽检但仍非最终": 199,
+        }
+        and stability_dashboard_summary.get("foundation_batch_counts") == {
+            "C1-字段缺口先补": 7608,
+            "C0-P0证据闭环先核": 5310,
+            "C3-常规三方证据闭环": 609,
+            "C4-低风险抽检但非最终": 209,
+        }
+        and stability_dashboard_summary.get("scorecard_action_bucket_counts") == {
+            "S4-字段缺口无候选需原页重读": 3360,
+            "S2-P0原页结构和字段先核": 5176,
+            "S3-字段缺口有候选先核": 4248,
+            "S6-常规三方闭环": 609,
+            "S1-P0原页+官网辅证同步核": 116,
+            "S0-B0B1冲突+P0原页优先": 18,
+            "S8-低风险抽检": 207,
+            "S7-低风险但证据锚点异常抽检": 2,
+        }
+        and stability_dashboard_summary.get("moe_match_status_counts") == {
+            "exact_school_name_match": 13161,
+            "parent_school_name_match_location_not_campus": 190,
+            "unmatched_needs_school_name_or_special_school_review": 385,
+        }
+        and stability_dashboard_summary.get("official_status_counts") == {
+            "pending_hubei_official_plan_review": 13736,
+        }
+        and stability_dashboard_summary.get("structural_risk_major_line_count") == 2334
+        and stability_dashboard_summary.get("official_query_collision_major_line_count") == 118
+        and stability_dashboard_summary.get("unmatched_moe_major_line_count") == 385
+        and stability_dashboard_summary.get("b0_b1_diff_major_line_count") == 854
+        and stability_dashboard_summary.get("final_available_count") == 0
+        and stability_dashboard_summary.get("next_stage_available_count") == 0
+        and len(stability_dashboard_rows) == 13736,
+        f"{len(stability_dashboard_rows)} stability rows",
+    ))
+    checks.append(ok(
+        "第 19 期底座稳定性总看板字段、主键和逐专业来源闭环正确",
+        stability_dashboard_fields == expected_stability_dashboard_fields
+        and len({row.get("底座稳定性看板ID") for row in stability_dashboard_rows}) == 13736
+        and {row.get("专业行ID") for row in stability_dashboard_rows}
+        == {row.get("专业行ID") for row in admission_master_rows}
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("湖北官方平台字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("家庭接受度结论") == "pending_family_acceptance_review"
+            and row.get("同组调剂结论") == "pending_transfer_decision"
+            for row in stability_dashboard_rows
+        )
+        and Counter(row.get("底座稳定性等级") for row in stability_dashboard_rows)
+        == Counter(stability_dashboard_summary.get("stability_level_counts", {}))
+        and sum(as_int(row.get("字段候选任务数")) for row in stability_dashboard_rows) == 19065
+        and sum(as_int(row.get("非空字段候选数")) for row in stability_dashboard_rows) == 7621
+        and stability_join_ok,
+    ))
+
+    unmatched_resolution_join_ok = True
+    for row in unmatched_resolution_rows:
+        major_id = row.get("专业行ID", "")
+        moe_row = moe_attribute_by_major_id.get(major_id, {})
+        history_row = historical_sidecar_by_major_id.get(major_id, {})
+        unmatched_resolution_join_ok = (
+            unmatched_resolution_join_ok
+            and bool(moe_row)
+            and bool(history_row)
+            and moe_row.get("教育部匹配状态")
+            == "unmatched_needs_school_name_or_special_school_review"
+            and row.get("未匹配校名解析ID") == stable_id("UNMATCHEDSCHOOL", [major_id])
+            and row.get("数据阶段")
+            == "issue19_moe_unmatched_school_resolution_major_detail"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器能否自动替换校名") == "false"
+            and row.get("专业组出现ID") == moe_row.get("专业组出现ID")
+            and row.get("院校代码") == moe_row.get("院校代码")
+            and row.get("院校名称OCR") == moe_row.get("院校名称OCR")
+            and "不能自动替换2026招生计划校名" in row.get("不得进入原因", "")
+        )
+    checks.append(ok(
+        "第 19 期教育部未匹配校名逐专业解析表摘要、行数和 pending 边界正确",
+        unmatched_resolution_summary.get("status")
+        == "issue19_moe_unmatched_school_resolution_major_detail_not_final"
+        and unmatched_resolution_summary.get("generated_by")
+        == "build_issue19_foundation_stability_dashboard.py"
+        and unmatched_resolution_summary.get("output_table")
+        == "data/working/issue19-moe-unmatched-school-resolution-major-detail.csv"
+        and unmatched_resolution_summary.get("row_count") == 385
+        and unmatched_resolution_summary.get("unique_resolution_id_count") == 385
+        and unmatched_resolution_summary.get("unique_major_line_id_count") == 385
+        and unmatched_resolution_summary.get("unique_school_code_name_count") == 49
+        and unmatched_resolution_summary.get("candidate_level_counts") == {
+            "R2-有历史同代码校名候选，需核2026是否更名或组号沿用": 80,
+            "R4-暂无可靠机器候选，必须回看PDF原页和官方系统": 4,
+            "R2-历史同代码候选与教育部相似候选交叉命中": 97,
+            "R0-特殊院校或港澳台主体，教育部普通高校名单可能不覆盖": 28,
+            "R1-校名截断，优先用历史同代码候选和PDF原页核名": 110,
+            "R1-职业本科/职业大学线索，必须核2026计划和招生章程": 28,
+            "R3-仅有教育部相似校名候选，需人工核OCR": 38,
+        }
+        and unmatched_resolution_summary.get("historical_candidate_major_line_count") == 281
+        and unmatched_resolution_summary.get("similar_moe_candidate_major_line_count") == 232
+        and unmatched_resolution_summary.get("ocr_rule_candidate_major_line_count") == 90
+        and unmatched_resolution_summary.get("auto_replace_allowed_count") == 0
+        and unmatched_resolution_summary.get("final_available_count") == 0
+        and unmatched_resolution_summary.get("next_stage_available_count") == 0
+        and len(unmatched_resolution_rows) == 385,
+        f"{len(unmatched_resolution_rows)} unmatched resolution rows",
+    ))
+    checks.append(ok(
+        "第 19 期教育部未匹配校名逐专业解析表字段、主键和核名线索边界正确",
+        unmatched_resolution_fields == expected_unmatched_resolution_fields
+        and len({row.get("未匹配校名解析ID") for row in unmatched_resolution_rows}) == 385
+        and {row.get("专业行ID") for row in unmatched_resolution_rows}
+        == {
+            row.get("专业行ID")
+            for row in moe_attribute_rows
+            if row.get("教育部匹配状态")
+            == "unmatched_needs_school_name_or_special_school_review"
+        }
+        and all(row.get("机器能否自动替换校名") == "false" for row in unmatched_resolution_rows)
+        and any(
+            row.get("院校代码") == "A201"
+            and row.get("院校名称OCR") == "应急管理大学"
+            and "华北科技学院" in row.get("历史同代码校名候选", "")
+            for row in unmatched_resolution_rows
+        )
+        and any(
+            row.get("院校代码") == "F487"
+            and row.get("院校名称OCR") == "东北財经大学"
+            and "东北财经大学" in row.get("OCR规则修正候选", "")
+            for row in unmatched_resolution_rows
+        )
+        and any(
+            row.get("院校代码") == "H857"
+            and row.get("院校名称OCR") == "北师香港浸会大学"
+            and row.get("候选综合等级")
+            == "R0-特殊院校或港澳台主体，教育部普通高校名单可能不覆盖"
+            for row in unmatched_resolution_rows
+        )
+        and unmatched_resolution_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期底座稳定性新增公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(stability_dashboard_public_text) is None
+        and "private/" not in stability_dashboard_public_text
+        and "final_allowed" not in stability_dashboard_public_text
+        and "ready_for_discussion" not in stability_dashboard_public_text
+        and "已确认" not in stability_dashboard_public_text
+        and "已核准" not in stability_dashboard_public_text
+        and "最终推荐" not in stability_dashboard_public_text
+        and "最终方案" not in stability_dashboard_public_text
+        and "可填报" not in stability_dashboard_public_text
+        and "可排序" not in stability_dashboard_public_text,
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())

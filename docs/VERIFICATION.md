@@ -169,6 +169,9 @@ OCR 初稿 / 最终可用=false
 - `data/working/issue19-zero-detail-group-placeholder-workbench.csv` 只处理 40 个无专业明细专业组，占位行 `是否真实招生明细=false`、`是否0明细占位=true`，不得伪造专业代号、专业名称或进入调剂接受度判断。
 - `data/working/issue19-candidate-filter-prep-major-detail.csv` 是候选筛选准备表，不是候选方案。城市命中只能解释为院校名称 OCR 关键词线索；办学属性、公办民办、校区、实际办学地点必须保持 pending，直到湖北官方系统、学校章程或人工证据闭环。
 - `data/working/issue19-major-decision-readiness-gates.csv` 是逐专业决策闸门表，不是候选方案。13736 行均必须保持 `最终可用=false`、`可进入下一阶段=false`，且 PDF 原页、湖北官方系统、办学属性、家庭接受度、同组调剂结论均为全量阻断闸门。
+- `data/working/issue19-foundation-stability-dashboard.csv` 是底座稳定性总看板，不是候选方案。13736 行均必须保持 `最终可用=false`、`可进入下一阶段=false`，并且每行能回链到单一逐专业招生明细总工作台、统一逐专业底座入口、逐专业决策闸门、教育部学校属性表、湖北官方核验包、官网差异账、字段缺口候选表、结构风险账本、官方查询键碰撞清单、三年投档线索和 PDF 原页锚点。
+- 底座稳定性总看板的 B0/B1/B2/B3/B4 只用于安排核验顺序：B0 校名/结构/官方查询键强阻断 2663 条，B1 P0 原页或官网冲突优先 4370 条，B2 字段缺口补证优先 5962 条，B3 三方官方闭环待核 542 条，B4 低风险抽检但仍非最终 199 条。它不能生成填报建议、录取概率或志愿排序。
+- `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv` 是未匹配校名逐专业解析表。385 行必须全部 `机器能否自动替换校名=false`；历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选只能作为回看 PDF 原页、湖北官方系统、学校官网或招生章程的核名线索。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv` 用于防止官方系统回填时按非唯一三元组误合并。59 个碰撞查询键、118 条专业明细必须使用 `专业行ID`、`专业组出现ID`、来源页码、组内序号和官方返回行证据消歧。
 - `data/working/issue19-major-line-layout-continuity-risk-ledger.csv` 和 `data/working/issue19-major-code-order-risk-ledger.csv` 是逐专业结构保真侧账。前者 1934 条版面连续性风险事件，后者 355 条专业代号顺序风险事件；二者只能安排核页顺序，不能自动改写 OCR 字段或生成可报结论。
 - 三年投档线索只按同院校专业组代码挂接，用于稳定性参考；它不能证明 2026 年专业组存在、专业组成不变或计划数准确。

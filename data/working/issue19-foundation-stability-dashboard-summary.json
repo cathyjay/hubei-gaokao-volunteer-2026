@@ -1,0 +1,82 @@
+{
+  "status": "issue19_foundation_stability_dashboard_not_final",
+  "generated_by": "build_issue19_foundation_stability_dashboard.py",
+  "output_table": "data/working/issue19-foundation-stability-dashboard.csv",
+  "source_master_workbench": "data/working/issue19-admission-detail-master-workbench.csv",
+  "source_foundation_release": "data/working/issue19-major-detail-foundation-release.csv",
+  "source_decision_gates": "data/working/issue19-major-decision-readiness-gates.csv",
+  "source_moe_attribute": "data/working/issue19-moe-school-attribute-major-detail.csv",
+  "source_hubei_official_packets": "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv",
+  "source_b0_b1_diff_ledger": "data/working/issue19-b0-b1-public-official-diff-ledger.csv",
+  "source_field_gap_candidates": "data/working/issue19-field-gap-repair-candidates.csv",
+  "source_structural_risk_ledger": "data/working/issue19-structural-risk-major-line-ledger.csv",
+  "source_official_query_key_collisions": "data/working/issue19-hubei-official-query-key-collision-ledger.csv",
+  "source_historical_sidecar": "data/working/issue19-major-line-historical-toudang-sidecar.csv",
+  "source_pdf_anchors": "data/working/issue19-major-line-pdf-evidence-anchors.csv",
+  "row_count": 13736,
+  "unique_stability_id_count": 13736,
+  "unique_major_line_id_count": 13736,
+  "unique_group_occurrence_id_count": 3289,
+  "unique_school_code_name_count": 1100,
+  "stability_level_counts": {
+    "B2-字段缺口补证优先": 5962,
+    "B1-P0原页或官网冲突优先": 4370,
+    "B3-三方官方闭环待核": 542,
+    "B0-校名/结构/官方查询键强阻断": 2663,
+    "B4-低风险抽检但仍非最终": 199
+  },
+  "foundation_batch_counts": {
+    "C1-字段缺口先补": 7608,
+    "C0-P0证据闭环先核": 5310,
+    "C3-常规三方证据闭环": 609,
+    "C4-低风险抽检但非最终": 209
+  },
+  "scorecard_action_bucket_counts": {
+    "S4-字段缺口无候选需原页重读": 3360,
+    "S2-P0原页结构和字段先核": 5176,
+    "S3-字段缺口有候选先核": 4248,
+    "S6-常规三方闭环": 609,
+    "S1-P0原页+官网辅证同步核": 116,
+    "S0-B0B1冲突+P0原页优先": 18,
+    "S8-低风险抽检": 207,
+    "S7-低风险但证据锚点异常抽检": 2
+  },
+  "moe_match_status_counts": {
+    "exact_school_name_match": 13161,
+    "parent_school_name_match_location_not_campus": 190,
+    "unmatched_needs_school_name_or_special_school_review": 385
+  },
+  "official_status_counts": {
+    "pending_hubei_official_plan_review": 13736
+  },
+  "school_source_status_counts": {
+    "not_yet_school_source_searched_in_full_workbench": 12882,
+    "has_partial_source_needs_followup": 412,
+    "has_reusable_2026_hubei_plan_source": 194,
+    "官网专业名匹配但计划数冲突-优先核页": 18,
+    "charter_or_rules_only_no_plan": 63,
+    "needs_official_plan_source_search": 167
+  },
+  "field_gap_count_distribution": {
+    "1": 6574,
+    "2": 5206,
+    "0": 1263,
+    "3": 693
+  },
+  "structural_risk_major_line_count": 2334,
+  "official_query_collision_major_line_count": 118,
+  "unmatched_moe_major_line_count": 385,
+  "b0_b1_diff_major_line_count": 854,
+  "pdf_anchor_status_counts": {
+    "P2-已生成专业行级OCR证据锚点": 12596,
+    "P1-缺少组标题上下文": 1127,
+    "P0-专业窗口为空": 13
+  },
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "notes": [
+    "本表一行一个招生专业明细，是今晚排核验顺序和解释底座缺口的总看板，不是最终志愿方案。",
+    "所有行仍需 PDF 原页、湖北官方系统/省招办计划、高校官网/章程、家庭接受度和同组调剂结论闭环。",
+    "底座稳定性等级只说明先核什么，不生成填报建议或录取概率。"
+  ]
+}
