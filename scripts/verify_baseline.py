@@ -16575,6 +16575,243 @@ def main():
         and not any(token in ps_register_public_text for token in shared_forbidden_tokens),
     ))
 
+    ps_batch_summary_path = (
+        ROOT / "data/working/issue19-page-side-foundation-verification-batches-summary.json"
+    )
+    ps_batch_csv = ROOT / "data/working/issue19-page-side-foundation-verification-batches.csv"
+    ps_batch_summary = json.loads(ps_batch_summary_path.read_text())
+    with ps_batch_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_batch_reader = csv.DictReader(f)
+        ps_batch_rows = list(ps_batch_reader)
+        ps_batch_fields = ps_batch_reader.fieldnames or []
+    expected_ps_batch_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_verification_batches.py",
+        "FIELDS",
+    )
+    ps_register_by_id = {
+        row.get("页列底座综合风险登记ID"): row for row in ps_register_rows
+    }
+    ps_register_order_by_id = {
+        row.get("页列底座综合风险登记ID"): index
+        for index, row in enumerate(ps_register_rows, start=1)
+    }
+    ps_batch_rows_by_batch = defaultdict(list)
+    for row in ps_batch_rows:
+        ps_batch_rows_by_batch[row.get("批次ID")].append(row)
+    ps_batch_register_rows_by_batch_no = defaultdict(list)
+    for index, row in enumerate(ps_register_rows, start=1):
+        batch_no = (index - 1) // 25 + 1
+        ps_batch_register_rows_by_batch_no[batch_no].append(row)
+
+    def ps_batch_line(row):
+        bucket = row.get("综合风险优先级桶", "")
+        if bucket.startswith("Z0"):
+            return "L0-结构源证据官方消歧先核"
+        if bucket.startswith("Z1"):
+            return "L1-字段缺口结构风险并行核"
+        if bucket.startswith("Z2"):
+            return "L2-候选字段辅证线索核验"
+        return "L3-常规三方闭环抽检"
+
+    ps_batch_join_ok = True
+    for row in ps_batch_rows:
+        risk_id = row.get("页列底座综合风险登记ID", "")
+        source = ps_register_by_id.get(risk_id, {})
+        source_index = ps_register_order_by_id.get(risk_id, 0)
+        batch_no = (source_index - 1) // 25 + 1 if source_index else 0
+        batch_id = stable_id("PSFOUNDATIONBATCH", [batch_no, 25, issue19_source["source"]["sha256"]])
+        batch_source_rows = ps_batch_register_rows_by_batch_no.get(batch_no, [])
+        field_page_row = ps_field_page_by_side.get(page_side_key(row), {})
+        source_priority_counts = Counter(
+            item.get("综合风险优先级桶", "") for item in batch_source_rows
+        )
+        ps_batch_join_ok = (
+            ps_batch_join_ok
+            and bool(source)
+            and bool(field_page_row)
+            and row.get("页列底座核验批次行ID")
+            == stable_id("PSFOUNDATIONBATCHROW", [batch_id, risk_id])
+            and row.get("来源页列底座综合风险登记表")
+            == "data/working/issue19-page-side-foundation-risk-register.csv"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_page_side_foundation_verification_batches"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×底座核验批次"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("批次总序") == str(batch_no)
+            and row.get("批次ID") == batch_id
+            and row.get("批次名称") == f"第{batch_no:02d}批-页列底座核验"
+            and row.get("批次容量上限") == "25"
+            and row.get("批内页列序号") == str((source_index - 1) % 25 + 1)
+            and row.get("页列全局风险总序") == source.get("页列综合风险总序")
+            and row.get("来源页码") == source.get("来源页码")
+            and row.get("版面列") == source.get("版面列")
+            and row.get("页码版面键") == source.get("页码版面键")
+            and row.get("综合风险优先级桶") == source.get("综合风险优先级桶")
+            and row.get("综合风险优先级数值") == source.get("综合风险优先级数值")
+            and row.get("页列首要核验动作") == source.get("页列首要核验动作")
+            and row.get("批次执行线") == ps_batch_line(source)
+            and to_int(row, "批次页列数") == len(batch_source_rows)
+            and to_int(row, "批次专业行数") == sum_field(batch_source_rows, "包内专业行数")
+            and to_int(row, "批次字段任务数") == sum_field(batch_source_rows, "包内字段任务数")
+            and to_int(row, "批次Z0页列数")
+            == sum(count for bucket, count in source_priority_counts.items() if bucket.startswith("Z0"))
+            and to_int(row, "批次Z1页列数")
+            == sum(count for bucket, count in source_priority_counts.items() if bucket.startswith("Z1"))
+            and to_int(row, "批次Z2页列数")
+            == sum(count for bucket, count in source_priority_counts.items() if bucket.startswith("Z2"))
+            and to_int(row, "批次Z3页列数")
+            == sum(count for bucket, count in source_priority_counts.items() if bucket.startswith("Z3"))
+            and to_int(row, "批次结构R0专业行数") == sum_field(batch_source_rows, "结构R0专业行数")
+            and to_int(row, "批次源证据X1专业行数") == sum_field(batch_source_rows, "源证据X1专业窗口P0行数")
+            and to_int(row, "批次源证据X2专业行数") == sum_field(batch_source_rows, "源证据X2起始行P0_QC行数")
+            and to_int(row, "批次官方查询键碰撞行数") == sum_field(batch_source_rows, "官方查询键碰撞行数")
+            and to_int(row, "批次字段Q0任务数") == sum_field(batch_source_rows, "字段Q0无候选阻断任务数")
+            and row.get("包内专业行数") == source.get("包内专业行数")
+            and row.get("包内字段任务数") == source.get("包内字段任务数")
+            and row.get("字段Q0无候选阻断任务数") == source.get("字段Q0无候选阻断任务数")
+            and row.get("字段Q1有候选待人工核验任务数") == source.get("字段Q1有候选待人工核验任务数")
+            and row.get("字段Q2待三方闭环任务数") == source.get("字段Q2待三方闭环任务数")
+            and row.get("结构R0专业行数") == source.get("结构R0专业行数")
+            and row.get("结构R1专业行数") == source.get("结构R1专业行数")
+            and row.get("结构R2专业行数") == source.get("结构R2专业行数")
+            and row.get("结构R3专业行数") == source.get("结构R3专业行数")
+            and row.get("结构风险事件数") == source.get("结构风险事件数")
+            and row.get("版面风险事件数") == source.get("版面风险事件数")
+            and row.get("专业代号风险事件数") == source.get("专业代号风险事件数")
+            and row.get("官方查询键碰撞行数") == source.get("官方查询键碰撞行数")
+            and row.get("教育部未匹配校名专业行数") == source.get("教育部未匹配校名专业行数")
+            and row.get("官网辅证线索行数") == source.get("官网辅证线索行数")
+            and row.get("官网计划数冲突行数") == source.get("官网计划数冲突行数")
+            and row.get("专业行ID集合SHA256") == source.get("专业行ID集合SHA256")
+            and row.get("字段任务集合SHA256") == field_page_row.get("字段任务ID集合SHA256")
+            and row.get("风险登记ID集合SHA256")
+            == sha_list(item.get("页列底座综合风险登记ID", "") for item in batch_source_rows)
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("结构和官方消歧状态") == "pending_structure_and_official_key_review"
+            and row.get("高校官网或招生章程辅证状态") == "pending_if_school_clue_present"
+            and row.get("字段事实写回状态") == "blocked_until_batch_evidence_closed"
+            and row.get("批次完成状态") == "R0-未开始页列底座核验"
+        )
+
+    ps_batch_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [ps_batch_summary_path, ps_batch_csv]
+    )
+    checks.append(ok(
+        "第 19 期页列底座核验批次摘要、批次切分和聚合守恒正确",
+        ps_batch_summary.get("status") == "issue19_page_side_foundation_verification_batches_not_final"
+        and ps_batch_summary.get("generated_by")
+        == "build_issue19_page_side_foundation_verification_batches.py"
+        and ps_batch_summary.get("source_page_side_foundation_risk_register")
+        == "data/working/issue19-page-side-foundation-risk-register.csv"
+        and ps_batch_summary.get("source_field_page_side_queue")
+        == "data/working/issue19-field-fact-page-side-verification-queue.csv"
+        and ps_batch_summary.get("output_table")
+        == "data/working/issue19-page-side-foundation-verification-batches.csv"
+        and ps_batch_summary.get("row_count") == len(ps_batch_rows) == 462
+        and ps_batch_summary.get("batch_size") == 25
+        and ps_batch_summary.get("batch_count") == 19
+        and ps_batch_summary.get("unique_batch_row_id_count") == 462
+        and ps_batch_summary.get("unique_page_side_count") == 462
+        and ps_batch_summary.get("unique_pdf_page_count") == 231
+        and ps_batch_summary.get("source_major_line_count") == 13736
+        and ps_batch_summary.get("source_field_task_count") == 41208
+        and ps_batch_summary.get("priority_bucket_counts") == {
+            "Z0-结构源证据或官方消歧阻断页列先核": 460,
+            "Z1-字段缺口和结构风险并行核页": 2,
+        }
+        and ps_batch_summary.get("execution_line_counts") == {
+            "L0-结构源证据官方消歧先核": 460,
+            "L1-字段缺口结构风险并行核": 2,
+        }
+        and ps_batch_summary.get("batch_status_counts") == {
+            "R0-未开始页列底座核验": 462,
+        }
+        and ps_batch_summary.get("field_q0_task_count") == 15813
+        and ps_batch_summary.get("field_q1_task_count") == 21606
+        and ps_batch_summary.get("field_q2_task_count") == 3789
+        and ps_batch_summary.get("structural_r0_major_line_count") == 129
+        and ps_batch_summary.get("source_x1_count") == 13
+        and ps_batch_summary.get("source_x2_count") == 6086
+        and ps_batch_summary.get("official_key_collision_row_count") == 118
+        and ps_batch_summary.get("final_available_count") == 0
+        and ps_batch_summary.get("next_stage_available_count") == 0
+        and ps_batch_summary.get("recommendation_basis_allowed_count") == 0
+        and ps_batch_summary.get("school_major_suggestion_allowed_count") == 0
+        and Counter(row.get("批次总序") for row in ps_batch_rows)
+        == {str(i): 25 for i in range(1, 19)} | {"19": 12},
+        f"{len(ps_batch_rows)} page-side batch rows",
+    ))
+    checks.append(ok(
+        "第 19 期页列底座核验批次字段、主键、门禁和风险登记回链正确",
+        ps_batch_fields == expected_ps_batch_fields
+        and len({row.get("页列底座核验批次行ID") for row in ps_batch_rows}) == 462
+        and len({row.get("批次ID") for row in ps_batch_rows}) == 19
+        and len({(row.get("来源页码"), row.get("版面列")) for row in ps_batch_rows}) == 462
+        and {row.get("页列底座综合风险登记ID") for row in ps_batch_rows} == set(ps_register_by_id)
+        and [as_int(row.get("页列全局风险总序")) for row in ps_batch_rows] == list(range(1, 463))
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in ps_batch_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in ps_batch_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in ps_batch_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in ps_batch_rows)
+        and ps_batch_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期页列底座核验批次公开文件不含私有路径、候选值、OCR原文、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(ps_batch_public_text) is None
+        and "/Users/" not in ps_batch_public_text
+        and "/home/" not in ps_batch_public_text
+        and "/var/folders/" not in ps_batch_public_text
+        and "/private/" not in ps_batch_public_text
+        and "private/" not in ps_batch_public_text
+        and "private\\" not in ps_batch_public_text
+        and "ocr-runs" not in ps_batch_public_text
+        and "rendered-pages" not in ps_batch_public_text
+        and ".png" not in ps_batch_public_text
+        and ".jpg" not in ps_batch_public_text
+        and ".jpeg" not in ps_batch_public_text
+        and ".webp" not in ps_batch_public_text
+        and ".tif" not in ps_batch_public_text
+        and ".tiff" not in ps_batch_public_text
+        and ".heic" not in ps_batch_public_text
+        and "Authorization" not in ps_batch_public_text
+        and "Bearer " not in ps_batch_public_text
+        and "Cookie" not in ps_batch_public_text
+        and "院校名称OCR" not in ps_batch_public_text
+        and "院校专业组代码OCR规范化" not in ps_batch_public_text
+        and "专业代号OCR" not in ps_batch_public_text
+        and "专业名称及备注" not in ps_batch_public_text
+        and "组内招生明细" not in ps_batch_public_text
+        and "候选值" not in ps_batch_public_text
+        and "机器候选字段值" not in ps_batch_public_text
+        and "机器候选规范值" not in ps_batch_public_text
+        and "高校官网字段候选值" not in ps_batch_public_text
+        and "高校官网字段规范值" not in ps_batch_public_text
+        and "裁图OCR候选字段值" not in ps_batch_public_text
+        and "裁图OCR候选规范值" not in ps_batch_public_text
+        and "裁图OCR候选行文本" not in ps_batch_public_text
+        and "PDF原页人工读数" not in ps_batch_public_text
+        and "湖北官方字段值" not in ps_batch_public_text
+        and "高校官网或招生章程字段值" not in ps_batch_public_text
+        and "字段确认值" not in ps_batch_public_text
+        and "OCR文本" not in ps_batch_public_text
+        and "OCR原文" not in ps_batch_public_text
+        and "已确认" not in ps_batch_public_text
+        and "已核准" not in ps_batch_public_text
+        and "最终推荐" not in ps_batch_public_text
+        and "最终方案" not in ps_batch_public_text
+        and "可填报" not in ps_batch_public_text
+        and "可排序" not in ps_batch_public_text
+        and not any(token in ps_batch_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

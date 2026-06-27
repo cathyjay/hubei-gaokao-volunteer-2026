@@ -1,0 +1,38 @@
+{
+  "status": "issue19_page_side_foundation_verification_batches_not_final",
+  "generated_by": "build_issue19_page_side_foundation_verification_batches.py",
+  "source_page_side_foundation_risk_register": "data/working/issue19-page-side-foundation-risk-register.csv",
+  "source_field_page_side_queue": "data/working/issue19-field-fact-page-side-verification-queue.csv",
+  "output_table": "data/working/issue19-page-side-foundation-verification-batches.csv",
+  "row_count": 462,
+  "batch_size": 25,
+  "batch_count": 19,
+  "unique_batch_row_id_count": 462,
+  "unique_page_side_count": 462,
+  "unique_pdf_page_count": 231,
+  "source_major_line_count": 13736,
+  "source_field_task_count": 41208,
+  "priority_bucket_counts": {
+    "Z0-结构源证据或官方消歧阻断页列先核": 460,
+    "Z1-字段缺口和结构风险并行核页": 2
+  },
+  "execution_line_counts": {
+    "L0-结构源证据官方消歧先核": 460,
+    "L1-字段缺口结构风险并行核": 2
+  },
+  "batch_status_counts": {
+    "R0-未开始页列底座核验": 462
+  },
+  "field_q0_task_count": 15813,
+  "field_q1_task_count": 21606,
+  "field_q2_task_count": 3789,
+  "structural_r0_major_line_count": 129,
+  "source_x1_count": 13,
+  "source_x2_count": 6086,
+  "official_key_collision_row_count": 118,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "safety_note": "公开表只保存批次、页列、风险计数、集合SHA和非最终门禁；不保存学校专业明细、字段读数、人工记录、图片路径或私有识别材料。"
+}

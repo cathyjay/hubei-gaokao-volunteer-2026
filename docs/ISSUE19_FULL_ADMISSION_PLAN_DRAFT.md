@@ -94,6 +94,8 @@
 | `data/working/issue19-field-fact-page-side-verification-queue-summary.json` | 全量字段页列核验摘要 | 看 450 个 V0 无候选阻断页列、12 个 V1 有候选待人工核验页列，以及全部仍需 PDF 原页和湖北官方侧核验的门禁 |
 | `data/working/issue19-page-side-foundation-risk-register.csv` | 页列底座综合风险登记表 | 在 462 个页列粒度上汇总字段、结构、源证据、官方查询键、教育部校名、B0/B1 官网差异和决策闸门风险 |
 | `data/working/issue19-page-side-foundation-risk-register-summary.json` | 页列底座综合风险摘要 | 看 460 个 Z0 结构/源证据/官方消歧阻断页列、2 个 Z1 字段缺口和结构风险页列，以及全部非最终门禁 |
+| `data/working/issue19-page-side-foundation-verification-batches.csv` | 页列底座核验批次表 | 把 462 个页列按风险顺序切成 19 个执行批次，前 18 批各 25 个页列、最后 1 批 12 个页列 |
+| `data/working/issue19-page-side-foundation-verification-batches-summary.json` | 页列底座核验批次摘要 | 看 19 批、462 个页列、13736 条专业明细、41208 条字段任务、全部 R0 和全部非最终门禁 |
 | `data/working/issue19-field-fact-p0-reread-worklist.csv` | P0 字段原页重读工作清单 | 覆盖 11444 条 K0 无候选字段任务；一行一个 `专业行ID × 字段名`，回连字段任务、原始源证据审计、PDF 锚点和页级保真队列 |
 | `data/working/issue19-field-fact-p0-reread-worklist-summary.json` | P0 字段原页重读摘要 | 看专业计划数、再选科目、学费三类 K0 字段的原页重读规模、覆盖页码、学校数和四路证据命中 |
 | `data/working/issue19-field-fact-p0-reread-machine-candidates.csv` | P0 字段机器坐标候选表 | 覆盖同一批 11444 条 K0 字段任务；用私有 OCR 窗口坐标和保守字段规则生成候选值，公开输出只保存候选值、坐标摘要、必要来源 ID、页码/版面列、字段名、证据编号、哈希和非最终门禁 |

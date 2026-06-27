@@ -108,6 +108,7 @@ python3 scripts/build_issue19_field_fact_closure_ledger.py
 python3 scripts/build_issue19_field_fact_verification_tasks.py
 python3 scripts/build_issue19_field_fact_page_side_verification_queue.py
 python3 scripts/build_issue19_page_side_foundation_risk_register.py
+python3 scripts/build_issue19_page_side_foundation_verification_batches.py
 python3 scripts/build_issue19_field_fact_p0_reread_worklist.py
 python3 scripts/build_issue19_field_fact_p0_reread_machine_candidates.py
 python3 scripts/build_issue19_field_fact_p0_closure_action_workbench.py
@@ -153,6 +154,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 全量字段页列核验队列：`data/working/issue19-field-fact-page-side-verification-queue.csv` 把 41208 条逐字段任务按 `PDF页码×版面列` 聚合成 462 个页列执行单元，覆盖 231 个招生计划明细页、13736 条专业明细。当前 450 个页列为 V0 无候选阻断页列先核，12 个为 V1 有候选待人工核验页列；所有任务都仍需要 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用计数均为 0。该表只回答“全量字段应该按哪些页列核”，不代替一行一个专业的明细表。
 
 页列底座综合风险登记表：`data/working/issue19-page-side-foundation-risk-register.csv` 在全量字段页列核验队列基础上，继续合并总工作台、结构保真登记、结构风险、版面连续性、专业代号顺序、湖北官方查询键碰撞、教育部未匹配校名、B0/B1 官网差异、决策闸门和源证据风险侧账，仍保持 462 个 `PDF页码×版面列` 执行单元。当前 460 个页列为 Z0、2 个页列为 Z1；该表只公开风险计数、分布、证据集合 SHA 和非最终门禁，不公开院校名、专业名、专业代号、专业组代码、候选值、人工读数、OCR 原文或私有路径。
+
+页列底座核验批次表：`data/working/issue19-page-side-foundation-verification-batches.csv` 把上述 462 个 `PDF页码×版面列` 执行单元按风险顺序切成 19 个可执行批次，前 18 批各 25 个页列、最后 1 批 12 个页列。该表继续只公开批次、页列、风险计数、集合 SHA 和非最终门禁，当前 462 行全部为 R0 未开始，字段事实写回、下一阶段、志愿推荐和学校专业建议计数均为 0。
 
 P0 字段原页重读工作清单：`data/working/issue19-field-fact-p0-reread-worklist.csv` 从字段事实核验任务队列中严格抽取 11444 条 K0 无候选字段任务，覆盖 8536 条招生专业明细、231 个 PDF 明细页和 967 所学校。它把每个 `专业行ID × 字段名` 回连到字段任务、原始源证据审计、PDF 原页锚点和页级保真队列，用于优先回看专业计划数、再选科目、学费三项原始字段；全部 `最终可用=false`、`可进入下一阶段=false`，不得自动写回主表，也不得生成学校或专业建议。
 
