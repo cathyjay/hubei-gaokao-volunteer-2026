@@ -117,3 +117,4 @@
 - 生成页列底座核验批次表：`data/working/issue19-page-side-foundation-verification-batches.csv` 覆盖同一批 462 个 `PDF页码×版面列`，把页列底座综合风险登记按风险顺序切成 19 个可执行批次，前 18 批各 25 个页列、最后 1 批 12 个页列；当前全部 R0 未开始，字段事实写回、下一阶段、志愿推荐和学校专业建议仍全部阻断。
 - 生成页列底座批次执行包：`data/working/issue19-page-side-foundation-batch-execution-packets.csv` 覆盖 19 个页列底座核验批次，并在本地私有目录生成 19 份批次 HTML/CSV 核页材料；公开表只保存批次计数、私有材料证据编号和 SHA、状态和非最终门禁，当前全部 R0，PDF 原页核页、湖北官方核验、结构/官方消歧和高校辅证完成页列数均为 0。
 - 生成页列底座公开核页进度账本：`data/working/issue19-page-side-foundation-review-progress-public-ledger.csv` 覆盖 19 批、462 个页列、231 个 PDF 页、13736 条专业明细和 41208 个字段任务，并把 private 核页材料中的填写状态同步为公开状态机；当前 1441 个必填记录槽位全部未填，PDF 原页、湖北官方、结构/官方消歧、高校辅证、升级条件、推荐依据和最终可用计数均为 0。
+- 生成页列底座字段线索公开审计：`data/working/issue19-page-side-foundation-field-clue-public-audit.csv` 覆盖同一批 462 个页列和 41208 个字段任务，并生成 19 份 Git 忽略的私有逐字段线索模板；公开表只保存字段分布、状态桶、线索缺失/冲突计数、PDF/湖北官方待核计数和私有模板 SHA，不保存院校专业明细、字段候选值、OCR 原文或人工记录。当前 29764 个字段任务已有线索、11444 个缺线索、1137 个有冲突/多值/疑似信号，但全部仍需 PDF 原页和湖北官方侧闭环，推荐依据和最终可用计数仍为 0。

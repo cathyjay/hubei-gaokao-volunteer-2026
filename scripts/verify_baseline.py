@@ -17312,6 +17312,411 @@ def main():
         and not any(token in ps_progress_public_text for token in shared_forbidden_tokens),
     ))
 
+    ps_field_clue_summary_path = (
+        ROOT / "data/working/issue19-page-side-foundation-field-clue-public-audit-summary.json"
+    )
+    ps_field_clue_csv = (
+        ROOT / "data/working/issue19-page-side-foundation-field-clue-public-audit.csv"
+    )
+    ps_field_clue_summary = json.loads(ps_field_clue_summary_path.read_text())
+    with ps_field_clue_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_field_clue_reader = csv.DictReader(f)
+        ps_field_clue_rows = list(ps_field_clue_reader)
+        ps_field_clue_fields = ps_field_clue_reader.fieldnames or []
+    expected_ps_field_clue_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_field_clue_audit.py",
+        "FIELDS",
+    )
+    ps_field_clue_by_row_id = {
+        row.get("页列底座核验批次行ID"): row for row in ps_field_clue_rows
+    }
+
+    def parse_counter_text(value):
+        counter = Counter()
+        for item in str(value or "").split("；"):
+            if ":" not in item:
+                continue
+            key, count = item.rsplit(":", 1)
+            counter[key] += as_int(count) or 0
+        return counter
+
+    def short_code_bucket(value, fallback="UNK"):
+        text = str(value or "").strip()
+        if not text:
+            return fallback
+        return text.split("-", 1)[0]
+
+    def clue_status_bucket(value):
+        text = str(value or "").strip()
+        if not text:
+            return "C0-无单独线索状态"
+        if "冲突" in text or "多值" in text or "疑似" in text:
+            return "C2-冲突或疑似线索"
+        if "无候选" in text or "无明确候选" in text:
+            return "C1-缺线索"
+        if "高校官网" in text:
+            return "C3-高校辅证线索"
+        if "组级" in text:
+            return "C4-组级线索"
+        if "OCR" in text:
+            return "C5-OCR线索"
+        return "C9-其他线索状态"
+
+    def tri_field_bucket(value):
+        text = str(value or "").strip()
+        if "齐全" in text:
+            return "T0-三字段线索齐全"
+        if "缺1项" in text:
+            return "T1-缺1项"
+        if "缺2项" in text:
+            return "T2-缺2项"
+        if "缺3项" in text:
+            return "T3-缺3项"
+        return "T9-其他完整性状态"
+
+    def field_clue_has_signal(task):
+        return (
+            bool(str(task.get("字段OCR候选", "")).strip())
+            or bool(str(task.get("字段候选值集合", "")).strip())
+            or (as_int(task.get("字段非空候选数")) or 0) > 0
+        )
+
+    def field_clue_has_conflict_signal(task):
+        text = "；".join(
+            [
+                task.get("字段候选状态集合", ""),
+                task.get("字段事实状态", ""),
+                task.get("字段事实阻断等级", ""),
+                task.get("字段事实缺口类型", ""),
+                task.get("字段事实核验动作", ""),
+                task.get("字段下一步", ""),
+            ]
+        )
+        return any(token in text for token in ["冲突", "多值", "异常", "疑似"])
+
+    ps_master_by_side = group_by_page_side(ps_master_rows)
+    ps_field_clue_tasks_by_side = defaultdict(list)
+    for row in field_fact_tasks_rows:
+        ps_field_clue_tasks_by_side[page_side_key(row)].append(row)
+    ps_field_task_fields_by_major_id = defaultdict(set)
+    for row in field_fact_tasks_rows:
+        ps_field_task_fields_by_major_id[row.get("专业行ID", "")].add(row.get("字段名", ""))
+
+    ps_field_clue_private_dir = (
+        ROOT / "private/review-assets/issue19-page-side-foundation-field-clue-audit"
+    )
+    ps_field_clue_private_index = ps_field_clue_private_dir / "field-clue-private-index.csv"
+    ps_field_clue_private_index_rows = []
+    ps_field_clue_private_index_ok = True
+    ps_field_clue_private_rows_by_batch = {}
+    ps_field_clue_private_sha_by_batch = {}
+    ps_field_clue_private_count_by_batch = {}
+    if ps_field_clue_private_index.exists():
+        with ps_field_clue_private_index.open(newline="", encoding="utf-8-sig") as f:
+            ps_field_clue_private_index_rows = list(csv.DictReader(f))
+        for index_row in ps_field_clue_private_index_rows:
+            batch_no = as_int(index_row.get("批次总序")) or 0
+            private_rel = index_row.get("私有字段线索模板相对路径", "")
+            private_csv = ps_field_clue_private_dir / private_rel
+            if not private_csv.exists():
+                ps_field_clue_private_index_ok = False
+                continue
+            private_sha = sha256(private_csv)
+            with private_csv.open(newline="", encoding="utf-8-sig") as f:
+                private_rows = list(csv.DictReader(f))
+            ps_field_clue_private_rows_by_batch[batch_no] = private_rows
+            ps_field_clue_private_sha_by_batch[batch_no] = private_sha
+            ps_field_clue_private_count_by_batch[batch_no] = len(private_rows)
+            ps_field_clue_private_index_ok = (
+                ps_field_clue_private_index_ok
+                and private_sha == index_row.get("私有字段线索模板CSV_SHA256")
+                and len(private_rows) == (as_int(index_row.get("批次字段任务数")) or 0)
+            )
+
+    ps_field_clue_join_ok = True
+    ps_field_clue_private_sha_ok = True
+    ps_field_clue_global_field_name_counts = Counter()
+    ps_field_clue_global_priority_counts = Counter()
+    ps_field_clue_global_fact_status_counts = Counter()
+    ps_field_clue_global_block_counts = Counter()
+    ps_field_clue_global_nonempty = 0
+    ps_field_clue_global_missing = 0
+    ps_field_clue_global_conflict = 0
+    ps_field_clue_global_pdf_pending = 0
+    ps_field_clue_global_hubei_pending = 0
+    ps_field_clue_global_school_clue = 0
+    for row in ps_field_clue_rows:
+        key = page_side_key(row)
+        progress = ps_progress_by_row_id.get(row.get("页列底座核验批次行ID", ""), {})
+        tasks = ps_field_clue_tasks_by_side.get(key, [])
+        master_rows_for_side = ps_master_by_side.get(key, [])
+        batch_no = as_int(row.get("批次总序")) or 0
+        expected_field_name = Counter(task.get("字段名", "") for task in tasks)
+        expected_priority = Counter(short_code_bucket(task.get("字段核验优先级", "")) for task in tasks)
+        expected_fact_status = Counter(short_code_bucket(task.get("字段事实状态", "")) for task in tasks)
+        expected_block = Counter(short_code_bucket(task.get("字段事实阻断等级", "")) for task in tasks)
+        expected_clue_status = Counter(clue_status_bucket(task.get("字段候选状态集合", "")) for task in tasks)
+        expected_tri_field = Counter(tri_field_bucket(task.get("三字段OCR完整状态", "")) for task in tasks)
+        expected_nonempty = sum(field_clue_has_signal(task) for task in tasks)
+        expected_conflict = sum(field_clue_has_conflict_signal(task) for task in tasks)
+        expected_pdf_pending = sum(
+            task.get("字段PDF核验状态", "") == "pending_original_pdf_page_review"
+            or "pending" in task.get("字段PDF核验状态", "")
+            or not task.get("字段PDF核验状态", "")
+            for task in tasks
+        )
+        expected_hubei_pending = sum(
+            task.get("字段湖北官方核验状态", "") == "pending_hubei_official_plan_review"
+            or "pending" in task.get("字段湖北官方核验状态", "")
+            or not task.get("字段湖北官方核验状态", "")
+            for task in tasks
+        )
+        expected_school_clue = sum((as_int(task.get("B0B1官网证据任务数")) or 0) > 0 for task in tasks)
+        batch_private_rows = ps_field_clue_private_rows_by_batch.get(batch_no, [])
+        batch_private_sha = ps_field_clue_private_sha_by_batch.get(batch_no, "")
+        if ps_field_clue_private_index.exists():
+            ps_field_clue_private_sha_ok = (
+                ps_field_clue_private_sha_ok
+                and batch_private_sha == row.get("私有字段线索模板CSV_SHA256")
+                and len(batch_private_rows) == (as_int(row.get("私有字段线索模板批次记录数")) or -1)
+            )
+        ps_field_clue_global_field_name_counts.update(expected_field_name)
+        ps_field_clue_global_priority_counts.update(expected_priority)
+        ps_field_clue_global_fact_status_counts.update(expected_fact_status)
+        ps_field_clue_global_block_counts.update(expected_block)
+        ps_field_clue_global_nonempty += expected_nonempty
+        ps_field_clue_global_missing += len(tasks) - expected_nonempty
+        ps_field_clue_global_conflict += expected_conflict
+        ps_field_clue_global_pdf_pending += expected_pdf_pending
+        ps_field_clue_global_hubei_pending += expected_hubei_pending
+        ps_field_clue_global_school_clue += expected_school_clue
+        ps_field_clue_join_ok = (
+            ps_field_clue_join_ok
+            and bool(progress)
+            and len(tasks) == (as_int(row.get("字段任务回链数")) or 0)
+            and len(tasks) == (as_int(row.get("私有字段线索模板页列记录数")) or 0)
+            and len(tasks) == (as_int(row.get("包内字段任务数")) or 0)
+            and len(tasks) == (as_int(row.get("包内专业行数")) or 0) * 3
+            and len(master_rows_for_side) == (as_int(row.get("包内专业行数")) or 0)
+            and len({task.get("专业行ID", "") for task in tasks if task.get("专业行ID")})
+            == (as_int(row.get("专业行覆盖数")) or 0)
+            and (as_int(row.get("字段任务缺失数")) or 0) == 0
+            and row.get("页列底座字段线索公开审计ID")
+            == stable_id("PSFIELDCLUE", [row.get("页列底座核验批次行ID", ""), batch_no])
+            and row.get("来源页列底座公开核页进度账本")
+            == "data/working/issue19-page-side-foundation-review-progress-public-ledger.csv"
+            and row.get("来源字段事实核验任务队列")
+            == "data/working/issue19-field-fact-verification-tasks.csv"
+            and row.get("来源私有字段线索模板") == "private_field_clue_templates_not_public"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_page_side_foundation_field_clue_public_audit"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×字段线索状态审计"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动标记核验完成") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("批次ID") == progress.get("批次ID")
+            and row.get("批次名称") == progress.get("批次名称")
+            and row.get("批内页列序号") == progress.get("批内页列序号")
+            and row.get("页列全局风险总序") == progress.get("页列全局风险总序")
+            and row.get("页列底座核页进度公开账本ID")
+            == progress.get("页列底座核页进度公开账本ID")
+            and row.get("来源页码") == progress.get("来源页码")
+            and row.get("版面列") == progress.get("版面列")
+            and row.get("页码版面键") == progress.get("页码版面键")
+            and row.get("综合风险优先级桶") == progress.get("综合风险优先级桶")
+            and row.get("页列首要核验动作") == progress.get("页列首要核验动作")
+            and parse_counter_text(row.get("字段名任务分布")) == expected_field_name
+            and parse_counter_text(row.get("字段核验优先级分布")) == expected_priority
+            and parse_counter_text(row.get("字段事实状态分布")) == expected_fact_status
+            and parse_counter_text(row.get("字段事实阻断等级分布")) == expected_block
+            and parse_counter_text(row.get("字段线索状态分布")) == expected_clue_status
+            and parse_counter_text(row.get("三字段OCR完整状态分布")) == expected_tri_field
+            and (as_int(row.get("字段线索非空任务数")) or 0) == expected_nonempty
+            and (as_int(row.get("字段线索缺失任务数")) or 0) == len(tasks) - expected_nonempty
+            and (as_int(row.get("字段线索多值或冲突任务数")) or 0) == expected_conflict
+            and (as_int(row.get("字段PDF待核任务数")) or 0) == expected_pdf_pending
+            and (as_int(row.get("湖北官方待核任务数")) or 0) == expected_hubei_pending
+            and (as_int(row.get("高校官网线索任务数")) or 0) == expected_school_clue
+            and row.get("私有字段线索材料状态") == "private_field_clue_template_generated"
+            and row.get("PDF原页人工确认完成字段数") == "0"
+            and row.get("湖北官方字段完成字段数") == "0"
+            and row.get("高校辅证字段完成字段数") == "0"
+            and row.get("三方一致性可评估字段数") == "0"
+            and row.get("字段事实写回复查可进入字段数") == "0"
+            and row.get("页列是否满足字段复查条件") == "false"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_and_required_school_evidence_closed"
+        )
+
+    ps_field_clue_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [ps_field_clue_summary_path, ps_field_clue_csv]
+    )
+    ps_field_clue_sensitive_values = {
+        value
+        for source_row in ps_master_rows
+        for value in [
+            source_row.get("院校名称OCR", ""),
+            source_row.get("专业名称及备注短摘", ""),
+            source_row.get("专业名称及备注OCR", ""),
+        ]
+        if len(str(value).strip()) >= 8
+    }
+    ps_field_clue_sensitive_value_hits = [
+        value for value in ps_field_clue_sensitive_values if value and value in ps_field_clue_public_text
+    ][:5]
+    checks.append(ok(
+        "第 19 期页列底座字段线索公开审计摘要、全量守恒和字段分布正确",
+        ps_field_clue_summary.get("status")
+        == "issue19_page_side_foundation_field_clue_public_audit_not_final"
+        and ps_field_clue_summary.get("generated_by")
+        == "build_issue19_page_side_foundation_field_clue_audit.py"
+        and ps_field_clue_summary.get("source_page_side_progress")
+        == "data/working/issue19-page-side-foundation-review-progress-public-ledger.csv"
+        and ps_field_clue_summary.get("source_field_fact_verification_tasks")
+        == "data/working/issue19-field-fact-verification-tasks.csv"
+        and ps_field_clue_summary.get("source_private_field_clue_templates")
+        == "private_field_clue_templates_not_public"
+        and ps_field_clue_summary.get("output_table")
+        == "data/working/issue19-page-side-foundation-field-clue-public-audit.csv"
+        and ps_field_clue_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and ps_field_clue_summary.get("row_count") == len(ps_field_clue_rows) == 462
+        and ps_field_clue_summary.get("batch_count") == 19
+        and ps_field_clue_summary.get("unique_page_side_count") == 462
+        and ps_field_clue_summary.get("unique_pdf_page_count") == 231
+        and ps_field_clue_summary.get("source_major_line_count") == len(ps_master_rows) == 13736
+        and ps_field_clue_summary.get("source_field_task_count") == len(field_fact_tasks_rows) == 41208
+        and ps_field_clue_summary.get("linked_field_task_count") == 41208
+        and ps_field_clue_summary.get("missing_field_task_count") == 0
+        and ps_field_clue_summary.get("private_field_clue_template_count") == 19
+        and ps_field_clue_summary.get("private_field_clue_template_row_count") == 41208
+        and ps_field_clue_summary.get("field_name_counts") == {
+            "专业计划数": 13736,
+            "再选科目": 13736,
+            "学费": 13736,
+        }
+        and ps_field_clue_summary.get("field_priority_counts") == {
+            "P0": 11444,
+            "P1": 7621,
+            "P3": 22143,
+        }
+        and ps_field_clue_summary.get("field_clue_nonempty_task_count") == 29764
+        and ps_field_clue_summary.get("field_clue_missing_task_count") == 11444
+        and ps_field_clue_summary.get("field_clue_conflict_task_count") == 1137
+        and ps_field_clue_summary.get("pdf_pending_task_count") == 41208
+        and ps_field_clue_summary.get("hubei_official_pending_task_count") == 41208
+        and ps_field_clue_summary.get("school_website_clue_task_count") == 2562
+        and ps_field_clue_summary.get("pdf_confirmed_task_count") == 0
+        and ps_field_clue_summary.get("hubei_official_confirmed_task_count") == 0
+        and ps_field_clue_summary.get("school_support_confirmed_task_count") == 0
+        and ps_field_clue_summary.get("field_writeback_review_ready_task_count") == 0
+        and ps_field_clue_summary.get("final_available_count") == 0
+        and ps_field_clue_summary.get("next_stage_available_count") == 0
+        and ps_field_clue_summary.get("recommendation_basis_allowed_count") == 0
+        and ps_field_clue_summary.get("school_major_suggestion_allowed_count") == 0
+        and ps_field_clue_global_field_name_counts == Counter(ps_field_clue_summary.get("field_name_counts", {}))
+        and ps_field_clue_global_priority_counts == Counter(ps_field_clue_summary.get("field_priority_counts", {}))
+        and ps_field_clue_global_nonempty == 29764
+        and ps_field_clue_global_missing == 11444
+        and ps_field_clue_global_conflict == 1137
+        and ps_field_clue_global_pdf_pending == 41208
+        and ps_field_clue_global_hubei_pending == 41208
+        and ps_field_clue_global_school_clue == 2562,
+        f"{len(ps_field_clue_rows)} field clue audit rows",
+    ))
+    checks.append(ok(
+        "第 19 期页列底座字段线索公开审计字段、逐页列回链、私有SHA和非最终门禁正确",
+        ps_field_clue_fields == expected_ps_field_clue_fields
+        and len({row.get("页列底座字段线索公开审计ID") for row in ps_field_clue_rows}) == 462
+        and len(ps_field_clue_by_row_id) == 462
+        and set(ps_field_clue_by_row_id) == set(ps_progress_by_row_id)
+        and set(ps_field_clue_by_row_id) == set(ps_batch_by_row_id)
+        and set(ps_field_clue_tasks_by_side) == {page_side_key(row) for row in ps_field_clue_rows}
+        and all(
+            fields == {"再选科目", "专业计划数", "学费"}
+            for fields in ps_field_task_fields_by_major_id.values()
+        )
+        and len(ps_field_task_fields_by_major_id) == 13736
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in ps_field_clue_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in ps_field_clue_rows)
+        and all(row.get("机器是否允许自动标记核验完成") == "false" for row in ps_field_clue_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in ps_field_clue_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in ps_field_clue_rows)
+        and all(re.fullmatch(r"[0-9a-f]{64}", row.get("私有字段线索模板CSV_SHA256", "")) for row in ps_field_clue_rows)
+        and (not ps_field_clue_private_index.exists() or ps_field_clue_private_index_ok)
+        and (not ps_field_clue_private_index.exists() or ps_field_clue_private_sha_ok)
+        and (
+            not ps_field_clue_private_index.exists()
+            or ps_field_clue_summary.get("private_index_csv_sha256") == sha256(ps_field_clue_private_index)
+        )
+        and (not ps_field_clue_private_index.exists() or len(ps_field_clue_private_index_rows) == 19)
+        and (
+            not ps_field_clue_private_index.exists()
+            or sum(ps_field_clue_private_count_by_batch.values()) == 41208
+        )
+        and ps_field_clue_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期页列底座字段线索公开审计不含私有路径、OCR明细、字段读数、人工内容和最终误导结论",
+        foundation_release_sensitive_re.search(ps_field_clue_public_text) is None
+        and not ps_field_clue_sensitive_value_hits
+        and "/Users/" not in ps_field_clue_public_text
+        and "/home/" not in ps_field_clue_public_text
+        and "/var/folders/" not in ps_field_clue_public_text
+        and "/private/" not in ps_field_clue_public_text
+        and "private/" not in ps_field_clue_public_text
+        and "private\\" not in ps_field_clue_public_text
+        and "ocr-runs" not in ps_field_clue_public_text
+        and "rendered-pages" not in ps_field_clue_public_text
+        and ".png" not in ps_field_clue_public_text
+        and ".jpg" not in ps_field_clue_public_text
+        and ".jpeg" not in ps_field_clue_public_text
+        and ".webp" not in ps_field_clue_public_text
+        and ".tif" not in ps_field_clue_public_text
+        and ".tiff" not in ps_field_clue_public_text
+        and ".heic" not in ps_field_clue_public_text
+        and "Authorization" not in ps_field_clue_public_text
+        and "Bearer " not in ps_field_clue_public_text
+        and "Cookie" not in ps_field_clue_public_text
+        and "院校名称OCR" not in ps_field_clue_public_text
+        and "院校专业组代码OCR规范化" not in ps_field_clue_public_text
+        and "专业代号OCR" not in ps_field_clue_public_text
+        and "专业名称及备注" not in ps_field_clue_public_text
+        and "组内招生明细" not in ps_field_clue_public_text
+        and "机器候选字段值" not in ps_field_clue_public_text
+        and "高校官网字段候选值" not in ps_field_clue_public_text
+        and "裁图OCR候选字段值" not in ps_field_clue_public_text
+        and "PDF原页候选读数" not in ps_field_clue_public_text
+        and "PDF原页人工读数" not in ps_field_clue_public_text
+        and "湖北官方字段值" not in ps_field_clue_public_text
+        and "高校官网或招生章程字段值" not in ps_field_clue_public_text
+        and "字段确认值" not in ps_field_clue_public_text
+        and "字段OCR候选" not in ps_field_clue_public_text
+        and "字段候选值集合" not in ps_field_clue_public_text
+        and "字段候选来源类型集合" not in ps_field_clue_public_text
+        and "字段候选置信等级集合" not in ps_field_clue_public_text
+        and "字段候选状态集合" not in ps_field_clue_public_text
+        and "OCR文本" not in ps_field_clue_public_text
+        and "OCR原文" not in ps_field_clue_public_text
+        and "OCR行文本" not in ps_field_clue_public_text
+        and "人工记录" not in ps_field_clue_public_text
+        and "核页人" not in ps_field_clue_public_text
+        and "复核备注" not in ps_field_clue_public_text
+        and "已确认" not in ps_field_clue_public_text
+        and "已核准" not in ps_field_clue_public_text
+        and "最终推荐" not in ps_field_clue_public_text
+        and "最终方案" not in ps_field_clue_public_text
+        and "可填报" not in ps_field_clue_public_text
+        and "可排序" not in ps_field_clue_public_text
+        and not any(token in ps_field_clue_public_text for token in shared_forbidden_tokens),
+        "；".join(ps_field_clue_sensitive_value_hits),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
