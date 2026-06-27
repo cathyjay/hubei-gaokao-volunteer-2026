@@ -20794,6 +20794,332 @@ def main():
         and not any(token in first_execution_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_pdf_ocr_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json"
+    )
+    first_pdf_ocr_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv"
+    )
+    first_pdf_ocr_summary = json.loads(first_pdf_ocr_summary_path.read_text())
+    with first_pdf_ocr_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_pdf_ocr_reader = csv.DictReader(f)
+        first_pdf_ocr_rows = list(first_pdf_ocr_reader)
+        first_pdf_ocr_fields = first_pdf_ocr_reader.fieldnames or []
+    expected_first_pdf_ocr_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_pdf_ocr_candidate_audit.py",
+        "PUBLIC_FIELDS",
+    )
+    expected_first_pdf_ocr_private_extra_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_pdf_ocr_candidate_audit.py",
+        "PRIVATE_EXTRA_FIELDS",
+    )
+    expected_first_pdf_ocr_private_fields = (
+        expected_first_pdf_ocr_fields + expected_first_pdf_ocr_private_extra_fields
+    )
+    first_pdf_ocr_private_csv = (
+        ROOT
+        / "private/review-assets/issue19-stable-foundation-first-closure-pdf-ocr-candidates/first-closure-pdf-ocr-candidates-private.csv"
+    )
+    first_pdf_ocr_private_rows = []
+    first_pdf_ocr_private_fields = []
+    first_pdf_ocr_private_by_task_id = {}
+    if first_pdf_ocr_private_csv.exists():
+        with first_pdf_ocr_private_csv.open(newline="", encoding="utf-8-sig") as f:
+            first_pdf_ocr_private_reader = csv.DictReader(f)
+            first_pdf_ocr_private_rows = list(first_pdf_ocr_private_reader)
+            first_pdf_ocr_private_fields = first_pdf_ocr_private_reader.fieldnames or []
+        first_pdf_ocr_private_by_task_id = {
+            row.get("稳定基座第一闭环明细任务ID", ""): row
+            for row in first_pdf_ocr_private_rows
+        }
+    first_private_review_by_task_id = {
+        row.get("稳定基座第一闭环明细任务ID", ""): row
+        for private in first_review_private_by_key.values()
+        for row in private.get("rows", [])
+    }
+
+    def first_pdf_ocr_has_value(value):
+        return bool(re.sub(r"\s+", "", str(value or "")))
+
+    def first_pdf_ocr_normalize(value):
+        return re.sub(r"\s+", "", str(value or "")).replace("，", ",").replace("；", ";")
+
+    def first_pdf_ocr_count(values):
+        return sum(1 for value in values if first_pdf_ocr_has_value(value))
+
+    def first_pdf_ocr_relation_counts(review_row):
+        pairs = [
+            (review_row.get("OCR专业计划数候选"), review_row.get("最佳官网计划数")),
+            (review_row.get("OCR学费候选"), review_row.get("最佳官网学费")),
+            (review_row.get("OCR再选科目候选"), review_row.get("最佳官网选科")),
+        ]
+        comparable = matched = conflict = missing_pdf_with_school = 0
+        for pdf_value, school_value in pairs:
+            pdf_has = first_pdf_ocr_has_value(pdf_value)
+            school_has = first_pdf_ocr_has_value(school_value)
+            if pdf_has and school_has:
+                comparable += 1
+                if first_pdf_ocr_normalize(pdf_value) == first_pdf_ocr_normalize(school_value):
+                    matched += 1
+                else:
+                    conflict += 1
+            elif not pdf_has and school_has:
+                missing_pdf_with_school += 1
+        return comparable, matched, conflict, missing_pdf_with_school
+
+    def first_pdf_ocr_relation_bucket(review_row):
+        comparable, matched, conflict, missing_pdf_with_school = first_pdf_ocr_relation_counts(review_row)
+        pdf_count = first_pdf_ocr_count([
+            review_row.get("OCR专业计划数候选"),
+            review_row.get("OCR学费候选"),
+            review_row.get("OCR再选科目候选"),
+        ])
+        school_count = first_pdf_ocr_count([
+            review_row.get("最佳官网计划数"),
+            review_row.get("最佳官网学费"),
+            review_row.get("最佳官网选科"),
+        ])
+        if conflict:
+            return "R0-PDFOCR与高校辅证存在冲突"
+        if matched:
+            return "R1-PDFOCR与高校辅证存在一致字段"
+        if missing_pdf_with_school:
+            return "R2-高校有线索但PDFOCR缺候选"
+        if pdf_count:
+            return "R3-仅PDFOCR候选待人工核页"
+        if school_count:
+            return "R4-仅高校辅证线索待回页"
+        return "R5-无候选需人工看图"
+
+    def first_pdf_ocr_review_bucket(review_row):
+        relation = first_pdf_ocr_relation_bucket(review_row)
+        if relation.startswith("R0"):
+            return "P0-候选冲突优先核PDF原页"
+        if relation.startswith("R2") or relation.startswith("R5"):
+            return "P1-缺PDFOCR候选需人工看图"
+        if relation.startswith("R1"):
+            return "P2-候选一致仍需官方闭环"
+        return "P3-有候选但需人工确认"
+
+    def first_pdf_ocr_field_scope(task, review_row):
+        if task.get("字段名", ""):
+            return task.get("字段名", "")
+        fields = []
+        if first_pdf_ocr_has_value(review_row.get("OCR专业计划数候选")) or first_pdf_ocr_has_value(review_row.get("最佳官网计划数")):
+            fields.append("专业计划数")
+        if first_pdf_ocr_has_value(review_row.get("OCR学费候选")) or first_pdf_ocr_has_value(review_row.get("最佳官网学费")):
+            fields.append("学费")
+        if first_pdf_ocr_has_value(review_row.get("OCR再选科目候选")) or first_pdf_ocr_has_value(review_row.get("最佳官网选科")):
+            fields.append("再选科目")
+        return "；".join(fields) if fields else "待人工判定字段"
+
+    first_pdf_ocr_join_ok = True
+    for row in first_pdf_ocr_rows:
+        task_id = row.get("稳定基座第一闭环明细任务ID", "")
+        task = first_task_review_by_task_id.get(task_id, {})
+        review_private = first_private_review_by_task_id.get(task_id, {})
+        private_row = first_pdf_ocr_private_by_task_id.get(task_id, {})
+        execution = first_execution_by_key.get(row.get("页码版面键", ""), {})
+        prefill = first_prefill_by_key.get(row.get("页码版面键", ""), {})
+        comparable, matched, conflict, missing_pdf_with_school = first_pdf_ocr_relation_counts(review_private)
+        pdf_count = first_pdf_ocr_count([
+            review_private.get("OCR专业计划数候选"),
+            review_private.get("OCR学费候选"),
+            review_private.get("OCR再选科目候选"),
+        ])
+        school_count = first_pdf_ocr_count([
+            review_private.get("最佳官网计划数"),
+            review_private.get("最佳官网学费"),
+            review_private.get("最佳官网选科"),
+        ])
+        first_pdf_ocr_join_ok = (
+            first_pdf_ocr_join_ok
+            and bool(task)
+            and bool(review_private)
+            and bool(private_row)
+            and bool(execution)
+            and bool(prefill)
+            and row.get("第一闭环PDFOCR候选公开审计ID") == stable_id("FIRSTPDFOCR", [task_id])
+            and row.get("来源第一闭环执行队列")
+            == "data/working/issue19-stable-foundation-first-closure-execution-queue.csv"
+            and row.get("来源第一闭环任务复核公开账本")
+            == "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv"
+            and row.get("来源第一闭环私有预填公开审计")
+            == "data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv"
+            and row.get("来源第一闭环私有复核材料")
+            == "first_closure_private_review_material_not_public"
+            and row.get("来源第一闭环PDFOCR候选私有工作台")
+            == "first_closure_pdf_ocr_candidate_private_workbench_not_public"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_stable_foundation_first_closure_pdf_ocr_candidate_public_audit"
+            and row.get("主表粒度") == "逐专业招生明细×第一闭环任务"
+            and row.get("任务粒度") == "逐任务×PDF原页OCR候选公开状态"
+            and all(row.get(field) == "false" for field in first_false_fields)
+            and row.get("第一闭环执行顺序") == execution.get("执行顺序")
+            and row.get("执行泳道") == execution.get("执行泳道")
+            and row.get("第一闭环页列优先级") == task.get("第一闭环页列优先级")
+            and row.get("稳定基座第一闭环任务复核公开账本ID")
+            == task.get("稳定基座第一闭环任务复核公开账本ID")
+            and row.get("稳定基座第一闭环页列包ID") == task.get("稳定基座第一闭环页列包ID")
+            and row.get("稳定基座第一闭环复核公开账本ID")
+            == task.get("稳定基座第一闭环复核公开账本ID")
+            and row.get("第一闭环私有预填公开审计ID")
+            == prefill.get("第一闭环私有预填公开审计ID")
+            and row.get("来源页码") == task.get("来源页码")
+            and row.get("版面列") == task.get("版面列")
+            and row.get("任务来源类型") == task.get("任务来源类型")
+            and row.get("字段审计范围") == first_pdf_ocr_field_scope(task, review_private)
+            and row.get("PDFOCR候选记录证据编号")
+            == f"FIRST-CLOSURE-PDFOCR-CAND-{row.get('第一闭环PDFOCR候选公开审计ID')}"
+            and row.get("PDFOCR候选记录状态")
+            == (
+                "private_pdf_ocr_candidate_seeded"
+                if pdf_count
+                else "private_pdf_ocr_candidate_unavailable_needs_manual_image_review"
+            )
+            and row.get("PDFOCR候选审阅桶") == first_pdf_ocr_review_bucket(review_private)
+            and row.get("PDFOCR与高校辅证关系桶") == first_pdf_ocr_relation_bucket(review_private)
+            and (as_int(row.get("PDFOCR候选字段数")) or 0) == pdf_count
+            and (as_int(row.get("高校辅证候选字段数")) or 0) == school_count
+            and (as_int(row.get("可比字段数")) or 0) == comparable
+            and (as_int(row.get("一致字段数")) or 0) == matched
+            and (as_int(row.get("冲突字段数")) or 0) == conflict
+            and (as_int(row.get("缺PDFOCR但有高校线索字段数")) or 0) == missing_pdf_with_school
+            and row.get("是否存在PDFOCR与高校冲突") == ("true" if conflict else "false")
+            and row.get("是否存在PDFOCR与高校一致字段") == ("true" if matched else "false")
+            and row.get("是否需要人工直接看图") == ("true" if conflict or not pdf_count else "false")
+            and row.get("是否需要双人复核") == task.get("是否需要双人复核")
+            and row.get("是否可自动写入私有记录值") == "false"
+            and row.get("PDF原页是否必核") == task.get("PDF原页是否必核")
+            and row.get("湖北官方侧是否必核") == task.get("湖北官方侧是否必核")
+            and row.get("高校辅证是否需要复核") == task.get("高校辅证是否需要复核")
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("字段事实写回状态")
+            == "blocked_until_private_pdf_hubei_review_confirms_values"
+            and all(private_row.get(field, "") == row.get(field, "") for field in first_pdf_ocr_fields)
+            and private_row.get("候选不得自动写回声明", "").startswith("PDFOCR候选")
+        )
+    first_pdf_ocr_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_pdf_ocr_summary_path, first_pdf_ocr_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环PDF OCR候选公开审计摘要、规模和边界正确",
+        first_pdf_ocr_summary.get("status")
+        == "issue19_stable_foundation_first_closure_pdf_ocr_candidate_public_audit_not_final"
+        and first_pdf_ocr_summary.get("generated_by")
+        == "build_issue19_first_closure_pdf_ocr_candidate_audit.py"
+        and first_pdf_ocr_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_pdf_ocr_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv"
+        and first_pdf_ocr_summary.get("public_row_count") == len(first_pdf_ocr_rows) == 205
+        and first_pdf_ocr_summary.get("unique_task_count") == 205
+        and first_pdf_ocr_summary.get("unique_page_side_count") == 36
+        and first_pdf_ocr_summary.get("unique_pdf_page_count") == 32
+        and first_pdf_ocr_summary.get("pdf_required_count") == 205
+        and first_pdf_ocr_summary.get("hubei_official_required_count") == 205
+        and first_pdf_ocr_summary.get("auto_private_record_write_allowed_count") == 0
+        and first_pdf_ocr_summary.get("field_writeback_allowed_count") == 0
+        and first_pdf_ocr_summary.get("final_available_count") == 0
+        and first_pdf_ocr_summary.get("next_stage_available_count") == 0
+        and first_pdf_ocr_summary.get("recommendation_basis_allowed_count") == 0
+        and first_pdf_ocr_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_pdf_ocr_summary.get("official_plan_replacement_allowed_count") == 0,
+        f"{len(first_pdf_ocr_rows)} pdf ocr candidate rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环PDF OCR候选公开审计分桶和私有工作台SHA正确",
+        first_pdf_ocr_summary.get("candidate_record_status_counts")
+        == dict(Counter(row.get("PDFOCR候选记录状态", "") for row in first_pdf_ocr_rows))
+        and first_pdf_ocr_summary.get("candidate_review_bucket_counts")
+        == dict(Counter(row.get("PDFOCR候选审阅桶", "") for row in first_pdf_ocr_rows))
+        and first_pdf_ocr_summary.get("candidate_relation_bucket_counts")
+        == dict(Counter(row.get("PDFOCR与高校辅证关系桶", "") for row in first_pdf_ocr_rows))
+        and first_pdf_ocr_summary.get("execution_lane_counts")
+        == dict(Counter(row.get("执行泳道", "") for row in first_pdf_ocr_rows))
+        and first_pdf_ocr_summary.get("page_side_priority_counts")
+        == dict(Counter(row.get("第一闭环页列优先级", "") for row in first_pdf_ocr_rows))
+        and first_pdf_ocr_summary.get("task_source_type_counts")
+        == dict(Counter(row.get("任务来源类型", "") for row in first_pdf_ocr_rows))
+        and first_pdf_ocr_summary.get("pdf_ocr_candidate_task_count")
+        == sum(row.get("PDFOCR候选字段数") != "0" for row in first_pdf_ocr_rows)
+        and first_pdf_ocr_summary.get("school_candidate_task_count")
+        == sum(row.get("高校辅证候选字段数") != "0" for row in first_pdf_ocr_rows)
+        and first_pdf_ocr_summary.get("conflict_field_task_count")
+        == sum(row.get("冲突字段数") != "0" for row in first_pdf_ocr_rows)
+        and first_pdf_ocr_private_csv.exists()
+        and first_pdf_ocr_summary.get("private_pdf_ocr_candidate_workbench_sha256")
+        == sha256(first_pdf_ocr_private_csv)
+        and first_pdf_ocr_private_fields == expected_first_pdf_ocr_private_fields
+        and len(first_pdf_ocr_private_rows) == 205,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环PDF OCR候选公开审计字段、门禁和回链正确",
+        first_pdf_ocr_fields == expected_first_pdf_ocr_fields
+        and len({row.get("第一闭环PDFOCR候选公开审计ID") for row in first_pdf_ocr_rows}) == 205
+        and set(first_pdf_ocr_private_by_task_id) == set(first_task_review_by_task_id)
+        and all(row.get(field) == "false" for row in first_pdf_ocr_rows for field in first_false_fields)
+        and first_pdf_ocr_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环PDF OCR候选公开文件不含候选值、私有路径、登录态、身份信息和最终误导结论",
+        "/Users/" not in first_pdf_ocr_public_text
+        and "/home/" not in first_pdf_ocr_public_text
+        and "/var/folders/" not in first_pdf_ocr_public_text
+        and "/private/" not in first_pdf_ocr_public_text
+        and "private/" not in first_pdf_ocr_public_text
+        and "private\\" not in first_pdf_ocr_public_text
+        and "ocr-runs" not in first_pdf_ocr_public_text
+        and "rendered-pages" not in first_pdf_ocr_public_text
+        and "file://" not in first_pdf_ocr_public_text
+        and ".png" not in first_pdf_ocr_public_text
+        and ".jpg" not in first_pdf_ocr_public_text
+        and ".jpeg" not in first_pdf_ocr_public_text
+        and ".webp" not in first_pdf_ocr_public_text
+        and ".tif" not in first_pdf_ocr_public_text
+        and ".tiff" not in first_pdf_ocr_public_text
+        and ".heic" not in first_pdf_ocr_public_text
+        and "Authorization" not in first_pdf_ocr_public_text
+        and "Bearer " not in first_pdf_ocr_public_text
+        and "Cookie" not in first_pdf_ocr_public_text
+        and "Set-Cookie" not in first_pdf_ocr_public_text
+        and "access_token" not in first_pdf_ocr_public_text
+        and "refresh_token" not in first_pdf_ocr_public_text
+        and "password" not in first_pdf_ocr_public_text
+        and "secret" not in first_pdf_ocr_public_text
+        and "api_key" not in first_pdf_ocr_public_text
+        and "身份证" not in first_pdf_ocr_public_text
+        and "准考证" not in first_pdf_ocr_public_text
+        and "报名号" not in first_pdf_ocr_public_text
+        and "序列号" not in first_pdf_ocr_public_text
+        and "手机号" not in first_pdf_ocr_public_text
+        and "院校名称" not in first_pdf_ocr_public_text
+        and "专业名称" not in first_pdf_ocr_public_text
+        and "候选值" not in first_pdf_ocr_public_text
+        and "最佳官网计划数" not in first_pdf_ocr_public_text
+        and "最佳官网学费" not in first_pdf_ocr_public_text
+        and "最佳官网选科" not in first_pdf_ocr_public_text
+        and "OCR行文本" not in first_pdf_ocr_public_text
+        and "PDF原页人工读数" not in first_pdf_ocr_public_text
+        and "湖北官方字段值" not in first_pdf_ocr_public_text
+        and "高校官网或招生章程字段值" not in first_pdf_ocr_public_text
+        and "字段确认值" not in first_pdf_ocr_public_text
+        and "人工读数" not in first_pdf_ocr_public_text
+        and "一审记录" not in first_pdf_ocr_public_text
+        and "二审记录" not in first_pdf_ocr_public_text
+        and "复核结论" not in first_pdf_ocr_public_text
+        and "复核备注" not in first_pdf_ocr_public_text
+        and "已确认" not in first_pdf_ocr_public_text
+        and "已核准" not in first_pdf_ocr_public_text
+        and "最终推荐" not in first_pdf_ocr_public_text
+        and "可填报" not in first_pdf_ocr_public_text
+        and "可排序" not in first_pdf_ocr_public_text
+        and not any(token in first_pdf_ocr_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

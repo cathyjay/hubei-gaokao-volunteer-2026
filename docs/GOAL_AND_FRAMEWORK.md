@@ -53,6 +53,8 @@
 
 新增的 `data/working/issue19-stable-foundation-first-closure-execution-queue.csv` 和 `data/working/issue19-stable-foundation-first-closure-execution-queue-summary.json` 把这 36 个页列排成第一闭环核验顺序：E0 冲突异常双人优先核验 17 个、E1 计划数补缺或偏大优先核验 11 个、E2 官网未匹配专业名归属核验 8 个。它只公开页列顺序、计数、证据编号、SHA、完成条件和阻断原因，不公开学校专业明细、候选值、人工读数、识别正文或私有路径；它是“先核什么”的工作台，不是“已经核准”的事实表。
 
+新增的 `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json` 是第一闭环 PDF OCR 候选提示层：覆盖 205 条任务，102 条已有 PDF OCR 候选，103 条需人工看图，25 条存在 PDF OCR 与高校辅证冲突，13 条存在一致字段但仍需官方闭环。它把私有候选值留在 Git 忽略目录，公开层只同步状态桶和计数，用于减少人工找行成本，不能自动写入人工记录或字段事实。
+
 ## 三、学校分析维度
 
 - 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。
