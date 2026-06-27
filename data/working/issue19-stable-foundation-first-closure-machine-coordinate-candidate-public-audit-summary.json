@@ -1,0 +1,68 @@
+{
+  "status": "issue19_stable_foundation_first_closure_machine_coordinate_candidate_public_audit_not_final",
+  "generated_by": "build_issue19_first_closure_machine_coordinate_candidate_audit.py",
+  "source_first_closure_pdf_ocr_candidate_public_audit": "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv",
+  "source_first_closure_pdf_ocr_candidate_summary": "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json",
+  "source_private_pdf_ocr_candidate_workbench": "first_closure_pdf_ocr_candidate_private_workbench_not_public",
+  "source_p0_machine_candidates": "data/working/issue19-field-fact-p0-reread-machine-candidates.csv",
+  "source_private_machine_coordinate_candidate_workbench": "first_closure_machine_coordinate_candidate_private_workbench_not_public",
+  "source_official_public_status": "data/working/issue19-official-public-entry-status.json",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_table": "data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv",
+  "public_row_count": 205,
+  "private_row_count": 205,
+  "unique_task_count": 205,
+  "unique_page_side_count": 36,
+  "unique_pdf_page_count": 32,
+  "original_missing_pdf_ocr_task_count": 103,
+  "machine_coordinate_candidate_task_count": 49,
+  "upgraded_from_missing_to_machine_candidate_count": 49,
+  "remaining_missing_after_machine_coordinate_count": 54,
+  "machine_candidate_field_counts": {
+    "学费": 5,
+    "专业计划数": 44
+  },
+  "machine_candidate_record_status_counts": {
+    "M2-原已有PDFOCR候选不启用机器坐标补候选": 102,
+    "M0-机器坐标单一候选可作为人工核页提示": 49,
+    "M1-机器坐标仍无候选需人工看图": 52,
+    "M3-未匹配到P0机器坐标任务需人工判定": 2
+  },
+  "machine_candidate_review_bucket_counts": {
+    "MC2-原已有PDFOCR候选按原流程人工核页": 102,
+    "MC0-机器坐标候选可辅助PDF原页核页": 49,
+    "MC1-机器坐标仍缺候选继续人工看图": 52,
+    "MC3-无P0机器坐标记录需人工判定字段": 2
+  },
+  "machine_candidate_relation_bucket_counts": {
+    "MR2-原PDFOCR已有候选无需坐标补候选": 102,
+    "MR0-缺PDFOCR但机器坐标可补候选": 49,
+    "MR1-缺PDFOCR且机器坐标仍缺候选": 54
+  },
+  "execution_lane_counts": {
+    "E0-冲突异常双人优先核验": 105,
+    "E1-计划数补缺或偏大优先核验": 62,
+    "E2-官网未匹配专业名归属核验": 38
+  },
+  "page_side_priority_counts": {
+    "Q0-冲突页列第一批先核": 105,
+    "Q1-补缺或计划数偏大页列先核": 62,
+    "Q2-官网未匹配或高校辅证页列先核": 38
+  },
+  "direct_image_review_remaining_count": 79,
+  "double_review_required_count": 90,
+  "pdf_required_count": 205,
+  "hubei_official_required_count": 205,
+  "auto_private_record_write_allowed_count": 0,
+  "machine_auto_writeback_allowed_count": 0,
+  "machine_auto_prefill_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "private_machine_coordinate_candidate_workbench_sha256": "1c4584abed43605f3f0313faf0a758c5a92e3d679605dad36b784fbd4e80f734",
+  "public_boundary": "公开表只保存机器坐标候选存在性、状态桶、计数、证据编号和门禁；候选明细只在私有工作台。"
+}

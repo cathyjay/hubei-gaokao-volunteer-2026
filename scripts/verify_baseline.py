@@ -21120,6 +21120,317 @@ def main():
         and not any(token in first_pdf_ocr_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_page_candidate_summary_path = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard-summary.json"
+    )
+    first_page_candidate_csv = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv"
+    )
+    first_page_candidate_summary = json.loads(first_page_candidate_summary_path.read_text())
+    with first_page_candidate_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_page_candidate_reader = csv.DictReader(f)
+        first_page_candidate_rows = list(first_page_candidate_reader)
+        first_page_candidate_fields = first_page_candidate_reader.fieldnames or []
+    expected_first_page_candidate_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_page_side_candidate_dashboard.py",
+        "PUBLIC_FIELDS",
+    )
+    first_pdf_ocr_by_page_key = {}
+    for row in first_pdf_ocr_rows:
+        first_pdf_ocr_by_page_key.setdefault(row.get("页码版面键", ""), []).append(row)
+    first_page_candidate_join_ok = True
+    for row in first_page_candidate_rows:
+        key = row.get("页码版面键", "")
+        tasks = first_pdf_ocr_by_page_key.get(key, [])
+        execution = first_execution_by_key.get(key, {})
+        first_page_candidate_join_ok = (
+            first_page_candidate_join_ok
+            and bool(execution)
+            and row.get("第一闭环页列候选看板ID")
+            == stable_id("FIRSTPAGECAND", [issue19_source["source"]["sha256"], key])
+            and row.get("来源第一闭环执行队列")
+            == "data/working/issue19-stable-foundation-first-closure-execution-queue.csv"
+            and row.get("来源第一闭环PDFOCR候选公开审计")
+            == "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv"
+            and row.get("来源第一闭环PDFOCR候选摘要")
+            == "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json"
+            and row.get("来源第一闭环PDFOCR候选私有工作台")
+            == "first_closure_pdf_ocr_candidate_private_workbench_not_public"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_page_side_candidate_dashboard"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×第一闭环PDFOCR候选状态"
+            and all(row.get(field) == "false" for field in first_false_fields)
+            and row.get("执行顺序") == execution.get("执行顺序")
+            and row.get("执行泳道") == execution.get("执行泳道")
+            and row.get("第一闭环页列优先级") == execution.get("第一闭环页列优先级")
+            and row.get("来源页码") == execution.get("来源页码")
+            and row.get("版面列") == execution.get("版面列")
+            and row.get("页列总任务数") == str(len(tasks))
+            and as_int(row.get("PDFOCR候选任务数"))
+            == sum(as_int(task.get("PDFOCR候选字段数")) > 0 for task in tasks)
+            and as_int(row.get("无PDFOCR需看图任务数"))
+            == sum(
+                task.get("PDFOCR候选记录状态")
+                == "private_pdf_ocr_candidate_unavailable_needs_manual_image_review"
+                for task in tasks
+            )
+            and as_int(row.get("PDFOCR与高校辅证冲突任务数"))
+            == sum(task.get("是否存在PDFOCR与高校冲突") == "true" for task in tasks)
+            and as_int(row.get("PDFOCR与高校辅证一致任务数"))
+            == sum(task.get("是否存在PDFOCR与高校一致字段") == "true" for task in tasks)
+            and as_int(row.get("需要人工直接看图任务数"))
+            == sum(task.get("是否需要人工直接看图") == "true" for task in tasks)
+            and as_int(row.get("需要双人复核任务数"))
+            == sum(task.get("是否需要双人复核") == "true" for task in tasks)
+            and row.get("PDFOCR候选私有工作台_SHA256")
+            == first_pdf_ocr_summary.get("private_pdf_ocr_candidate_workbench_sha256")
+            and row.get("字段事实写回状态")
+            == "blocked_until_first_closure_private_review_confirms_values"
+        )
+    first_page_candidate_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_page_candidate_summary_path, first_page_candidate_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环页列候选看板摘要、规模和分桶正确",
+        first_page_candidate_summary.get("status")
+        == "issue19_stable_foundation_first_closure_page_side_candidate_dashboard_not_final"
+        and first_page_candidate_summary.get("generated_by")
+        == "build_issue19_first_closure_page_side_candidate_dashboard.py"
+        and first_page_candidate_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_page_candidate_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv"
+        and first_page_candidate_summary.get("public_row_count") == len(first_page_candidate_rows) == 36
+        and first_page_candidate_summary.get("unique_page_side_count") == 36
+        and first_page_candidate_summary.get("unique_pdf_page_count") == 32
+        and first_page_candidate_summary.get("total_task_count") == 205
+        and first_page_candidate_summary.get("pdf_ocr_candidate_task_count") == 102
+        and first_page_candidate_summary.get("no_pdf_ocr_manual_image_task_count") == 103
+        and first_page_candidate_summary.get("pdf_school_conflict_task_count") == 25
+        and first_page_candidate_summary.get("p0_conflict_task_count") == 25
+        and first_page_candidate_summary.get("p1_missing_pdf_ocr_task_count") == 138
+        and first_page_candidate_summary.get("p2_consistent_official_task_count") == 13
+        and first_page_candidate_summary.get("p3_candidate_confirm_task_count") == 29
+        and first_page_candidate_summary.get("direct_image_review_required_count") == 128
+        and first_page_candidate_summary.get("double_review_required_count") == 90
+        and first_page_candidate_summary.get("pdf_required_count") == 205
+        and first_page_candidate_summary.get("hubei_official_required_count") == 205
+        and first_page_candidate_summary.get("field_writeback_allowed_count") == 0
+        and first_page_candidate_summary.get("final_available_count") == 0
+        and first_page_candidate_summary.get("next_stage_available_count") == 0
+        and first_page_candidate_summary.get("recommendation_basis_allowed_count") == 0,
+        f"{len(first_page_candidate_rows)} page-side candidate dashboard rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环页列候选看板字段、门禁和回链正确",
+        first_page_candidate_fields == expected_first_page_candidate_fields
+        and len({row.get("第一闭环页列候选看板ID") for row in first_page_candidate_rows}) == 36
+        and [row.get("页码版面键") for row in first_page_candidate_rows]
+        == first_page_candidate_summary.get("first_execution_page_side_keys")
+        + [row.get("页码版面键") for row in first_page_candidate_rows[10:]]
+        and first_page_candidate_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环页列候选看板公开文件不含私有路径、候选明细、登录态、身份信息和最终误导结论",
+        "/Users/" not in first_page_candidate_public_text
+        and "/home/" not in first_page_candidate_public_text
+        and "/var/folders/" not in first_page_candidate_public_text
+        and "/private/" not in first_page_candidate_public_text
+        and "private/" not in first_page_candidate_public_text
+        and "private\\" not in first_page_candidate_public_text
+        and "ocr-runs" not in first_page_candidate_public_text
+        and "rendered-pages" not in first_page_candidate_public_text
+        and "file://" not in first_page_candidate_public_text
+        and ".png" not in first_page_candidate_public_text
+        and ".jpg" not in first_page_candidate_public_text
+        and ".jpeg" not in first_page_candidate_public_text
+        and ".webp" not in first_page_candidate_public_text
+        and ".tif" not in first_page_candidate_public_text
+        and ".tiff" not in first_page_candidate_public_text
+        and ".heic" not in first_page_candidate_public_text
+        and "Authorization" not in first_page_candidate_public_text
+        and "Bearer " not in first_page_candidate_public_text
+        and "Cookie" not in first_page_candidate_public_text
+        and "Set-Cookie" not in first_page_candidate_public_text
+        and "access_token" not in first_page_candidate_public_text
+        and "refresh_token" not in first_page_candidate_public_text
+        and "password" not in first_page_candidate_public_text
+        and "secret" not in first_page_candidate_public_text
+        and "api_key" not in first_page_candidate_public_text
+        and "身份证" not in first_page_candidate_public_text
+        and "准考证" not in first_page_candidate_public_text
+        and "报名号" not in first_page_candidate_public_text
+        and "序列号" not in first_page_candidate_public_text
+        and "手机号" not in first_page_candidate_public_text
+        and "院校名称" not in first_page_candidate_public_text
+        and "专业名称" not in first_page_candidate_public_text
+        and "候选值" not in first_page_candidate_public_text
+        and "OCR行文本" not in first_page_candidate_public_text
+        and "PDF原页人工读数" not in first_page_candidate_public_text
+        and "湖北官方字段值" not in first_page_candidate_public_text
+        and "字段确认值" not in first_page_candidate_public_text
+        and "人工读数" not in first_page_candidate_public_text
+        and "已确认" not in first_page_candidate_public_text
+        and "已核准" not in first_page_candidate_public_text
+        and "最终推荐" not in first_page_candidate_public_text
+        and "可填报" not in first_page_candidate_public_text
+        and "可排序" not in first_page_candidate_public_text
+        and not any(token in first_page_candidate_public_text for token in shared_forbidden_tokens),
+    ))
+
+    first_machine_summary_path = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit-summary.json"
+    )
+    first_machine_csv = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv"
+    )
+    first_machine_summary = json.loads(first_machine_summary_path.read_text())
+    with first_machine_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_machine_reader = csv.DictReader(f)
+        first_machine_rows = list(first_machine_reader)
+        first_machine_fields = first_machine_reader.fieldnames or []
+    expected_first_machine_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py",
+        "PUBLIC_FIELDS",
+    )
+    expected_first_machine_private_extra_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py",
+        "PRIVATE_EXTRA_FIELDS",
+    )
+    expected_first_machine_private_fields = (
+        expected_first_machine_fields + expected_first_machine_private_extra_fields
+    )
+    first_machine_private_csv = (
+        ROOT
+        / "private/review-assets/issue19-stable-foundation-first-closure-machine-coordinate-candidates/first-closure-machine-coordinate-candidates-private.csv"
+    )
+    first_machine_private_rows = []
+    first_machine_private_fields = []
+    if first_machine_private_csv.exists():
+        with first_machine_private_csv.open(newline="", encoding="utf-8-sig") as f:
+            first_machine_private_reader = csv.DictReader(f)
+            first_machine_private_rows = list(first_machine_private_reader)
+            first_machine_private_fields = first_machine_private_reader.fieldnames or []
+    first_machine_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_machine_summary_path, first_machine_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环机器坐标候选公开审计摘要、规模和提升计数正确",
+        first_machine_summary.get("status")
+        == "issue19_stable_foundation_first_closure_machine_coordinate_candidate_public_audit_not_final"
+        and first_machine_summary.get("generated_by")
+        == "build_issue19_first_closure_machine_coordinate_candidate_audit.py"
+        and first_machine_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_machine_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv"
+        and first_machine_summary.get("public_row_count") == len(first_machine_rows) == 205
+        and first_machine_summary.get("private_row_count") == len(first_machine_private_rows) == 205
+        and first_machine_summary.get("unique_task_count") == 205
+        and first_machine_summary.get("unique_page_side_count") == 36
+        and first_machine_summary.get("unique_pdf_page_count") == 32
+        and first_machine_summary.get("original_missing_pdf_ocr_task_count") == 103
+        and first_machine_summary.get("machine_coordinate_candidate_task_count") == 49
+        and first_machine_summary.get("upgraded_from_missing_to_machine_candidate_count") == 49
+        and first_machine_summary.get("remaining_missing_after_machine_coordinate_count") == 54
+        and first_machine_summary.get("machine_candidate_field_counts") == {"学费": 5, "专业计划数": 44}
+        and first_machine_summary.get("direct_image_review_remaining_count") == 79
+        and first_machine_summary.get("double_review_required_count") == 90
+        and first_machine_summary.get("pdf_required_count") == 205
+        and first_machine_summary.get("hubei_official_required_count") == 205
+        and first_machine_summary.get("auto_private_record_write_allowed_count") == 0
+        and first_machine_summary.get("machine_auto_writeback_allowed_count") == 0
+        and first_machine_summary.get("machine_auto_prefill_allowed_count") == 0
+        and first_machine_summary.get("field_writeback_allowed_count") == 0
+        and first_machine_summary.get("final_available_count") == 0
+        and first_machine_summary.get("next_stage_available_count") == 0
+        and first_machine_summary.get("recommendation_basis_allowed_count") == 0
+        and first_machine_summary.get("official_plan_replacement_allowed_count") == 0,
+        f"{first_machine_summary.get('upgraded_from_missing_to_machine_candidate_count')} machine-coordinate upgrades",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环机器坐标候选公开审计分桶、私有SHA和字段正确",
+        first_machine_summary.get("machine_candidate_record_status_counts")
+        == dict(Counter(row.get("机器坐标候选记录状态", "") for row in first_machine_rows))
+        and first_machine_summary.get("machine_candidate_review_bucket_counts")
+        == dict(Counter(row.get("机器坐标候选审阅桶", "") for row in first_machine_rows))
+        and first_machine_summary.get("machine_candidate_relation_bucket_counts")
+        == dict(Counter(row.get("机器坐标候选关系桶", "") for row in first_machine_rows))
+        and first_machine_summary.get("execution_lane_counts")
+        == dict(Counter(row.get("执行泳道", "") for row in first_machine_rows))
+        and first_machine_summary.get("page_side_priority_counts")
+        == dict(Counter(row.get("第一闭环页列优先级", "") for row in first_machine_rows))
+        and first_machine_private_csv.exists()
+        and first_machine_summary.get("private_machine_coordinate_candidate_workbench_sha256")
+        == sha256(first_machine_private_csv)
+        and first_machine_fields == expected_first_machine_fields
+        and first_machine_private_fields == expected_first_machine_private_fields
+        and len({row.get("第一闭环机器坐标候选公开审计ID") for row in first_machine_rows}) == 205
+        and all(row.get(field) == "false" for row in first_machine_rows for field in first_false_fields)
+        and all(row.get("机器坐标是否允许自动写回主表") == "false" for row in first_machine_rows)
+        and all(row.get("机器坐标是否允许自动回填候选") == "false" for row in first_machine_rows)
+        and all(row.get("是否可自动写入私有记录值") == "false" for row in first_machine_rows),
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环机器坐标候选公开文件不含字段明细、私有路径、登录态、身份信息和最终误导结论",
+        "/Users/" not in first_machine_public_text
+        and "/home/" not in first_machine_public_text
+        and "/var/folders/" not in first_machine_public_text
+        and "/private/" not in first_machine_public_text
+        and "private/" not in first_machine_public_text
+        and "private\\" not in first_machine_public_text
+        and "ocr-runs" not in first_machine_public_text
+        and "rendered-pages" not in first_machine_public_text
+        and "file://" not in first_machine_public_text
+        and ".png" not in first_machine_public_text
+        and ".jpg" not in first_machine_public_text
+        and ".jpeg" not in first_machine_public_text
+        and ".webp" not in first_machine_public_text
+        and ".tif" not in first_machine_public_text
+        and ".tiff" not in first_machine_public_text
+        and ".heic" not in first_machine_public_text
+        and "Authorization" not in first_machine_public_text
+        and "Bearer " not in first_machine_public_text
+        and "Cookie" not in first_machine_public_text
+        and "Set-Cookie" not in first_machine_public_text
+        and "access_token" not in first_machine_public_text
+        and "refresh_token" not in first_machine_public_text
+        and "password" not in first_machine_public_text
+        and "secret" not in first_machine_public_text
+        and "api_key" not in first_machine_public_text
+        and "身份证" not in first_machine_public_text
+        and "准考证" not in first_machine_public_text
+        and "报名号" not in first_machine_public_text
+        and "序列号" not in first_machine_public_text
+        and "手机号" not in first_machine_public_text
+        and "院校名称" not in first_machine_public_text
+        and "专业名称" not in first_machine_public_text
+        and "专业代号" not in first_machine_public_text
+        and "院校专业组" not in first_machine_public_text
+        and "候选值" not in first_machine_public_text
+        and "机器候选字段值" not in first_machine_public_text
+        and "机器候选值集合" not in first_machine_public_text
+        and "OCR行文本" not in first_machine_public_text
+        and "PDF原页人工读数" not in first_machine_public_text
+        and "湖北官方字段值" not in first_machine_public_text
+        and "字段确认值" not in first_machine_public_text
+        and "人工读数" not in first_machine_public_text
+        and "已确认" not in first_machine_public_text
+        and "已核准" not in first_machine_public_text
+        and "最终推荐" not in first_machine_public_text
+        and "可填报" not in first_machine_public_text
+        and "可排序" not in first_machine_public_text
+        and not any(token in first_machine_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
