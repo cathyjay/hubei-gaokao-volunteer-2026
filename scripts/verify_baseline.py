@@ -20893,6 +20893,260 @@ def main():
         and not any(token in school_refresh_public_text for token in shared_forbidden_tokens),
     ))
 
+    c4_c6_packets_summary_path = (
+        ROOT / "data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json"
+    )
+    c4_c6_packets_csv = (
+        ROOT / "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv"
+    )
+    c4_c6_private_dir = (
+        ROOT / "private/review-assets/issue19-c4-c6-school-source-refresh-execution-packets"
+    )
+    c4_c6_private_packet_dir = c4_c6_private_dir / "packets"
+    c4_c6_private_master_csv = c4_c6_private_dir / "c4-c6-source-refresh-private-detail-workbench.csv"
+    c4_c6_private_index_csv = c4_c6_private_dir / "c4-c6-source-refresh-private-index.csv"
+    c4_c6_private_index_html = c4_c6_private_dir / "index.html"
+    c4_c6_packets_summary = json.loads(c4_c6_packets_summary_path.read_text())
+    with c4_c6_packets_csv.open(newline="", encoding="utf-8-sig") as f:
+        c4_c6_packets_reader = csv.DictReader(f)
+        c4_c6_packets_rows = list(c4_c6_packets_reader)
+        c4_c6_packets_fields = c4_c6_packets_reader.fieldnames or []
+    c4_c6_private_master_rows = []
+    c4_c6_private_master_fields = []
+    c4_c6_private_index_rows = []
+    c4_c6_private_index_fields = []
+    if c4_c6_private_master_csv.exists():
+        with c4_c6_private_master_csv.open(newline="", encoding="utf-8-sig") as f:
+            c4_c6_private_master_reader = csv.DictReader(f)
+            c4_c6_private_master_rows = list(c4_c6_private_master_reader)
+            c4_c6_private_master_fields = c4_c6_private_master_reader.fieldnames or []
+    if c4_c6_private_index_csv.exists():
+        with c4_c6_private_index_csv.open(newline="", encoding="utf-8-sig") as f:
+            c4_c6_private_index_reader = csv.DictReader(f)
+            c4_c6_private_index_rows = list(c4_c6_private_index_reader)
+            c4_c6_private_index_fields = c4_c6_private_index_reader.fieldnames or []
+    expected_c4_c6_public_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py",
+        "PUBLIC_FIELDS",
+    )
+    expected_c4_c6_private_detail_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py",
+        "PRIVATE_DETAIL_FIELDS",
+    )
+    expected_c4_c6_private_index_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py",
+        "PRIVATE_INDEX_FIELDS",
+    )
+    c4_c6_source_rows_by_key = defaultdict(list)
+    for row in next_closure_auto_rows:
+        if row.get("官网辅证自动动作") in {
+            "C4-已有部分来源需补结构化或补湖北行",
+            "C6-继续搜索高校官网2026湖北计划源",
+        }:
+            c4_c6_source_rows_by_key[
+                (
+                    row.get("院校代码", ""),
+                    row.get("院校名称OCR", ""),
+                    row.get("官网辅证自动动作", ""),
+                )
+            ].append(row)
+    school_refresh_by_key = {
+        (
+            row.get("院校代码", ""),
+            row.get("院校名称OCR", ""),
+            row.get("官网辅证自动动作", ""),
+        ): row
+        for row in school_refresh_rows
+        if row.get("官网辅证自动动作")
+        in {"C4-已有部分来源需补结构化或补湖北行", "C6-继续搜索高校官网2026湖北计划源"}
+    }
+    c4_c6_private_index_by_id = {
+        row.get("C4C6高校源刷新执行包ID", ""): row for row in c4_c6_private_index_rows
+    }
+    c4_c6_packet_files = sorted(c4_c6_private_packet_dir.glob("*.csv")) if c4_c6_private_packet_dir.exists() else []
+    c4_c6_false_fields = [
+        "最终可用",
+        "可进入下一阶段",
+        "可否进入最终志愿方案",
+        "是否允许作为志愿推荐依据",
+        "是否允许自动写回主表",
+        "是否允许官网证据替代湖北官方计划",
+        "是否允许生成学校专业建议",
+        "是否允许写回字段事实",
+    ]
+    c4_c6_packets_join_ok = True
+    for idx, row in enumerate(c4_c6_packets_rows, 1):
+        key = (
+            row.get("院校代码", ""),
+            row.get("院校名称OCR", ""),
+            row.get("官网辅证自动动作", ""),
+        )
+        source_rows = c4_c6_source_rows_by_key.get(key, [])
+        school_row = school_refresh_by_key.get(key, {})
+        private_index = c4_c6_private_index_by_id.get(row.get("C4C6高校源刷新执行包ID", ""), {})
+        packet_file = next(
+            (
+                file
+                for file in c4_c6_packet_files
+                if sha256(file) == row.get("私有明细CSV_SHA256")
+            ),
+            None,
+        )
+        c4_c6_packets_join_ok = (
+            c4_c6_packets_join_ok
+            and bool(source_rows)
+            and bool(school_row)
+            and bool(private_index)
+            and packet_file is not None
+            and row.get("C4C6高校源刷新执行包ID")
+            == stable_id("C4C6PACKET", [key[0], key[1], key[2]])
+            and as_int(row.get("执行总序")) == idx
+            and row.get("来源高校侧辅证刷新公开账本")
+            == "data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv"
+            and row.get("来源稳定基座自动交叉核验工作台")
+            == "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv"
+            and row.get("来源高校官网补源种子表")
+            == "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv"
+            and row.get("来源湖北官方活体复查")
+            == "data/working/issue19-official-public-entry-live-recheck.json"
+            and row.get("来源本地私有执行包") == "local_c4_c6_school_source_refresh_packet_not_public"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_c4_c6_school_source_refresh_execution_packets"
+            and row.get("主表粒度") == "高校×C4C6来源刷新执行包"
+            and row.get("任务粒度") == "高校×动作×逐专业私有执行明细"
+            and all(row.get(field) == "false" for field in c4_c6_false_fields)
+            and as_int(row.get("涉及招生明细数")) == len(source_rows)
+            and as_int(row.get("涉及专业组数"))
+            == len({item.get("专业组出现ID", "") for item in source_rows})
+            and as_int(row.get("涉及PDF页数")) == len({item.get("来源页码", "") for item in source_rows})
+            and row.get("专业行ID集合SHA256") == school_row.get("专业行ID集合SHA256")
+            and row.get("专业组ID集合SHA256") == school_row.get("专业组ID集合SHA256")
+            and row.get("页列集合SHA256") == school_row.get("页列集合SHA256")
+            and as_int(row.get("私有明细行数")) == len(source_rows)
+            and private_index.get("C4C6高校源刷新执行包ID") == row.get("C4C6高校源刷新执行包ID")
+            and private_index.get("私有明细CSV_SHA256") == row.get("私有明细CSV_SHA256")
+            and private_index.get("私有明细行数") == row.get("私有明细行数")
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("高校官网源刷新状态") == "pending_school_source_refresh_or_structure"
+            and row.get("字段事实写回状态") == "blocked_until_pdf_hubei_official_review"
+            and "湖北官方" in row.get("下一步", "")
+        )
+    c4_c6_packets_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [c4_c6_packets_summary_path, c4_c6_packets_csv]
+    )
+    checks.append(ok(
+        "第 19 期 C4/C6 高校源刷新执行包摘要、规模和分层正确",
+        c4_c6_packets_summary.get("status")
+        == "issue19_c4_c6_school_source_refresh_execution_packets_not_final"
+        and c4_c6_packets_summary.get("generated_by")
+        == "build_issue19_c4_c6_school_source_refresh_execution_packets.py"
+        and c4_c6_packets_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and c4_c6_packets_summary.get("source_school_refresh_ledger")
+        == "data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv"
+        and c4_c6_packets_summary.get("source_auto_workbench")
+        == "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv"
+        and c4_c6_packets_summary.get("source_school_seed_table")
+        == "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv"
+        and c4_c6_packets_summary.get("source_official_live_recheck")
+        == "data/working/issue19-official-public-entry-live-recheck.json"
+        and c4_c6_packets_summary.get("official_can_finalize") is False
+        and c4_c6_packets_summary.get("official_without_login_structured_plan_available") is False
+        and c4_c6_packets_summary.get("public_packet_count") == len(c4_c6_packets_rows) == 36
+        and c4_c6_packets_summary.get("private_detail_row_count") == 607
+        and c4_c6_packets_summary.get("private_index_row_count") == 36
+        and c4_c6_packets_summary.get("unique_school_count") == 30
+        and c4_c6_packets_summary.get("unique_school_action_count") == 36
+        and c4_c6_packets_summary.get("c4_packet_count") == 22
+        and c4_c6_packets_summary.get("c6_packet_count") == 14
+        and c4_c6_packets_summary.get("c4_detail_count") == 411
+        and c4_c6_packets_summary.get("c6_detail_count") == 196
+        and c4_c6_packets_summary.get("private_packet_csv_count") == 36
+        and c4_c6_packets_summary.get("field_writeback_allowed_count") == 0
+        and c4_c6_packets_summary.get("recommendation_basis_allowed_count") == 0
+        and c4_c6_packets_summary.get("school_major_suggestion_allowed_count") == 0
+        and c4_c6_packets_summary.get("official_plan_replacement_allowed_count") == 0
+        and c4_c6_packets_summary.get("final_available_count") == 0
+        and c4_c6_packets_summary.get("next_stage_available_count") == 0,
+        f"{len(c4_c6_packets_rows)} C4/C6 packets",
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 高校源刷新执行包泳道、私有材料和门禁正确",
+        c4_c6_packets_fields == expected_c4_c6_public_fields
+        and c4_c6_private_master_fields == expected_c4_c6_private_detail_fields
+        and c4_c6_private_index_fields == expected_c4_c6_private_index_fields
+        and c4_c6_private_master_csv.exists()
+        and c4_c6_private_index_csv.exists()
+        and c4_c6_private_index_html.exists()
+        and c4_c6_packets_summary.get("private_master_csv_sha256")
+        == sha256(c4_c6_private_master_csv)
+        and c4_c6_packets_summary.get("private_index_csv_sha256")
+        == sha256(c4_c6_private_index_csv)
+        and c4_c6_packets_summary.get("private_index_html_sha256")
+        == sha256(c4_c6_private_index_html)
+        and len(c4_c6_packet_files) == 36
+        and len(c4_c6_private_master_rows) == 607
+        and len(c4_c6_private_index_rows) == 36
+        and [as_int(row.get("执行总序")) for row in c4_c6_packets_rows] == list(range(1, 37))
+        and Counter(row.get("执行泳道") for row in c4_c6_packets_rows) == Counter({
+            "X3-C4已有部分来源待结构化": 16,
+            "X2-C4有入口但未留存结果": 6,
+            "X1-C6有入口待获取湖北计划": 6,
+            "X0-C6无官网计划入口需搜索": 8,
+        })
+        and Counter({
+            key: sum(as_int(row.get("私有明细行数")) for row in c4_c6_packets_rows if row.get("执行泳道") == key)
+            for key in {row.get("执行泳道") for row in c4_c6_packets_rows}
+        }) == Counter({
+            "X3-C4已有部分来源待结构化": 297,
+            "X2-C4有入口但未留存结果": 114,
+            "X1-C6有入口待获取湖北计划": 29,
+            "X0-C6无官网计划入口需搜索": 167,
+        })
+        and c4_c6_packets_summary.get("lane_packet_counts")
+        == dict(Counter(row.get("执行泳道") for row in c4_c6_packets_rows))
+        and c4_c6_packets_summary.get("seed_url_packet_count") == 28
+        and c4_c6_packets_summary.get("seed_without_url_packet_count") == 8
+        and c4_c6_packets_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 高校源刷新执行包公开文件不含私有路径、字段值、人工记录和最终误导结论",
+        "/Users/" not in c4_c6_packets_public_text
+        and "/home/" not in c4_c6_packets_public_text
+        and "/var/folders/" not in c4_c6_packets_public_text
+        and "/private/" not in c4_c6_packets_public_text
+        and "private/" not in c4_c6_packets_public_text
+        and "private\\" not in c4_c6_packets_public_text
+        and "ocr-runs" not in c4_c6_packets_public_text
+        and "rendered-pages" not in c4_c6_packets_public_text
+        and ".png" not in c4_c6_packets_public_text
+        and ".jpg" not in c4_c6_packets_public_text
+        and ".jpeg" not in c4_c6_packets_public_text
+        and ".webp" not in c4_c6_packets_public_text
+        and ".tif" not in c4_c6_packets_public_text
+        and ".tiff" not in c4_c6_packets_public_text
+        and ".heic" not in c4_c6_packets_public_text
+        and "Authorization" not in c4_c6_packets_public_text
+        and "Bearer " not in c4_c6_packets_public_text
+        and "Cookie" not in c4_c6_packets_public_text
+        and "专业名称及备注短摘" not in c4_c6_packets_public_text
+        and "OCR专业计划数候选" not in c4_c6_packets_public_text
+        and "OCR学费候选" not in c4_c6_packets_public_text
+        and "OCR再选科目候选" not in c4_c6_packets_public_text
+        and "最佳官网专业名称" not in c4_c6_packets_public_text
+        and "最佳官网计划数" not in c4_c6_packets_public_text
+        and "人工核验结论" not in c4_c6_packets_public_text
+        and "湖北官方侧核验结论" not in c4_c6_packets_public_text
+        and "已确认" not in c4_c6_packets_public_text
+        and "已核准" not in c4_c6_packets_public_text
+        and "最终推荐" not in c4_c6_packets_public_text
+        and "最终方案" not in c4_c6_packets_public_text
+        and "可填报" not in c4_c6_packets_public_text
+        and "可排序" not in c4_c6_packets_public_text
+        and not any(token in c4_c6_packets_public_text for token in shared_forbidden_tokens),
+    ))
+
     first_closure_summary_path = (
         ROOT / "data/working/issue19-stable-foundation-first-closure-packet-summary.json"
     )

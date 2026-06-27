@@ -1,0 +1,56 @@
+{
+  "status": "issue19_c4_c6_school_source_refresh_execution_packets_not_final",
+  "generated_by": "build_issue19_c4_c6_school_source_refresh_execution_packets.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_school_refresh_ledger": "data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv",
+  "source_auto_workbench": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
+  "source_school_seed_table": "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv",
+  "source_official_live_recheck": "data/working/issue19-official-public-entry-live-recheck.json",
+  "official_can_finalize": false,
+  "official_without_login_structured_plan_available": false,
+  "output_public_table": "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv",
+  "public_packet_count": 36,
+  "private_detail_row_count": 607,
+  "private_index_row_count": 36,
+  "unique_school_count": 30,
+  "unique_school_action_count": 36,
+  "c4_packet_count": 22,
+  "c6_packet_count": 14,
+  "c4_detail_count": 411,
+  "c6_detail_count": 196,
+  "lane_packet_counts": {
+    "X3-C4已有部分来源待结构化": 16,
+    "X2-C4有入口但未留存结果": 6,
+    "X1-C6有入口待获取湖北计划": 6,
+    "X0-C6无官网计划入口需搜索": 8
+  },
+  "lane_detail_counts": {
+    "X3-C4已有部分来源待结构化": 297,
+    "X2-C4有入口但未留存结果": 114,
+    "X1-C6有入口待获取湖北计划": 29,
+    "X0-C6无官网计划入口需搜索": 167
+  },
+  "seed_url_packet_count": 28,
+  "seed_without_url_packet_count": 8,
+  "seed_local_path_status_counts": {
+    "S2-种子有本地留存路径": 22,
+    "S1-种子记录未留存": 6,
+    "S0-无本地留存路径": 8
+  },
+  "private_master_csv_sha256": "37bc95e04a9ba325d1da100bb5d9e7a0aaf2d057b27932cc16431f6829146315",
+  "private_index_csv_sha256": "fb99d2cc53543ee54e15ac60308153c03cb98fe38374d7ebcd4b0b81ddba7a1e",
+  "private_index_html_sha256": "f56af23de8492b8a93da33e65f4339540e1a255c917c50046f5645b821eb4849",
+  "private_packet_csv_count": 36,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "policy": {
+    "goal": "把 C4/C6 最大自动补源缺口拆成可并行执行包，减少后续人工核验前的查找和结构化成本。",
+    "boundary": "本包只产生高校官网补源、结构化 diff 和核验入口；字段事实仍需第19期 PDF 原页、湖北官方侧和必要高校辅证闭环。",
+    "privacy": "公开层不保存逐专业字段值、OCR 原文、私有路径、登录态或人工记录。"
+  }
+}
