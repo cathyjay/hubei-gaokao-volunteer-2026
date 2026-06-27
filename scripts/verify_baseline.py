@@ -10503,6 +10503,231 @@ def main():
         and "可排序" not in stabilization_public_text,
     ))
 
+    raw_lineage_summary_path = ROOT / "data/working/issue19-raw-major-lineage-consistency-audit-summary.json"
+    raw_lineage_csv = ROOT / "data/working/issue19-raw-major-lineage-consistency-audit.csv"
+    raw_lineage_summary = json.loads(raw_lineage_summary_path.read_text())
+    with raw_lineage_csv.open(newline="", encoding="utf-8-sig") as f:
+        raw_lineage_reader = csv.DictReader(f)
+        raw_lineage_rows = list(raw_lineage_reader)
+        raw_lineage_fields = raw_lineage_reader.fieldnames or []
+    expected_raw_lineage_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_raw_major_lineage_consistency_audit.py",
+        "FIELDS",
+    )
+    raw_lineage_by_major_id = {row.get("专业行ID"): row for row in raw_lineage_rows}
+    quality_by_raw_line = {
+        as_int(row.get("专业明细源行号")) - 1: row
+        for row in major_quality_rows
+        if as_int(row.get("专业明细源行号")) is not None
+    }
+    raw_lineage_join_ok = True
+    for raw_index, raw_row in enumerate(full_major_rows, start=1):
+        quality_row = quality_by_raw_line.get(raw_index, {})
+        major_id = quality_row.get("专业行ID", "")
+        lineage_row = raw_lineage_by_major_id.get(major_id, {})
+        release_row = foundation_release_by_major_id.get(major_id, {})
+        master_row = admission_master_by_major_id.get(major_id, {})
+        structural_row = structural_by_major_id.get(major_id, {})
+        stability_row = stability_dashboard_by_major_id.get(major_id, {})
+        anchor_row = anchor_by_major_id.get(major_id, {})
+        history_row = historical_sidecar_by_major_id.get(major_id, {})
+        gap_row = gap_scorecard_by_major_id.get(major_id, {})
+        field_rows = field_candidate_rows_by_major_id.get(major_id, [])
+        structural_events = structural_event_rows_by_major_id.get(major_id, [])
+        official_collisions = official_collision_rows_by_major_id.get(major_id, [])
+        raw_lineage_join_ok = (
+            raw_lineage_join_ok
+            and bool(lineage_row)
+            and bool(quality_row)
+            and bool(release_row)
+            and bool(master_row)
+            and bool(structural_row)
+            and bool(stability_row)
+            and bool(anchor_row)
+            and bool(history_row)
+            and bool(gap_row)
+            and lineage_row.get("原始专业行血缘审计ID")
+            == stable_id("RAWLINEAGE", [major_id, issue19_source["source"]["sha256"]])
+            and lineage_row.get("数据阶段") == "issue19_raw_major_lineage_consistency_audit"
+            and lineage_row.get("主表粒度") == "逐专业招生明细"
+            and lineage_row.get("最终可用") == "false"
+            and lineage_row.get("可进入下一阶段") == "false"
+            and lineage_row.get("机器是否允许自动写回主表") == "false"
+            and lineage_row.get("是否允许作为志愿推荐依据") == "false"
+            and lineage_row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and lineage_row.get("原始CSV数据行号") == str(raw_index)
+            and lineage_row.get("专业明细源行号") == str(raw_index + 1)
+            and lineage_row.get("专业行ID") == major_id
+            and lineage_row.get("专业组出现ID") == quality_row.get("专业组出现ID")
+            and lineage_row.get("院校代码") == raw_row.get("院校代码")
+            and lineage_row.get("院校名称OCR") == raw_row.get("院校名称OCR")
+            and lineage_row.get("院校专业组代码OCR规范化")
+            == raw_row.get("院校专业组代码OCR规范化")
+            and lineage_row.get("专业组号OCR") == raw_row.get("专业组号OCR")
+            and lineage_row.get("专业组标题OCR原文") == raw_row.get("专业组标题OCR原文")
+            and lineage_row.get("来源页码") == raw_row.get("来源页码")
+            and lineage_row.get("版面列") == raw_row.get("版面列")
+            and lineage_row.get("专业组标题行号") == raw_row.get("专业组标题行号")
+            and lineage_row.get("专业组标题y") == raw_row.get("专业组标题y")
+            and lineage_row.get("专业起始行号") == raw_row.get("专业起始行号")
+            and lineage_row.get("专业起始y") == raw_row.get("专业起始y")
+            and lineage_row.get("专业代号OCR") == raw_row.get("专业代号OCR")
+            and lineage_row.get("专业名称及备注OCR") == raw_row.get("专业名称及备注OCR")
+            and lineage_row.get("再选科目OCR候选") == raw_row.get("再选科目OCR候选")
+            and lineage_row.get("专业计划数OCR候选") == raw_row.get("专业计划数OCR候选")
+            and lineage_row.get("专业计划数OCR数字候选") == raw_row.get("专业计划数OCR数字候选")
+            and lineage_row.get("专业计划数是否纯数字") == raw_row.get("专业计划数是否纯数字")
+            and lineage_row.get("学费OCR候选") == raw_row.get("学费OCR候选")
+            and lineage_row.get("学费OCR数字候选") == raw_row.get("学费OCR数字候选")
+            and lineage_row.get("学费是否纯数字") == raw_row.get("学费是否纯数字")
+            and lineage_row.get("OCR置信度") == raw_row.get("OCR置信度")
+            and lineage_row.get("原始字段完整性标记") == raw_row.get("字段完整性标记")
+            and lineage_row.get("原始核验状态") == raw_row.get("核验状态")
+            and lineage_row.get("质量到统一底座匹配状态") == "已回连"
+            and lineage_row.get("统一底座到总工作台匹配状态") == "已回连"
+            and lineage_row.get("总工作台到结构保真匹配状态") == "已回连"
+            and lineage_row.get("总工作台到底座稳定性匹配状态") == "已回连"
+            and lineage_row.get("质量到原页锚点匹配状态") == "已回连"
+            and lineage_row.get("统一底座到三年投档旁挂匹配状态") == "已回连"
+            and lineage_row.get("闭环缺口看板匹配状态") == "已回连"
+            and lineage_row.get("全链路核心字段漂移数") == "0"
+            and not lineage_row.get("全链路核心字段漂移字段")
+            and lineage_row.get("字段缺口数") == stability_row.get("字段缺口数")
+            and lineage_row.get("字段缺口字段") == stability_row.get("字段缺口字段")
+            and as_int(lineage_row.get("字段候选任务数")) == len(field_rows)
+            and as_int(lineage_row.get("非空字段候选数"))
+            == sum(1 for field_row in field_rows if field_row.get("候选值"))
+            and as_int(lineage_row.get("结构风险事件数")) == len(structural_events)
+            and lineage_row.get("结构保真风险标签") == structural_row.get("结构保真风险标签")
+            and lineage_row.get("底座稳定性等级") == stability_row.get("底座稳定性等级")
+            and lineage_row.get("看板动作桶") == stability_row.get("看板动作桶")
+            and lineage_row.get("湖北官方查询键是否碰撞") == ("true" if official_collisions else "false")
+            and as_int(lineage_row.get("官方查询键碰撞事件数")) == len(official_collisions)
+            and lineage_row.get("专业行原页证据锚点ID") == anchor_row.get("专业行原页证据锚点ID")
+            and lineage_row.get("三年投档旁挂ID") == history_row.get("三年投档旁挂ID")
+            and lineage_row.get("血缘审计结论") == "A0-全链路一一回连且核心OCR字段一致"
+            and "未闭环前不得用于志愿推荐" in lineage_row.get("不得进入原因", "")
+        )
+    raw_lineage_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [raw_lineage_summary_path, raw_lineage_csv]
+    )
+    checks.append(ok(
+        "第 19 期原始逐专业明细血缘审计表摘要、行数和链路计数正确",
+        raw_lineage_summary.get("status") == "issue19_raw_major_lineage_consistency_audit_not_final"
+        and raw_lineage_summary.get("generated_by")
+        == "build_issue19_raw_major_lineage_consistency_audit.py"
+        and raw_lineage_summary.get("output_table")
+        == "data/working/issue19-raw-major-lineage-consistency-audit.csv"
+        and raw_lineage_summary.get("row_grain") == "逐专业招生明细"
+        and raw_lineage_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and raw_lineage_summary.get("row_count") == 13736
+        and raw_lineage_summary.get("unique_audit_id_count") == 13736
+        and raw_lineage_summary.get("unique_major_line_id_count") == 13736
+        and raw_lineage_summary.get("unique_group_occurrence_id_count") == 3289
+        and raw_lineage_summary.get("unique_raw_csv_data_line_count") == 13736
+        and raw_lineage_summary.get("quality_match_count") == 13736
+        and raw_lineage_summary.get("foundation_match_count") == 13736
+        and raw_lineage_summary.get("master_match_count") == 13736
+        and raw_lineage_summary.get("structural_match_count") == 13736
+        and raw_lineage_summary.get("stability_match_count") == 13736
+        and raw_lineage_summary.get("pdf_anchor_match_count") == 13736
+        and raw_lineage_summary.get("historical_sidecar_match_count") == 13736
+        and raw_lineage_summary.get("gap_scorecard_match_count") == 13736
+        and raw_lineage_summary.get("source_counts") == {
+            "raw_major_draft_row_count": 13736,
+            "quality_workbench_row_count": 13736,
+            "foundation_release_row_count": 13736,
+            "master_workbench_row_count": 13736,
+            "structural_register_row_count": 13736,
+            "stability_dashboard_row_count": 13736,
+            "pdf_anchor_row_count": 13736,
+            "historical_sidecar_row_count": 13736,
+            "gap_scorecard_row_count": 13736,
+            "field_candidate_task_row_count": 19065,
+            "structural_risk_event_row_count": 3108,
+            "official_query_collision_row_count": 118,
+        }
+        and len(raw_lineage_rows) == 13736,
+        f"{len(raw_lineage_rows)} raw lineage rows",
+    ))
+    checks.append(ok(
+        "第 19 期原始逐专业明细血缘审计字段、主键、漂移和门禁正确",
+        raw_lineage_fields == expected_raw_lineage_fields
+        and len({row.get("原始专业行血缘审计ID") for row in raw_lineage_rows}) == 13736
+        and {row.get("专业行ID") for row in raw_lineage_rows}
+        == {row.get("专业行ID") for row in admission_master_rows}
+        and {as_int(row.get("原始CSV数据行号")) for row in raw_lineage_rows} == set(range(1, 13737))
+        and {as_int(row.get("专业明细源行号")) for row in raw_lineage_rows} == set(range(2, 13738))
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("原始到质量工作台匹配状态") == "已按原始CSV数据行号+专业明细源行号回连"
+            and row.get("质量到统一底座匹配状态") == "已回连"
+            and row.get("统一底座到总工作台匹配状态") == "已回连"
+            and row.get("总工作台到结构保真匹配状态") == "已回连"
+            and row.get("总工作台到底座稳定性匹配状态") == "已回连"
+            and row.get("质量到原页锚点匹配状态") == "已回连"
+            and row.get("统一底座到三年投档旁挂匹配状态") == "已回连"
+            and row.get("闭环缺口看板匹配状态") == "已回连"
+            and row.get("全链路核心字段漂移数") == "0"
+            and row.get("血缘审计结论") == "A0-全链路一一回连且核心OCR字段一致"
+            for row in raw_lineage_rows
+        )
+        and Counter(row.get("底座稳定性等级") for row in raw_lineage_rows)
+        == Counter(raw_lineage_summary.get("stability_level_counts", {}))
+        and sum(as_int(row.get("字段候选任务数")) or 0 for row in raw_lineage_rows) == 19065
+        and sum(as_int(row.get("非空字段候选数")) or 0 for row in raw_lineage_rows) == 7621
+        and sum(as_int(row.get("结构风险事件数")) or 0 for row in raw_lineage_rows) == 3108
+        and sum(row.get("湖北官方查询键是否碰撞") == "true" for row in raw_lineage_rows) == 118
+        and raw_lineage_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期原始逐专业明细血缘审计摘要漂移、稳定性分布和不可推荐门禁正确",
+        raw_lineage_summary.get("core_field_drift_row_count") == 0
+        and raw_lineage_summary.get("core_field_drift_total_count") == 0
+        and raw_lineage_summary.get("raw_to_quality_drift_row_count") == 0
+        and raw_lineage_summary.get("quality_to_foundation_drift_row_count") == 0
+        and raw_lineage_summary.get("foundation_to_master_drift_row_count") == 0
+        and raw_lineage_summary.get("quality_to_anchor_drift_row_count") == 0
+        and raw_lineage_summary.get("master_to_stability_drift_row_count") == 0
+        and raw_lineage_summary.get("foundation_to_history_drift_row_count") == 0
+        and raw_lineage_summary.get("lineage_conclusion_counts")
+        == {"A0-全链路一一回连且核心OCR字段一致": 13736}
+        and raw_lineage_summary.get("stability_level_counts") == {
+            "B0-校名/结构/官方查询键强阻断": 2663,
+            "B1-P0原页或官网冲突优先": 4370,
+            "B2-字段缺口补证优先": 5962,
+            "B3-三方官方闭环待核": 542,
+            "B4-低风险抽检但仍非最终": 199,
+        }
+        and raw_lineage_summary.get("field_candidate_task_count") == 19065
+        and raw_lineage_summary.get("non_empty_field_candidate_count") == 7621
+        and raw_lineage_summary.get("structural_risk_event_count") == 3108
+        and raw_lineage_summary.get("official_query_collision_major_line_count") == 118
+        and raw_lineage_summary.get("official_query_collision_event_count") == 118
+        and raw_lineage_summary.get("final_available_count") == 0
+        and raw_lineage_summary.get("next_stage_available_count") == 0
+        and raw_lineage_summary.get("auto_writeback_allowed_count") == 0
+        and raw_lineage_summary.get("recommendation_basis_allowed_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期原始逐专业明细血缘审计公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(raw_lineage_public_text) is None
+        and "private/" not in raw_lineage_public_text
+        and "/Users/" not in raw_lineage_public_text
+        and "final_allowed" not in raw_lineage_public_text
+        and "ready_for_discussion" not in raw_lineage_public_text
+        and "已确认" not in raw_lineage_public_text
+        and "已核准" not in raw_lineage_public_text
+        and "最终推荐" not in raw_lineage_public_text
+        and "最终方案" not in raw_lineage_public_text
+        and "可填报" not in raw_lineage_public_text
+        and "可排序" not in raw_lineage_public_text,
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())

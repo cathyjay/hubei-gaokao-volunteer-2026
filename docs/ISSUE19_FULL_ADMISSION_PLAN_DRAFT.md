@@ -80,6 +80,8 @@
 | `data/working/issue19-foundation-stabilization-major-detail-tasks.csv` | 逐专业稳定化任务表 | 从 B0/B1/B2 抽取 12995 条招生专业明细；一行一个专业，保留第一核验动作、保真证据链、双重佐证字段和阻断原因 |
 | `data/working/issue19-foundation-stabilization-major-detail-tasks-summary.json` | 逐专业稳定化任务摘要 | 看 B0/B1/B2 任务分布、字段候选、官网差异、结构风险、官方查询键碰撞和未匹配校名解析计数 |
 | `data/working/issue19-official-public-entry-status.json` | 官方公开入口状态快照 | 记录 2026-06-27 湖北教育考试网公开入口 SHA 和平台无登录 401 探针；说明当前公开入口尚不能替代逐专业核验 |
+| `data/working/issue19-raw-major-lineage-consistency-audit.csv` | 原始专业行血缘审计表 | 覆盖全部 13736 条 OCR 专业行；逐行核对原始 CSV、质量工作台、统一底座、总工作台、结构保真、稳定性看板、PDF 原页锚点、三年投档旁挂和闭环缺口看板是否一一回连且核心字段无漂移 |
+| `data/working/issue19-raw-major-lineage-consistency-audit-summary.json` | 原始专业行血缘审计摘要 | 看全链路回连计数、核心字段漂移计数、稳定性等级分布、字段候选/结构风险/官方查询键碰撞聚合和全部不可推荐门禁 |
 | `data/working/issue19-major-line-layout-continuity-risk-ledger.csv` | 专业行版面连续性风险清单 | 1934 条风险事件；只用公开原页锚点字段检查行号和坐标连续性 |
 | `data/working/issue19-major-code-order-risk-ledger.csv` | 专业代号顺序风险清单 | 355 条风险事件；检查专业代号无法解析、相邻不递增和大跳变 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |
@@ -251,6 +253,9 @@
 | 逐专业三年投档线索旁挂 | 13736 |
 | 单一逐专业招生明细总工作台 | 13736 |
 | 逐专业结构保真登记 | 13736 |
+| 原始专业行血缘审计 | 13736 |
+| 血缘审计全链路核心字段漂移 | 0 |
+| 血缘审计 A0 全链路回连且核心 OCR 字段一致 | 13736 |
 | 结构风险事件派单 | 3108 |
 | 唯一组码回退归属专业明细 | 1838 |
 | 组内专业代号重复专业明细 | 116 |

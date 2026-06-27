@@ -250,6 +250,8 @@
 - `data/working/issue19-foundation-stability-dashboard-summary.json`：底座稳定性总看板摘要；记录 B0 校名/结构/官方查询键强阻断 2663 条、B1 P0 原页或官网冲突优先 4370 条、B2 字段缺口补证优先 5962 条、B3 三方官方闭环待核 542 条、B4 低风险抽检但仍非最终 199 条，最终可用和可进入下一阶段均为 0。
 - `data/working/issue19-foundation-stabilization-major-detail-tasks.csv`：第 19 期逐专业稳定化任务表，12995 行；从 B0/B1/B2 抽取一行一个招生专业明细，逐行列出第一核验动作、保真证据链、需双重佐证字段、字段候选、官网差异、结构风险、官方查询键碰撞和阻断原因；全部不得自动写回或作为志愿推荐依据。
 - `data/working/issue19-foundation-stabilization-major-detail-tasks-summary.json`：逐专业稳定化任务摘要；记录 B0=2663、B1=4370、B2=5962，字段候选任务 19065，非空候选 7621，官网差异 854，结构风险专业明细 2334，官方查询键碰撞 118，未匹配校名解析 385，最终可用和可进入下一阶段均为 0。
+- `data/working/issue19-raw-major-lineage-consistency-audit.csv`：第 19 期原始逐专业明细血缘审计表，13736 行；一行一个原始 OCR 专业行，固定 `原始CSV数据行号` 与 `专业明细源行号=原始CSV数据行号+1` 的映射，并按 `专业行ID` 回连到逐专业质量工作台、统一逐专业底座入口、单一逐专业招生明细总工作台、结构保真登记、底座稳定性看板、PDF 原页证据锚点、三年投档线索旁挂和闭环缺口看板。当前全链路核心字段漂移为 0，所有行仍 `最终可用=false`、`可进入下一阶段=false`、`是否允许作为志愿推荐依据=false`。
+- `data/working/issue19-raw-major-lineage-consistency-audit-summary.json`：原始逐专业明细血缘审计摘要；记录 13736 条原始 OCR 专业行、13736 个唯一 `专业行ID`、3289 个专业组出现 ID、8 张核心下游表全部 13736 行回连、核心字段漂移行数 0、A0 全链路回连且核心 OCR 字段一致 13736 条。该摘要只证明原始数据结构化血缘和字段传递稳定，不证明 OCR 字段已经等于官方最终事实。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。

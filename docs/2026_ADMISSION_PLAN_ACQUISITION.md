@@ -165,6 +165,7 @@ python3 scripts/fetch_hubei_plan_platform.py \
 - 按城市和专业方向列出待查学校清单。
 - 从学校官网或公众号补充 2026 湖北计划线索。
 - 把第 19 期 OCR 明细逐专业结构化并保真核验，优先处理 B0/B1/B2 的 12995 条稳定化任务。
+- 使用 `data/working/issue19-raw-major-lineage-consistency-audit.csv` 持续确认 13736 条原始 OCR 专业行没有丢行、错连或核心字段漂移；该表只证明原始结构化链路稳定，不能替代湖北官方系统或省招办计划字段核验。
 
 但这些只能作为候选池，不能进入最终志愿表。
 
