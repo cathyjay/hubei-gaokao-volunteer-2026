@@ -10728,6 +10728,192 @@ def main():
         and "可排序" not in raw_lineage_public_text,
     ))
 
+    raw_source_summary_path = ROOT / "data/working/issue19-raw-major-source-evidence-audit-summary.json"
+    raw_source_csv = ROOT / "data/working/issue19-raw-major-source-evidence-audit.csv"
+    raw_source_summary = json.loads(raw_source_summary_path.read_text())
+    with raw_source_csv.open(newline="", encoding="utf-8-sig") as f:
+        raw_source_reader = csv.DictReader(f)
+        raw_source_rows = list(raw_source_reader)
+        raw_source_fields = raw_source_reader.fieldnames or []
+    expected_raw_source_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_raw_major_source_evidence_audit.py",
+        "FIELDS",
+    )
+    raw_source_by_major_id = {row.get("专业行ID"): row for row in raw_source_rows}
+    raw_source_join_ok = True
+    for raw_index, raw_row in enumerate(full_major_rows, start=1):
+        quality_row = quality_by_raw_line.get(raw_index, {})
+        major_id = quality_row.get("专业行ID", "")
+        source_row = raw_source_by_major_id.get(major_id, {})
+        anchor_row = anchor_by_major_id.get(major_id, {})
+        lineage_row = raw_lineage_by_major_id.get(major_id, {})
+        manifest_row = page_manifest_by_page.get(as_int(raw_row.get("来源页码")), {})
+        raw_source_join_ok = (
+            raw_source_join_ok
+            and bool(source_row)
+            and bool(quality_row)
+            and bool(anchor_row)
+            and bool(lineage_row)
+            and bool(manifest_row)
+            and source_row.get("原始专业行源证据审计ID")
+            == stable_id("RAWSOURCE", [major_id, issue19_source["source"]["sha256"]])
+            and source_row.get("数据阶段") == "issue19_raw_major_source_evidence_audit"
+            and source_row.get("主表粒度") == "逐专业招生明细"
+            and source_row.get("最终可用") == "false"
+            and source_row.get("可进入下一阶段") == "false"
+            and source_row.get("机器是否允许自动写回主表") == "false"
+            and source_row.get("是否允许作为志愿推荐依据") == "false"
+            and source_row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and source_row.get("原始CSV数据行号") == str(raw_index)
+            and source_row.get("专业明细源行号") == str(raw_index + 1)
+            and source_row.get("专业行ID") == major_id
+            and source_row.get("专业组出现ID") == quality_row.get("专业组出现ID")
+            and source_row.get("院校代码") == raw_row.get("院校代码")
+            and source_row.get("院校名称OCR") == raw_row.get("院校名称OCR")
+            and source_row.get("院校专业组代码OCR规范化")
+            == raw_row.get("院校专业组代码OCR规范化")
+            and source_row.get("来源页码") == raw_row.get("来源页码")
+            and source_row.get("版面列") == raw_row.get("版面列")
+            and source_row.get("专业起始行号") == raw_row.get("专业起始行号")
+            and source_row.get("专业起始y") == raw_row.get("专业起始y")
+            and source_row.get("OCR置信度") == raw_row.get("OCR置信度")
+            and source_row.get("私有OCR起始行匹配状态") == "exact_private_ocr_start_line_hit"
+            and source_row.get("私有OCR起始行页码一致") == "true"
+            and source_row.get("私有OCR起始行栏位一致") == "true"
+            and source_row.get("私有OCR起始行行号一致") == "true"
+            and source_row.get("私有OCR起始行y一致") == "true"
+            and source_row.get("私有OCR起始行置信度一致") == "true"
+            and source_row.get("私有OCR起始行哈希与公开锚点一致") == "true"
+            and source_row.get("私有OCR起始行专业代号匹配") == "true"
+            and source_row.get("公开页级manifest匹配状态") == "matched_public_page_manifest"
+            and source_row.get("私有页级manifest匹配状态") == "matched_private_page_manifest"
+            and source_row.get("私有页图SHA256") == manifest_row.get("私有页图SHA256")
+            and source_row.get("私有页图SHA256一致") == "true"
+            and source_row.get("私有OCR文本SHA256") == manifest_row.get("私有OCR文本SHA256")
+            and source_row.get("私有OCR行数一致") == "true"
+            and source_row.get("私有OCR平均置信度一致") == "true"
+            and source_row.get("公开锚点匹配状态") == "matched_public_pdf_anchor"
+            and source_row.get("专业行原页证据锚点ID") == anchor_row.get("专业行原页证据锚点ID")
+            and source_row.get("窗口文本SHA256") == anchor_row.get("窗口文本SHA256")
+            and source_row.get("私有窗口JSONL匹配状态") == "matched_private_window_jsonl"
+            and source_row.get("私有窗口SHA一致") == "true"
+            and source_row.get("私有窗口页码一致") == "true"
+            and source_row.get("私有窗口栏位一致") == "true"
+            and source_row.get("私有窗口专业代号一致") == "true"
+            and source_row.get("私有窗口状态一致") == "true"
+            and source_row.get("原始血缘审计匹配状态") == "matched_raw_lineage_audit"
+            and source_row.get("原始血缘审计结论") == lineage_row.get("血缘审计结论")
+            and source_row.get("源证据覆盖结论")
+            == "S0-私有OCR起始行、页级manifest、窗口证据和公开锚点均已回连"
+            and "不得用于志愿推荐" in source_row.get("不得进入原因", "")
+        )
+    raw_source_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [raw_source_summary_path, raw_source_csv]
+    )
+    checks.append(ok(
+        "第 19 期原始逐专业明细源证据审计摘要、行数和源头覆盖计数正确",
+        raw_source_summary.get("status") == "issue19_raw_major_source_evidence_audit_not_final"
+        and raw_source_summary.get("generated_by")
+        == "build_issue19_raw_major_source_evidence_audit.py"
+        and raw_source_summary.get("output_table")
+        == "data/working/issue19-raw-major-source-evidence-audit.csv"
+        and raw_source_summary.get("row_grain") == "逐专业招生明细"
+        and raw_source_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and raw_source_summary.get("row_count") == 13736
+        and raw_source_summary.get("unique_audit_id_count") == 13736
+        and raw_source_summary.get("unique_major_line_id_count") == 13736
+        and raw_source_summary.get("unique_raw_csv_data_line_count") == 13736
+        and raw_source_summary.get("source_counts") == {
+            "raw_major_draft_row_count": 13736,
+            "quality_workbench_row_count": 13736,
+            "public_page_manifest_row_count": 240,
+            "pdf_anchor_row_count": 13736,
+            "raw_lineage_audit_row_count": 13736,
+            "private_ocr_line_row_count": 65512,
+            "private_page_manifest_row_count": 240,
+            "private_qc_issue_row_count": 37127,
+            "private_window_jsonl_row_count": 13736,
+        }
+        and raw_source_summary.get("private_ocr_start_line_match_count") == 13736
+        and raw_source_summary.get("private_ocr_start_line_hash_match_count") == 13736
+        and raw_source_summary.get("private_ocr_start_line_major_code_match_count") == 13736
+        and raw_source_summary.get("public_page_manifest_match_count") == 13736
+        and raw_source_summary.get("private_page_manifest_match_count") == 13736
+        and raw_source_summary.get("private_page_sha_match_count") == 13736
+        and raw_source_summary.get("private_ocr_line_count_match_count") == 13736
+        and raw_source_summary.get("private_ocr_confidence_match_count") == 13736
+        and raw_source_summary.get("public_anchor_match_count") == 13736
+        and raw_source_summary.get("private_window_jsonl_match_count") == 13736
+        and raw_source_summary.get("private_window_sha_match_count") == 13736
+        and raw_source_summary.get("raw_lineage_audit_match_count") == 13736
+        and len(raw_source_rows) == 13736,
+        f"{len(raw_source_rows)} raw source rows",
+    ))
+    checks.append(ok(
+        "第 19 期原始逐专业明细源证据审计字段、主键和物理源头回连正确",
+        raw_source_fields == expected_raw_source_fields
+        and len({row.get("原始专业行源证据审计ID") for row in raw_source_rows}) == 13736
+        and {row.get("专业行ID") for row in raw_source_rows}
+        == {row.get("专业行ID") for row in admission_master_rows}
+        and {as_int(row.get("原始CSV数据行号")) for row in raw_source_rows} == set(range(1, 13737))
+        and {as_int(row.get("专业明细源行号")) for row in raw_source_rows} == set(range(2, 13738))
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("私有OCR起始行匹配状态") == "exact_private_ocr_start_line_hit"
+            and row.get("私有OCR起始行哈希与公开锚点一致") == "true"
+            and row.get("私有OCR起始行专业代号匹配") == "true"
+            and row.get("公开锚点匹配状态") == "matched_public_pdf_anchor"
+            and row.get("私有窗口SHA一致") == "true"
+            and row.get("源证据覆盖结论")
+            == "S0-私有OCR起始行、页级manifest、窗口证据和公开锚点均已回连"
+            for row in raw_source_rows
+        )
+        and raw_source_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期原始逐专业明细源证据审计风险分层和不可推荐门禁正确",
+        raw_source_summary.get("coverage_conclusion_counts")
+        == {"S0-私有OCR起始行、页级manifest、窗口证据和公开锚点均已回连": 13736}
+        and raw_source_summary.get("source_risk_level_counts") == {
+            "R2-起始行P0_QC待人工核页": 6086,
+            "R2-锚点窗口阻断待人工核页": 13,
+            "R3-源证据已回连但需优先复核": 7019,
+            "R4-源证据已回连且未触发起始行QC风险": 618,
+        }
+        and raw_source_summary.get("anchor_status_counts") == {
+            "P2-已生成专业行级OCR证据锚点": 12596,
+            "P1-缺少组标题上下文": 1127,
+            "P0-专业窗口为空": 13,
+        }
+        and raw_source_summary.get("start_line_qc_p0_row_count") == 6092
+        and raw_source_summary.get("start_line_qc_p1_row_count") == 6966
+        and raw_source_summary.get("start_line_qc_p0_total_count") == 6092
+        and raw_source_summary.get("start_line_qc_p1_total_count") == 6966
+        and raw_source_summary.get("low_confidence_page_major_line_count") == 291
+        and raw_source_summary.get("final_available_count") == 0
+        and raw_source_summary.get("next_stage_available_count") == 0
+        and raw_source_summary.get("auto_writeback_allowed_count") == 0
+        and raw_source_summary.get("recommendation_basis_allowed_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期原始逐专业明细源证据审计公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(raw_source_public_text) is None
+        and "private/" not in raw_source_public_text
+        and "/Users/" not in raw_source_public_text
+        and "final_allowed" not in raw_source_public_text
+        and "ready_for_discussion" not in raw_source_public_text
+        and "已确认" not in raw_source_public_text
+        and "已核准" not in raw_source_public_text
+        and "最终推荐" not in raw_source_public_text
+        and "最终方案" not in raw_source_public_text
+        and "可填报" not in raw_source_public_text
+        and "可排序" not in raw_source_public_text,
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
