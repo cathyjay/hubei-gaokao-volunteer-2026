@@ -1,0 +1,96 @@
+{
+  "status": "issue19_p0_immediate_field_confirmation_public_ledger_not_final",
+  "generated_by": "build_issue19_p0_immediate_field_confirmation_workbench.py",
+  "source_immediate_packet": "data/working/issue19-field-fact-p0-immediate-review-packet.csv",
+  "source_crop_evidence_index": "data/working/issue19-p0-immediate-pdf-crop-evidence-index.csv",
+  "source_three_way_ledger": "data/working/issue19-p0-immediate-three-way-closure-public-ledger.csv",
+  "source_crop_ocr_audit": "data/working/issue19-p0-immediate-crop-ocr-public-audit.csv",
+  "output_table": "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv",
+  "row_grain": "逐专业招生明细×P0字段×字段确认公开状态",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "row_count": 319,
+  "private_field_confirmation_workbench_generated": true,
+  "unique_public_ledger_id_count": 319,
+  "unique_immediate_task_id_count": 319,
+  "unique_crop_index_id_count": 319,
+  "unique_three_way_ledger_id_count": 319,
+  "unique_crop_ocr_audit_id_count": 319,
+  "unique_major_field_pair_count": 319,
+  "unique_pdf_page_count": 114,
+  "unique_page_side_count": 148,
+  "field_counts": {
+    "专业计划数": 281,
+    "学费": 19,
+    "再选科目": 19
+  },
+  "manual_review_lane_counts": {
+    "M0-冲突优先双人核页": 33,
+    "M1-计划数偏大重点核页": 10,
+    "M2-裁图OCR未稳定补读人工看图": 66,
+    "M3-多源一致快速三方核验": 26,
+    "M4-高校补缺线索核PDF": 2,
+    "M5-多值或双人复核常规核页": 179,
+    "M6-常规人工核页": 3
+  },
+  "manual_review_mode_counts": {
+    "双人复核": 288,
+    "三方线索优先核验": 28,
+    "单人初核加抽检": 3
+  },
+  "execution_batch_counts": {
+    "EXEC-01-冲突异常立即核页": 16,
+    "EXEC-02-计划数偏大重点核页": 11,
+    "EXEC-03-高校辅证线索三方核验": 74,
+    "EXEC-04-多值坐标冲突核页": 218
+  },
+  "crop_helper_bucket_counts": {
+    "A0-裁图OCR提示冲突优先人工核页": 50,
+    "A1-裁图OCR与既有线索一致但仍待三方核验": 35,
+    "A2-裁图OCR有候选但需人工确认": 168,
+    "A3-裁图OCR未能稳定补读需人工看图": 66
+  },
+  "machine_school_relation_counts": {
+    "R5-机器候选与高校辅证字段冲突": 1,
+    "R0-无高校官网辅证行": 233,
+    "R1-有高校官网辅证行但本字段无值": 11,
+    "R3-高校辅证有字段值但机器无规范候选": 52,
+    "R4-机器候选与高校辅证字段一致": 22
+  },
+  "pdf_private_record_status_counts": {
+    "pending_private_pdf_reading": 319
+  },
+  "hubei_private_record_status_counts": {
+    "pending_private_hubei_reading": 319
+  },
+  "school_private_record_status_counts": {
+    "pending_private_school_reading": 75,
+    "not_applicable_no_school_field_clue": 244
+  },
+  "double_review_status_counts": {
+    "pending_double_review": 290,
+    "double_review_not_required": 29
+  },
+  "three_way_public_status_counts": {
+    "pending_private_three_way_field_confirmation": 319
+  },
+  "field_writeback_review_status_counts": {
+    "blocked_until_required_private_readings_complete": 319
+  },
+  "crop_machine_conflict_count": 9,
+  "crop_school_conflict_count": 24,
+  "machine_school_conflict_count": 1,
+  "school_fill_clue_count": 52,
+  "double_review_required_count": 290,
+  "pdf_manual_review_pending_count": 319,
+  "hubei_official_review_pending_count": 319,
+  "three_way_closure_pending_count": 319,
+  "field_writeback_ready_count": 0,
+  "field_conflict_blocked_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "public_safety_note": "公开字段确认账本只保存状态、证据编号、SHA、bbox、关系状态和门禁；不保存字段记录值、候选值、识别文本、图片路径、院校名、专业名、专业代号或专业组代码。"
+}
