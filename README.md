@@ -90,6 +90,8 @@ python3 scripts/build_issue19_field_gap_repair_candidates.py
 python3 scripts/build_issue19_b0_b1_official_evidence_sidecar.py
 python3 scripts/build_issue19_major_line_pdf_evidence_anchors.py
 python3 scripts/build_issue19_foundation_closure_gap_scorecard.py
+python3 scripts/build_issue19_major_line_historical_toudang_sidecar.py
+python3 scripts/build_issue19_admission_detail_master_workbench.py
 python3 scripts/build_issue19_foundation_audit.py
 python3 scripts/build_issue19_candidate_evidence_ledgers.py
 python3 scripts/build_issue19_page_manifest.py
@@ -110,4 +112,4 @@ python3 scripts/fetch_hubei_plan_platform.py --dry-run-contract
 python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北 成都 西安 北京 --min-score 470 --max-score 535
 ```
 
-注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计、复核队列、统一逐专业底座入口和闭环执行批次，`机器初判`、质量分层、逐专业 P0/P1 优先级、逐专业核验批次、优先整组逐专业核验包、全量逐专业证据执行工作台、证据闭环任务队列、P0 证据执行包、P0 逐专业复核工作清单、统一逐专业底座发布表、底座闭环批次、字段缺口候选修复表、B0/B1 官网证据旁挂表、专业行原页证据锚点表、逐专业闭环缺口看板、页级保真复核队列、候选 V3 批次、候选 V3 全量逐专业复核队列、B0/B1 核验包、官方交叉校验表、逐专业证据合并表和字段保真总账只用于安排复核与补证，不是最终报考建议。新增城市、学校或专业方向时，默认先查 `data/working/issue19-major-detail-foundation-release.csv`；要安排实际核验顺序时，当前底座闭环逐专业明细执行主表是 `data/working/issue19-foundation-closure-gap-scorecard.csv`，共 13736 行、一行一个招生专业明细，按看板动作桶把 B0/B1 冲突、P0 原页、字段候选、官网辅证和低风险抽检排好顺序；底层闭环批次仍是 `data/working/issue19-foundation-closure-major-batches.csv`，C0=5310、C1=7608、C2 主批次=0、C3=609、C4=209，全部仍 `最终可用=false`。C2 主批次为 0 不代表没有官网任务，含官网辅证任务 854 条、B0B1 官网差异任务 854 条已按动作维度单独统计；字段缺口候选修复表有 7621 条非空候选线索，B0/B1 官网证据旁挂表有 61 条强辅证、55 条计划数补缺候选和 18 条冲突核页，专业行原页证据锚点覆盖 13736 条明细，但全部不得自动写回最终表。页级索引 231 行、学校索引 1100 行，只作核页顺序和补源入口，不能替代逐专业主表。
+注意：`build_issue19_*` 生成的是 OCR 初稿、招生明细、质量审计、复核队列、统一逐专业底座入口和闭环执行批次，`机器初判`、质量分层、逐专业 P0/P1 优先级、逐专业核验批次、优先整组逐专业核验包、全量逐专业证据执行工作台、证据闭环任务队列、P0 证据执行包、P0 逐专业复核工作清单、统一逐专业底座发布表、底座闭环批次、字段缺口候选修复表、B0/B1 官网证据旁挂表、专业行原页证据锚点表、逐专业闭环缺口看板、逐专业三年投档线索旁挂表、单一逐专业招生明细总工作台、页级保真复核队列、候选 V3 批次、候选 V3 全量逐专业复核队列、B0/B1 核验包、官方交叉校验表、逐专业证据合并表和字段保真总账只用于安排复核与补证，不是最终报考建议。新增城市、学校或专业方向时，默认先查 `data/working/issue19-admission-detail-master-workbench.csv`；这张表共 13736 行，一行一个招生专业明细，已把统一底座、闭环缺口看板、PDF 原页锚点和三年投档线索合并到同一行。要安排实际核验顺序时，继续看 `data/working/issue19-foundation-closure-gap-scorecard.csv` 的 S0-S8 动作桶；三年投档只看 `data/working/issue19-major-line-historical-toudang-sidecar.csv` 的同代码线索，不得直接当录取概率。底层闭环批次仍是 `data/working/issue19-foundation-closure-major-batches.csv`，C0=5310、C1=7608、C2 主批次=0、C3=609、C4=209，全部仍 `最终可用=false`。C2 主批次为 0 不代表没有官网任务，含官网辅证任务 854 条、B0B1 官网差异任务 854 条已按动作维度单独统计；字段缺口候选修复表有 7621 条非空候选线索，B0/B1 官网证据旁挂表有 61 条强辅证、55 条计划数补缺候选和 18 条冲突核页，专业行原页证据锚点覆盖 13736 条明细，但全部不得自动写回最终表。页级索引 231 行、学校索引 1100 行，只作核页顺序和补源入口，不能替代逐专业主表。

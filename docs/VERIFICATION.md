@@ -162,6 +162,9 @@ OCR 初稿 / 最终可用=false
 - `data/working/issue19-b0-b1-official-evidence-by-major-line.csv` 是高校官网证据旁挂表：854 行、61 条 strong_support、55 条 fill_candidate、18 条 conflict_review。所有行 `能否替代湖北官方计划=false`，只能用于加速核验顺序和定位冲突。
 - `data/working/issue19-major-line-pdf-evidence-anchors.csv` 是专业行级原页证据锚点表：13736 行、13736 个唯一 `专业行ID`，公开表只保存 OCR 行号范围、坐标摘要、窗口文本 SHA256 和页图/OCR 文本证据编号；OCR 窗口原文仅保存在 `private/`。该表只能帮助定位原页，不能替代人工核页。
 - `data/working/issue19-foundation-closure-gap-scorecard.csv` 是当前逐专业核验顺序入口：13736 行、13736 个唯一 `专业行ID`，把字段候选、B0/B1 官网旁证、原页锚点和 C0-C4 闭环批次合并到同一条专业明细上。它不是最终志愿方案，所有行仍 `最终可用=false`、`官网证据能否替代湖北官方计划=false`。
+- `data/working/issue19-major-line-historical-toudang-sidecar.csv` 是逐专业三年投档线索旁挂表：13736 行、13736 个唯一 `专业行ID`，同代码 3 年命中 5836 条、2 年命中 3946 条、1 年命中 1940 条、0 年命中 2014 条。该表只能用于后续冲稳保筛选前置参照，不能证明 2026 专业组存在、组内专业不变、计划数准确或投档位次可沿用。
+- `data/working/issue19-admission-detail-master-workbench.csv` 是后续讨论和筛选的默认单一入口：13736 行、13736 个唯一 `专业行ID`，一行一个招生专业明细，已把统一底座、闭环缺口、PDF 原页锚点和三年投档线索合并到同一行。
+- 单一逐专业招生明细总工作台必须满足四个强约束：不得降格为学校/专业组两层摘要；四张来源表必须按 `专业行ID` 全量 join 成功；所有行仍为 `最终可用=false`、`可进入下一阶段=false`；所有行都必须继续保留 PDF 原页、湖北官方系统或省招办计划、家庭接受度和同组调剂结论核验。
 - 三年投档线索只按同院校专业组代码挂接，用于稳定性参考；它不能证明 2026 年专业组存在、专业组成不变或计划数准确。
 - 后续新增城市、学校或专业方向时，应先从全量保真总账或全量证据工作台检索逐专业明细，再决定是否进入候选 V3 或新候选表；不能只在已有 V3 候选子集里找。
 - 逐专业工作台仍是待核表，不得出现 `final_allowed`、`ready_for_discussion`、`已确认` 等最终可用结论。

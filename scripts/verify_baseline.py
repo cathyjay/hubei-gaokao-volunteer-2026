@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import csv
+import ast
 import hashlib
 import json
 import re
@@ -46,6 +47,16 @@ def as_int(value):
 def stable_id(prefix, parts):
     text = "|".join(str(part) for part in parts)
     return f"{prefix}-{hashlib.sha1(text.encode('utf-8')).hexdigest()[:16]}"
+
+
+def script_list_constant(path, name):
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if any(isinstance(target, ast.Name) and target.id == name for target in node.targets):
+            return ast.literal_eval(node.value)
+    raise ValueError(f"{name} not found in {path}")
 
 
 def issue19_group_match_key(row):
@@ -9005,6 +9016,330 @@ def main():
         and "最终方案" not in gap_scorecard_public_text
         and "可填报" not in gap_scorecard_public_text
         and "可排序" not in gap_scorecard_public_text,
+    ))
+
+    historical_sidecar_summary_path = ROOT / "data/working/issue19-major-line-historical-toudang-sidecar-summary.json"
+    historical_sidecar_csv = ROOT / "data/working/issue19-major-line-historical-toudang-sidecar.csv"
+    historical_sidecar_summary = json.loads(historical_sidecar_summary_path.read_text())
+    with historical_sidecar_csv.open(newline="", encoding="utf-8-sig") as f:
+        historical_sidecar_reader = csv.DictReader(f)
+        historical_sidecar_rows = list(historical_sidecar_reader)
+        historical_sidecar_fields = historical_sidecar_reader.fieldnames or []
+    expected_historical_sidecar_fields = [
+        "三年投档旁挂ID",
+        "来源统一逐专业底座入口",
+        "来源2023投档线",
+        "来源2024投档线",
+        "来源2025投档线",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "主表粒度",
+        "最终可用",
+        "可进入下一阶段",
+        "仅供冲稳保筛选线索",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "版面列",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "2023同代码命中",
+        "2023投档分",
+        "2023等位分差",
+        "2023再选要求",
+        "2023院校专业组名称",
+        "2023页码",
+        "2023备注",
+        "2023原始行SHA256",
+        "2024同代码命中",
+        "2024投档分",
+        "2024等位分差",
+        "2024再选要求",
+        "2024院校专业组名称",
+        "2024页码",
+        "2024备注",
+        "2024原始行SHA256",
+        "2025同代码命中",
+        "2025投档分",
+        "2025等位分差",
+        "2025再选要求",
+        "2025院校专业组名称",
+        "2025页码",
+        "2025备注",
+        "2025原始行SHA256",
+        "同代码命中年份数",
+        "同代码命中年份",
+        "三年投档分范围",
+        "等位分差摘要",
+        "三年再选要求规范集合",
+        "再选要求是否跨年变化",
+        "历史院校专业组名称是否疑似不一致",
+        "历史投档代码重复年份",
+        "历史投档代码是否重复",
+        "2026同代码专业组出现次数",
+        "2026同代码专业组是否重复出现",
+        "稳定性分层",
+        "历史线使用口径",
+        "下一步",
+    ]
+    historical_sidecar_join_ok = True
+    for row in historical_sidecar_rows:
+        release_row = foundation_release_by_major_id.get(row.get("专业行ID"), {})
+        hit_count = sum(row.get(f"{year}同代码命中") == "true" for year in [2023, 2024, 2025])
+        historical_sidecar_join_ok = (
+            historical_sidecar_join_ok
+            and bool(release_row)
+            and row.get("三年投档旁挂ID") == stable_id("HISTLINE", [row.get("专业行ID", "")])
+            and row.get("来源统一逐专业底座入口")
+            == "data/working/issue19-major-detail-foundation-release.csv"
+            and row.get("来源2023投档线") == "data/derived/hubei-2023-physics-toudang-parsed.csv"
+            and row.get("来源2024投档线") == "data/derived/hubei-2024-physics-toudang-parsed.csv"
+            and row.get("来源2025投档线") == "data/derived/hubei-2025-physics-toudang-parsed.csv"
+            and row.get("数据阶段") == "issue19_major_line_historical_toudang_sidecar"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("仅供冲稳保筛选线索") == "true"
+            and row.get("专业组出现ID") == release_row.get("专业组出现ID")
+            and row.get("院校代码") == release_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化")
+            == release_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == release_row.get("来源页码")
+            and row.get("版面列") == release_row.get("版面列")
+            and row.get("专业组内专业序号") == release_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == release_row.get("专业代号OCR")
+            and as_int(row.get("同代码命中年份数")) == hit_count
+            and row.get("院校专业组代码OCR规范化", "").startswith(row.get("院校代码", ""))
+            and "不能证明2026专业组存在" in row.get("历史线使用口径", "")
+            and "不得单独据此下最终结论" in row.get("下一步", "")
+        )
+    historical_sidecar_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [historical_sidecar_summary_path, historical_sidecar_csv]
+    )
+    checks.append(ok(
+        "第 19 期逐专业三年投档线索旁挂表摘要、行数和命中分布正确",
+        historical_sidecar_summary.get("status") == "issue19_major_line_historical_toudang_sidecar_not_final"
+        and historical_sidecar_summary.get("generated_by")
+        == "build_issue19_major_line_historical_toudang_sidecar.py"
+        and historical_sidecar_summary.get("output_table")
+        == "data/working/issue19-major-line-historical-toudang-sidecar.csv"
+        and historical_sidecar_summary.get("source_foundation_release")
+        == "data/working/issue19-major-detail-foundation-release.csv"
+        and historical_sidecar_summary.get("source_toudang_counts") == {
+            "2023": 2874,
+            "2024": 2800,
+            "2025": 3147,
+        }
+        and historical_sidecar_summary.get("historical_duplicate_codes") == {
+            "2023": [],
+            "2024": [],
+            "2025": ["H51001"],
+        }
+        and historical_sidecar_summary.get("row_count") == 13736
+        and historical_sidecar_summary.get("unique_sidecar_id_count") == 13736
+        and historical_sidecar_summary.get("unique_major_line_id_count") == 13736
+        and historical_sidecar_summary.get("hit_year_count_distribution") == {
+            "1": 1940,
+            "0": 2014,
+            "3": 5836,
+            "2": 3946,
+        }
+        and historical_sidecar_summary.get("stability_layer_counts") == {
+            "H1-一年同代码命中": 1940,
+            "H0-三年同代码未命中或组号变化": 2014,
+            "H3-三年同代码命中": 2126,
+            "H3-同代码命中但再选要求变化": 3696,
+            "H2-两年同代码命中": 2011,
+            "H2-同代码命中但再选要求变化": 1935,
+            "H3-同代码命中但2026组代码重复出现": 14,
+        }
+        and historical_sidecar_summary.get("historical_duplicate_major_line_count") == 0
+        and historical_sidecar_summary.get("current_duplicate_group_major_line_count") == 14
+        and historical_sidecar_summary.get("req_changed_major_line_count") == 5645
+        and historical_sidecar_summary.get("screening_clue_count") == 13736
+        and historical_sidecar_summary.get("final_available_count") == 0
+        and historical_sidecar_summary.get("next_stage_available_count") == 0,
+        f"{len(historical_sidecar_rows)} historical sidecar rows",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业三年投档线索旁挂表字段、主键和统一底座来源闭环正确",
+        historical_sidecar_fields == expected_historical_sidecar_fields
+        and len(historical_sidecar_rows) == 13736
+        and len({row.get("三年投档旁挂ID") for row in historical_sidecar_rows}) == 13736
+        and {row.get("专业行ID") for row in historical_sidecar_rows}
+        == {row.get("专业行ID") for row in foundation_release_rows}
+        and historical_sidecar_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期逐专业三年投档线索旁挂表公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(historical_sidecar_public_text) is None
+        and "private/" not in historical_sidecar_public_text
+        and "final_allowed" not in historical_sidecar_public_text
+        and "ready_for_discussion" not in historical_sidecar_public_text
+        and "已确认" not in historical_sidecar_public_text
+        and "已核准" not in historical_sidecar_public_text
+        and "最终推荐" not in historical_sidecar_public_text
+        and "最终方案" not in historical_sidecar_public_text
+        and "可填报" not in historical_sidecar_public_text
+        and "可排序" not in historical_sidecar_public_text,
+    ))
+
+    admission_master_summary_path = ROOT / "data/working/issue19-admission-detail-master-workbench-summary.json"
+    admission_master_csv = ROOT / "data/working/issue19-admission-detail-master-workbench.csv"
+    admission_master_summary = json.loads(admission_master_summary_path.read_text())
+    with admission_master_csv.open(newline="", encoding="utf-8-sig") as f:
+        admission_master_reader = csv.DictReader(f)
+        admission_master_rows = list(admission_master_reader)
+        admission_master_fields = admission_master_reader.fieldnames or []
+    expected_admission_master_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_admission_detail_master_workbench.py",
+        "FIELDS",
+    )
+    required_admission_master_fields = {
+        "招生明细总工作台ID",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "专业行原页证据锚点ID",
+        "窗口文本SHA256",
+        "起始行专业代号匹配",
+        "闭环执行批次",
+        "看板动作桶",
+        "必须人工核PDF原页",
+        "必须湖北官方系统或省招办计划核验",
+        "必须家庭接受度确认",
+        "必须同组调剂结论确认",
+        "同代码命中年份数",
+        "稳定性分层",
+        "历史线使用口径",
+        "最终可用",
+        "可进入下一阶段",
+    }
+    gap_scorecard_by_major_id = {row.get("专业行ID"): row for row in gap_scorecard_rows}
+    historical_sidecar_by_major_id = {row.get("专业行ID"): row for row in historical_sidecar_rows}
+    admission_master_join_ok = True
+    for row in admission_master_rows:
+        major_id = row.get("专业行ID")
+        release_row = foundation_release_by_major_id.get(major_id, {})
+        gap_row = gap_scorecard_by_major_id.get(major_id, {})
+        anchor_row = anchor_by_major_id.get(major_id, {})
+        history_row = historical_sidecar_by_major_id.get(major_id, {})
+        admission_master_join_ok = (
+            admission_master_join_ok
+            and bool(release_row)
+            and bool(gap_row)
+            and bool(anchor_row)
+            and bool(history_row)
+            and row.get("招生明细总工作台ID") == stable_id("ADMISSIONDETAIL", [major_id])
+            and row.get("来源统一逐专业底座入口")
+            == "data/working/issue19-major-detail-foundation-release.csv"
+            and row.get("来源逐专业闭环缺口看板")
+            == "data/working/issue19-foundation-closure-gap-scorecard.csv"
+            and row.get("来源专业行原页证据锚点表")
+            == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+            and row.get("来源三年投档线索旁挂表")
+            == "data/working/issue19-major-line-historical-toudang-sidecar.csv"
+            and row.get("数据阶段") == "issue19_admission_detail_master_workbench"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("专业组出现ID") == release_row.get("专业组出现ID")
+            and row.get("院校代码") == release_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化")
+            == release_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == release_row.get("来源页码")
+            and row.get("版面列") == release_row.get("版面列")
+            and row.get("专业组内专业序号") == release_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == release_row.get("专业代号OCR")
+            and row.get("专业名称及备注OCR") == release_row.get("专业名称及备注OCR")
+            and row.get("专业行原页证据锚点ID") == anchor_row.get("专业行原页证据锚点ID")
+            and row.get("窗口文本SHA256") == anchor_row.get("窗口文本SHA256")
+            and row.get("起始行专业代号匹配") == anchor_row.get("起始行专业代号匹配")
+            and row.get("闭环执行批次") == gap_row.get("闭环执行批次")
+            and row.get("看板动作桶") == gap_row.get("看板动作桶")
+            and row.get("必须人工核PDF原页") == "true"
+            and row.get("必须湖北官方系统或省招办计划核验") == "true"
+            and row.get("必须家庭接受度确认") == "true"
+            and row.get("必须同组调剂结论确认") == "true"
+            and row.get("官网证据能否替代湖北官方计划") == "false"
+            and row.get("同代码命中年份数") == history_row.get("同代码命中年份数")
+            and row.get("稳定性分层") == history_row.get("稳定性分层")
+            and "不能证明2026专业组存在" in row.get("历史线使用口径", "")
+            and "不得进入最终志愿排序" in row.get("下一步", "")
+        )
+    admission_master_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [admission_master_summary_path, admission_master_csv]
+    )
+    checks.append(ok(
+        "第 19 期单一逐专业招生明细总工作台摘要、行数和全量 join 正确",
+        admission_master_summary.get("status") == "issue19_admission_detail_master_workbench_not_final"
+        and admission_master_summary.get("generated_by")
+        == "build_issue19_admission_detail_master_workbench.py"
+        and admission_master_summary.get("output_table")
+        == "data/working/issue19-admission-detail-master-workbench.csv"
+        and admission_master_summary.get("source_foundation_release")
+        == "data/working/issue19-major-detail-foundation-release.csv"
+        and admission_master_summary.get("source_gap_scorecard")
+        == "data/working/issue19-foundation-closure-gap-scorecard.csv"
+        and admission_master_summary.get("source_pdf_anchors")
+        == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+        and admission_master_summary.get("source_historical_sidecar")
+        == "data/working/issue19-major-line-historical-toudang-sidecar.csv"
+        and admission_master_summary.get("row_grain_contract")
+        == "one_row_per_admission_major_detail"
+        and admission_master_summary.get("row_count") == 13736
+        and admission_master_summary.get("unique_workbench_id_count") == 13736
+        and admission_master_summary.get("unique_major_line_id_count") == 13736
+        and admission_master_summary.get("missing_join_counts") == {}
+        and admission_master_summary.get("gap_scorecard_join_count") == 13736
+        and admission_master_summary.get("pdf_anchor_join_count") == 13736
+        and admission_master_summary.get("historical_sidecar_join_count") == 13736
+        and admission_master_summary.get("final_available_count") == 0
+        and admission_master_summary.get("next_stage_available_count") == 0
+        and admission_master_summary.get("official_replace_allowed_count") == 0
+        and admission_master_summary.get("field_candidate_major_count") == 7202
+        and admission_master_summary.get("b0_b1_evidence_major_count") == 854
+        and admission_master_summary.get("must_pdf_review_count") == 13736
+        and admission_master_summary.get("must_hubei_official_review_count") == 13736
+        and admission_master_summary.get("must_family_review_count") == 13736
+        and admission_master_summary.get("must_transfer_review_count") == 13736,
+        f"{len(admission_master_rows)} admission detail rows",
+    ))
+    checks.append(ok(
+        "第 19 期单一逐专业招生明细总工作台字段、主键和来源闭环正确",
+        admission_master_fields == expected_admission_master_fields
+        and required_admission_master_fields.issubset(set(admission_master_fields))
+        and len(admission_master_rows) == 13736
+        and len({row.get("招生明细总工作台ID") for row in admission_master_rows}) == 13736
+        and {row.get("专业行ID") for row in admission_master_rows}
+        == {row.get("专业行ID") for row in foundation_release_rows}
+        and admission_master_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期单一逐专业招生明细总工作台公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(admission_master_public_text) is None
+        and "private/" not in admission_master_public_text
+        and "final_allowed" not in admission_master_public_text
+        and "ready_for_discussion" not in admission_master_public_text
+        and "已确认" not in admission_master_public_text
+        and "已核准" not in admission_master_public_text
+        and "最终推荐" not in admission_master_public_text
+        and "最终方案" not in admission_master_public_text
+        and "可填报" not in admission_master_public_text
+        and "可排序" not in admission_master_public_text,
     ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",

@@ -219,6 +219,10 @@
 - `data/working/issue19-foundation-closure-batches-summary.json`：底座闭环批次摘要；记录 C0 P0 先核 5310 条、C1 字段缺口先补 7608 条、C2 官网辅证主批次 0 条、C3 常规三方闭环 609 条、C4 低风险抽检 209 条、含官网辅证任务 854 条、B0/B1 官网差异任务 854 条和全部非最终门禁。
 - `data/working/issue19-foundation-closure-gap-scorecard.csv`：逐专业闭环缺口看板，13736 行；一行一个招生专业明细，把闭环批次、字段候选、B0/B1 官网旁证、专业行原页证据锚点、家庭/调剂/湖北官方门禁合并成执行优先级。该表是当前核验顺序入口，不是最终报考方案。
 - `data/working/issue19-foundation-closure-gap-scorecard-summary.json`：逐专业闭环缺口看板摘要；记录 S0 B0/B1 冲突 18 条、S1 P0+官网辅证 116 条、S2 P0 原页 5176 条、S3 字段缺口有候选 4248 条、S4 字段缺口无候选 3360 条、S6 常规三方 609 条、S7/S8 低风险抽检 209 条。
+- `data/working/issue19-major-line-historical-toudang-sidecar.csv`：逐专业三年投档线索旁挂表，13736 行；一行一个招生专业明细，按 2026 院校专业组代码挂接 2023/2024/2025 同代码投档线、等位分差、再选要求规范集合、历史重复 code 和当前重复组代码风险。该表只作冲稳保筛选前置线索。
+- `data/working/issue19-major-line-historical-toudang-sidecar-summary.json`：逐专业三年投档线索摘要；记录同代码 3 年命中 5836 条、2 年命中 3946 条、1 年命中 1940 条、0 年命中 2014 条；2025 历史投档表存在重复 code `H51001`，当前 2026 底座无对应专业明细行。
+- `data/working/issue19-admission-detail-master-workbench.csv`：单一逐专业招生明细总工作台，13736 行；一行一个招生专业明细，把统一逐专业底座入口、逐专业闭环缺口看板、专业行原页证据锚点和三年投档线索旁挂表合并到同一行。后续新增城市、学校、专业方向或家庭讨论时默认先看这张表；院校、专业组、页码字段只是索引和调剂上下文。
+- `data/working/issue19-admission-detail-master-workbench-summary.json`：单一逐专业招生明细总工作台摘要；记录四张来源表全部 13736 行 join 成功、`最终可用=0`、`可进入下一阶段=0`、官网证据不可替代湖北官方计划、PDF/湖北官方/家庭/调剂四类核验均为 13736 条必核。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。

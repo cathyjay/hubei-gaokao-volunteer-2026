@@ -103,6 +103,8 @@
 - 已生成 B0/B1 官网证据逐专业旁挂表：`data/working/issue19-b0-b1-official-evidence-by-major-line.csv` 覆盖 854 条已有官网线索的专业明细，其中 61 条 strong_support、55 条 fill_candidate、18 条 conflict_review；另有 `issue19-b0-b1-official-plan-fill-candidates.csv` 和 `issue19-b0-b1-official-conflict-review.csv` 用于直接下钻计划数补缺候选和冲突核页。所有行 `能否替代湖北官方计划=false`。
 - 已生成专业行原页证据锚点表：`data/working/issue19-major-line-pdf-evidence-anchors.csv` 覆盖全部 13736 条专业明细，全部精确回连专业起始 OCR 行；12596 条已生成专业行级 OCR 锚点，1127 条缺少组标题上下文，13 条专业窗口需重点回看。公开表只保存行号范围、坐标摘要和哈希，OCR 窗口原文仅留在 `private/`。
 - 已生成逐专业闭环缺口看板：`data/working/issue19-foundation-closure-gap-scorecard.csv` 覆盖全部 13736 条专业明细，把 C0-C4、字段候选、B0/B1 官网旁证、原页锚点、家庭/调剂/湖北官方门禁合并成 S0-S8 执行动作桶；其中 S0 冲突优先 18 条、S1 P0+官网辅证 116 条、S2 P0 原页 5176 条、S3 字段有候选 4248 条、S4 字段无候选 3360 条。
+- 已生成逐专业三年投档线索旁挂表：`data/working/issue19-major-line-historical-toudang-sidecar.csv` 覆盖全部 13736 条专业明细；同代码 3 年命中 5836 条、2 年命中 3946 条、1 年命中 1940 条、0 年命中 2014 条。该表只作后续冲稳保筛选前置线索，不能替代 2026 招生计划核验。
+- 已生成单一逐专业招生明细总工作台：`data/working/issue19-admission-detail-master-workbench.csv` 覆盖全部 13736 条专业明细；一行一个招生专业，把统一底座、闭环缺口看板、PDF 原页锚点和三年投档线索合并到同一行。后续新增城市、学校或专业方向时默认先看这张表；学校、专业组、页码只作索引和调剂上下文。
 - 优先专业队列已经合并本专业行风险和所在专业组风险；`机器初判`、`综合风险等级` 只用于安排复核，不是最终报考建议。
 
 尚未完成：
@@ -136,8 +138,8 @@
 ## 五、下一步具体做什么
 
 下一步不再停留在首批试跑，而是在全量 OCR 初稿上做分层复核：先处理候选池命中项、未命中候选项和高风险标签项，再扩展保底样本。
-实际操作时，新增城市、学校或专业方向先从 `data/working/issue19-major-detail-foundation-release.csv` 这个统一逐专业底座查；安排核验顺序时，以 `data/working/issue19-foundation-closure-gap-scorecard.csv` 作为当前逐专业闭环缺口看板，再下钻到 P0/P1、官方平台、官网辅证和专业行原页证据锚点。
-执行上先按 `data/working/issue19-foundation-closure-gap-scorecard.csv` 的 S0-S8 动作桶推进：S0 优先解决 B0/B1 冲突和 P0 原页，S1 同步核 P0 原页与官网辅证，S2 集中回看 P0 原页结构和字段，S3 利用字段候选回看原页，S4 对无候选字段重读原页，S6 做常规三方闭环，S7/S8 做低风险抽检。下钻时仍保留 C0/C1/C3/C4 主批次：C0 下钻 `data/working/issue19-p0-evidence-review-worklist.csv`，C1 下钻 `data/working/issue19-field-gap-repair-candidates.csv` 和 `data/working/issue19-p1-field-gap-evidence-repair-matrix.csv`，官方平台核验看 `data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv`，官网辅证差异看 `data/working/issue19-b0-b1-official-evidence-by-major-line.csv`、`data/working/issue19-b0-b1-official-plan-fill-candidates.csv` 和 `data/working/issue19-b0-b1-official-conflict-review.csv`，原页定位看 `data/working/issue19-major-line-pdf-evidence-anchors.csv`。每一步都必须回链到 `专业行ID`、全量证据工作台和页级证据哈希，不能只按页级、学校级或执行包 ID 得出结论。
+实际操作时，新增城市、学校或专业方向先从 `data/working/issue19-admission-detail-master-workbench.csv` 这个单一逐专业招生明细总工作台查；安排核验顺序时，以 `data/working/issue19-foundation-closure-gap-scorecard.csv` 作为当前逐专业闭环缺口看板，再下钻到 P0/P1、官方平台、官网辅证和专业行原页证据锚点。
+执行上先按 `data/working/issue19-foundation-closure-gap-scorecard.csv` 的 S0-S8 动作桶推进：S0 优先解决 B0/B1 冲突和 P0 原页，S1 同步核 P0 原页与官网辅证，S2 集中回看 P0 原页结构和字段，S3 利用字段候选回看原页，S4 对无候选字段重读原页，S6 做常规三方闭环，S7/S8 做低风险抽检。下钻时仍保留 C0/C1/C3/C4 主批次：C0 下钻 `data/working/issue19-p0-evidence-review-worklist.csv`，C1 下钻 `data/working/issue19-field-gap-repair-candidates.csv` 和 `data/working/issue19-p1-field-gap-evidence-repair-matrix.csv`，官方平台核验看 `data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv`，官网辅证差异看 `data/working/issue19-b0-b1-official-evidence-by-major-line.csv`、`data/working/issue19-b0-b1-official-plan-fill-candidates.csv` 和 `data/working/issue19-b0-b1-official-conflict-review.csv`，原页定位看 `data/working/issue19-major-line-pdf-evidence-anchors.csv`，三年投档参考看 `data/working/issue19-major-line-historical-toudang-sidecar.csv`。每一步都必须回链到 `专业行ID`、全量证据工作台和页级证据哈希，不能只按页级、学校级或执行包 ID 得出结论。
 
 注意：
 

@@ -1,0 +1,56 @@
+{
+  "status": "issue19_admission_detail_master_workbench_not_final",
+  "generated_by": "build_issue19_admission_detail_master_workbench.py",
+  "output_table": "data/working/issue19-admission-detail-master-workbench.csv",
+  "source_foundation_release": "data/working/issue19-major-detail-foundation-release.csv",
+  "source_gap_scorecard": "data/working/issue19-foundation-closure-gap-scorecard.csv",
+  "source_pdf_anchors": "data/working/issue19-major-line-pdf-evidence-anchors.csv",
+  "source_historical_sidecar": "data/working/issue19-major-line-historical-toudang-sidecar.csv",
+  "row_grain_contract": "one_row_per_admission_major_detail",
+  "row_count": 13736,
+  "unique_workbench_id_count": 13736,
+  "unique_major_line_id_count": 13736,
+  "missing_join_counts": {},
+  "gap_scorecard_join_count": 13736,
+  "pdf_anchor_join_count": 13736,
+  "historical_sidecar_join_count": 13736,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "official_replace_allowed_count": 0,
+  "action_bucket_counts": {
+    "S4-字段缺口无候选需原页重读": 3360,
+    "S2-P0原页结构和字段先核": 5176,
+    "S3-字段缺口有候选先核": 4248,
+    "S6-常规三方闭环": 609,
+    "S1-P0原页+官网辅证同步核": 116,
+    "S0-B0B1冲突+P0原页优先": 18,
+    "S8-低风险抽检": 207,
+    "S7-低风险但证据锚点异常抽检": 2
+  },
+  "pdf_anchor_status_counts": {
+    "P2-已生成专业行级OCR证据锚点": 12596,
+    "P1-缺少组标题上下文": 1127,
+    "P0-专业窗口为空": 13
+  },
+  "historical_hit_year_count_distribution": {
+    "1": 1940,
+    "0": 2014,
+    "3": 5836,
+    "2": 3946
+  },
+  "historical_stability_layer_counts": {
+    "H1-一年同代码命中": 1940,
+    "H0-三年同代码未命中或组号变化": 2014,
+    "H3-三年同代码命中": 2126,
+    "H3-同代码命中但再选要求变化": 3696,
+    "H2-两年同代码命中": 2011,
+    "H2-同代码命中但再选要求变化": 1935,
+    "H3-同代码命中但2026组代码重复出现": 14
+  },
+  "field_candidate_major_count": 7202,
+  "b0_b1_evidence_major_count": 854,
+  "must_pdf_review_count": 13736,
+  "must_hubei_official_review_count": 13736,
+  "must_family_review_count": 13736,
+  "must_transfer_review_count": 13736
+}

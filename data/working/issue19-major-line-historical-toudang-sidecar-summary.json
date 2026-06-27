@@ -1,0 +1,48 @@
+{
+  "status": "issue19_major_line_historical_toudang_sidecar_not_final",
+  "generated_by": "build_issue19_major_line_historical_toudang_sidecar.py",
+  "output_table": "data/working/issue19-major-line-historical-toudang-sidecar.csv",
+  "source_foundation_release": "data/working/issue19-major-detail-foundation-release.csv",
+  "source_toudang_counts": {
+    "2023": 2874,
+    "2024": 2800,
+    "2025": 3147
+  },
+  "historical_duplicate_codes": {
+    "2023": [],
+    "2024": [],
+    "2025": [
+      "H51001"
+    ]
+  },
+  "row_count": 13736,
+  "unique_sidecar_id_count": 13736,
+  "unique_major_line_id_count": 13736,
+  "hit_year_count_distribution": {
+    "1": 1940,
+    "0": 2014,
+    "3": 5836,
+    "2": 3946
+  },
+  "stability_layer_counts": {
+    "H1-一年同代码命中": 1940,
+    "H0-三年同代码未命中或组号变化": 2014,
+    "H3-三年同代码命中": 2126,
+    "H3-同代码命中但再选要求变化": 3696,
+    "H2-两年同代码命中": 2011,
+    "H2-同代码命中但再选要求变化": 1935,
+    "H3-同代码命中但2026组代码重复出现": 14
+  },
+  "historical_duplicate_major_line_count": 0,
+  "current_duplicate_group_major_line_count": 14,
+  "req_changed_major_line_count": 5645,
+  "school_name_mismatch_major_line_count": 298,
+  "screening_clue_count": 13736,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "notes": [
+    "本表是同院校专业组代码的三年投档线索旁挂表，不是录取概率结论。",
+    "同代码命中不能证明2026年专业组、计划数、选科、备注和组内专业保持不变。",
+    "2025 H51001 等历史投档代码重复会显式标记，禁止压扁为单一事实。"
+  ]
+}
