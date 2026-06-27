@@ -1,0 +1,49 @@
+{
+  "status": "issue19_page_side_foundation_batch_sample_review_not_final",
+  "generated_by": "build_issue19_page_side_foundation_batch_sample_review.py",
+  "batch_no": 1,
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_field_clue_public_audit": "data/working/issue19-page-side-foundation-field-clue-public-audit.csv",
+  "source_private_field_clue_template": "private_field_clue_templates_not_public",
+  "source_private_human_review_overlay": "private_human_review_overlay_not_public",
+  "output_table": "data/working/issue19-page-side-foundation-batch-01-sample-public-audit.csv",
+  "private_sample_detail": "private_sample_detail_not_public",
+  "private_sample_detail_sha256": "72a591aee7083f71c60c70ff5e6c5b3311defb8633fc65957c616797afc5a110",
+  "public_row_count": 25,
+  "private_detail_row_count": 2151,
+  "unique_page_side_count": 25,
+  "unique_pdf_page_count": 23,
+  "unique_major_count": 717,
+  "field_task_count": 2151,
+  "field_name_distribution": {
+    "再选科目": 717,
+    "专业计划数": 717,
+    "学费": 717
+  },
+  "block_level_distribution": {
+    "Q0-字段缺口无候选阻断": 831,
+    "Q1-字段缺口有候选待人工核验": 1071,
+    "Q2-OCR字段齐全但PDF和官方未闭环": 249
+  },
+  "fact_status_distribution": {
+    "K0-字段缺口无候选需原页重读": 629,
+    "K1-字段缺口有候选待PDF原页和官方核验": 379,
+    "K2-OCR候选存在但三方核验未闭环": 1143
+  },
+  "candidate_value_set_nonempty_count": 379,
+  "ocr_candidate_nonempty_count": 1201,
+  "multi_value_candidate_count": 95,
+  "suspected_misaligned_candidate_count": 0,
+  "pdf_page_manual_read_required_count": 2151,
+  "hubei_official_review_required_count": 2151,
+  "school_support_required_count": 6,
+  "official_overlay_existing_record_count": 2151,
+  "official_overlay_manual_filled_count": 0,
+  "auto_write_to_formal_overlay_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "sample_runtime_boundary": "样板只验证批次复核流程和工作量；省招办原件、湖北官方渠道、高校官网或章程辅证未闭环前，不得写成事实结论。"
+}

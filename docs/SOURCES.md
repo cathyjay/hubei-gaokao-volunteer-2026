@@ -109,8 +109,16 @@
    - 当前样例：武汉科技大学 2026 湖北院校专业组及招生计划、2026 各专业招生计划及学费标准。
    - 用途：辅助核验学校官网公布的专业、计划、学费、选科和专业组线索。
    - 限制：高校官网不能替代湖北省招办 2026 招生计划；若高校官网与省招办计划不一致，以省招办渠道为准。
+   - 官方系统不可得时的角色：优先自动抓取高校官网/API/XLSX/PDF/图片计划，用于批量 double check 第 19 期 PDF 抽取结果；若高校官网也没有湖北院校专业组边界，只能核专业、计划、学费、选科、校区或备注，不能单独证明调剂范围。
 
-6. 《湖北招生考试》第 16/19 期专项检索
+6. 官方系统不可得时的辅助数据源分层
+   - `L1-省招办闭环`：第 19 期 PDF 原页、湖北官方平台或志愿系统、学校章程/官网三方一致。
+   - `L2-省招办原件加高校辅证`：第 19 期 PDF 原页已核，高校官网/章程可复核关键字段，但湖北官方平台暂不可得。
+   - `L3-高校辅证加第三方提示`：高校官网或第三方平台能提示方向，但未完成第 19 期原页核验。
+   - `L4-OCR或单源线索`：只来自 OCR、第三方、单个网页或未闭环接口。
+   - 限制：`L2` 可以进入候选讨论和人工抽检，不能自动定稿；`L3/L4` 只能用于发现候选和安排核验顺序。
+
+7. 《湖北招生考试》第 16/19 期专项检索
    - 检索记录：`docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`
    - 湖北招生考试网产品手册：https://www.hbksw.com/product/
    - 本地产品手册：`data/external/hbksw-product-brochure/`
@@ -118,7 +126,7 @@
    - 当前结论：未找到 2026 第 16/19 期完整公开电子版；第 19 期是本项目首选物理招生计划核心材料。
    - 限制：学校片段和第三方 Excel 线索不能替代官方杂志或平台。
 
-7. 《湖北招生考试》2026 年第 19 期 PDF
+8. 《湖北招生考试》2026 年第 19 期 PDF
    - 私有证据编号：`issue19-pdf-local-copy`，具体本地路径不写入公开仓库。
    - PDF 元数据：`data/working/issue19-pdf-source.json`
    - 提取方案：`docs/ISSUE19_PDF_EXTRACTION_PLAN.md`
@@ -126,7 +134,7 @@
    - 当前判断：240 页，无可抽取文本层，需要渲染为图片后 OCR。
    - 限制：原始 PDF、渲染页图片、整页 OCR 文本和全量抽取结果默认只做本地私有留存，不提交公开仓库。
 
-8. 第 19 期样本学校官网交叉校验源
+9. 第 19 期样本学校官网交叉校验源
    - 来源状态表：`data/working/issue19-sample-school-official-sources.csv`
    - 高优先级摘要：`data/working/issue19-high-priority-double-check-summary.csv`
    - 本地留存目录：`data/external/issue19-sample-school-official/`
@@ -136,7 +144,7 @@
    - 补充证据：湖北工程学院、荆楚理工学院。
    - 限制：高校官网只能交叉校验专业组、专业、人数、学费、选科或备注等字段；最终仍以湖北省招办材料、湖北官方平台或志愿系统为准。
 
-9. 候选 V3 B0/B1 官网/API 交叉校验源
+10. 候选 V3 B0/B1 官网/API 交叉校验源
    - 来源状态种子：`data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv`
    - 本地留存目录：`data/external/issue19-b0-b1-official-sources/`
    - 已留存来源：成都信息工程大学静态招生计划页，江汉大学、西安邮电大学、西安财经大学、西安医学院、中国传媒大学、山东大学、兰州大学、西北民族大学、天津外国语大学等官网/API 返回，杭州电子科技大学 XLSX，忻州师范学院、山东工商学院 PDF 原件及抽取表，江苏理工学院官方计划图和转录表，南宁学院官网静态计划表，武汉商学院分省分专业来源计划表和本科专业招生计划一览表，喀什大学 XLSX，以及若干仅能作为入口或章程线索的页面。
@@ -272,6 +280,10 @@
 - `data/working/issue19-page-side-foundation-review-progress-public-ledger-summary.json`：页列底座公开核页进度摘要；记录 19 批、462 个页列、231 个 PDF 页、13736 条专业明细、41208 个字段任务和 1441 个私有必填记录槽位；当前已填记录数 0，推荐依据、生成学校专业建议、下一阶段和最终可用计数均为 0。
 - `data/working/issue19-page-side-foundation-field-clue-public-audit.csv`：第 19 期页列底座字段线索公开审计，462 行；把 41208 条字段事实核验任务按页列重新对账，只公开字段任务回链数、字段分布、P/K/Q 状态桶、线索缺失/冲突计数、PDF/湖北官方待核计数和私有字段线索模板 SHA。
 - `data/working/issue19-page-side-foundation-field-clue-public-audit-summary.json`：页列底座字段线索公开审计摘要；记录 41208 条字段任务中 29764 条已有线索、11444 条缺线索、1137 条有冲突/多值/疑似信号，PDF 原页待核和湖北官方待核均为 41208，推荐依据、生成学校专业建议、下一阶段和最终可用计数均为 0。
+- `data/working/issue19-page-side-foundation-human-review-overlay-public-ledger.csv`：第 19 期页列底座人工复核 Overlay 公开账本，462 行；在私有字段线索模板之上同步人工复核 Overlay 的页列级进度，只公开 Overlay 记录数、私有 CSV SHA、已填字段计数、三方一致性可评估计数和非最终门禁，不公开字段读数、官方值、院校专业明细或人工备注。
+- `data/working/issue19-page-side-foundation-human-review-overlay-public-ledger-summary.json`：页列底座人工复核 Overlay 摘要；记录 19 批、462 个页列、231 个 PDF 页、41208 个字段任务、私有 Overlay 记录缺失 0、人工填写 0、字段确认 0、推荐依据和最终可用计数均为 0。
+- `data/working/issue19-page-side-foundation-batch-01-sample-public-audit.csv`：第 19 期页列底座第 1 批样板复核公开审计，25 行；用于先验证 19 批并行前的批次级流程，只公开页列级字段任务分布、候选计数、动作桶、私有样板详表 SHA 和非最终门禁。
+- `data/working/issue19-page-side-foundation-batch-01-sample-public-audit-summary.json`：第 1 批样板复核摘要；记录 25 个页列、23 个 PDF 页、717 条招生专业明细、2151 个字段任务，其中 Q0 831、Q1 1071、Q2 249，正式 Overlay 自动写回、推荐依据和最终可用计数均为 0。
 - `data/working/issue19-field-fact-p0-reread-worklist.csv`：第 19 期 P0 字段原页重读工作清单，11444 行；从字段事实核验任务队列中只抽取 K0 无候选字段，一行对应一个 `专业行ID × 字段名`，回连字段任务、原始源证据审计、PDF 原页证据锚点和页级保真队列，用于优先回看专业计划数、再选科目和学费的原页字段。
 - `data/working/issue19-field-fact-p0-reread-worklist-summary.json`：P0 字段原页重读摘要；记录专业计划数 5739 条、再选科目 4674 条、学费 1031 条，覆盖 8536 条招生专业明细、231 个 PDF 明细页和 967 所学校；原始源证据、PDF 锚点和页级保真队列均 11444/11444 命中，全部仍为非最终状态。
 - `data/working/issue19-field-fact-p0-reread-machine-candidates.csv`：第 19 期 P0 字段机器坐标候选表，11444 行；在 P0 字段原页重读工作清单的 K0 无候选字段上，用私有 OCR 窗口坐标和保守规则抽取候选值。公开输出只保存候选值、坐标摘要、必要来源 ID、页码/版面列、字段名、证据编号、哈希和非最终门禁，不保存 OCR 窗口原文、院校名、专业名、专业代号或专业组代码等上下文字段。当前非空候选 4840 条，其中专业计划数 2175 条、再选科目 1994 条、学费 671 条；6386 条仍需人工原页重读，218 条多值冲突需核页。
@@ -409,6 +421,8 @@
 - `scripts/build_issue19_page_side_foundation_batch_execution_packets.py`：生成页列底座批次执行包，并在本地私有目录生成 19 份批次 HTML/CSV 核页材料；公开输出只保留私有材料证据编号、SHA、批次计数、状态和非最终门禁。
 - `scripts/build_issue19_page_side_foundation_review_progress_ledger.py`：读取页列底座批次执行包和 Git 忽略的私有批次任务 CSV，生成 462 行页列底座公开核页进度账本；公开输出只保存填写状态、计数、证据编号和 SHA，不保存核页记录内容、字段值、识别行内容或页图路径。
 - `scripts/build_issue19_page_side_foundation_field_clue_audit.py`：读取页列底座公开核页进度账本、字段事实核验任务队列和单一逐专业招生明细总工作台，生成 462 行页列字段线索公开审计，并在 Git 忽略的 `private/` 目录生成 19 份逐字段线索模板。公开输出只保存计数、状态桶和私有模板 SHA，不保存字段候选值、院校专业明细、OCR 原文或人工填写内容。
+- `scripts/build_issue19_page_side_foundation_human_review_overlay.py`：读取页列字段线索公开审计和 Git 忽略的私有逐字段线索模板，生成 19 份私有人工复核 Overlay 和 462 行公开进度账本；机器线索模板保持不可变，人工读数、官方值、字段确认值和复核记录只进入私有 Overlay，公开层只保留计数、SHA 和非最终门禁。
+- `scripts/build_issue19_page_side_foundation_batch_sample_review.py`：读取指定批次的私有字段线索模板和私有人工复核 Overlay，生成第 1 批样板复核公开审计和私有样板详表；样板只验证流程、分流和工作量，不自动写入正式 Overlay，不生成最终事实或志愿建议。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。

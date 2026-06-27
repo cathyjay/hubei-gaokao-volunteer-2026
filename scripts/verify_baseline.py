@@ -17717,6 +17717,543 @@ def main():
         "；".join(ps_field_clue_sensitive_value_hits),
     ))
 
+    ps_overlay_summary_path = (
+        ROOT / "data/working/issue19-page-side-foundation-human-review-overlay-public-ledger-summary.json"
+    )
+    ps_overlay_csv = (
+        ROOT / "data/working/issue19-page-side-foundation-human-review-overlay-public-ledger.csv"
+    )
+    ps_overlay_summary = json.loads(ps_overlay_summary_path.read_text())
+    with ps_overlay_csv.open(newline="", encoding="utf-8-sig") as f:
+        ps_overlay_reader = csv.DictReader(f)
+        ps_overlay_rows = list(ps_overlay_reader)
+        ps_overlay_fields = ps_overlay_reader.fieldnames or []
+    expected_ps_overlay_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_human_review_overlay.py",
+        "FIELDS",
+    )
+    expected_ps_overlay_private_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_human_review_overlay.py",
+        "OVERLAY_FIELDS",
+    )
+    expected_ps_overlay_private_index_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_human_review_overlay.py",
+        "PRIVATE_INDEX_FIELDS",
+    )
+    ps_overlay_by_row_id = {
+        row.get("页列底座核验批次行ID"): row for row in ps_overlay_rows
+    }
+    ps_overlay_private_dir = (
+        ROOT / "private/review-assets/issue19-page-side-foundation-human-review-overlay"
+    )
+    ps_overlay_private_index = ps_overlay_private_dir / "human-review-overlay-private-index.csv"
+
+    def overlay_template_row_sha(row):
+        text = "\n".join(f"{field}={row.get(field, '')}" for field in sorted(row))
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+    ps_overlay_private_index_ok = True
+    ps_overlay_private_rows_by_batch = {}
+    ps_overlay_private_sha_by_batch = {}
+    ps_overlay_private_count_by_batch = {}
+    ps_overlay_private_index_rows = []
+    ps_overlay_template_by_task_id = {}
+    ps_overlay_task_ids = set()
+    ps_overlay_orphan_path = ps_overlay_private_dir / "orphaned-overlay-rows.csv"
+    if ps_overlay_private_index.exists():
+        with ps_overlay_private_index.open(newline="", encoding="utf-8-sig") as f:
+            ps_overlay_private_index_reader = csv.DictReader(f)
+            ps_overlay_private_index_rows = list(ps_overlay_private_index_reader)
+            ps_overlay_private_index_fields = ps_overlay_private_index_reader.fieldnames or []
+        ps_overlay_private_index_ok = (
+            ps_overlay_private_index_fields == expected_ps_overlay_private_index_fields
+            and len(ps_overlay_private_index_rows) == 19
+        )
+        for batch_no, template_rows in ps_field_clue_private_rows_by_batch.items():
+            for template_row in template_rows:
+                task_id = template_row.get("字段事实核验任务ID", "")
+                if task_id:
+                    ps_overlay_template_by_task_id[task_id] = template_row
+        for index_row in ps_overlay_private_index_rows:
+            batch_no = as_int(index_row.get("批次总序")) or 0
+            overlay_rel = index_row.get("私有人工复核Overlay相对路径", "")
+            overlay_private_csv = ps_overlay_private_dir / overlay_rel
+            if not overlay_private_csv.exists():
+                ps_overlay_private_index_ok = False
+                continue
+            overlay_private_sha = sha256(overlay_private_csv)
+            with overlay_private_csv.open(newline="", encoding="utf-8-sig") as f:
+                overlay_private_reader = csv.DictReader(f)
+                overlay_private_rows = list(overlay_private_reader)
+                overlay_private_fields = overlay_private_reader.fieldnames or []
+            template_rows = ps_field_clue_private_rows_by_batch.get(batch_no, [])
+            template_task_ids = {row.get("字段事实核验任务ID", "") for row in template_rows}
+            overlay_task_ids = {row.get("字段事实核验任务ID", "") for row in overlay_private_rows}
+            ps_overlay_task_ids.update(overlay_task_ids)
+            ps_overlay_private_rows_by_batch[batch_no] = overlay_private_rows
+            ps_overlay_private_sha_by_batch[batch_no] = overlay_private_sha
+            ps_overlay_private_count_by_batch[batch_no] = len(overlay_private_rows)
+            ps_overlay_private_index_ok = (
+                ps_overlay_private_index_ok
+                and overlay_private_fields == expected_ps_overlay_private_fields
+                and overlay_private_sha == index_row.get("私有OverlayCSV_SHA256")
+                and index_row.get("来源字段线索模板CSV_SHA256")
+                == (
+                    ps_field_clue_private_sha_by_batch.get(batch_no, "")
+                    if ps_field_clue_private_index.exists()
+                    else index_row.get("来源字段线索模板CSV_SHA256")
+                )
+                and len(overlay_private_rows) == (as_int(index_row.get("批次字段任务数")) or 0)
+                and overlay_task_ids == template_task_ids
+                and len(overlay_task_ids) == len(overlay_private_rows)
+                and (as_int(index_row.get("孤立旧Overlay记录数")) or 0) == 0
+            )
+            for overlay_row in overlay_private_rows:
+                task_id = overlay_row.get("字段事实核验任务ID", "")
+                template_row = ps_overlay_template_by_task_id.get(task_id, {})
+                ps_overlay_private_index_ok = (
+                    ps_overlay_private_index_ok
+                    and bool(template_row)
+                    and overlay_row.get("人工复核OverlayID")
+                    == stable_id(
+                        "PSHUMANOVERLAY",
+                        [task_id, overlay_row.get("来源字段线索模板CSV_SHA256", "")],
+                    )
+                    and overlay_row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+                    and overlay_row.get("批次总序") == template_row.get("批次总序")
+                    and overlay_row.get("批次ID") == template_row.get("批次ID")
+                    and overlay_row.get("批次名称") == template_row.get("批次名称")
+                    and overlay_row.get("来源页码") == template_row.get("来源页码")
+                    and overlay_row.get("版面列") == template_row.get("版面列")
+                    and overlay_row.get("页码版面键") == template_row.get("页码版面键")
+                    and overlay_row.get("页列底座核验批次行ID")
+                    == template_row.get("页列底座核验批次行ID")
+                    and overlay_row.get("专业行ID") == template_row.get("专业行ID")
+                    and overlay_row.get("字段名") == template_row.get("字段名")
+                    and overlay_row.get("来源字段线索模板CSV_SHA256")
+                    == index_row.get("来源字段线索模板CSV_SHA256")
+                    and overlay_row.get("来源字段线索模板行SHA256")
+                    == overlay_template_row_sha(template_row)
+                    and overlay_row.get("字段线索模板锁定") == "true"
+                    and overlay_row.get("人工记录版本") == "1"
+                    and not any(
+                        overlay_row.get(field, "")
+                        for field in [
+                            "PDF原页证据编号",
+                            "PDF原页证据SHA256",
+                            "PDF原页人工读数",
+                            "PDF原页记录状态",
+                            "湖北官方证据编号",
+                            "湖北官方证据SHA256",
+                            "湖北官方字段值",
+                            "湖北官方记录状态",
+                            "高校辅证证据编号",
+                            "高校辅证证据SHA256",
+                            "高校官网或招生章程字段值",
+                            "高校辅证记录状态",
+                            "字段确认值",
+                            "字段确认状态",
+                            "三方一致性状态",
+                            "差异原因",
+                            "一审核页人",
+                            "一审时间",
+                            "一审记录",
+                            "二审核页人",
+                            "二审时间",
+                            "二审记录",
+                            "复核结论",
+                            "复核备注",
+                            "核页状态",
+                            "字段写回评估状态",
+                            "人工记录锁定状态",
+                            "updated_at",
+                        ]
+                    )
+                )
+
+    ps_overlay_join_ok = True
+    ps_overlay_private_sha_ok = True
+    for row in ps_overlay_rows:
+        key = page_side_key(row)
+        field_clue = ps_field_clue_by_row_id.get(row.get("页列底座核验批次行ID", ""), {})
+        batch_no = as_int(row.get("批次总序")) or 0
+        overlay_private_rows = [
+            private_row
+            for private_row in ps_overlay_private_rows_by_batch.get(batch_no, [])
+            if page_side_key(private_row) == key
+        ]
+        if ps_overlay_private_index.exists():
+            ps_overlay_private_sha_ok = (
+                ps_overlay_private_sha_ok
+                and row.get("私有OverlayCSV_SHA256")
+                == ps_overlay_private_sha_by_batch.get(batch_no, "")
+                and (as_int(row.get("私有Overlay批次记录数")) or -1)
+                == ps_overlay_private_count_by_batch.get(batch_no, -2)
+            )
+        ps_overlay_join_ok = (
+            ps_overlay_join_ok
+            and bool(field_clue)
+            and row.get("页列底座Overlay公开账本ID")
+            == stable_id("PSOVERLAYPROG", [row.get("页列底座核验批次行ID", ""), batch_no])
+            and row.get("来源页列底座字段线索公开审计")
+            == "data/working/issue19-page-side-foundation-field-clue-public-audit.csv"
+            and row.get("来源私有字段线索模板") == "private_field_clue_templates_not_public"
+            and row.get("来源私有人工复核Overlay") == "private_human_review_overlay_not_public"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_page_side_foundation_human_review_overlay_public_ledger"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×人工复核Overlay进度"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动标记核验完成") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("批次ID") == field_clue.get("批次ID")
+            and row.get("批次名称") == field_clue.get("批次名称")
+            and row.get("批内页列序号") == field_clue.get("批内页列序号")
+            and row.get("页列全局风险总序") == field_clue.get("页列全局风险总序")
+            and row.get("页列底座字段线索公开审计ID")
+            == field_clue.get("页列底座字段线索公开审计ID")
+            and row.get("来源页码") == field_clue.get("来源页码")
+            and row.get("版面列") == field_clue.get("版面列")
+            and row.get("页码版面键") == field_clue.get("页码版面键")
+            and row.get("综合风险优先级桶") == field_clue.get("综合风险优先级桶")
+            and row.get("页列首要核验动作") == field_clue.get("页列首要核验动作")
+            and to_int(row, "包内字段任务数") == to_int(field_clue, "包内字段任务数")
+            and to_int(row, "Overlay字段记录数") == to_int(field_clue, "包内字段任务数")
+            and to_int(row, "Overlay字段记录缺失数") == 0
+            and row.get("私有字段线索模板CSV_SHA256")
+            == field_clue.get("私有字段线索模板CSV_SHA256")
+            and to_int(row, "私有Overlay页列记录数") == to_int(row, "Overlay字段记录数")
+            and to_int(row, "PDF原页记录已填字段数") == 0
+            and to_int(row, "PDF原页状态完成字段数") == 0
+            and to_int(row, "湖北官方记录已填字段数") == 0
+            and to_int(row, "湖北官方状态完成字段数") == 0
+            and to_int(row, "高校辅证记录已填字段数") == 0
+            and to_int(row, "高校辅证状态完成字段数") == 0
+            and to_int(row, "字段最终记录已填字段数") == 0
+            and to_int(row, "三方一致性可评估字段数") == 0
+            and to_int(row, "首轮复核已填字段数") == 0
+            and to_int(row, "次轮复核已填字段数") == 0
+            and to_int(row, "复查结论已填字段数") == 0
+            and to_int(row, "字段事实写回复查可进入字段数") == 0
+            and row.get("Overlay进度桶") == "R0-Overlay已生成未填写"
+            and row.get("字段事实写回状态") == "blocked_until_overlay_pdf_hubei_review_closed"
+            and (
+                not ps_overlay_private_index.exists()
+                or len(overlay_private_rows) == to_int(row, "Overlay字段记录数")
+            )
+        )
+
+    ps_overlay_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [ps_overlay_summary_path, ps_overlay_csv]
+    )
+    ps_overlay_sensitive_values = {
+        value
+        for source_row in ps_master_rows
+        for value in [
+            source_row.get("院校名称OCR", ""),
+            source_row.get("专业名称及备注短摘", ""),
+            source_row.get("专业名称及备注OCR", ""),
+        ]
+        if len(str(value).strip()) >= 8
+    }
+    ps_overlay_sensitive_value_hits = [
+        value for value in ps_overlay_sensitive_values if value and value in ps_overlay_public_text
+    ][:5]
+    checks.append(ok(
+        "第 19 期页列底座人工复核Overlay公开账本摘要、全量守恒和初始状态正确",
+        ps_overlay_summary.get("status")
+        == "issue19_page_side_foundation_human_review_overlay_public_ledger_not_final"
+        and ps_overlay_summary.get("generated_by")
+        == "build_issue19_page_side_foundation_human_review_overlay.py"
+        and ps_overlay_summary.get("source_field_clue_public_audit")
+        == "data/working/issue19-page-side-foundation-field-clue-public-audit.csv"
+        and ps_overlay_summary.get("source_private_field_clue_templates")
+        == "private_field_clue_templates_not_public"
+        and ps_overlay_summary.get("source_private_human_review_overlay")
+        == "private_human_review_overlay_not_public"
+        and ps_overlay_summary.get("output_table")
+        == "data/working/issue19-page-side-foundation-human-review-overlay-public-ledger.csv"
+        and ps_overlay_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and ps_overlay_summary.get("row_count") == len(ps_overlay_rows) == 462
+        and ps_overlay_summary.get("batch_count") == 19
+        and ps_overlay_summary.get("unique_page_side_count") == 462
+        and ps_overlay_summary.get("unique_pdf_page_count") == 231
+        and ps_overlay_summary.get("source_field_task_count") == 41208
+        and ps_overlay_summary.get("overlay_field_record_count") == 41208
+        and ps_overlay_summary.get("overlay_missing_field_record_count") == 0
+        and ps_overlay_summary.get("private_overlay_template_count") == 19
+        and ps_overlay_summary.get("private_overlay_template_row_count") == 41208
+        and ps_overlay_summary.get("orphaned_overlay_row_count") == 0
+        and ps_overlay_summary.get("preserved_manual_cell_count") == 0
+        and ps_overlay_summary.get("pdf_page_record_filled_task_count") == 0
+        and ps_overlay_summary.get("hubei_official_record_filled_task_count") == 0
+        and ps_overlay_summary.get("school_support_record_filled_task_count") == 0
+        and ps_overlay_summary.get("final_field_record_filled_task_count") == 0
+        and ps_overlay_summary.get("tri_consistency_assessable_task_count") == 0
+        and ps_overlay_summary.get("first_review_record_filled_task_count") == 0
+        and ps_overlay_summary.get("second_review_record_filled_task_count") == 0
+        and ps_overlay_summary.get("review_conclusion_filled_task_count") == 0
+        and ps_overlay_summary.get("field_writeback_review_ready_task_count") == 0
+        and ps_overlay_summary.get("final_available_count") == 0
+        and ps_overlay_summary.get("next_stage_available_count") == 0
+        and ps_overlay_summary.get("recommendation_basis_allowed_count") == 0
+        and ps_overlay_summary.get("school_major_suggestion_allowed_count") == 0,
+        f"{len(ps_overlay_rows)} overlay progress rows",
+    ))
+    checks.append(ok(
+        "第 19 期页列底座人工复核Overlay字段、私有回链、SHA和非最终门禁正确",
+        ps_overlay_fields == expected_ps_overlay_fields
+        and len({row.get("页列底座Overlay公开账本ID") for row in ps_overlay_rows}) == 462
+        and len(ps_overlay_by_row_id) == 462
+        and set(ps_overlay_by_row_id) == set(ps_field_clue_by_row_id)
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in ps_overlay_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in ps_overlay_rows)
+        and all(row.get("机器是否允许自动标记核验完成") == "false" for row in ps_overlay_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in ps_overlay_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in ps_overlay_rows)
+        and all(re.fullmatch(r"[0-9a-f]{64}", row.get("私有字段线索模板CSV_SHA256", "")) for row in ps_overlay_rows)
+        and all(re.fullmatch(r"[0-9a-f]{64}", row.get("私有OverlayCSV_SHA256", "")) for row in ps_overlay_rows)
+        and (not ps_overlay_private_index.exists() or ps_overlay_private_index_ok)
+        and (not ps_overlay_private_index.exists() or ps_overlay_private_sha_ok)
+        and (
+            not ps_overlay_private_index.exists()
+            or ps_overlay_summary.get("private_overlay_index_csv_sha256")
+            == sha256(ps_overlay_private_index)
+        )
+        and (
+            not ps_overlay_private_index.exists()
+            or ps_overlay_task_ids == {row.get("字段事实核验任务ID") for row in field_fact_tasks_rows}
+        )
+        and (
+            not ps_overlay_private_index.exists()
+            or sum(ps_overlay_private_count_by_batch.values()) == 41208
+        )
+        and (not ps_overlay_private_index.exists() or not ps_overlay_orphan_path.exists())
+        and ps_overlay_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期页列底座人工复核Overlay公开账本不含私有路径、字段读数、人工内容和最终误导结论",
+        foundation_release_sensitive_re.search(ps_overlay_public_text) is None
+        and not ps_overlay_sensitive_value_hits
+        and "/Users/" not in ps_overlay_public_text
+        and "/home/" not in ps_overlay_public_text
+        and "/var/folders/" not in ps_overlay_public_text
+        and "/private/" not in ps_overlay_public_text
+        and "private/" not in ps_overlay_public_text
+        and "private\\" not in ps_overlay_public_text
+        and "ocr-runs" not in ps_overlay_public_text
+        and "rendered-pages" not in ps_overlay_public_text
+        and ".png" not in ps_overlay_public_text
+        and ".jpg" not in ps_overlay_public_text
+        and ".jpeg" not in ps_overlay_public_text
+        and ".webp" not in ps_overlay_public_text
+        and ".tif" not in ps_overlay_public_text
+        and ".tiff" not in ps_overlay_public_text
+        and ".heic" not in ps_overlay_public_text
+        and "Authorization" not in ps_overlay_public_text
+        and "Bearer " not in ps_overlay_public_text
+        and "Cookie" not in ps_overlay_public_text
+        and "院校名称OCR" not in ps_overlay_public_text
+        and "院校专业组代码OCR规范化" not in ps_overlay_public_text
+        and "专业代号OCR" not in ps_overlay_public_text
+        and "专业名称及备注" not in ps_overlay_public_text
+        and "组内招生明细" not in ps_overlay_public_text
+        and "字段OCR候选" not in ps_overlay_public_text
+        and "字段候选值集合" not in ps_overlay_public_text
+        and "字段候选来源类型集合" not in ps_overlay_public_text
+        and "字段候选置信等级集合" not in ps_overlay_public_text
+        and "字段候选状态集合" not in ps_overlay_public_text
+        and "PDF原页人工读数" not in ps_overlay_public_text
+        and "湖北官方字段值" not in ps_overlay_public_text
+        and "高校官网或招生章程字段值" not in ps_overlay_public_text
+        and "字段确认值" not in ps_overlay_public_text
+        and "核页人" not in ps_overlay_public_text
+        and "复核备注" not in ps_overlay_public_text
+        and "一审" not in ps_overlay_public_text
+        and "二审" not in ps_overlay_public_text
+        and "OCR文本" not in ps_overlay_public_text
+        and "OCR原文" not in ps_overlay_public_text
+        and "OCR行文本" not in ps_overlay_public_text
+        and "已确认" not in ps_overlay_public_text
+        and "已核准" not in ps_overlay_public_text
+        and "最终推荐" not in ps_overlay_public_text
+        and "最终方案" not in ps_overlay_public_text
+        and "可填报" not in ps_overlay_public_text
+        and "可排序" not in ps_overlay_public_text
+        and not any(token in ps_overlay_public_text for token in shared_forbidden_tokens),
+        "；".join(ps_overlay_sensitive_value_hits),
+    ))
+
+    sample_batch01_summary_path = (
+        ROOT / "data/working/issue19-page-side-foundation-batch-01-sample-public-audit-summary.json"
+    )
+    sample_batch01_csv = (
+        ROOT / "data/working/issue19-page-side-foundation-batch-01-sample-public-audit.csv"
+    )
+    sample_batch01_summary = json.loads(sample_batch01_summary_path.read_text())
+    with sample_batch01_csv.open(newline="", encoding="utf-8-sig") as f:
+        sample_batch01_reader = csv.DictReader(f)
+        sample_batch01_rows = list(sample_batch01_reader)
+        sample_batch01_fields = sample_batch01_reader.fieldnames or []
+    expected_sample_batch01_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_batch_sample_review.py",
+        "PUBLIC_FIELDS",
+    )
+    expected_sample_batch01_private_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_batch_sample_review.py",
+        "PRIVATE_FIELDS",
+    )
+    sample_batch01_private_detail = (
+        ROOT / "private/review-assets/issue19-page-side-foundation-batch-sample-review/details/batch-01-sample-detail.csv"
+    )
+    sample_batch01_private_ok = True
+    sample_batch01_private_rows = []
+    if sample_batch01_private_detail.exists():
+        with sample_batch01_private_detail.open(newline="", encoding="utf-8-sig") as f:
+            sample_batch01_private_reader = csv.DictReader(f)
+            sample_batch01_private_rows = list(sample_batch01_private_reader)
+            sample_batch01_private_fields = sample_batch01_private_reader.fieldnames or []
+        sample_batch01_private_ok = (
+            sample_batch01_private_fields == expected_sample_batch01_private_fields
+            and len(sample_batch01_private_rows) == 2151
+            and len({row.get("样板复核任务ID") for row in sample_batch01_private_rows}) == 2151
+            and all(row.get("批次总序") == "1" for row in sample_batch01_private_rows)
+            and all(row.get("正式Overlay记录是否存在") == "true" for row in sample_batch01_private_rows)
+            and all(row.get("正式Overlay是否已有人工填写") == "false" for row in sample_batch01_private_rows)
+            and all(row.get("可否自动写入正式Overlay") == "false" for row in sample_batch01_private_rows)
+        )
+    sample_batch01_by_row_id = {
+        row.get("页列底座核验批次行ID"): row for row in sample_batch01_rows
+    }
+    sample_batch01_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [sample_batch01_summary_path, sample_batch01_csv]
+    )
+    sample_batch01_sensitive_value_hits = [
+        value for value in ps_overlay_sensitive_values if value and value in sample_batch01_public_text
+    ][:5]
+    checks.append(ok(
+        "第 19 期页列底座第 1 批样板复核摘要、规模和非最终门禁正确",
+        sample_batch01_summary.get("status")
+        == "issue19_page_side_foundation_batch_sample_review_not_final"
+        and sample_batch01_summary.get("generated_by")
+        == "build_issue19_page_side_foundation_batch_sample_review.py"
+        and sample_batch01_summary.get("batch_no") == 1
+        and sample_batch01_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and sample_batch01_summary.get("public_row_count") == len(sample_batch01_rows) == 25
+        and sample_batch01_summary.get("private_detail_row_count") == 2151
+        and sample_batch01_summary.get("unique_page_side_count") == 25
+        and sample_batch01_summary.get("unique_pdf_page_count") == 23
+        and sample_batch01_summary.get("unique_major_count") == 717
+        and sample_batch01_summary.get("field_task_count") == 2151
+        and sample_batch01_summary.get("field_name_distribution") == {
+            "再选科目": 717,
+            "专业计划数": 717,
+            "学费": 717,
+        }
+        and sample_batch01_summary.get("block_level_distribution") == {
+            "Q0-字段缺口无候选阻断": 831,
+            "Q1-字段缺口有候选待人工核验": 1071,
+            "Q2-OCR字段齐全但PDF和官方未闭环": 249,
+        }
+        and sample_batch01_summary.get("fact_status_distribution") == {
+            "K0-字段缺口无候选需原页重读": 629,
+            "K1-字段缺口有候选待PDF原页和官方核验": 379,
+            "K2-OCR候选存在但三方核验未闭环": 1143,
+        }
+        and sample_batch01_summary.get("candidate_value_set_nonempty_count") == 379
+        and sample_batch01_summary.get("ocr_candidate_nonempty_count") == 1201
+        and sample_batch01_summary.get("multi_value_candidate_count") == 95
+        and sample_batch01_summary.get("suspected_misaligned_candidate_count") == 0
+        and sample_batch01_summary.get("pdf_page_manual_read_required_count") == 2151
+        and sample_batch01_summary.get("hubei_official_review_required_count") == 2151
+        and sample_batch01_summary.get("official_overlay_existing_record_count") == 2151
+        and sample_batch01_summary.get("official_overlay_manual_filled_count") == 0
+        and sample_batch01_summary.get("auto_write_to_formal_overlay_allowed_count") == 0
+        and sample_batch01_summary.get("final_available_count") == 0
+        and sample_batch01_summary.get("next_stage_available_count") == 0
+        and sample_batch01_summary.get("recommendation_basis_allowed_count") == 0
+        and sample_batch01_summary.get("school_major_suggestion_allowed_count") == 0,
+        f"{len(sample_batch01_rows)} sample page-side rows",
+    ))
+    checks.append(ok(
+        "第 19 期页列底座第 1 批样板复核字段、回链和私有详表正确",
+        sample_batch01_fields == expected_sample_batch01_fields
+        and len({row.get("页列底座样板公开审计ID") for row in sample_batch01_rows}) == 25
+        and len(sample_batch01_by_row_id) == 25
+        and set(sample_batch01_by_row_id)
+        == {row.get("页列底座核验批次行ID") for row in ps_field_clue_rows if row.get("批次总序") == "1"}
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in sample_batch01_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in sample_batch01_rows)
+        and all(row.get("机器是否允许自动标记核验完成") == "false" for row in sample_batch01_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in sample_batch01_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in sample_batch01_rows)
+        and all(row.get("样板页列状态") == "S0-样板已生成但未事实核准" for row in sample_batch01_rows)
+        and all(row.get("样板可自动写入正式Overlay字段数") == "0" for row in sample_batch01_rows)
+        and (
+            not sample_batch01_private_detail.exists()
+            or sample_batch01_summary.get("private_sample_detail_sha256")
+            == sha256(sample_batch01_private_detail)
+        )
+        and sample_batch01_private_ok,
+    ))
+    checks.append(ok(
+        "第 19 期页列底座第 1 批样板公开文件不含私有路径、字段读数、人工内容和最终误导结论",
+        foundation_release_sensitive_re.search(sample_batch01_public_text) is None
+        and not sample_batch01_sensitive_value_hits
+        and "/Users/" not in sample_batch01_public_text
+        and "/home/" not in sample_batch01_public_text
+        and "/var/folders/" not in sample_batch01_public_text
+        and "/private/" not in sample_batch01_public_text
+        and "private/" not in sample_batch01_public_text
+        and "private\\" not in sample_batch01_public_text
+        and "ocr-runs" not in sample_batch01_public_text
+        and "rendered-pages" not in sample_batch01_public_text
+        and ".png" not in sample_batch01_public_text
+        and ".jpg" not in sample_batch01_public_text
+        and ".jpeg" not in sample_batch01_public_text
+        and ".webp" not in sample_batch01_public_text
+        and ".tif" not in sample_batch01_public_text
+        and ".tiff" not in sample_batch01_public_text
+        and ".heic" not in sample_batch01_public_text
+        and "Authorization" not in sample_batch01_public_text
+        and "Bearer " not in sample_batch01_public_text
+        and "Cookie" not in sample_batch01_public_text
+        and "院校名称OCR" not in sample_batch01_public_text
+        and "院校专业组代码OCR规范化" not in sample_batch01_public_text
+        and "专业代号OCR" not in sample_batch01_public_text
+        and "专业名称及备注" not in sample_batch01_public_text
+        and "组内招生明细" not in sample_batch01_public_text
+        and "字段OCR候选" not in sample_batch01_public_text
+        and "字段候选值集合" not in sample_batch01_public_text
+        and "字段候选来源类型集合" not in sample_batch01_public_text
+        and "字段候选置信等级集合" not in sample_batch01_public_text
+        and "字段候选状态集合" not in sample_batch01_public_text
+        and "PDF原页人工读数" not in sample_batch01_public_text
+        and "湖北官方字段值" not in sample_batch01_public_text
+        and "高校官网或招生章程字段值" not in sample_batch01_public_text
+        and "字段确认值" not in sample_batch01_public_text
+        and "核页人" not in sample_batch01_public_text
+        and "复核备注" not in sample_batch01_public_text
+        and "一审" not in sample_batch01_public_text
+        and "二审" not in sample_batch01_public_text
+        and "OCR文本" not in sample_batch01_public_text
+        and "OCR原文" not in sample_batch01_public_text
+        and "已确认" not in sample_batch01_public_text
+        and "已核准" not in sample_batch01_public_text
+        and "最终推荐" not in sample_batch01_public_text
+        and "最终方案" not in sample_batch01_public_text
+        and "可填报" not in sample_batch01_public_text
+        and "可排序" not in sample_batch01_public_text
+        and not any(token in sample_batch01_public_text for token in shared_forbidden_tokens),
+        "；".join(sample_batch01_sensitive_value_hits),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
