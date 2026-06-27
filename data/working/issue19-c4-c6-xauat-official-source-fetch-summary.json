@@ -1,0 +1,33 @@
+{
+  "status": "issue19_c4_c6_xauat_official_source_retained_not_final",
+  "generated_by": "fetch_issue19_c4_c6_xauat_official_source.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_api_url": "https://zsdata.xauat.edu.cn/lqxx/s/api/front/lqxx/getList",
+  "request_json": {
+    "type": "zsjh",
+    "sf": "湖北",
+    "nf": "2026",
+    "klmc": "物理类",
+    "zslb": "普通类",
+    "xqmc": ""
+  },
+  "raw_output": "data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json",
+  "raw_output_sha256": "09237526e6e350860c31fb6710b6f2fa050773d7e5696d1897435357b1fb2bdc",
+  "public_ledger": "data/working/issue19-c4-c6-xauat-official-source-fetch-public-ledger.csv",
+  "success": true,
+  "code": 200,
+  "msg": "",
+  "plan_row_count": 20,
+  "total_row_count": 1,
+  "plan_sum": 80,
+  "total_sum": 80,
+  "all_year_2026": true,
+  "all_province_hubei": true,
+  "all_subject_physics": true,
+  "all_category_normal": true,
+  "official_plan_replacement_allowed": false,
+  "field_writeback_allowed": false,
+  "recommendation_basis_allowed": false,
+  "policy": "高校官网API只作辅证和差异发现，不能替代湖北省招办计划或第19期PDF原页。"
+}

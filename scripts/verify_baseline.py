@@ -21551,6 +21551,125 @@ def main():
         and not any(token in blcu_c4_c6_public_text for token in shared_forbidden_tokens),
     ))
 
+    xauat_c4_c6_raw_json = (
+        ROOT / "data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json"
+    )
+    xauat_c4_c6_fetch_ledger_csv = (
+        ROOT / "data/working/issue19-c4-c6-xauat-official-source-fetch-public-ledger.csv"
+    )
+    xauat_c4_c6_fetch_summary_path = (
+        ROOT / "data/working/issue19-c4-c6-xauat-official-source-fetch-summary.json"
+    )
+    xauat_c4_c6_obj = json.loads(xauat_c4_c6_raw_json.read_text(encoding="utf-8"))
+    xauat_c4_c6_plan_rows = xauat_c4_c6_obj.get("list", [])
+    xauat_c4_c6_total_rows = xauat_c4_c6_obj.get("sumLists", [])
+    xauat_c4_c6_fetch_summary = json.loads(xauat_c4_c6_fetch_summary_path.read_text())
+    with xauat_c4_c6_fetch_ledger_csv.open(newline="", encoding="utf-8-sig") as f:
+        xauat_c4_c6_fetch_reader = csv.DictReader(f)
+        xauat_c4_c6_fetch_rows = list(xauat_c4_c6_fetch_reader)
+        xauat_c4_c6_fetch_fields = xauat_c4_c6_fetch_reader.fieldnames or []
+    expected_xauat_c4_c6_fetch_fields = script_list_constant(
+        ROOT / "scripts/fetch_issue19_c4_c6_xauat_official_source.py",
+        "PUBLIC_FIELDS",
+    )
+    xauat_c4_c6_fetch_row = xauat_c4_c6_fetch_rows[0] if xauat_c4_c6_fetch_rows else {}
+    xauat_plan_sum = sum(as_int(row.get("jhrs")) for row in xauat_c4_c6_plan_rows)
+    xauat_total_sum = sum(as_int(row.get("jhrs")) for row in xauat_c4_c6_total_rows)
+    xauat_c4_c6_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [xauat_c4_c6_fetch_summary_path, xauat_c4_c6_fetch_ledger_csv]
+    )
+    checks.append(ok(
+        "第 19 期 C4/C6 西安建筑科技大学官方API原始源已留存且边界正确",
+        xauat_c4_c6_fetch_summary.get("status")
+        == "issue19_c4_c6_xauat_official_source_retained_not_final"
+        and xauat_c4_c6_fetch_summary.get("generated_by")
+        == "fetch_issue19_c4_c6_xauat_official_source.py"
+        and xauat_c4_c6_fetch_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and xauat_c4_c6_fetch_summary.get("source_api_url")
+        == "https://zsdata.xauat.edu.cn/lqxx/s/api/front/lqxx/getList"
+        and xauat_c4_c6_fetch_summary.get("request_json")
+        == {"type": "zsjh", "sf": "湖北", "nf": "2026", "klmc": "物理类", "zslb": "普通类", "xqmc": ""}
+        and xauat_c4_c6_fetch_summary.get("raw_output")
+        == "data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json"
+        and xauat_c4_c6_fetch_summary.get("raw_output_sha256") == sha256(xauat_c4_c6_raw_json)
+        and xauat_c4_c6_fetch_summary.get("public_ledger")
+        == "data/working/issue19-c4-c6-xauat-official-source-fetch-public-ledger.csv"
+        and xauat_c4_c6_fetch_summary.get("success") is True
+        and xauat_c4_c6_fetch_summary.get("code") == 200
+        and xauat_c4_c6_fetch_summary.get("plan_row_count") == len(xauat_c4_c6_plan_rows) == 20
+        and xauat_c4_c6_fetch_summary.get("total_row_count") == len(xauat_c4_c6_total_rows) == 1
+        and xauat_c4_c6_fetch_summary.get("plan_sum") == xauat_plan_sum == 80
+        and xauat_c4_c6_fetch_summary.get("total_sum") == xauat_total_sum == 80
+        and xauat_c4_c6_fetch_summary.get("all_year_2026") is True
+        and xauat_c4_c6_fetch_summary.get("all_province_hubei") is True
+        and xauat_c4_c6_fetch_summary.get("all_subject_physics") is True
+        and xauat_c4_c6_fetch_summary.get("all_category_normal") is True
+        and xauat_c4_c6_fetch_summary.get("official_plan_replacement_allowed") is False
+        and xauat_c4_c6_fetch_summary.get("field_writeback_allowed") is False
+        and xauat_c4_c6_fetch_summary.get("recommendation_basis_allowed") is False
+        and xauat_c4_c6_obj.get("success") is True
+        and xauat_c4_c6_obj.get("code") == 200
+        and all(row.get("nf") == "2026" for row in xauat_c4_c6_plan_rows)
+        and all(row.get("sf") == "湖北" for row in xauat_c4_c6_plan_rows)
+        and all(row.get("klmc") == "物理类" for row in xauat_c4_c6_plan_rows)
+        and all(row.get("zslb") == "普通类" for row in xauat_c4_c6_plan_rows)
+        and {row.get("zygroup", "") for row in xauat_c4_c6_plan_rows} == {"物化组", "物理组"},
+        f"{len(xauat_c4_c6_plan_rows)} XAUAT API rows",
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 西安建筑科技大学官方API公开账本字段、SHA和门禁正确",
+        xauat_c4_c6_fetch_fields == expected_xauat_c4_c6_fetch_fields
+        and len(xauat_c4_c6_fetch_rows) == 1
+        and xauat_c4_c6_fetch_row.get("C4C6高校官网源抓取ID")
+        == "C4C6FETCH-XAUAT-K465-2026-HUBEI-PHYSICS-NORMAL"
+        and xauat_c4_c6_fetch_row.get("来源C4C6执行包ID")
+        == "C4C6PACKET-64e029988f599939；C4C6PACKET-ebe8c55049c50d67"
+        and xauat_c4_c6_fetch_row.get("院校代码") == "K465"
+        and xauat_c4_c6_fetch_row.get("院校名称OCR") == "西安建筑科技大学"
+        and xauat_c4_c6_fetch_row.get("本地留存文件")
+        == "data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json"
+        and xauat_c4_c6_fetch_row.get("本地留存文件SHA256") == sha256(xauat_c4_c6_raw_json)
+        and as_int(xauat_c4_c6_fetch_row.get("逐专业计划行数")) == 20
+        and as_int(xauat_c4_c6_fetch_row.get("逐专业计划数合计")) == 80
+        and as_int(xauat_c4_c6_fetch_row.get("汇总计划数合计")) == 80
+        and xauat_c4_c6_fetch_row.get("年份一致性") == "all_2026"
+        and xauat_c4_c6_fetch_row.get("省份一致性") == "all_hubei"
+        and xauat_c4_c6_fetch_row.get("科类一致性") == "all_physics"
+        and xauat_c4_c6_fetch_row.get("类别一致性") == "all_normal"
+        and all(xauat_c4_c6_fetch_row.get(field) == "false" for field in blcu_false_fields)
+        and xauat_c4_c6_fetch_row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+        and xauat_c4_c6_fetch_row.get("湖北官方系统或省招办计划核验状态")
+        == "pending_hubei_official_review"
+        and xauat_c4_c6_fetch_row.get("高校官网源抓取状态")
+        == "official_school_api_source_retained_not_verified"
+        and xauat_c4_c6_fetch_row.get("字段事实写回状态")
+        == "blocked_until_pdf_hubei_official_review",
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 西安建筑科技大学官方API公开账本不含私有路径、登录态和最终误导结论",
+        "/Users/" not in xauat_c4_c6_public_text
+        and "/home/" not in xauat_c4_c6_public_text
+        and "/var/folders/" not in xauat_c4_c6_public_text
+        and "/private/" not in xauat_c4_c6_public_text
+        and "private/" not in xauat_c4_c6_public_text
+        and "private\\" not in xauat_c4_c6_public_text
+        and "Authorization" not in xauat_c4_c6_public_text
+        and "Bearer " not in xauat_c4_c6_public_text
+        and "Cookie" not in xauat_c4_c6_public_text
+        and "access_token" not in xauat_c4_c6_public_text
+        and "password" not in xauat_c4_c6_public_text
+        and "secret" not in xauat_c4_c6_public_text
+        and "人工读数" not in xauat_c4_c6_public_text
+        and "已确认" not in xauat_c4_c6_public_text
+        and "已核准" not in xauat_c4_c6_public_text
+        and "最终推荐" not in xauat_c4_c6_public_text
+        and "最终方案" not in xauat_c4_c6_public_text
+        and "可填报" not in xauat_c4_c6_public_text
+        and "可排序" not in xauat_c4_c6_public_text
+        and not any(token in xauat_c4_c6_public_text for token in shared_forbidden_tokens),
+    ))
+
     c4_c6_diff_summary_path = (
         ROOT / "data/working/issue19-c4-c6-structured-candidate-diff-summary.json"
     )
@@ -21618,7 +21737,10 @@ def main():
     c4_c6_diff_retained_by_school = defaultdict(list)
     for row in b0_b1_retained_official_rows:
         c4_c6_diff_retained_by_school[row.get("学校名称", "")].append(row)
-    c4_c6_diff_extra_by_school = {"北京语言大学": blcu_c4_c6_plan_rows}
+    c4_c6_diff_extra_by_school = {
+        "北京语言大学": blcu_c4_c6_plan_rows,
+        "西安建筑科技大学": xauat_c4_c6_plan_rows,
+    }
     c4_c6_diff_join_ok = True
     for row in c4_c6_diff_rows:
         packet_id = row.get("C4C6高校源刷新执行包ID", "")
@@ -21720,10 +21842,16 @@ def main():
         and c4_c6_diff_summary.get("source_retained_official_plan")
         == "data/working/issue19-b0-b1-retained-official-plan-normalized.csv"
         and c4_c6_diff_summary.get("source_extra_school_sources")
-        == ["data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json"]
+        == [
+            "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json",
+            "data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json",
+        ]
         and c4_c6_diff_summary.get("source_extra_school_source_sha256", {}).get(
             "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json"
         ) == sha256(blcu_c4_c6_raw_json)
+        and c4_c6_diff_summary.get("source_extra_school_source_sha256", {}).get(
+            "data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json"
+        ) == sha256(xauat_c4_c6_raw_json)
         and c4_c6_diff_summary.get("hubei_official_can_finalize") is False
         and c4_c6_diff_summary.get("hubei_official_without_login_structured_plan_available") is False
         and c4_c6_diff_summary.get("school_official_sources_are_substitute_evidence_only") is True
@@ -21735,27 +21863,28 @@ def main():
         and c4_c6_diff_summary.get("retained_official_row_count")
         == len(b0_b1_retained_official_rows) == 434
         and c4_c6_diff_summary.get("retained_official_school_count") == 17
-        and c4_c6_diff_summary.get("extra_school_source_row_count") == len(blcu_c4_c6_plan_rows) == 14
-        and c4_c6_diff_summary.get("extra_school_source_school_count") == 1
-        and c4_c6_diff_summary.get("combined_structured_source_row_count") == 448
-        and c4_c6_diff_summary.get("combined_structured_source_school_count") == 18
-        and c4_c6_diff_summary.get("packet_with_structured_source_count") == 18
-        and c4_c6_diff_summary.get("packet_with_candidate_diff_count") == 17
+        and c4_c6_diff_summary.get("extra_school_source_row_count")
+        == len(blcu_c4_c6_plan_rows) + len(xauat_c4_c6_plan_rows) == 34
+        and c4_c6_diff_summary.get("extra_school_source_school_count") == 2
+        and c4_c6_diff_summary.get("combined_structured_source_row_count") == 468
+        and c4_c6_diff_summary.get("combined_structured_source_school_count") == 19
+        and c4_c6_diff_summary.get("packet_with_structured_source_count") == 20
+        and c4_c6_diff_summary.get("packet_with_candidate_diff_count") == 19
         and c4_c6_diff_private_match_counts == Counter({
-            "no_school_source": 340,
-            "matched": 212,
-            "unmatched": 53,
-            "possible_match": 2,
+            "no_school_source": 321,
+            "matched": 229,
+            "unmatched": 54,
+            "possible_match": 3,
         })
         and c4_c6_diff_private_plan_counts == Counter({
-            "not_covered": 393,
-            "ocr_plan_missing_official_available": 106,
-            "mismatch": 23,
-            "match": 85,
+            "not_covered": 375,
+            "ocr_plan_missing_official_available": 113,
+            "mismatch": 24,
+            "match": 95,
         })
         and c4_c6_diff_source_layer_counts == Counter({
-            "无匹配结构化官网源": 393,
-            "新增C4C6高校官网源": 9,
+            "无匹配结构化官网源": 375,
+            "新增C4C6高校官网源": 27,
             "既有B0B1留存官网源": 205,
         })
         and c4_c6_diff_summary.get("detail_match_status_counts")
@@ -21764,13 +21893,13 @@ def main():
         == dict(c4_c6_diff_private_plan_counts)
         and c4_c6_diff_summary.get("source_layer_counts")
         == dict(c4_c6_diff_source_layer_counts)
-        and c4_c6_diff_summary.get("plan_match_candidate_count") == 85
-        and c4_c6_diff_summary.get("ocr_plan_missing_official_available_count") == 106
-        and c4_c6_diff_summary.get("plan_mismatch_candidate_count") == 23
-        and c4_c6_diff_summary.get("no_structured_source_detail_count") == 340
-        and c4_c6_diff_summary.get("extra_source_matched_detail_count") == 9
-        and c4_c6_diff_summary.get("extra_source_plan_match_count") == 2
-        and c4_c6_diff_summary.get("extra_source_plan_mismatch_count") == 5,
+        and c4_c6_diff_summary.get("plan_match_candidate_count") == 95
+        and c4_c6_diff_summary.get("ocr_plan_missing_official_available_count") == 113
+        and c4_c6_diff_summary.get("plan_mismatch_candidate_count") == 24
+        and c4_c6_diff_summary.get("no_structured_source_detail_count") == 321
+        and c4_c6_diff_summary.get("extra_source_matched_detail_count") == 27
+        and c4_c6_diff_summary.get("extra_source_plan_match_count") == 12
+        and c4_c6_diff_summary.get("extra_source_plan_mismatch_count") == 6,
         f"{len(c4_c6_diff_rows)} structured diff packets",
     ))
     checks.append(ok(
@@ -21785,12 +21914,13 @@ def main():
         and c4_c6_diff_summary.get("private_index_csv_sha256")
         == sha256(c4_c6_diff_private_index_csv)
         and c4_c6_diff_priority_counts == Counter({
-            "D5-有入口但仍缺结构化计划源": 10,
-            "D0-存在计划数冲突需优先核PDF原页": 8,
+            "D5-有入口但仍缺结构化计划源": 8,
+            "D0-存在计划数冲突需优先核PDF原页": 9,
             "D2-已有结构化源计划数一致候选": 3,
             "D3-已有结构化源但计划数未闭合": 6,
             "D4-新增高校官网源未命中需补规则或核专业名": 1,
             "D6-无入口需继续搜索高校官网计划源": 8,
+            "D1-新增高校官网源已命中需抽检核页": 1,
         })
         and c4_c6_diff_summary.get("priority_counts") == dict(c4_c6_diff_priority_counts)
         and all(
@@ -21836,6 +21966,172 @@ def main():
         and "可填报" not in c4_c6_diff_public_text
         and "可排序" not in c4_c6_diff_public_text
         and not any(token in c4_c6_diff_public_text for token in shared_forbidden_tokens),
+    ))
+
+    c4_c6_source_attempt_summary_path = (
+        ROOT / "data/working/issue19-c4-c6-school-source-acquisition-attempts-summary.json"
+    )
+    c4_c6_source_attempt_csv = (
+        ROOT / "data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv"
+    )
+    c4_c6_source_attempt_summary = json.loads(c4_c6_source_attempt_summary_path.read_text())
+    with c4_c6_source_attempt_csv.open(newline="", encoding="utf-8-sig") as f:
+        c4_c6_source_attempt_reader = csv.DictReader(f)
+        c4_c6_source_attempt_rows = list(c4_c6_source_attempt_reader)
+        c4_c6_source_attempt_fields = c4_c6_source_attempt_reader.fieldnames or []
+    expected_c4_c6_source_attempt_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_c4_c6_school_source_acquisition_attempts.py",
+        "PUBLIC_FIELDS",
+    )
+    c4_c6_source_attempt_false_fields = [
+        "最终可用",
+        "可进入下一阶段",
+        "可否进入最终志愿方案",
+        "是否允许作为志愿推荐依据",
+        "是否允许自动写回主表",
+        "是否允许官网证据替代湖北官方计划",
+        "是否允许生成学校专业建议",
+        "是否允许写回字段事实",
+    ]
+    c4_c6_source_attempt_by_school = {
+        row.get("院校名称OCR", ""): row for row in c4_c6_source_attempt_rows
+    }
+    c4_c6_acquisition_gap_by_school = defaultdict(list)
+    for row in c4_c6_diff_rows:
+        priority = row.get("结构化候选diff优先级", "")
+        if priority.startswith(("D4-", "D5-", "D6-")):
+            c4_c6_acquisition_gap_by_school[row.get("院校名称OCR", "")].append(row)
+    c4_c6_source_attempt_join_ok = True
+    for school, gap_rows in c4_c6_acquisition_gap_by_school.items():
+        row = c4_c6_source_attempt_by_school.get(school, {})
+        priorities = join_unique(gap_rows, "结构化候选diff优先级")
+        c4_c6_source_attempt_join_ok = (
+            c4_c6_source_attempt_join_ok
+            and bool(row)
+            and row.get("C4C6高校官网补源尝试ID")
+            == stable_id("C4C6SOURCEATTEMPT", [gap_rows[0].get("院校代码", ""), school, priorities])
+            and row.get("来源C4C6结构化候选diff公开账本")
+            == "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv"
+            and row.get("来源C4C6执行包表")
+            == "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv"
+            and row.get("来源高校官网补源种子表")
+            == "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_c4_c6_school_source_acquisition_attempts"
+            and row.get("主表粒度") == "C4/C6高校×官网补源尝试"
+            and all(row.get(field) == "false" for field in c4_c6_source_attempt_false_fields)
+            and row.get("院校代码") == gap_rows[0].get("院校代码", "")
+            and as_int(row.get("涉及C4C6执行包数")) == len(gap_rows)
+            and as_int(row.get("涉及私有明细数"))
+            == sum(as_int(item.get("涉及私有明细数")) for item in gap_rows)
+            and as_int(row.get("涉及C4明细数"))
+            == sum(
+                as_int(item.get("涉及私有明细数"))
+                for item in gap_rows
+                if "C4-" in item.get("官网辅证自动动作", "")
+            )
+            and as_int(row.get("涉及C6明细数"))
+            == sum(
+                as_int(item.get("涉及私有明细数"))
+                for item in gap_rows
+                if "C6-" in item.get("官网辅证自动动作", "")
+            )
+            and row.get("当前结构化候选diff优先级集合") == priorities
+            and as_int(row.get("当前可生成候选diff明细数"))
+            == sum(as_int(item.get("可生成候选diff明细数")) for item in gap_rows)
+            and as_int(row.get("当前计划数冲突候选数"))
+            == sum(as_int(item.get("计划数冲突候选数")) for item in gap_rows)
+            and as_int(row.get("当前无结构化官网源明细数"))
+            == sum(as_int(item.get("无结构化官网源明细数")) for item in gap_rows)
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("字段事实写回状态") == "blocked_until_pdf_hubei_official_review"
+        )
+    c4_c6_source_attempt_status_counts = Counter(
+        row.get("最新自动探针状态") for row in c4_c6_source_attempt_rows
+    )
+    c4_c6_source_attempt_bucket_counts = Counter(
+        row.get("高校官网补源状态") for row in c4_c6_source_attempt_rows
+    )
+    c4_c6_source_attempt_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [c4_c6_source_attempt_summary_path, c4_c6_source_attempt_csv]
+    )
+    checks.append(ok(
+        "第 19 期 C4/C6 高校官网补源尝试账本摘要、规模和状态分布正确",
+        c4_c6_source_attempt_summary.get("status")
+        == "issue19_c4_c6_school_source_acquisition_attempts_not_final"
+        and c4_c6_source_attempt_summary.get("generated_by")
+        == "build_issue19_c4_c6_school_source_acquisition_attempts.py"
+        and c4_c6_source_attempt_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and c4_c6_source_attempt_summary.get("source_c4_c6_structured_candidate_diff")
+        == "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv"
+        and c4_c6_source_attempt_summary.get("source_c4_c6_packets")
+        == "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv"
+        and c4_c6_source_attempt_summary.get("source_school_seed_table")
+        == "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv"
+        and c4_c6_source_attempt_summary.get("row_count")
+        == len(c4_c6_source_attempt_rows) == 13
+        and c4_c6_source_attempt_summary.get("school_count") == 13
+        and c4_c6_source_attempt_summary.get("total_private_detail_count") == 322
+        and c4_c6_source_attempt_summary.get("total_c4_detail_count") == 127
+        and c4_c6_source_attempt_summary.get("total_c6_detail_count") == 195
+        and c4_c6_source_attempt_summary.get("total_no_structured_source_detail_count") == 321
+        and c4_c6_source_attempt_status_counts == Counter({
+            "entry_200_api_403_forbidden": 1,
+            "entry_timeout_api_timeout_previous_forbidden": 1,
+            "structured_source_retained_parser_or_match_rule_needed": 1,
+            "tls_handshake_failure_entry_and_api": 1,
+            "no_seed_need_official_source_search": 8,
+            "http_412_precondition_failed": 1,
+        })
+        and c4_c6_source_attempt_summary.get("status_counts")
+        == dict(c4_c6_source_attempt_status_counts)
+        and c4_c6_source_attempt_bucket_counts == Counter({
+            "known_entry_but_not_structured": 4,
+            "needs_parser_or_match_rule": 1,
+            "no_entry_need_search": 8,
+        })
+        and c4_c6_source_attempt_summary.get("bucket_counts")
+        == dict(c4_c6_source_attempt_bucket_counts),
+        f"{len(c4_c6_source_attempt_rows)} source acquisition rows",
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 高校官网补源尝试账本字段、回链和门禁正确",
+        c4_c6_source_attempt_fields == expected_c4_c6_source_attempt_fields
+        and set(c4_c6_source_attempt_by_school) == set(c4_c6_acquisition_gap_by_school)
+        and all(
+            row.get(field) == "false"
+            for row in c4_c6_source_attempt_rows
+            for field in c4_c6_source_attempt_false_fields
+        )
+        and c4_c6_source_attempt_join_ok
+        and c4_c6_source_attempt_summary.get("field_writeback_allowed_count") == 0
+        and c4_c6_source_attempt_summary.get("recommendation_basis_allowed_count") == 0
+        and c4_c6_source_attempt_summary.get("school_major_suggestion_allowed_count") == 0
+        and c4_c6_source_attempt_summary.get("official_plan_replacement_allowed_count") == 0
+        and c4_c6_source_attempt_summary.get("final_available_count") == 0
+        and c4_c6_source_attempt_summary.get("next_stage_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 高校官网补源尝试公开文件不含私有路径、登录态、字段读数和最终误导结论",
+        "/Users/" not in c4_c6_source_attempt_public_text
+        and "/home/" not in c4_c6_source_attempt_public_text
+        and "/var/folders/" not in c4_c6_source_attempt_public_text
+        and "/private/" not in c4_c6_source_attempt_public_text
+        and "private/" not in c4_c6_source_attempt_public_text
+        and "private\\" not in c4_c6_source_attempt_public_text
+        and "Authorization" not in c4_c6_source_attempt_public_text
+        and "Bearer " not in c4_c6_source_attempt_public_text
+        and "Cookie" not in c4_c6_source_attempt_public_text
+        and "字段读数" not in c4_c6_source_attempt_public_text
+        and "人工读数" not in c4_c6_source_attempt_public_text
+        and "最终推荐" not in c4_c6_source_attempt_public_text
+        and "最终方案" not in c4_c6_source_attempt_public_text
+        and "可填报" not in c4_c6_source_attempt_public_text
+        and "可排序" not in c4_c6_source_attempt_public_text
+        and not any(token in c4_c6_source_attempt_public_text for token in shared_forbidden_tokens),
     ))
 
     first_closure_summary_path = (

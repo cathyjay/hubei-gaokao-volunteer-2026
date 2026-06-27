@@ -37,7 +37,13 @@ EXTRA_SCHOOL_SOURCES = [
         "本地留存文件": "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json",
         "来源层级": "新增C4C6高校官网API源",
         "来源说明": "北京语言大学招生系统API，参数为湖北、2026、物理类、普通类。",
-    }
+    },
+    {
+        "学校名称": "西安建筑科技大学",
+        "本地留存文件": "data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json",
+        "来源层级": "新增C4C6高校官网API源",
+        "来源说明": "西安建筑科技大学招生系统API，参数为湖北、2026、物理类、普通类。",
+    },
 ]
 
 FALSE_FIELDS = [

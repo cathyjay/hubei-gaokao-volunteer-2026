@@ -195,8 +195,10 @@
 - `data/working/issue19-c4-c6-retained-source-reuse-summary.json`：上述复用审计摘要，记录 607 条私有明细中 203 条专业名匹配、83 条计划数一致候选、104 条 OCR 计划数补缺候选、18 条计划数冲突候选，全部不得写回或推荐。
 - `data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json`：北京语言大学招生系统 API 原始留存，参数为湖北、2026、物理类、普通类；返回 14 条逐专业计划和 1 条汇总行，仅作高校侧辅证。
 - `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv`：北京语言大学 C6 官方 API 抓取公开账本，1 行；只记录来源、请求参数摘要、本地 SHA、行数合计和非最终门禁。
+- `data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json`：西安建筑科技大学招生系统 API 原始留存，参数为湖北、2026、物理类、普通类；返回 20 条逐专业计划和 1 条汇总行，仅作高校侧辅证。
+- `data/working/issue19-c4-c6-xauat-official-source-fetch-public-ledger.csv`：西安建筑科技大学 C4/C6 官方 API 抓取公开账本，1 行；只记录来源、请求参数摘要、本地 SHA、行数合计、字段局限和非最终门禁。
 - `data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv`：C4/C6 结构化候选 diff 公开账本，36 行；把既有官网标准化证据和新增高校官网源合并后，对 607 条私有明细生成包级匹配、计划数状态、人工最小核验集合和非最终门禁。
-- `data/working/issue19-c4-c6-structured-candidate-diff-summary.json`：上述结构化候选 diff 摘要，记录综合结构化高校源 448 行、18 个有源包、17 个可生成候选 diff 包、85 条计划数一致候选、106 条 OCR 计划数补缺候选、23 条计划数冲突候选；只用于压缩人工核验范围。
+- `data/working/issue19-c4-c6-structured-candidate-diff-summary.json`：上述结构化候选 diff 摘要，记录综合结构化高校源 468 行、20 个有源包、19 个可生成候选 diff 包、95 条计划数一致候选、113 条 OCR 计划数补缺候选、24 条计划数冲突候选；只用于压缩人工核验范围。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
 - `data/working/issue19-pdf-source.json`：第 19 期 PDF 元数据和私有留存边界。
 - `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。
@@ -359,6 +361,8 @@
 - `data/working/issue19-stable-foundation-next-closure-workbench-summary.json`：稳定基座下一步闭环摘要；记录自动工作台 854 行、人工工作台 319 行、官网辅证动作分布、P0 字段分布、官方公开入口仍不可定稿和所有最终门禁为 0。
 - `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv`：稳定基座高校侧辅证刷新公开账本，78 行；一行对应一个 `高校×高校侧辅证动作`，把 854 条 B0/B1 高校官网辅证压缩为可自动复跑、补结构化、继续补源、分层抽检和人工确认的学校级任务。公开表只保存动作、计数、集合 SHA、公开来源数量和非最终门禁，不保存复跑结果、人工核验结论或字段读数。
 - `data/working/issue19-stable-foundation-school-source-refresh-public-ledger-summary.json`：高校侧辅证刷新摘要；记录 78 条公开任务、36 所学校、S0/S1/S2/S3/S4/S5 分布 14/12/23/10/14/5，源头 854 条 B0/B1 高校辅证任务，以及字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数全部为 0。私有工作台 SHA 保存在摘要中，具体复跑和人工核验结果只在 Git 忽略目录。
+- `data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv`：C4/C6 高校官网补源尝试公开账本，13 行；覆盖 13 所 C4/C6 D4/D5/D6 剩余补源缺口学校和 322 条相关私有明细。公开层只保存学校级 URL、既有入口证据、自动探针状态、补源建议、人工最小核验动作和非最终门禁，不保存逐专业候选值或登录态。
+- `data/working/issue19-c4-c6-school-source-acquisition-attempts-summary.json`：C4/C6 高校官网补源尝试摘要；记录 13 所学校中 4 所有入口但尚未结构化、1 所需补 parser/匹配规则、8 所仍需继续找官方招生计划源，全部字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数为 0。
 - `data/working/issue19-stable-foundation-first-closure-detail-packet.csv`：稳定基座第一闭环明细包，205 行；只纳入 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务，用于先核最高风险冲突、补缺、未匹配和高校辅证线索。
 - `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv`：稳定基座第一闭环页列包，36 行；把 205 条明细任务聚合到 36 个 `PDF页码×版面列`，用于集中人工核 PDF 原页、湖北官方侧和高校官网辅证。
 - `data/working/issue19-stable-foundation-first-closure-packet-summary.json`：第一闭环批次包摘要；记录 205 条明细、36 个页列、32 个 PDF 页、28 个计划数冲突或补缺页列、29 个双人复核页列，以及所有最终门禁为 0。
@@ -501,7 +505,9 @@
 - `scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py`：读取高校侧辅证刷新公开账本、稳定基座自动交叉核验工作台和高校官网补源种子表，把 C4/C6 最大补源缺口拆成 36 个公开执行包和 Git 忽略的 607 条私有逐专业明细；用于并行补源、补结构化和生成后续 diff，不写回字段事实。
 - `scripts/build_issue19_c4_c6_retained_source_reuse_audit.py`：读取 C4/C6 执行包、私有逐专业明细、已留存官网标准化证据和全量字段保真总账，生成 C4/C6 已留存官网源复用公开审计和 Git 忽略的逐专业候选明细；用于确定哪些包可直接生成候选 diff，仍不写回字段事实。
 - `scripts/fetch_issue19_c4_c6_blcu_official_source.py`：抓取北京语言大学招生系统 2026 湖北物理类普通类计划 API，留存原始 JSON 并生成公开抓取账本；该源只作高校侧辅证，不替代湖北省招办计划。
+- `scripts/fetch_issue19_c4_c6_xauat_official_source.py`：抓取西安建筑科技大学招生系统 2026 湖北物理类普通类计划 API，留存原始 JSON 并生成公开抓取账本；该源只作高校侧辅证，不替代湖北省招办计划。
 - `scripts/build_issue19_c4_c6_structured_candidate_diff.py`：读取 C4/C6 执行包、私有逐专业明细、既有官网标准化证据、新增高校官网源和全量字段保真总账，生成结构化候选 diff 公开账本与 Git 忽略的逐专业候选明细；用于官方不可得时自动 double check 并最小化人工核验。
+- `scripts/build_issue19_c4_c6_school_source_acquisition_attempts.py`：读取 C4/C6 结构化候选 diff、C4/C6 执行包和高校官网补源种子表，生成学校级补源尝试公开账本；记录自动探针状态、既有入口证据、自动补源建议和人工最小核验动作，不确认逐专业字段事实。
 - `scripts/build_issue19_stable_foundation_first_closure_packet.py`：读取稳定基座下一步闭环工作台，把最高优先级 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成 205 条明细任务和 36 个页列执行包。
 - `scripts/build_issue19_first_closure_review_materials.py`：读取第一闭环明细包、页列包、页列底座公开进度账本、字段线索审计、人工复核 Overlay、官方入口状态和私有 OCR 证据，生成第一闭环公开复核账本，并在 Git 忽略的 `private/` 目录生成 36 份页列 HTML/CSV 核页材料。
 - `scripts/build_issue19_first_closure_task_review_ledger.py`：读取第一闭环明细包、页列包、第一闭环复核公开账本和官方入口状态，生成 205 行任务级公开复核账本；公共高校来源文件只公开相对路径和 SHA，字段读数、OCR 原文、页图路径和人工记录继续留在私有复核材料。

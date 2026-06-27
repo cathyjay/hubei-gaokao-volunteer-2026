@@ -1,0 +1,39 @@
+{
+  "status": "issue19_c4_c6_school_source_acquisition_attempts_not_final",
+  "generated_by": "build_issue19_c4_c6_school_source_acquisition_attempts.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_c4_c6_structured_candidate_diff": "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv",
+  "source_c4_c6_packets": "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv",
+  "source_school_seed_table": "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv",
+  "output_public_table": "data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv",
+  "row_count": 13,
+  "school_count": 13,
+  "total_private_detail_count": 322,
+  "total_c4_detail_count": 127,
+  "total_c6_detail_count": 195,
+  "total_no_structured_source_detail_count": 321,
+  "status_counts": {
+    "entry_200_api_403_forbidden": 1,
+    "entry_timeout_api_timeout_previous_forbidden": 1,
+    "structured_source_retained_parser_or_match_rule_needed": 1,
+    "tls_handshake_failure_entry_and_api": 1,
+    "no_seed_need_official_source_search": 8,
+    "http_412_precondition_failed": 1
+  },
+  "bucket_counts": {
+    "known_entry_but_not_structured": 4,
+    "needs_parser_or_match_rule": 1,
+    "no_entry_need_search": 8
+  },
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "policy": {
+    "goal": "记录 C4/C6 D4/D5/D6 学校的官网补源尝试和不可得边界，指导下一轮自动源扩展。",
+    "boundary": "本账本不保存招生计划字段事实，不确认任何专业或计划数；只说明补源状态和下一步。"
+  }
+}

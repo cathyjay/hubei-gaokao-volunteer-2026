@@ -55,6 +55,11 @@
 - `data/working/issue19-official-unavailable-sampling-triage-prefill-summary.json`
 - `data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv`
 - `data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json`
+- `data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json`
+- `data/working/issue19-c4-c6-xauat-official-source-fetch-public-ledger.csv`
+- `data/working/issue19-c4-c6-xauat-official-source-fetch-summary.json`
+- `data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv`
+- `data/working/issue19-c4-c6-school-source-acquisition-attempts-summary.json`
 - `data/official/hubei-2026-volunteer-policy/143022-policy.html`
 - `data/external/school-plan-crosschecks/`
 
@@ -127,7 +132,9 @@
 - 已新增 `data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv` 作为 C4/C6 高校源刷新执行包。它把 36 个学校侧 C4/C6 任务拆成 4 条泳道：X0 无官网计划入口需搜索 8 包、X1 有入口待获取湖北计划 6 包、X2 有入口但未留存结果 6 包、X3 已有部分来源待结构化 16 包；私有层承接 607 条逐专业补源/补结构化明细。该表只安排自动抓取、结构化和后续 diff，不能把高校官网结果直接写成湖北官方计划事实。
 - 已新增 `data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv` 作为 C4/C6 已留存高校官网源复用审计。它把 36 个 C4/C6 包接到 434 条已留存官网/API/PDF/XLSX/HTML 标准化证据，公开层只保留包级匹配计数和私有明细 SHA；当前 16 个包已有可复用官网源，83 条私有明细出现计划数一致候选、104 条可提示 OCR 计划数漏识、18 条存在计划数冲突。该审计只决定后续 diff 和核验优先级。
 - 已新增北京语言大学官方 API 原始源：`data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json`，公开账本为 `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv`。该源来自北京语言大学招生系统，参数为湖北、2026、物理类、普通类，返回 14 条逐专业计划、计划数合计 34；它仍只是高校侧辅证，不能替代湖北省招办计划。
-- 已新增 `data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv` 作为 C4/C6 结构化候选 diff。它把北京语言大学新增 API 源并入综合结构化高校源后，对 607 条私有明细自动 double check：专业名匹配 212 条、计划数一致候选 85 条、OCR 计划数补缺候选 106 条、计划数冲突候选 23 条。该表用于把人工核验压缩到冲突、OCR 缺失、疑似匹配和新增源命中抽检，仍不能字段写回或推荐。
+- 已新增西安建筑科技大学官方 API 原始源：`data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json`，公开账本为 `data/working/issue19-c4-c6-xauat-official-source-fetch-public-ledger.csv`。该源来自西安建筑科技大学招生系统，参数为湖北、2026、物理类、普通类，返回 20 条逐专业计划、计划数合计 80；它未给湖北院校专业组代码、专业代号、学费和校区，仍只是高校侧辅证。
+- 已新增 `data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv` 作为 C4/C6 结构化候选 diff。它把北京语言大学、西安建筑科技大学新增 API 源并入综合结构化高校源后，对 607 条私有明细自动 double check：专业名匹配 229 条、计划数一致候选 95 条、OCR 计划数补缺候选 113 条、计划数冲突候选 24 条。该表用于把人工核验压缩到冲突、OCR 缺失、疑似匹配和新增源命中抽检，仍不能字段写回或推荐。
+- 已新增 `data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv` 作为 C4/C6 高校官网补源尝试账本。它只保留 13 所剩余缺口学校的学校级自动探针、既有入口证据、不可得原因、自动补源建议和人工最小核验动作；当前 4 所学校属于有入口但尚未结构化，1 所需要补匹配规则，8 所仍需继续找官方招生计划源。该账本用于把“官方系统不可直接自动取得时的替代保真路线”落成可复跑动作，不能确认逐专业字段、不能替代第 19 期原页或湖北官方侧。
 - 第 19 期 PDF 原页或纸质原页仍作为省招办原件层，优先核最终候选、冲稳保边界、B0/B1 优先组、计划数冲突、官网未匹配、补源缺口和字段空缺但进入候选的专业。
 - 高校官网/API/XLSX/PDF/图片只用于自动 double check 专业名、计划数、学费、选科、校区、学制和章程限制；专业组边界、调剂范围和最终志愿系统代码仍必须回到湖北省招办渠道。
 - `strong_support`、计划数一致或官网字段齐全的行只能进入分层抽检，不能自动定稿。抽样出现结构错误、关键限定词丢失、计划数冲突、OCR 把学费读成计划数、物理/历史未拆分、官网来源不是 2026 湖北物理普通本科，或同组存在家庭不能接受专业时，同页列、同校或同组升级 100% 人工核验。
@@ -140,7 +147,7 @@
 | 适配器 | 代表学校和来源 | 当前本地证据 | 自动化价值 | 边界 |
 | --- | --- | --- | --- | --- |
 | `ajax_zsjh_form` | 北京语言大学 `http://lqcx.blcu.edu.cn/f/ajax_zsjh`；中国传媒大学 `https://zszx.cuc.edu.cn/f/ajax_zsjh` | 已留存 `blcu-2026-hubei-physics-normal.json`、`cuc-2026-hubei-physics-normal-zsjh.json` | JSON 字段稳定，适合批量核专业名、计划数、学费、学制、校区、选科 | 多数不给湖北省编院校专业组代码，不能替代省招办专业组边界 |
-| `zsdata_lqxx_json` | 西安邮电大学、江汉大学、西安财经大学、西安医学院、兰州大学等 `zsdata/lqxx` 同构接口 | 已留存 `xupt-*`、`jhun-*`、`xaufe-*`、`xiyi-*`、`lzu-*` 原始 JSON 或入口文件 | 适合自动抓 2026 湖北物理普通类逐专业计划，学校间可复用 parser | 不同学校参数名、科类口径、批次口径可能不同，需逐校网络可达性和字段映射复核 |
+| `zsdata_lqxx_json` | 西安邮电大学、江汉大学、西安财经大学、西安医学院、兰州大学、西安建筑科技大学等 `zsdata/lqxx` 同构接口 | 已留存 `xupt-*`、`jhun-*`、`xaufe-*`、`xiyi-*`、`lzu-*`、`xauat-2026-hubei-physics-normal.json` 原始 JSON 或入口文件 | 适合自动抓 2026 湖北物理普通类逐专业计划，学校间可复用 parser | 不同学校参数名、科类口径、批次口径可能不同，需逐校网络可达性和字段映射复核 |
 | `html_table_plan` | 成都信息工程大学 HTML 表；武汉科技大学专业组页 + 专业计划学费页 | 已留存 `cuit-2026-undergraduate-plan.html`、`wust-2026-hubei-major-groups.html`、`wust-2026-major-plan-fees.html` | 适合解析静态表格，或多页 join 核计划、学费、校区、专业组线索 | HTML 表结构漂移风险较高；多页 join 不能自动定稿，必须回第 19 期原页和湖北官方侧 |
 | `image_or_pdf_ocr` | 湖北大学图片主体计划页、学校 PDF/图片计划 | 部分学校已有 PDF/图片/OCR 抽取链路 | 适合作为人工核页入口和 OCR 二次校验 | 不作为主自动源；关键字段必须人工看原图/PDF 并留 SHA |
 

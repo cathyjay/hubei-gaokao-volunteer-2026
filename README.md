@@ -139,7 +139,9 @@ python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
 python3 scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py
 python3 scripts/build_issue19_c4_c6_retained_source_reuse_audit.py
 python3 scripts/fetch_issue19_c4_c6_blcu_official_source.py
+python3 scripts/fetch_issue19_c4_c6_xauat_official_source.py
 python3 scripts/build_issue19_c4_c6_structured_candidate_diff.py
+python3 scripts/build_issue19_c4_c6_school_source_acquisition_attempts.py
 python3 scripts/build_issue19_stable_foundation_first_closure_packet.py
 python3 scripts/build_issue19_first_closure_review_materials.py
 python3 scripts/build_issue19_first_closure_task_review_ledger.py
@@ -178,6 +180,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 字段事实核验任务队列：`data/working/issue19-field-fact-verification-tasks.csv` 把字段事实闭环总账按三项关键字段拆成 41208 条任务，即 13736 条招生专业明细 × 再选科目、专业计划数、学费。它保留 `专业行ID`、字段状态、字段候选、页级证据编号和 SHA，用于按页、按字段、按学校排补证顺序；全部 `最终可用=false`，不自动写回主表，也不用于学校或专业建议。
 
 官方公开入口活体复查：`data/working/issue19-official-public-entry-live-recheck.json` 是对湖北教育考试网招生计划页、招生计划索引和湖北招生数智综合平台无登录接口的可复跑检查。它只保存状态码、SHA、标题和 401 探针结果，用来证明当前能自动取得的是官方入口状态，不是可逐字段定稿的官方结构化计划。
+
+C4/C6 高校官网补源尝试账本：`data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv` 覆盖当前 C4/C6 剩余补源缺口中的 13 所学校、322 条相关私有明细；公开层只记录学校级 URL、自动探针状态、不可得边界、人工最小核验动作和门禁。它用于回答“湖北官方结构化计划不可直接自动取得时，哪些高校源还能自动 double check，哪些需要人工核验”，不能替代第 19 期原页、湖北官方系统或省招办计划。
 
 官方不可得抽样门禁：`data/working/issue19-official-unavailable-sampling-gates.csv` 在湖北官方结构化计划暂不可无登录取得时，把高校官网 double check 和低风险抽检机械化：C0/C1/C7 共 104 条明细必须 100% 回看第 19 期原页，C2 强辅证抽检最低覆盖 20 条以上，P3 低风险池抽 25 条；抽检失败按同页列、同校或同组升级 100% 核验。该表仍不允许字段写回、志愿推荐或最终可用。
 
@@ -223,7 +227,9 @@ C4/C6 已留存官网源复用审计：`data/working/issue19-c4-c6-retained-sour
 
 北京语言大学 C6 官方 API 原始源：`data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json` 已从北京语言大学招生系统无登录 API 留存，公开账本为 `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv`。该源返回 2026 湖北物理类普通类 14 条逐专业计划、计划数合计 34；它是高校侧辅证，仍不能替代第 19 期 PDF 原页和湖北官方侧。
 
-C4/C6 结构化候选 diff：`data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv` 把既有 434 条高校官网标准化证据与北京语言大学新增 API 源合并成 448 条综合结构化高校源，再对 36 个 C4/C6 执行包、607 条私有逐专业明细做自动 double check。当前 18 个包已有结构化源、17 个包可生成候选 diff；专业名匹配 212 条、计划数一致候选 85 条、OCR 计划数缺失但官网可补 106 条、计划数冲突 23 条。公开层只保留包级计数和私有 SHA，逐专业 OCR、官网字段和冲突正文留在本地私有明细；该表用于缩小人工核验范围，不确认字段事实。
+西安建筑科技大学 C4/C6 官方 API 原始源：`data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json` 已从西安建筑科技大学招生系统无登录 API 留存，公开账本为 `data/working/issue19-c4-c6-xauat-official-source-fetch-public-ledger.csv`。该源返回 2026 湖北物理类普通类 20 条逐专业计划、计划数合计 80；它缺湖北院校专业组代码、学费和专业代号，只能作高校侧辅证。
+
+C4/C6 结构化候选 diff：`data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv` 把既有 434 条高校官网标准化证据与北京语言大学、西安建筑科技大学新增 API 源合并成 468 条综合结构化高校源，再对 36 个 C4/C6 执行包、607 条私有逐专业明细做自动 double check。当前 20 个包已有结构化源、19 个包可生成候选 diff；专业名匹配 229 条、计划数一致候选 95 条、OCR 计划数缺失但官网可补 113 条、计划数冲突 24 条。公开层只保留包级计数和私有 SHA，逐专业 OCR、官网字段和冲突正文留在本地私有明细；该表用于缩小人工核验范围，不确认字段事实。
 
 第一闭环批次包：`data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 把最高优先级的 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成第一批可执行核验包。当前 205 条明细任务被压缩到 36 个 `PDF页码×版面列`、32 个 PDF 页；其中 28 个页列含计划数冲突或补缺，29 个页列需要双人复核。该包只决定“先核哪些页列、哪些字段和哪些官网线索”，仍不确认字段事实，不替代湖北官方计划，不生成学校专业建议。
 
