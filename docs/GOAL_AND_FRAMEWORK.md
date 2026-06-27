@@ -47,6 +47,8 @@
 
 配套的 `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-review-summary.json` 已把这 36 个页列接入私有复核页面和公开状态机。公开层只同步任务数、私有材料 SHA、回链和门禁；当前 36 个页列全部还是 `R0-Overlay已生成未填写`，所以它只是第一闭环的执行承接材料，不是字段核准表或志愿建议表。
 
+进一步的 `data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-task-review-summary.json` 把 205 条任务逐条回连到页列材料、PDF 原页、湖北官方侧、高校辅证线索和公共来源文件 SHA。它让后续人工核页可以按任务推进，但所有推荐、写回、最终可用门禁仍为 0。
+
 ## 三、学校分析维度
 
 - 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。

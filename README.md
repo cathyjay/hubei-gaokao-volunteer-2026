@@ -129,6 +129,7 @@ python3 scripts/build_issue19_stable_foundation_screening_views.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_first_closure_packet.py
 python3 scripts/build_issue19_first_closure_review_materials.py
+python3 scripts/build_issue19_first_closure_task_review_ledger.py
 python3 scripts/build_issue19_major_line_layout_continuity_risk_ledger.py
 python3 scripts/build_issue19_major_code_order_risk_ledger.py
 python3 scripts/build_issue19_foundation_audit.py
@@ -184,6 +185,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 第一闭环批次包：`data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 把最高优先级的 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成第一批可执行核验包。当前 205 条明细任务被压缩到 36 个 `PDF页码×版面列`、32 个 PDF 页；其中 28 个页列含计划数冲突或补缺，29 个页列需要双人复核。该包只决定“先核哪些页列、哪些字段和哪些官网线索”，仍不确认字段事实，不替代湖北官方计划，不生成学校专业建议。
 
 第一闭环复核材料公开账本：`data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-review-summary.json` 把上述 36 个页列接到 Git 忽略的私有 HTML/CSV 复核材料。公开层只保存页列、任务计数、优先级、私有材料 SHA、回链状态和非最终门禁；私有层才展示页图、OCR 行和待填写字段。当前 36 个页列全部为 `R0-Overlay已生成未填写`，205 条任务中自动官网辅证 104 条、人工字段核页 101 条，完成计数、推荐依据、字段写回、学校专业建议和最终可用仍全部为 0。
+
+第一闭环任务级复核公开账本：`data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-task-review-summary.json` 把同一批 205 条任务逐条回连到 36 个页列材料、PDF 原页待核、湖北官方侧待核、高校辅证线索、双人复核要求和公共高校来源文件 SHA。它只回答“每条任务卡在哪条证据链、下一步怎么核”，不公开字段读数、不确认字段事实、不进入学校专业建议。
 
 P0 字段原页重读工作清单：`data/working/issue19-field-fact-p0-reread-worklist.csv` 从字段事实核验任务队列中严格抽取 11444 条 K0 无候选字段任务，覆盖 8536 条招生专业明细、231 个 PDF 明细页和 967 所学校。它把每个 `专业行ID × 字段名` 回连到字段任务、原始源证据审计、PDF 原页锚点和页级保真队列，用于优先回看专业计划数、再选科目、学费三项原始字段；全部 `最终可用=false`、`可进入下一阶段=false`，不得自动写回主表，也不得生成学校或专业建议。
 

@@ -19808,6 +19808,273 @@ def main():
         and not any(token in first_review_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_task_review_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-task-review-summary.json"
+    )
+    first_task_review_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv"
+    )
+    first_task_review_summary = json.loads(first_task_review_summary_path.read_text())
+    with first_task_review_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_task_review_reader = csv.DictReader(f)
+        first_task_review_rows = list(first_task_review_reader)
+        first_task_review_fields = first_task_review_reader.fieldnames or []
+    expected_first_task_review_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_task_review_ledger.py",
+        "PUBLIC_FIELDS",
+    )
+    first_task_review_by_task_id = {
+        row.get("稳定基座第一闭环明细任务ID", ""): row
+        for row in first_task_review_rows
+    }
+    first_detail_by_task_id = {
+        row.get("稳定基座第一闭环明细任务ID", ""): row
+        for row in first_detail_rows
+    }
+    first_task_review_source_file_ok = True
+    first_task_review_join_ok = True
+    for row in first_task_review_rows:
+        task_id = row.get("稳定基座第一闭环明细任务ID", "")
+        src = first_detail_by_task_id.get(task_id, {})
+        key = row.get("页码版面键", "")
+        page_side = first_page_side_by_key.get(key, {})
+        review = first_review_by_key.get(key, {})
+        source_file = row.get("最佳官网来源文件", "")
+        source_status = row.get("最佳官网来源文件是否存在", "")
+        if source_file:
+            source_path = ROOT / source_file
+            source_ok = (
+                source_path.is_file()
+                and source_status == "true_public_source_file_retained"
+                and row.get("最佳官网来源文件SHA256") == sha256(source_path)
+            )
+        else:
+            source_ok = (
+                source_status == "not_applicable_no_best_school_source"
+                and row.get("最佳官网来源文件SHA256") == ""
+            )
+        expected_auto_hint = "false"
+        if (
+            row.get("任务来源类型") == "自动官网辅证任务"
+            and source_status != "false_missing_public_source_file"
+            and row.get("官网证据强度") in {
+                "conflict_review",
+                "fill_candidate",
+                "strong_support",
+                "field_support",
+                "partial_source",
+            }
+        ):
+            expected_auto_hint = "true"
+        expected_school_review = "true" if (
+            row.get("任务来源类型") == "自动官网辅证任务"
+            or row.get("高校官网或招生章程辅证状态") == "pending_private_school_reading"
+        ) else "false"
+        expected_status = (
+            "T0-待PDF原页和湖北官方核验"
+            if row.get("任务来源类型") == "自动官网辅证任务"
+            else "T0-待PDF原页湖北官方和必要高校辅证核验"
+        )
+        first_task_review_source_file_ok = first_task_review_source_file_ok and source_ok
+        first_task_review_join_ok = (
+            first_task_review_join_ok
+            and bool(src)
+            and bool(page_side)
+            and bool(review)
+            and row.get("稳定基座第一闭环任务复核公开账本ID")
+            == stable_id("FIRSTTASKREVIEW", [task_id])
+            and row.get("来源第一闭环明细包")
+            == "data/working/issue19-stable-foundation-first-closure-detail-packet.csv"
+            and row.get("来源第一闭环页列包")
+            == "data/working/issue19-stable-foundation-first-closure-page-side-packet.csv"
+            and row.get("来源第一闭环复核公开账本")
+            == "data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_task_review_public_ledger"
+            and row.get("主表粒度") == "逐专业招生明细×第一闭环任务"
+            and row.get("任务粒度") == "逐任务×PDF原页×湖北官方侧×高校辅证状态"
+            and all(row.get(field) == "false" for field in first_false_fields)
+            and row.get("稳定基座第一闭环页列包ID")
+            == page_side.get("稳定基座第一闭环页列包ID")
+            and row.get("稳定基座第一闭环复核公开账本ID")
+            == review.get("稳定基座第一闭环复核公开账本ID")
+            and row.get("来源页码") == src.get("来源页码")
+            and row.get("版面列") == src.get("版面列")
+            and row.get("页码版面键") == src.get("页码版面键")
+            and row.get("专业行ID") == src.get("专业行ID")
+            and row.get("专业组出现ID") == src.get("专业组出现ID")
+            and row.get("院校代码") == src.get("院校代码")
+            and row.get("任务来源类型") == src.get("任务来源类型")
+            and row.get("第一闭环批次") == src.get("第一闭环批次")
+            and row.get("第一闭环纳入原因") == src.get("第一闭环纳入原因")
+            and row.get("第一闭环页列优先级") == page_side.get("第一闭环页列优先级")
+            and row.get("任务级复核状态") == expected_status
+            and row.get("PDF原页是否必核") == "true"
+            and row.get("湖北官方侧是否必核") == "true"
+            and row.get("高校辅证是否需要复核") == expected_school_review
+            and row.get("是否需要双人复核") == src.get("是否需要双人复核")
+            and row.get("字段名") == src.get("字段名")
+            and row.get("官网辅证自动动作") == src.get("官网辅证自动动作")
+            and row.get("官网证据强度") == src.get("官网证据强度")
+            and row.get("官网来源状态") == src.get("官网来源状态")
+            and row.get("官网证据匹配状态") == src.get("官网证据匹配状态")
+            and row.get("计划数核验状态") == src.get("计划数核验状态")
+            and row.get("差异字段集合") == src.get("差异字段集合")
+            and row.get("疑似OCR把学费读入计划数") == src.get("疑似OCR把学费读入计划数")
+            and row.get("最佳官网来源文件") == src.get("最佳官网来源文件")
+            and row.get("自动辅证是否可作为核页提示") == expected_auto_hint
+            and row.get("自动辅证是否可替代湖北官方计划") == "false"
+            and row.get("P0字段即时复核任务ID") == src.get("P0字段即时复核任务ID")
+            and row.get("P0即时字段确认公开账本ID") == src.get("P0即时字段确认公开账本ID")
+            and row.get("执行批次") == src.get("执行批次")
+            and row.get("人工核验泳道") == src.get("人工核验泳道")
+            and row.get("人工核验方式") == src.get("人工核验方式")
+            and row.get("裁图证据编号") == src.get("裁图证据编号")
+            and row.get("裁图文件SHA256") == src.get("裁图文件SHA256")
+            and row.get("裁图bbox归一化") == src.get("裁图bbox归一化")
+            and row.get("私有第一闭环页列CSV证据编号")
+            == review.get("私有第一闭环页列CSV证据编号")
+            and row.get("私有第一闭环页列CSV_SHA256")
+            == review.get("私有第一闭环页列CSV_SHA256")
+            and row.get("私有第一闭环页列HTML证据编号")
+            == review.get("私有第一闭环页列HTML证据编号")
+            and row.get("私有第一闭环页列HTML_SHA256")
+            == review.get("私有第一闭环页列HTML_SHA256")
+            and row.get("PDF原页核页状态") == src.get("PDF原页核页状态")
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == src.get("湖北官方系统或省招办计划核验状态")
+            and row.get("高校官网或招生章程辅证状态")
+            == src.get("高校官网或招生章程辅证状态")
+            and row.get("三方字段一致性状态") == src.get("三方字段一致性状态")
+            and row.get("字段事实写回状态") == src.get("字段事实写回状态")
+            and row.get("官方公开计划页可定稿") == "false"
+            and row.get("数智平台可定稿") == "false"
+            and "PDF原页" in row.get("下一步", "")
+            and "湖北官方" in row.get("下一步", "")
+        )
+    first_task_review_type_counts = Counter(row.get("任务来源类型", "") for row in first_task_review_rows)
+    first_task_review_priority_counts = Counter(
+        row.get("第一闭环页列优先级", "") for row in first_task_review_rows
+    )
+    first_task_review_auto_action_counts = Counter(
+        row.get("官网辅证自动动作", "")
+        for row in first_task_review_rows
+        if row.get("任务来源类型") == "自动官网辅证任务" and row.get("官网辅证自动动作", "")
+    )
+    first_task_review_school_action_counts = Counter(
+        row.get("官网辅证自动动作", "")
+        for row in first_task_review_rows
+        if row.get("官网辅证自动动作", "")
+    )
+    first_task_review_manual_batch_counts = Counter(
+        row.get("执行批次", "") for row in first_task_review_rows if row.get("执行批次", "")
+    )
+    first_task_review_field_counts = Counter(
+        row.get("字段名", "") for row in first_task_review_rows if row.get("字段名", "")
+    )
+    first_task_review_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_task_review_summary_path, first_task_review_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环任务级复核公开账本摘要、规模和官方边界正确",
+        first_task_review_summary.get("status")
+        == "issue19_stable_foundation_first_closure_task_review_not_final"
+        and first_task_review_summary.get("generated_by")
+        == "build_issue19_first_closure_task_review_ledger.py"
+        and first_task_review_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_task_review_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv"
+        and first_task_review_summary.get("public_row_count") == len(first_task_review_rows) == 205
+        and first_task_review_summary.get("unique_task_count") == 205
+        and first_task_review_summary.get("unique_page_side_count") == 36
+        and first_task_review_summary.get("unique_pdf_page_count") == 32
+        and first_task_review_summary.get("auto_task_count") == 104
+        and first_task_review_summary.get("manual_task_count") == 101
+        and first_task_review_summary.get("official_public_plan_page_can_finalize") is False
+        and first_task_review_summary.get("zspt_platform_can_finalize") is False
+        and first_task_review_summary.get("field_writeback_allowed_count") == 0
+        and first_task_review_summary.get("final_available_count") == 0
+        and first_task_review_summary.get("next_stage_available_count") == 0
+        and first_task_review_summary.get("recommendation_basis_allowed_count") == 0
+        and first_task_review_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_task_review_summary.get("official_plan_replacement_allowed_count") == 0,
+        f"{len(first_task_review_rows)} task review rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环任务级复核公开账本分桶、来源文件和任务守恒正确",
+        first_task_review_summary.get("task_source_type_counts") == dict(first_task_review_type_counts)
+        and first_task_review_summary.get("page_side_priority_counts") == dict(first_task_review_priority_counts)
+        and first_task_review_summary.get("auto_task_action_counts") == dict(first_task_review_auto_action_counts)
+        and first_task_review_summary.get("school_support_action_counts") == dict(first_task_review_school_action_counts)
+        and first_task_review_summary.get("manual_execution_batch_counts") == dict(first_task_review_manual_batch_counts)
+        and first_task_review_summary.get("field_counts") == dict(first_task_review_field_counts)
+        and first_task_review_summary.get("double_review_required_count")
+        == sum(1 for row in first_task_review_rows if row.get("是否需要双人复核") == "true")
+        and first_task_review_summary.get("pdf_required_count") == 205
+        and first_task_review_summary.get("hubei_official_required_count") == 205
+        and first_task_review_summary.get("school_support_required_count")
+        == sum(1 for row in first_task_review_rows if row.get("高校辅证是否需要复核") == "true")
+        and first_task_review_summary.get("school_source_reference_row_count")
+        == sum(1 for row in first_task_review_rows if row.get("最佳官网来源文件"))
+        and first_task_review_summary.get("unique_school_source_file_count")
+        == len({row.get("最佳官网来源文件") for row in first_task_review_rows if row.get("最佳官网来源文件")})
+        and first_task_review_summary.get("school_source_file_missing_count") == 0
+        and first_task_review_summary.get("auto_hint_allowed_count")
+        == sum(1 for row in first_task_review_rows if row.get("自动辅证是否可作为核页提示") == "true")
+        and first_task_review_source_file_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环任务级复核公开账本字段、门禁、主键和回链正确",
+        first_task_review_fields == expected_first_task_review_fields
+        and len({row.get("稳定基座第一闭环任务复核公开账本ID") for row in first_task_review_rows}) == 205
+        and set(first_task_review_by_task_id) == set(first_detail_by_task_id)
+        and all(row.get(field) == "false" for row in first_task_review_rows for field in first_false_fields)
+        and first_task_review_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环任务级复核公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in first_task_review_public_text
+        and "/home/" not in first_task_review_public_text
+        and "/var/folders/" not in first_task_review_public_text
+        and "/private/" not in first_task_review_public_text
+        and "private/" not in first_task_review_public_text
+        and "private\\" not in first_task_review_public_text
+        and "ocr-runs" not in first_task_review_public_text
+        and "rendered-pages" not in first_task_review_public_text
+        and ".png" not in first_task_review_public_text
+        and ".jpg" not in first_task_review_public_text
+        and ".jpeg" not in first_task_review_public_text
+        and ".webp" not in first_task_review_public_text
+        and ".tif" not in first_task_review_public_text
+        and ".tiff" not in first_task_review_public_text
+        and ".heic" not in first_task_review_public_text
+        and "Authorization" not in first_task_review_public_text
+        and "Bearer " not in first_task_review_public_text
+        and "Cookie" not in first_task_review_public_text
+        and "身份证" not in first_task_review_public_text
+        and "准考证" not in first_task_review_public_text
+        and "报名号" not in first_task_review_public_text
+        and "序列号" not in first_task_review_public_text
+        and "OCR行文本" not in first_task_review_public_text
+        and "PDF原页人工读数" not in first_task_review_public_text
+        and "湖北官方字段值" not in first_task_review_public_text
+        and "字段确认值" not in first_task_review_public_text
+        and "一审记录" not in first_task_review_public_text
+        and "二审记录" not in first_task_review_public_text
+        and "复核结论" not in first_task_review_public_text
+        and "已确认" not in first_task_review_public_text
+        and "已核准" not in first_task_review_public_text
+        and "最终推荐" not in first_task_review_public_text
+        and "最终方案" not in first_task_review_public_text
+        and "可填报" not in first_task_review_public_text
+        and "可排序" not in first_task_review_public_text
+        and not any(token in first_task_review_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
