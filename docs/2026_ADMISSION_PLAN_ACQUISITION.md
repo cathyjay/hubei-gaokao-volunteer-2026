@@ -19,10 +19,13 @@
 
 | 来源 | URL 或位置 | 当前状态 | 用途 |
 | --- | --- | --- | --- |
+| 湖北省教育厅高校招生专题 | https://jyt.hubei.gov.cn/bmdt/ztzl/gxzs/ | 2026-06-28 复核：官方专题页列出“湖北省招生数智综合平台”入口 | 证明平台入口属于官方招生服务链路 |
 | 湖北教育考试网招生计划专题 | http://www.hbccks.cn/html/gkgzzt/gkzsjh/ | 已留存索引页；2026-06-28 公开 HTTP 复核返回 200，SHA 与 2026-06-27 留存一致 | 官方公开入口 |
 | 2026 年普通高等学校招生计划页面 | http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html | 2026-06-28 公开 HTTP 复核返回 200，但页面仍显示“持续更新中，敬请期待”；`can_finalize=false` | 等待官方公开完整计划 |
 | 湖北招生数智综合平台 | https://zspt.hubzs.com.cn | 2026-06-28 首页已留存，公开 HTTPS 返回 200；首页只证明平台入口可访问 | 官方志愿系统和智能参考系统 |
 | 平台计划查询接口 | `/prod-api/planQuery/plan/*` | 无登录请求返回 `401 令牌不能为空`；活体复查覆盖 `nfs`、`yxList`、`group`、`student`、`dict/pcdm`；已写可复跑抓取脚本 | 需要考生登录态或平台权限 |
+| 湖北招生考试网 2026 填报时间安排 | https://www.hbksw.com/info/6/2270.html | 2026-06-28 复核：说明考生可通过数智平台的“志愿填报智能参考系统”查询招生计划、章程和近 2 年投档最低分 | 官方平台用途说明 |
+| 湖北招生考试网 2025 辅助工具提醒 | https://www.hbksw.com/info/15/1846.html | 2026-06-28 复核：提醒正式填报的院校专业组代号、包含专业、选科要求等以高校当年确定、《湖北招生考试》杂志公布的当年招生计划为准 | 明确第三方/辅助工具不能替代当年计划 |
 | 《湖北招生考试》杂志 | 第 13、16、19、22 期 | 需人工获取 | 官方纸质/电子招生计划来源 |
 | 第 16/19 期专项检索 | `docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md` | 未找到公开完整电子版 | 获取路径和线索记录 |
 | 高校官网招生计划 | 学校本科招生网 | 已发现部分高校发布 2026 计划 | 只能作为交叉校验 |
@@ -44,12 +47,15 @@
 - `data/working/issue19-official-unavailable-sampling-execution-detail-summary.json`
 - `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv`
 - `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger-summary.json`
+- `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv`
+- `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger-summary.json`
 - `data/official/hubei-2026-volunteer-policy/143022-policy.html`
 - `data/external/school-plan-crosschecks/`
 
 补充说明：湖北教育考试网招生计划页面当前使用 HTTP 地址留存；同路径 HTTPS 抓取存在证书主机名不匹配问题，不能因此判断页面不存在。
 `issue19-official-public-entry-status.json` 只记录公开入口状态和无登录探针结果；`issue19-official-public-entry-live-recheck.json` 用当前网络重新核对入口 SHA 和无登录接口状态。两者能说明现阶段官方公开入口尚不足以直接定稿，不能替代第 19 期逐专业招生明细和湖北官方系统字段核验。
 若湖北官方系统在决策窗口内仍无法无登录自动取得，项目不绕过登录、不把高校侧来源当作省招办计划替代品；对应状态必须标记为 `official_system_unavailable` 或同等不可得状态，继续回到第 19 期 PDF 原页或纸质原页双人复核，并在湖北官方系统可得时补核。
+2026-06-28 外部证据复核结论：截至本次复核，没有发现无需登录即可公开批量获取“2026 湖北本科普通批首选物理逐专业招生计划明细”的湖北官方网页、PDF、Excel 或开放接口；官方平台能查计划，但需要考生登录/验证，适合作为人工取证或导出截图的来源，不适合作为公开自动化抓取源。
 
 ## 三、已发现的平台接口
 
@@ -109,6 +115,7 @@
 - 已新增 `data/working/issue19-official-unavailable-sampling-gates.csv` 作为官方结构化计划暂不可得时的抽样和升级门禁。它保留 78 条高校侧任务，并从 184 条 P3 低风险池中抽出 25 条专业明细；C0/C1/C7 共 104 条明细必须 100% 回看第 19 期原页，C2 强辅证抽检最低覆盖 20 条以上，P3 低风险样本用于验证底座稳定性。抽检失败即升级同页列 100%，同校出现 2 个失败升级同校 100%，同专业组失败升级整组 100%。
 - 已新增 `data/working/issue19-official-unavailable-sampling-execution-detail.csv` 作为逐专业执行明细。它把 C0/C1/C7 直接展开到 104 条必核专业明细，把 C2 强辅证池抽出 24 条明细，把 P3 低风险池抽出 25 条明细，合计 153 条；人工执行时优先从这张表回看 PDF 原页、核湖北官方侧、核高校官网或章程辅证并记录三方一致性。
 - 已新增 `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv` 作为上述 153 条执行明细的公开进度账本，并在 Git 忽略的本地目录生成可填写复核表。公开层只同步记录 SHA、PDF 原页/湖北官方侧/高校辅证填写计数、抽检失败和升级状态；字段读数、学校专业明细、复核记录和备注正文不进入公开仓库。该账本只证明人工复核入口已建立，不证明字段事实闭环。
+- 已新增 `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv` 作为上述复核 Overlay 的页列核验包账本。它把 153 条逐专业复核明细压缩成 46 个 `PDF页码×版面列` 私有核页包，覆盖 40 个 PDF 页；公开层只保留页列计数、证据编号、SHA 和 R0 状态，私有 HTML/CSV 才展示页图、OCR 行、学校专业线索和人工填写栏。该账本只降低人工定位成本，不改变抽样门禁，也不替代湖北官方计划。
 - 第 19 期 PDF 原页或纸质原页仍作为省招办原件层，优先核最终候选、冲稳保边界、B0/B1 优先组、计划数冲突、官网未匹配、补源缺口和字段空缺但进入候选的专业。
 - 高校官网/API/XLSX/PDF/图片只用于自动 double check 专业名、计划数、学费、选科、校区、学制和章程限制；专业组边界、调剂范围和最终志愿系统代码仍必须回到湖北省招办渠道。
 - `strong_support`、计划数一致或官网字段齐全的行只能进入分层抽检，不能自动定稿。抽样出现结构错误、关键限定词丢失、计划数冲突、OCR 把学费读成计划数、物理/历史未拆分、官网来源不是 2026 湖北物理普通本科，或同组存在家庭不能接受专业时，同页列、同校或同组升级 100% 人工核验。
