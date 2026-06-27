@@ -149,3 +149,4 @@
 - 新增官方公开入口活体复查：`data/working/issue19-official-public-entry-live-recheck.json` 重新请求湖北教育考试网招生计划页、招生计划索引、湖北招生数智综合平台首页和 5 个无登录接口探针；当前公开页 SHA 与本地留存一致，2026 计划页仍显示“持续更新中/敬请期待”，平台接口无登录仍返回 401。因此当前不能自动取得可逐字段定稿的湖北官方结构化招生计划。
 - 新增官方不可得抽样门禁：`data/working/issue19-official-unavailable-sampling-gates.csv` 把 78 条高校侧辅证任务和 25 条 P3 低风险抽样明细统一成 103 行门禁；C0/C1/C7 共 104 条明细必须 100% 回第 19 期原页，C2 强辅证抽检最低覆盖 24 条明细，P3 低风险池抽 25 条。抽检失败升级同页列、同校或同组 100% 核验，全部仍不得字段写回、志愿推荐或最终可用。
 - 新增官方不可得抽样执行明细：`data/working/issue19-official-unavailable-sampling-execution-detail.csv` 将门禁下沉到 153 条逐专业招生明细，其中 104 条高风险 100% 核验、24 条 C2 强辅证抽样、25 条 P3 低风险抽样，49 条需要双人复核。该表作为人工核 PDF 原页、核湖北官方侧和处理抽检失败升级的逐专业入口，仍不确认字段事实。
+- 新增官方不可得抽样复核 Overlay：`data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv` 将 153 条执行明细接到 Git 忽略的本地复核表。公开账本只保留记录 SHA、三类证据填写计数、抽检失败/升级状态和非最终门禁；学校专业明细、字段读数、复核记录和备注正文不公开。当前 153 条全部 R0 未填写，字段写回、志愿推荐、学校专业建议和最终可用仍为 0。

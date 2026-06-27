@@ -1,0 +1,75 @@
+{
+  "status": "issue19_official_unavailable_sampling_review_overlay_public_ledger_not_final",
+  "generated_by": "build_issue19_official_unavailable_sampling_review_overlay.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_execution_detail": "data/working/issue19-official-unavailable-sampling-execution-detail.csv",
+  "source_execution_detail_summary": "data/working/issue19-official-unavailable-sampling-execution-detail-summary.json",
+  "source_private_sampling_review_overlay": "local_sampling_review_overlay_not_public",
+  "output_table": "data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv",
+  "row_grain": "逐专业招生明细",
+  "row_count": 153,
+  "unique_public_ledger_id_count": 153,
+  "unique_execution_detail_id_count": 153,
+  "unique_major_line_count": 153,
+  "private_overlay_record_count": 153,
+  "private_overlay_missing_record_count": 0,
+  "private_overlay_csv_sha256": "8e2087d21e8f33ba27a773f9bc660077d8498b02c5396407c5f975b4538b91b4",
+  "preserved_manual_cell_count": 0,
+  "pdf_page_filled_field_count": 0,
+  "hubei_official_filled_field_count": 0,
+  "school_support_filled_field_count": 0,
+  "pdf_page_record_filled_detail_count": 0,
+  "hubei_official_record_filled_detail_count": 0,
+  "school_support_record_filled_detail_count": 0,
+  "tri_consistency_assessable_count": 0,
+  "sampling_failure_count": 0,
+  "escalation_required_count": 0,
+  "first_review_done_count": 0,
+  "second_review_done_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "high_risk_100pct_detail_count": 104,
+  "c2_sample_detail_count": 24,
+  "p3_sample_detail_count": 25,
+  "double_review_required_count": 49,
+  "action_counts": {
+    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C1-官网补缺候选但禁止自动写回": 55,
+    "C7-官网源未匹配专业需人工确认专业名": 31,
+    "C2-强辅证抽检并等待湖北官方闭环": 24,
+    "P3-低风险抽检但非最终": 25
+  },
+  "execution_category_counts": {
+    "H0-高风险100%人工核验": 104,
+    "H1-C2强辅证抽样核验": 24,
+    "H2-P3低风险抽样验收": 25
+  },
+  "risk_level_counts": {
+    "R4-blocker": 18,
+    "R3-high": 86,
+    "R1-low": 24,
+    "R0-observe": 25
+  },
+  "progress_bucket_counts": {
+    "R0-Overlay已生成未填写": 153
+  },
+  "source_execution_detail_counts": {
+    "row_count": 153,
+    "high_risk_100pct_detail_count": 104,
+    "c2_sample_detail_count": 24,
+    "p3_sample_detail_count": 25,
+    "double_review_required_count": 49
+  },
+  "safety_note": "公开账本只保存抽样复核进度、门禁状态、证据编号和SHA；字段读数、湖北官方侧值、高校辅证值和备注正文只留在本地私有Overlay。",
+  "policy": {
+    "official_priority": "湖北官方系统或省招办计划仍是定稿源；高校侧证据只能作为辅证和抽检线索。",
+    "review_flow": "153条抽样执行明细先在本地Overlay完成PDF原页、湖北官方侧、高校辅证三方复核。",
+    "failure_escalation": "抽检失败时按执行明细中的同页列、同校或同组边界升级到100%人工核验。",
+    "boundary": "本账本不确认字段、不写回、不生成学校专业建议或志愿推荐。"
+  }
+}

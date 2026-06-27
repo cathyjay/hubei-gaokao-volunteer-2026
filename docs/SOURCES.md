@@ -126,6 +126,7 @@
    - 人工核验降载方式：家庭或人工只集中签认最终候选完整专业组、冲稳保边界、红色冲突项和抽检失败升级项；不把 41208 个字段全部摊给人工逐项核对。
    - 抽样门禁表：`data/working/issue19-official-unavailable-sampling-gates.csv`，用于在湖北官方结构化计划暂不可得时，把 78 条高校侧任务和 25 条 P3 低风险抽样明细变成可执行的 100% 核验、自动 diff、分层抽检和失败升级规则。
    - 抽样执行明细表：`data/working/issue19-official-unavailable-sampling-execution-detail.csv`，把抽样门禁下沉到 153 条逐专业明细，作为高风险 100% 核验、C2 强辅证抽样和 P3 低风险抽样的逐行执行入口。
+   - 抽样复核 Overlay 公开账本：`data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv`，把 153 条执行明细接到本地私有复核表；公开层只保存 SHA、状态和计数，不保存学校专业明细、字段读数或人工备注。
 
 7. 《湖北招生考试》第 16/19 期专项检索
    - 检索记录：`docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`
@@ -176,6 +177,8 @@
 - `data/working/issue19-official-unavailable-sampling-gates-summary.json`：上述抽样门禁摘要，记录 103 行门禁、C0/C1/C7 100% 核验明细数、C2 最低抽检明细数、P3 抽样数和全部非最终门禁。
 - `data/working/issue19-official-unavailable-sampling-execution-detail.csv`：官方不可得时的逐专业抽样执行明细，覆盖 104 条高风险 100% 核验明细、24 条 C2 强辅证抽样明细和 25 条 P3 低风险抽样明细。
 - `data/working/issue19-official-unavailable-sampling-execution-detail-summary.json`：上述执行明细摘要，记录 153 行逐专业明细、动作分布、风险分布、双人复核数和全部非最终门禁。
+- `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv`：官方不可得时的 153 条抽样执行明细复核 Overlay 公开账本；只保存本地复核表记录 SHA、三类证据填写计数、抽检失败/升级状态和非最终门禁。
+- `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger-summary.json`：上述公开账本摘要，记录 153 条 Overlay 记录、104/24/25 分层、49 条双人复核要求、初始 R0 状态和全部不可写回/不可推荐门禁。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
 - `data/working/issue19-pdf-source.json`：第 19 期 PDF 元数据和私有留存边界。
 - `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。
@@ -457,6 +460,7 @@
 - `scripts/build_issue19_foundation_stability_dashboard.py`：生成底座稳定性总看板和教育部未匹配校名逐专业解析表；所有输出保持逐专业粒度、非最终门禁和 pending 边界。
 - `scripts/build_issue19_foundation_stabilization_major_detail_tasks.py`：生成 B0/B1/B2 逐专业稳定化任务表；用于把底座保真任务落到招生专业明细，不生成学校/专业组层推荐。
 - `scripts/build_issue19_official_public_entry_status_snapshot.py`：生成官方公开入口状态快照；只记录公开页面 `GET/200`、SHA、字节数、标题、入口角色、`can_finalize=false` 和无登录探针边界，不保存登录态。
+- `scripts/build_issue19_official_unavailable_sampling_review_overlay.py`：读取官方不可得抽样执行明细，生成 153 条本地私有抽样复核 Overlay 和公开进度账本；公开层只保存 SHA、状态、计数和非最终门禁，人工读数和备注只进入 Git 忽略的本地表。
 - `scripts/build_issue19_major_source_evidence_risk_sidecar.py`：生成逐专业源证据风险侧账，把原始源证据风险、底座稳定性、闭环缺口和 P0 复核任务下沉到 `专业行ID`。
 - `scripts/build_issue19_field_fact_closure_ledger.py`：生成字段事实闭环总账，逐专业汇总再选科目、专业计划数、学费的 OCR 候选、字段缺口候选、PDF/湖北官方待核状态和禁止写回边界。
 - `scripts/build_issue19_field_fact_verification_tasks.py`：生成字段事实核验任务队列，把每条招生专业明细拆成再选科目、专业计划数、学费三项字段任务，并回连字段事实总账和页级保真队列。

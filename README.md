@@ -105,6 +105,7 @@ python3 scripts/build_issue19_official_public_entry_status_snapshot.py
 python3 scripts/build_issue19_official_public_entry_live_recheck.py
 python3 scripts/build_issue19_official_unavailable_sampling_gates.py
 python3 scripts/build_issue19_official_unavailable_sampling_execution_detail.py
+python3 scripts/build_issue19_official_unavailable_sampling_review_overlay.py
 python3 scripts/build_issue19_raw_major_lineage_consistency_audit.py
 python3 scripts/build_issue19_raw_major_source_evidence_audit.py
 python3 scripts/build_issue19_major_source_evidence_risk_sidecar.py
@@ -174,6 +175,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 官方不可得抽样门禁：`data/working/issue19-official-unavailable-sampling-gates.csv` 在湖北官方结构化计划暂不可无登录取得时，把高校官网 double check 和低风险抽检机械化：C0/C1/C7 共 104 条明细必须 100% 回看第 19 期原页，C2 强辅证抽检最低覆盖 20 条以上，P3 低风险池抽 25 条；抽检失败按同页列、同校或同组升级 100% 核验。该表仍不允许字段写回、志愿推荐或最终可用。
 
 官方不可得抽样执行明细：`data/working/issue19-official-unavailable-sampling-execution-detail.csv` 把上述门禁继续下沉到 153 条逐专业招生明细：104 条高风险 100% 核验、24 条 C2 强辅证抽样、25 条 P3 低风险抽样。它是后续人工核 PDF 原页、核湖北官方侧和记录抽检结果的逐专业入口，仍不确认字段事实。
+
+官方不可得抽样复核 Overlay 公开账本：`data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv` 把这 153 条执行明细接到 Git 忽略的本地复核表。公开账本只同步记录 SHA、PDF 原页/湖北官方侧/高校辅证已填计数、抽检失败和升级状态，当前 153 条全部为 `R0-Overlay已生成未填写`；学校专业明细、字段读数、复核记录和备注正文只留在本地 Overlay。它解决的是“官方不可得时如何少量人工核验且可追溯”，不是字段核准或志愿推荐。
 
 全量字段页列核验队列：`data/working/issue19-field-fact-page-side-verification-queue.csv` 把 41208 条逐字段任务按 `PDF页码×版面列` 聚合成 462 个页列执行单元，覆盖 231 个招生计划明细页、13736 条专业明细。当前 450 个页列为 V0 无候选阻断页列先核，12 个为 V1 有候选待人工核验页列；所有任务都仍需要 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用计数均为 0。该表只回答“全量字段应该按哪些页列核”，不代替一行一个专业的明细表。
 
