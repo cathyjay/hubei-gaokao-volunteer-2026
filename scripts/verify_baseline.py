@@ -10398,6 +10398,12 @@ def main():
     official_unavailable_sampling_review_execution_queue_csv = (
         ROOT / "data/working/issue19-official-unavailable-sampling-review-execution-queue.csv"
     )
+    official_unavailable_sampling_triage_prefill_summary_path = (
+        ROOT / "data/working/issue19-official-unavailable-sampling-triage-prefill-summary.json"
+    )
+    official_unavailable_sampling_triage_prefill_csv = (
+        ROOT / "data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv"
+    )
     admission_plan_source_status_path = ROOT / "data/working/2026-admission-plan-source-status.json"
     stabilization_tasks_summary = json.loads(stabilization_tasks_summary_path.read_text())
     official_public_entry_status = json.loads(official_public_entry_status_path.read_text())
@@ -10418,6 +10424,9 @@ def main():
     )
     official_unavailable_sampling_review_execution_queue_summary = json.loads(
         official_unavailable_sampling_review_execution_queue_summary_path.read_text()
+    )
+    official_unavailable_sampling_triage_prefill_summary = json.loads(
+        official_unavailable_sampling_triage_prefill_summary_path.read_text()
     )
     admission_plan_source_status = json.loads(admission_plan_source_status_path.read_text())
     with stabilization_tasks_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -10462,6 +10471,14 @@ def main():
         official_unavailable_sampling_review_execution_queue_fields = (
             official_unavailable_sampling_review_execution_queue_reader.fieldnames or []
         )
+    with official_unavailable_sampling_triage_prefill_csv.open(newline="", encoding="utf-8-sig") as f:
+        official_unavailable_sampling_triage_prefill_reader = csv.DictReader(f)
+        official_unavailable_sampling_triage_prefill_rows = list(
+            official_unavailable_sampling_triage_prefill_reader
+        )
+        official_unavailable_sampling_triage_prefill_fields = (
+            official_unavailable_sampling_triage_prefill_reader.fieldnames or []
+        )
     expected_stabilization_tasks_fields = script_list_constant(
         ROOT / "scripts/build_issue19_foundation_stabilization_major_detail_tasks.py",
         "FIELDS",
@@ -10497,6 +10514,10 @@ def main():
     expected_official_unavailable_sampling_review_execution_queue_fields = script_list_constant(
         ROOT / "scripts/build_issue19_official_unavailable_sampling_review_execution_queue.py",
         "FIELDS",
+    )
+    expected_official_unavailable_sampling_triage_prefill_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_official_unavailable_sampling_triage_prefill.py",
+        "PUBLIC_AUDIT_FIELDS",
     )
     stability_dashboard_by_major_id = {row.get("专业行ID"): row for row in stability_dashboard_rows}
     stabilization_target_major_ids = {
@@ -10567,6 +10588,8 @@ def main():
             official_unavailable_sampling_review_packets_csv,
             official_unavailable_sampling_review_execution_queue_summary_path,
             official_unavailable_sampling_review_execution_queue_csv,
+            official_unavailable_sampling_triage_prefill_summary_path,
+            official_unavailable_sampling_triage_prefill_csv,
             admission_plan_source_status_path,
         ]
     )
@@ -11699,6 +11722,221 @@ def main():
         and "字段读数" not in official_sampling_execution_public_text
         and not any(token in official_sampling_execution_public_text for token in shared_forbidden_tokens),
         "；".join(official_sampling_execution_sensitive_value_hits),
+    ))
+
+    official_sampling_execution_by_page_side = {
+        page_side_key(row): row
+        for row in official_unavailable_sampling_review_execution_queue_rows
+    }
+    official_sampling_prefill_join_ok = True
+    for row in official_unavailable_sampling_triage_prefill_rows:
+        queue_row = official_sampling_execution_by_page_side.get(page_side_key(row), {})
+        official_sampling_prefill_join_ok = official_sampling_prefill_join_ok and (
+            bool(queue_row)
+            and row.get("官方不可得抽样私有预填公开审计ID")
+            == stable_id("SAMPLINGPREFILLAUDIT", [row.get("来源页码", ""), row.get("版面列", "")])
+            and row.get("来源抽样页列执行队列")
+            == "data/working/issue19-official-unavailable-sampling-review-execution-queue.csv"
+            and row.get("来源本地抽样复核Overlay") == "local_sampling_review_overlay_not_public"
+            and row.get("来源本地私有预填材料") == "local_sampling_triage_prefill_not_public"
+            and row.get("来源湖北官方活体复查")
+            == "data/working/issue19-official-public-entry-live-recheck.json"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_official_unavailable_sampling_triage_prefill_public_audit"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×官方不可得抽样私有预填审计"
+            and row.get("页码版面键") == queue_row.get("页码版面键")
+            and row.get("来源官方不可得抽样页列执行队列ID")
+            == queue_row.get("官方不可得抽样页列执行队列ID")
+            and row.get("执行队列总序") == queue_row.get("执行队列总序")
+            and row.get("执行泳道") == queue_row.get("执行泳道")
+            and row.get("执行优先级") == queue_row.get("执行优先级")
+            and row.get("页列任务数") == queue_row.get("页列抽样明细数")
+            and row.get("PDF原页必核明细数") == queue_row.get("PDF原页必核明细数")
+            and row.get("湖北官方侧必核明细数") == queue_row.get("湖北官方侧必核明细数")
+            and row.get("双人复核明细数") == queue_row.get("双人复核明细数")
+            and row.get("字段事实写回状态")
+            == "blocked_until_private_overlay_pdf_hubei_review_closed"
+            and row.get("官方公开计划页可定稿") == "false"
+            and row.get("数智平台可定稿") == "false"
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有预填页列CSV_SHA256", ""))
+        )
+    official_sampling_prefill_private_dir = (
+        ROOT / "private/review-assets/issue19-official-unavailable-sampling-triage-prefill"
+    )
+    official_sampling_prefill_private_index = (
+        official_sampling_prefill_private_dir / "sampling-triage-prefill-private-index.csv"
+    )
+    official_sampling_prefill_private_master = (
+        official_sampling_prefill_private_dir / "sampling-triage-prefill-private-workbench.csv"
+    )
+    official_sampling_prefill_private_html = official_sampling_prefill_private_dir / "index.html"
+    official_sampling_prefill_private_page_sides = list(
+        (official_sampling_prefill_private_dir / "page-sides").glob("*.csv")
+    )
+    official_sampling_prefill_private_ok = True
+    if (
+        official_sampling_prefill_private_index.exists()
+        and official_sampling_prefill_private_master.exists()
+        and official_sampling_prefill_private_html.exists()
+    ):
+        official_sampling_prefill_private_ok = (
+            len(official_sampling_prefill_private_page_sides) == 46
+            and sha256(official_sampling_prefill_private_master)
+            == official_unavailable_sampling_triage_prefill_summary.get("private_master_csv_sha256")
+            and sha256(official_sampling_prefill_private_index)
+            == official_unavailable_sampling_triage_prefill_summary.get("private_index_csv_sha256")
+            and sha256(official_sampling_prefill_private_html)
+            == official_unavailable_sampling_triage_prefill_summary.get("private_index_html_sha256")
+            and {
+                path.name.replace(".csv", "")
+                for path in official_sampling_prefill_private_page_sides
+            }
+            == {row.get("页码版面键") for row in official_unavailable_sampling_triage_prefill_rows}
+        )
+    checks.append(ok(
+        "湖北官方不可得时的抽样私有预填公开审计摘要、规模和线索计数正确",
+        official_unavailable_sampling_triage_prefill_summary.get("status")
+        == "issue19_official_unavailable_sampling_triage_prefill_not_final"
+        and official_unavailable_sampling_triage_prefill_summary.get("generated_by")
+        == "build_issue19_official_unavailable_sampling_triage_prefill.py"
+        and official_unavailable_sampling_triage_prefill_summary.get("source_execution_queue")
+        == "data/working/issue19-official-unavailable-sampling-review-execution-queue.csv"
+        and official_unavailable_sampling_triage_prefill_summary.get("source_private_overlay")
+        == "local_sampling_review_overlay_not_public"
+        and official_unavailable_sampling_triage_prefill_summary.get("output_public_audit")
+        == "data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv"
+        and official_unavailable_sampling_triage_prefill_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and official_unavailable_sampling_triage_prefill_summary.get("public_row_count")
+        == len(official_unavailable_sampling_triage_prefill_rows)
+        == 46
+        and official_unavailable_sampling_triage_prefill_summary.get("private_workbench_row_count") == 153
+        and official_unavailable_sampling_triage_prefill_summary.get("unique_page_side_count") == 46
+        and official_unavailable_sampling_triage_prefill_summary.get("unique_pdf_page_count") == 40
+        and official_unavailable_sampling_triage_prefill_summary.get("sampling_detail_count") == 153
+        and official_unavailable_sampling_triage_prefill_summary.get("high_risk_100pct_detail_count") == 104
+        and official_unavailable_sampling_triage_prefill_summary.get("c0_conflict_detail_count") == 18
+        and official_unavailable_sampling_triage_prefill_summary.get("c1_fill_candidate_detail_count") == 55
+        and official_unavailable_sampling_triage_prefill_summary.get("c7_unmatched_detail_count") == 31
+        and official_unavailable_sampling_triage_prefill_summary.get("c2_sample_detail_count") == 24
+        and official_unavailable_sampling_triage_prefill_summary.get("p3_sample_detail_count") == 25
+        and official_unavailable_sampling_triage_prefill_summary.get("double_review_required_count") == 49
+        and official_unavailable_sampling_triage_prefill_summary.get("pdf_required_detail_count") == 153
+        and official_unavailable_sampling_triage_prefill_summary.get("hubei_official_required_detail_count") == 153
+        and official_unavailable_sampling_triage_prefill_summary.get("school_support_required_detail_count") == 128
+        and official_unavailable_sampling_triage_prefill_summary.get("school_support_pending_source_detail_count") == 25
+        and official_unavailable_sampling_triage_prefill_summary.get("school_support_clue_detail_count") == 97
+        and official_unavailable_sampling_triage_prefill_summary.get("school_name_clue_detail_count") == 97
+        and official_unavailable_sampling_triage_prefill_summary.get("school_plan_clue_detail_count") == 97
+        and official_unavailable_sampling_triage_prefill_summary.get("school_tuition_clue_detail_count") == 48
+        and official_unavailable_sampling_triage_prefill_summary.get("school_elective_clue_detail_count") == 63
+        and official_unavailable_sampling_triage_prefill_summary.get("school_source_file_detail_count") == 97
+        and official_unavailable_sampling_triage_prefill_summary.get("unique_school_source_file_count") == 16
+        and official_unavailable_sampling_triage_prefill_summary.get("ocr_plan_clue_detail_count") == 86
+        and official_unavailable_sampling_triage_prefill_summary.get("ocr_tuition_clue_detail_count") == 138
+        and official_unavailable_sampling_triage_prefill_summary.get("ocr_elective_clue_detail_count") == 45
+        and official_unavailable_sampling_triage_prefill_summary.get("official_public_plan_page_can_finalize") is False
+        and official_unavailable_sampling_triage_prefill_summary.get("zspt_platform_can_finalize") is False
+        and official_unavailable_sampling_triage_prefill_summary.get("field_writeback_allowed_count") == 0
+        and official_unavailable_sampling_triage_prefill_summary.get("recommendation_basis_allowed_count") == 0
+        and official_unavailable_sampling_triage_prefill_summary.get("school_major_suggestion_allowed_count") == 0
+        and official_unavailable_sampling_triage_prefill_summary.get("official_plan_replacement_allowed_count") == 0
+        and official_unavailable_sampling_triage_prefill_summary.get("final_available_count") == 0
+        and official_unavailable_sampling_triage_prefill_summary.get("next_stage_available_count") == 0,
+    ))
+    checks.append(ok(
+        "湖北官方不可得时的抽样私有预填公开审计字段、回链、门禁和私有SHA正确",
+        official_unavailable_sampling_triage_prefill_fields
+        == expected_official_unavailable_sampling_triage_prefill_fields
+        and len({row.get("官方不可得抽样私有预填公开审计ID") for row in official_unavailable_sampling_triage_prefill_rows}) == 46
+        and len({row.get("页码版面键") for row in official_unavailable_sampling_triage_prefill_rows}) == 46
+        and {page_side_key(row) for row in official_unavailable_sampling_triage_prefill_rows}
+        == set(official_sampling_execution_by_page_side)
+        and [as_int(row.get("执行队列总序")) for row in official_unavailable_sampling_triage_prefill_rows]
+        == list(range(1, 47))
+        and all(
+            row.get(field) == "false"
+            for row in official_unavailable_sampling_triage_prefill_rows
+            for field in [
+                "最终可用",
+                "可进入下一阶段",
+                "是否允许作为志愿推荐依据",
+                "是否允许生成学校专业建议",
+                "是否允许自动写回主表",
+                "是否允许官网证据替代湖北官方计划",
+                "是否允许写回字段事实",
+            ]
+        )
+        and sum(as_int(row.get("页列任务数")) for row in official_unavailable_sampling_triage_prefill_rows) == 153
+        and sum(as_int(row.get("PDF原页必核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 153
+        and sum(as_int(row.get("湖北官方侧必核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 153
+        and sum(as_int(row.get("高校辅证需复核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 128
+        and sum(as_int(row.get("高校辅证待补源明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 25
+        and sum(as_int(row.get("高校辅证线索明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 97
+        and sum(as_int(row.get("高校来源文件明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 97
+        and official_sampling_prefill_join_ok
+        and official_sampling_prefill_private_ok,
+    ))
+
+    official_sampling_prefill_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            official_unavailable_sampling_triage_prefill_summary_path,
+            official_unavailable_sampling_triage_prefill_csv,
+        ]
+    )
+    official_sampling_prefill_sensitive_value_hits = [
+        value
+        for value in official_sampling_packets_sensitive_values
+        if value and value in official_sampling_prefill_public_text
+    ][:5]
+    checks.append(ok(
+        "湖北官方不可得时的抽样私有预填公开文件不含私有路径、线索值、字段读数、学校专业明细和最终误导结论",
+        foundation_release_sensitive_re.search(official_sampling_prefill_public_text) is None
+        and not official_sampling_prefill_sensitive_value_hits
+        and "/Users/" not in official_sampling_prefill_public_text
+        and "/home/" not in official_sampling_prefill_public_text
+        and "/var/folders/" not in official_sampling_prefill_public_text
+        and "/private/" not in official_sampling_prefill_public_text
+        and "private/" not in official_sampling_prefill_public_text
+        and "private\\" not in official_sampling_prefill_public_text
+        and "ocr-runs" not in official_sampling_prefill_public_text
+        and "rendered-pages" not in official_sampling_prefill_public_text
+        and ".png" not in official_sampling_prefill_public_text
+        and ".jpg" not in official_sampling_prefill_public_text
+        and ".jpeg" not in official_sampling_prefill_public_text
+        and ".webp" not in official_sampling_prefill_public_text
+        and ".tif" not in official_sampling_prefill_public_text
+        and ".tiff" not in official_sampling_prefill_public_text
+        and ".heic" not in official_sampling_prefill_public_text
+        and "Authorization" not in official_sampling_prefill_public_text
+        and "Bearer " not in official_sampling_prefill_public_text
+        and "Cookie" not in official_sampling_prefill_public_text
+        and "院校名称OCR" not in official_sampling_prefill_public_text
+        and "院校代码" not in official_sampling_prefill_public_text
+        and "院校专业组" not in official_sampling_prefill_public_text
+        and "专业代号" not in official_sampling_prefill_public_text
+        and "专业名称及备注" not in official_sampling_prefill_public_text
+        and "OCR行文本" not in official_sampling_prefill_public_text
+        and "OCR文本" not in official_sampling_prefill_public_text
+        and "PDF原页人工读数" not in official_sampling_prefill_public_text
+        and "湖北官方字段值" not in official_sampling_prefill_public_text
+        and "高校辅证人工采纳值" not in official_sampling_prefill_public_text
+        and "人工备注" not in official_sampling_prefill_public_text
+        and "一审" not in official_sampling_prefill_public_text
+        and "二审" not in official_sampling_prefill_public_text
+        and "已确认" not in official_sampling_prefill_public_text
+        and "已核准" not in official_sampling_prefill_public_text
+        and "最终推荐" not in official_sampling_prefill_public_text
+        and "最终方案" not in official_sampling_prefill_public_text
+        and "可填报" not in official_sampling_prefill_public_text
+        and "可排序" not in official_sampling_prefill_public_text
+        and "字段读数" not in official_sampling_prefill_public_text
+        and not any(token in official_sampling_prefill_public_text for token in shared_forbidden_tokens),
+        "；".join(official_sampling_prefill_sensitive_value_hits),
     ))
 
     checks.append(ok(

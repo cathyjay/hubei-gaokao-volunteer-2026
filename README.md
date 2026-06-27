@@ -108,6 +108,7 @@ python3 scripts/build_issue19_official_unavailable_sampling_execution_detail.py
 python3 scripts/build_issue19_official_unavailable_sampling_review_overlay.py
 python3 scripts/build_issue19_official_unavailable_sampling_review_packets.py
 python3 scripts/build_issue19_official_unavailable_sampling_review_execution_queue.py
+python3 scripts/build_issue19_official_unavailable_sampling_triage_prefill.py
 python3 scripts/build_issue19_raw_major_lineage_consistency_audit.py
 python3 scripts/build_issue19_raw_major_source_evidence_audit.py
 python3 scripts/build_issue19_major_source_evidence_risk_sidecar.py
@@ -183,6 +184,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 官方不可得抽样页列核验包公开账本：`data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv` 把上述 153 条抽样复核明细压缩成 46 个 `PDF页码×版面列` 私有核页包，覆盖 40 个 PDF 页。公开账本只保留页列计数、证据编号、SHA 和 R0 状态；私有 HTML/CSV 才展示页图、OCR 行、学校专业线索和人工填写栏。它用于降低人工核验定位成本，不改变抽样范围，也不确认字段事实。
 
 官方不可得抽样页列执行队列：`data/working/issue19-official-unavailable-sampling-review-execution-queue.csv` 把 46 个页列核验包排成 E0-E4 五条执行泳道：E0 冲突/错位先核 6 个、E1 官网未匹配专业名归属 11 个、E2 官网补缺候选核页 3 个、E3 C2 强辅证抽检 2 个、E4 P3 低风险抽检 24 个。公开队列只保存页列顺序、计数、证据编号、SHA、升级规则和非最终门禁，仍不公开学校专业明细、字段读数或人工记录。
+
+官方不可得抽样私有预填公开审计：`data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv` 把 46 个页列执行队列接到 Git 忽略的私有预填工作台。私有层预填 153 条明细的高校官网专业名、计划数、学费、选科和 OCR 线索；公开层只保留页列计数、16 个高校来源文件的聚合计数、私有 CSV SHA 和非最终门禁。它减少人工核页查找成本，但不确认字段事实、不替代湖北官方计划。
 
 全量字段页列核验队列：`data/working/issue19-field-fact-page-side-verification-queue.csv` 把 41208 条逐字段任务按 `PDF页码×版面列` 聚合成 462 个页列执行单元，覆盖 231 个招生计划明细页、13736 条专业明细。当前 450 个页列为 V0 无候选阻断页列先核，12 个为 V1 有候选待人工核验页列；所有任务都仍需要 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用计数均为 0。该表只回答“全量字段应该按哪些页列核”，不代替一行一个专业的明细表。
 

@@ -70,6 +70,8 @@
 
 新增官方不可得抽样页列执行队列：`data/working/issue19-official-unavailable-sampling-review-execution-queue.csv` 把 46 个页列核验包排成可执行顺序：先核 E0 冲突/错位 6 个和 E1 官网未匹配 11 个，再核 E2 官网补缺 3 个、E3 强辅证抽检 2 个、E4 低风险抽检 24 个。该队列让后续人工不需要在私有材料里自行判断先后顺序，但仍只安排核验，不确认字段、不写回主表、不生成学校专业建议。
 
+新增官方不可得抽样私有预填公开审计：`data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv` 把 46 个页列执行队列接到 Git 忽略的私有预填工作台。私有层预填 153 条抽样明细中的高校官网专业名、计划数、学费、选科和 OCR 线索；公开层只保留页列级计数、16 个高校来源文件的聚合计数、私有 CSV SHA 和非最终门禁。它解决的是“人工核页时少翻表、少找官网”，不解决“字段已经核准”；PDF 原页、湖北官方侧和必要高校辅证仍必须人工闭环。
+
 新增第一闭环批次包：`data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 覆盖 205 条最高优先级明细任务，`data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 把它们压缩为 36 个页列、32 个 PDF 页。这个包优先处理 C0 冲突、C1 官网补缺、C7 官网未匹配、EXEC-01 冲突异常、EXEC-02 计划数偏大和 EXEC-03 高校辅证线索，目的是先把最可能影响底座可信度的页列集中核准；全部门禁仍为 false。
 
 新增全量字段页列核验队列：`data/working/issue19-field-fact-page-side-verification-queue.csv` 把 41208 条字段事实核验任务聚合为 462 个 `PDF页码×版面列` 执行单元，覆盖 231 个招生计划明细页和全部 13736 条专业明细。它是全量底座保真的页列层入口，当前 450 个页列为 V0 无候选阻断页列先核、12 个为 V1 有候选待人工核验页列，全部仍需要 PDF 原页和湖北官方侧核验。
