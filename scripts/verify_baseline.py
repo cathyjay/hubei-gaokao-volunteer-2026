@@ -7786,11 +7786,13 @@ def main():
         for path in [foundation_release_summary_path, foundation_release_csv]
     )
     foundation_release_sensitive_re = re.compile(
-        r"/Users/|private/|private\\|ocr-runs|rendered-pages|"
+        r"/Users/|C:\\Users\\|C:/Users/|/private/|/var/folders/|private/|private\\|"
+        r"ocr-runs|rendered-pages|"
         r"\.(?:png|jpg|jpeg|webp|gif|heic|tiff|bmp)\b|"
         r"Authorization|Bearer\s|Cookie|Set-Cookie|Admin-Token|"
         r"HUBEI_PLAN_TOKEN|HUBEI_PLAN_AUTH_TOKEN|token=|"
         r"身份证|准考证|报名号|序列号|手机号|联系电话|通知书地址|"
+        r"考生姓名|姓名[:：,，\t ]|微信号|WeChat ID|wxid_[A-Za-z0-9_-]+|"
         r"考生号|账号密码|登录密码",
         re.IGNORECASE,
     )
@@ -7869,6 +7871,504 @@ def main():
         and "最终方案" not in foundation_release_public_text
         and "可填报" not in foundation_release_public_text
         and "可排序" not in foundation_release_public_text,
+    ))
+
+    closure_summary_path = ROOT / "data/working/issue19-foundation-closure-batches-summary.json"
+    closure_major_csv = ROOT / "data/working/issue19-foundation-closure-major-batches.csv"
+    closure_page_csv = ROOT / "data/working/issue19-foundation-closure-page-index.csv"
+    closure_school_csv = ROOT / "data/working/issue19-foundation-closure-school-index.csv"
+    closure_summary = json.loads(closure_summary_path.read_text())
+    with closure_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        closure_major_reader = csv.DictReader(f)
+        closure_major_rows = list(closure_major_reader)
+        closure_major_fields = closure_major_reader.fieldnames or []
+    with closure_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        closure_page_reader = csv.DictReader(f)
+        closure_page_rows = list(closure_page_reader)
+        closure_page_fields = closure_page_reader.fieldnames or []
+    with closure_school_csv.open(newline="", encoding="utf-8-sig") as f:
+        closure_school_reader = csv.DictReader(f)
+        closure_school_rows = list(closure_school_reader)
+        closure_school_fields = closure_school_reader.fieldnames or []
+    expected_closure_major_fields = [
+        "底座闭环批次ID",
+        "来源统一逐专业底座入口",
+        "来源底座发布明细ID",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "主表粒度",
+        "最终可用",
+        "是否可进入最终专业列表",
+        "可进入下一阶段",
+        "闭环任务状态",
+        "闭环执行总序",
+        "闭环执行批次",
+        "闭环执行动作集合",
+        "首要核验动作",
+        "闭环执行排序分",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "版面列",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "再选科目OCR候选",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "字段缺口数",
+        "字段缺口字段",
+        "P0复核任务数",
+        "P0证据项",
+        "湖北官方平台字段核验状态",
+        "高校官网来源状态",
+        "高校官网证据匹配状态",
+        "高校官网计划数核验状态",
+        "高校官网差异字段集合",
+        "B0B1官网差异任务数",
+        "页级保真队列ID",
+        "页级复核优先级",
+        "页级阻断等级",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "家庭接受度结论",
+        "同组调剂结论",
+        "机器专业接受度初判",
+        "调剂影响等级",
+        "同组真实招生明细数",
+        "同组医学护理排除专业数",
+        "同组高收费或超预算专业数",
+        "同组特殊限制待核专业数",
+        "专业偏好方向",
+        "风险阻断等级",
+        "三年投档稳定性状态",
+        "不得进入原因",
+        "下一步",
+    ]
+    expected_closure_page_fields = [
+        "页级闭环索引ID",
+        "来源逐专业闭环批次表",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "索引粒度",
+        "最终可用",
+        "可进入下一阶段",
+        "PDF页码",
+        "页级执行总序",
+        "页面专业明细数",
+        "涉及院校数",
+        "涉及专业组数",
+        "C0_P0主批次专业明细数",
+        "C1字段缺口主批次专业明细数",
+        "C2官网辅证主批次专业明细数",
+        "C3常规三方主批次专业明细数",
+        "C4低风险抽检主批次专业明细数",
+        "含官网辅证任务专业明细数",
+        "B0B1官网差异专业明细数",
+        "有高校官网来源线索专业明细数",
+        "偏好专业明细数",
+        "数字媒体技术专业明细数",
+        "计算机类相关专业明细数",
+        "师范类相关专业明细数",
+        "字段缺口字段Top",
+        "首个专业行ID",
+        "首个院校代码",
+        "首个院校名称OCR",
+        "首要核验动作",
+        "下一步",
+    ]
+    expected_closure_school_fields = [
+        "学校闭环索引ID",
+        "来源逐专业闭环批次表",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "索引粒度",
+        "最终可用",
+        "可进入下一阶段",
+        "院校代码",
+        "院校名称OCR",
+        "学校执行总序",
+        "专业明细数",
+        "涉及PDF页数",
+        "涉及专业组数",
+        "C0_P0主批次专业明细数",
+        "C1字段缺口主批次专业明细数",
+        "C2官网辅证主批次专业明细数",
+        "C3常规三方主批次专业明细数",
+        "C4低风险抽检主批次专业明细数",
+        "含官网辅证任务专业明细数",
+        "B0B1官网差异专业明细数",
+        "有高校官网来源线索专业明细数",
+        "偏好专业明细数",
+        "高校官网来源状态分布",
+        "首个PDF页码",
+        "首个专业行ID",
+        "首要核验动作",
+        "下一步",
+    ]
+    foundation_release_by_major_id = {
+        row.get("专业行ID"): row for row in foundation_release_rows
+    }
+
+    def int0(value):
+        return as_int(value) or 0
+
+    def closure_has_school_source(release_row):
+        status = release_row.get("高校官网来源状态", "")
+        return bool(status) and status != "not_yet_school_source_searched_in_full_workbench"
+
+    def closure_has_historical_line(release_row):
+        status = release_row.get("三年投档稳定性状态", "")
+        return bool(status) and "未命中" not in status
+
+    def closure_has_b0_b1_diff(release_row):
+        return int0(release_row.get("B0B1官网差异任务数")) > 0
+
+    def closure_has_official_auxiliary_task(release_row):
+        return closure_has_b0_b1_diff(release_row) or closure_has_school_source(release_row)
+
+    def closure_join_unique(values):
+        seen = []
+        for value in values:
+            text = str(value or "").strip()
+            if text and text not in seen:
+                seen.append(text)
+        return "；".join(seen)
+
+    def expected_closure_batch(release_row):
+        if int0(release_row.get("P0复核任务数")) > 0:
+            return "C0-P0证据闭环先核"
+        if int0(release_row.get("字段缺口数")) > 0:
+            return "C1-字段缺口先补"
+        if closure_has_official_auxiliary_task(release_row):
+            return "C2-官网辅证交叉核验"
+        if release_row.get("底座保真门禁", "").startswith("G4"):
+            return "C4-低风险抽检但非最终"
+        return "C3-常规三方证据闭环"
+
+    def expected_closure_actions(release_row):
+        actions = ["湖北官方系统/省招办计划核验", "家庭接受度核验", "同组调剂结论核验"]
+        if int0(release_row.get("P0复核任务数")) > 0:
+            actions.insert(0, "P0-PDF原页或三方证据先核")
+        else:
+            actions.insert(0, "PDF原页常规核验")
+        if int0(release_row.get("字段缺口数")) > 0:
+            actions.append("P1-字段缺口补证")
+        if closure_has_official_auxiliary_task(release_row):
+            actions.append("高校官网/章程辅证交叉")
+        if closure_has_historical_line(release_row):
+            actions.append("三年投档稳定性复核")
+        return closure_join_unique(actions)
+
+    def expected_closure_primary_action(release_row):
+        batch = expected_closure_batch(release_row)
+        if batch.startswith("C0"):
+            return "回看PDF原页并同步补湖北官方系统/高校官网证据"
+        if batch.startswith("C1"):
+            return f"补字段缺口：{release_row.get('字段缺口字段') or '待识别字段'}"
+        if batch.startswith("C2"):
+            return "用高校官网/章程辅证和湖北官方系统逐字段交叉"
+        if batch.startswith("C4"):
+            return "抽检PDF原页和湖北官方系统，确认低风险行没有漏判"
+        return "完成PDF原页、湖北官方系统、高校官网/章程、家庭接受度和调剂结论闭环"
+
+    def expected_closure_priority_score(release_row):
+        base_by_batch = {
+            "C0-P0证据闭环先核": 100000,
+            "C1-字段缺口先补": 200000,
+            "C2-官网辅证交叉核验": 300000,
+            "C3-常规三方证据闭环": 400000,
+            "C4-低风险抽检但非最终": 500000,
+        }
+        score = base_by_batch[expected_closure_batch(release_row)]
+        page_priority = release_row.get("页级复核优先级", "")
+        if page_priority.startswith("P0"):
+            score -= 5000
+        elif page_priority.startswith("P1"):
+            score -= 2500
+        preference = release_row.get("专业偏好方向", "")
+        if "数字媒体技术" in preference:
+            score -= 900
+        if "计算机类相关" in preference:
+            score -= 700
+        if "师范类相关" in preference:
+            score -= 500
+        if closure_has_school_source(release_row):
+            score -= 250
+        if closure_has_historical_line(release_row):
+            score -= 100
+        score += int0(release_row.get("来源页码"))
+        score += min(int0(release_row.get("专业组内专业序号")), 99)
+        return score
+
+    def expected_closure_sort_key(release_row):
+        return (
+            expected_closure_priority_score(release_row),
+            int0(release_row.get("来源页码")),
+            release_row.get("院校代码", ""),
+            release_row.get("院校专业组代码OCR规范化", ""),
+            int0(release_row.get("专业组内专业序号")),
+            release_row.get("专业行ID", ""),
+        )
+
+    expected_sorted_release_rows = sorted(foundation_release_rows, key=expected_closure_sort_key)
+    direct_release_fields = [
+        "来源期号",
+        "来源PDF_SHA256",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "版面列",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "再选科目OCR候选",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "字段缺口数",
+        "字段缺口字段",
+        "P0复核任务数",
+        "P0证据项",
+        "湖北官方平台字段核验状态",
+        "高校官网来源状态",
+        "高校官网证据匹配状态",
+        "高校官网计划数核验状态",
+        "高校官网差异字段集合",
+        "B0B1官网差异任务数",
+        "页级保真队列ID",
+        "页级复核优先级",
+        "页级阻断等级",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "家庭接受度结论",
+        "同组调剂结论",
+        "机器专业接受度初判",
+        "调剂影响等级",
+        "同组真实招生明细数",
+        "同组医学护理排除专业数",
+        "同组高收费或超预算专业数",
+        "同组特殊限制待核专业数",
+        "专业偏好方向",
+        "风险阻断等级",
+        "三年投档稳定性状态",
+        "不得进入原因",
+        "下一步",
+    ]
+    closure_major_join_ok = True
+    for index, row in enumerate(closure_major_rows, start=1):
+        release_row = foundation_release_by_major_id.get(row.get("专业行ID"), {})
+        expected_release_row = (
+            expected_sorted_release_rows[index - 1]
+            if index <= len(expected_sorted_release_rows)
+            else {}
+        )
+        order = int0(row.get("闭环执行总序"))
+        score = int0(row.get("闭环执行排序分"))
+        expected_score = expected_closure_priority_score(release_row) if release_row else -1
+        direct_release_fields_ok = all(
+            row.get(field) == release_row.get(field) for field in direct_release_fields
+        )
+        closure_major_join_ok = (
+            closure_major_join_ok
+            and bool(release_row)
+            and bool(expected_release_row)
+            and row.get("专业行ID") == expected_release_row.get("专业行ID")
+            and row.get("底座闭环批次ID") == stable_id("CLOSEMAJOR", [row.get("专业行ID", "")])
+            and row.get("来源统一逐专业底座入口")
+            == "data/working/issue19-major-detail-foundation-release.csv"
+            and row.get("来源底座发布明细ID") == release_row.get("底座发布明细ID")
+            and row.get("数据阶段") == "issue19_foundation_closure_batches"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("是否可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("闭环任务状态") == "pending_foundation_closure"
+            and order == index
+            and score == expected_score
+            and row.get("闭环执行批次") == expected_closure_batch(release_row)
+            and row.get("闭环执行动作集合") == expected_closure_actions(release_row)
+            and row.get("首要核验动作") == expected_closure_primary_action(release_row)
+            and row.get("湖北官方平台字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("家庭接受度结论") == "pending_family_acceptance_review"
+            and row.get("同组调剂结论") == "pending_transfer_decision"
+            and direct_release_fields_ok
+        )
+    closure_by_page = defaultdict(list)
+    closure_by_school = defaultdict(list)
+    for row in closure_major_rows:
+        closure_by_page[row.get("来源页码")].append(row)
+        closure_by_school[row.get("院校代码")].append(row)
+
+    def count_batch(rows, batch):
+        return sum(row.get("闭环执行批次") == batch for row in rows)
+
+    closure_page_index_ok = True
+    for row in closure_page_rows:
+        rows = closure_by_page.get(row.get("PDF页码"), [])
+        first = min(rows, key=lambda item: as_int(item.get("闭环执行总序"))) if rows else {}
+        closure_page_index_ok = (
+            closure_page_index_ok
+            and bool(rows)
+            and row.get("页级闭环索引ID") == stable_id("CLOSEPAGE", [row.get("PDF页码", "")])
+            and row.get("来源逐专业闭环批次表")
+            == "data/working/issue19-foundation-closure-major-batches.csv"
+            and row.get("数据阶段") == "issue19_foundation_closure_page_index"
+            and row.get("索引粒度") == "PDF页码"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and int0(row.get("页级执行总序")) == min(int0(item.get("闭环执行总序")) for item in rows)
+            and int0(row.get("页面专业明细数")) == len(rows)
+            and int0(row.get("涉及院校数")) == len({item.get("院校代码") for item in rows})
+            and int0(row.get("涉及专业组数")) == len({item.get("专业组出现ID") for item in rows})
+            and int0(row.get("C0_P0主批次专业明细数")) == count_batch(rows, "C0-P0证据闭环先核")
+            and int0(row.get("C1字段缺口主批次专业明细数")) == count_batch(rows, "C1-字段缺口先补")
+            and int0(row.get("C2官网辅证主批次专业明细数")) == count_batch(rows, "C2-官网辅证交叉核验")
+            and int0(row.get("C3常规三方主批次专业明细数")) == count_batch(rows, "C3-常规三方证据闭环")
+            and int0(row.get("C4低风险抽检主批次专业明细数")) == count_batch(rows, "C4-低风险抽检但非最终")
+            and int0(row.get("含官网辅证任务专业明细数"))
+            == sum(closure_has_official_auxiliary_task(item) for item in rows)
+            and int0(row.get("B0B1官网差异专业明细数"))
+            == sum(closure_has_b0_b1_diff(item) for item in rows)
+            and int0(row.get("有高校官网来源线索专业明细数"))
+            == sum(closure_has_school_source(item) for item in rows)
+            and int0(row.get("偏好专业明细数")) == sum(bool(item.get("专业偏好方向")) for item in rows)
+            and int0(row.get("数字媒体技术专业明细数"))
+            == sum("数字媒体技术" in item.get("专业偏好方向", "") for item in rows)
+            and int0(row.get("计算机类相关专业明细数"))
+            == sum("计算机类相关" in item.get("专业偏好方向", "") for item in rows)
+            and int0(row.get("师范类相关专业明细数"))
+            == sum("师范类相关" in item.get("专业偏好方向", "") for item in rows)
+            and row.get("首个专业行ID") == first.get("专业行ID")
+            and row.get("首个院校代码") == first.get("院校代码")
+            and row.get("首个院校名称OCR") == first.get("院校名称OCR")
+            and row.get("首要核验动作") == first.get("首要核验动作")
+            and "不得替代逐专业明细" in row.get("下一步", "")
+        )
+
+    closure_school_index_ok = True
+    for row in closure_school_rows:
+        rows = closure_by_school.get(row.get("院校代码"), [])
+        first = min(rows, key=lambda item: as_int(item.get("闭环执行总序"))) if rows else {}
+        closure_school_index_ok = (
+            closure_school_index_ok
+            and bool(rows)
+            and row.get("学校闭环索引ID") == stable_id("CLOSESCHOOL", [row.get("院校代码", "")])
+            and row.get("来源逐专业闭环批次表")
+            == "data/working/issue19-foundation-closure-major-batches.csv"
+            and row.get("数据阶段") == "issue19_foundation_closure_school_index"
+            and row.get("索引粒度") == "院校"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and int0(row.get("学校执行总序")) == min(int0(item.get("闭环执行总序")) for item in rows)
+            and int0(row.get("专业明细数")) == len(rows)
+            and int0(row.get("涉及PDF页数")) == len({item.get("来源页码") for item in rows})
+            and int0(row.get("涉及专业组数")) == len({item.get("专业组出现ID") for item in rows})
+            and int0(row.get("C0_P0主批次专业明细数")) == count_batch(rows, "C0-P0证据闭环先核")
+            and int0(row.get("C1字段缺口主批次专业明细数")) == count_batch(rows, "C1-字段缺口先补")
+            and int0(row.get("C2官网辅证主批次专业明细数")) == count_batch(rows, "C2-官网辅证交叉核验")
+            and int0(row.get("C3常规三方主批次专业明细数")) == count_batch(rows, "C3-常规三方证据闭环")
+            and int0(row.get("C4低风险抽检主批次专业明细数")) == count_batch(rows, "C4-低风险抽检但非最终")
+            and int0(row.get("含官网辅证任务专业明细数"))
+            == sum(closure_has_official_auxiliary_task(item) for item in rows)
+            and int0(row.get("B0B1官网差异专业明细数"))
+            == sum(closure_has_b0_b1_diff(item) for item in rows)
+            and int0(row.get("有高校官网来源线索专业明细数"))
+            == sum(closure_has_school_source(item) for item in rows)
+            and int0(row.get("偏好专业明细数")) == sum(bool(item.get("专业偏好方向")) for item in rows)
+            and row.get("首个专业行ID") == first.get("专业行ID")
+            and row.get("首要核验动作") == first.get("首要核验动作")
+            and "回到逐专业闭环批次表逐行核" in row.get("下一步", "")
+        )
+
+    closure_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [closure_summary_path, closure_major_csv, closure_page_csv, closure_school_csv]
+    )
+    checks.append(ok(
+        "第 19 期底座闭环批次摘要和行数正确",
+        closure_summary.get("status") == "issue19_foundation_closure_batches_not_final"
+        and closure_summary.get("generated_by") == "build_issue19_foundation_closure_batches.py"
+        and closure_summary.get("source_foundation_release")
+        == "data/working/issue19-major-detail-foundation-release.csv"
+        and closure_summary.get("output_major_batches")
+        == "data/working/issue19-foundation-closure-major-batches.csv"
+        and closure_summary.get("output_page_index")
+        == "data/working/issue19-foundation-closure-page-index.csv"
+        and closure_summary.get("output_school_index")
+        == "data/working/issue19-foundation-closure-school-index.csv"
+        and closure_summary.get("major_row_count") == 13736
+        and closure_summary.get("unique_major_line_id_count") == 13736
+        and closure_summary.get("unique_batch_id_count") == 13736
+        and closure_summary.get("page_index_row_count") == 231
+        and closure_summary.get("school_index_row_count") == 1100
+        and closure_summary.get("closure_batch_counts") == {
+            "C0-P0证据闭环先核": 5310,
+            "C1-字段缺口先补": 7608,
+            "C2-官网辅证交叉核验": 0,
+            "C3-常规三方证据闭环": 609,
+            "C4-低风险抽检但非最终": 209,
+        }
+        and closure_summary.get("field_gap_field_counts") == {
+            "再选科目": 11456,
+            "专业计划数": 6347,
+            "学费": 1262,
+        }
+        and closure_summary.get("p0_major_line_count") == 5310
+        and closure_summary.get("field_gap_major_line_count") == 12473
+        and closure_summary.get("b0_b1_diff_major_line_count") == 854
+        and closure_summary.get("school_source_major_line_count") == 854
+        and closure_summary.get("official_auxiliary_task_major_line_count") == 854
+        and closure_summary.get("preference_major_line_count") == 2499
+        and closure_summary.get("digital_media_major_line_count") == 78
+        and closure_summary.get("computer_major_line_count") == 1867
+        and closure_summary.get("teacher_major_line_count") == 601
+        and closure_summary.get("final_available_count") == 0
+        and closure_summary.get("final_major_list_candidate_count") == 0
+        and closure_summary.get("next_stage_allowed_count") == 0,
+        f"{len(closure_major_rows)} major rows, {len(closure_page_rows)} page rows, {len(closure_school_rows)} school rows",
+    ))
+    checks.append(ok(
+        "第 19 期底座闭环批次主表字段、主键和统一底座来源闭环正确",
+        closure_major_fields == expected_closure_major_fields
+        and len(closure_major_rows) == 13736
+        and len({row.get("底座闭环批次ID") for row in closure_major_rows}) == 13736
+        and {row.get("专业行ID") for row in closure_major_rows} == full_major_evidence_ids
+        and Counter(row.get("闭环执行批次") for row in closure_major_rows)
+        == Counter(closure_summary.get("closure_batch_counts", {}))
+        and closure_major_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期底座闭环页级和学校索引由逐专业主表重算一致",
+        closure_page_fields == expected_closure_page_fields
+        and closure_school_fields == expected_closure_school_fields
+        and len(closure_page_rows) == 231
+        and len(closure_school_rows) == 1100
+        and closure_page_index_ok
+        and closure_school_index_ok,
+    ))
+    checks.append(ok(
+        "第 19 期底座闭环批次公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(closure_public_text) is None
+        and "final_allowed" not in closure_public_text
+        and "ready_for_discussion" not in closure_public_text
+        and "已确认" not in closure_public_text
+        and "已核准" not in closure_public_text
+        and "最终推荐" not in closure_public_text
+        and "最终方案" not in closure_public_text
+        and "可填报" not in closure_public_text
+        and "可排序" not in closure_public_text,
     ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
