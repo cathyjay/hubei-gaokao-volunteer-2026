@@ -276,6 +276,8 @@
 - `data/working/issue19-p0-immediate-pdf-crop-evidence-index-summary.json`：P0 即时复核裁图证据索引摘要；记录 319 条本地裁图证据、114 个 PDF 页、148 个页码×版面列组合、字段分布、执行批次分布、哈希计数和全部非最终门禁。该摘要只证明证据可定位、可回看、可复验，不提供字段读数。
 - `data/working/issue19-p0-immediate-three-way-closure-public-ledger.csv`：第 19 期 P0 即时三方闭环公开账本，319 行；一行对应一个 `专业行ID × 字段名 × 即时复核任务ID`，把 PDF 原页、湖北官方系统或省招办计划、高校官网或招生章程三条证据链的私有核验状态分列。公开表只保存任务 ID、证据编号、SHA、bbox、状态和门禁，不保存具体字段读数、本地裁图路径、复核备注或最终确认值。
 - `data/working/issue19-p0-immediate-three-way-closure-public-ledger-summary.json`：P0 即时三方闭环公开账本摘要；记录 319 条闭环任务、75 条高校字段线索、23 条机器/高校可比对线索、22 条一致、1 条冲突、52 条高校补缺线索，以及全部非最终门禁。该摘要只说明三方核验顺序和阻断状态，不能作为推荐或排序依据。
+- `data/working/issue19-p0-immediate-crop-ocr-public-audit.csv`：第 19 期 P0 即时裁图 OCR 公开审计表，319 行；一行对应一个 `专业行ID × 字段名 × 即时复核任务ID`，把私有裁图 Apple Vision OCR 的可比候选状态、与机器候选/高校辅证的关系和人工优先桶公开化。公开表只保存状态、关系、SHA 和门禁，不保存识别文本、候选读数或图片路径。
+- `data/working/issue19-p0-immediate-crop-ocr-public-audit-summary.json`：P0 即时裁图 OCR 公开审计摘要；记录 319 张裁图均有识别行、253 条有可比 OCR 候选、50 条冲突优先人工核页、35 条与既有线索一致但仍待三方核验、66 条未能稳定补读需人工看图。该摘要只用于安排人工核页顺序，不生成字段事实。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -387,6 +389,7 @@
 - `scripts/build_issue19_field_fact_p0_immediate_review_packet.py`：从 P0 字段三方核验执行工作台中严格切出 `EXEC-01/02/03/04` 的 319 条即时复核任务，保留父表来源 ID、证据编号、机器候选、高校辅证和湖北官方待核状态，并继续锁定全部非最终门禁。
 - `scripts/build_issue19_p0_immediate_pdf_crop_evidence_index.py`：为 P0 字段即时复核包的 319 条任务生成本地 PDF 原页裁图，并写出公开裁图证据索引；脚本会校验页图 SHA、页级 manifest、专业行原页证据锚点和裁图 bbox，只公开证据编号、哈希和坐标摘要。
 - `scripts/build_issue19_p0_immediate_three_way_closure_ledger.py`：把 P0 字段即时复核包、裁图证据索引和 B0/B1 高校官网辅证旁挂表合成 319 行 P0 即时三方闭环公开账本，同时生成本地私有三方读数模板；公开输出只保存证据编号、哈希、bbox、状态和门禁，不保存字段读数或复核备注。
+- `scripts/build_issue19_p0_immediate_crop_ocr_audit.py`：读取 319 张私有裁图的 Apple Vision OCR 结果，生成公开裁图 OCR 审计表和本地私有读数候选表；公开输出只保存 OCR 状态、关系、SHA 和门禁，不保存识别文本、候选读数或图片路径。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

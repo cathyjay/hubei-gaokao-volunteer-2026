@@ -14001,6 +14001,243 @@ def main():
         and not any(token in p0_three_way_public_text for token in shared_forbidden_tokens),
     ))
 
+    p0_crop_ocr_summary_path = ROOT / "data/working/issue19-p0-immediate-crop-ocr-public-audit-summary.json"
+    p0_crop_ocr_csv = ROOT / "data/working/issue19-p0-immediate-crop-ocr-public-audit.csv"
+    p0_crop_ocr_summary = json.loads(p0_crop_ocr_summary_path.read_text())
+    with p0_crop_ocr_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_crop_ocr_reader = csv.DictReader(f)
+        p0_crop_ocr_rows = list(p0_crop_ocr_reader)
+        p0_crop_ocr_fields = p0_crop_ocr_reader.fieldnames or []
+    expected_p0_crop_ocr_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_p0_immediate_crop_ocr_audit.py",
+        "FIELDS",
+    )
+    p0_three_way_by_task_id = {
+        row.get("P0字段即时复核任务ID"): row for row in p0_three_way_rows
+    }
+    p0_crop_ocr_join_ok = True
+    for row in p0_crop_ocr_rows:
+        task_id = row.get("P0字段即时复核任务ID", "")
+        immediate_row = p0_immediate_by_task_id.get(task_id, {})
+        crop_row = p0_crop_by_task_id.get(task_id, {})
+        closure_row = p0_three_way_by_task_id.get(task_id, {})
+        p0_crop_ocr_join_ok = (
+            p0_crop_ocr_join_ok
+            and bool(immediate_row)
+            and bool(crop_row)
+            and bool(closure_row)
+            and row.get("P0即时裁图OCR公开审计ID")
+            == stable_id("P0CROPOCRAUDIT", [task_id, row.get("裁图证据编号", ""), row.get("字段名", "")])
+            and row.get("来源P0即时三方闭环公开账本")
+            == "data/working/issue19-p0-immediate-three-way-closure-public-ledger.csv"
+            and row.get("来源P0字段即时复核包")
+            == "data/working/issue19-field-fact-p0-immediate-review-packet.csv"
+            and row.get("来源P0裁图证据索引")
+            == "data/working/issue19-p0-immediate-pdf-crop-evidence-index.csv"
+            and row.get("来源私有裁图OCR运行") == "private_crop_ocr_run_not_public"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_p0_immediate_crop_ocr_public_audit"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×P0字段×裁图OCR辅助审计"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("字段事实写回状态") == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(
+                row.get(field, "") == closure_row.get(field, "")
+                for field in [
+                    "闭环公开账本总序",
+                    "即时复核总序",
+                    "执行总序",
+                    "执行批次",
+                    "即时复核阶段",
+                    "语义多源优先桶",
+                    "字段名",
+                    "专业行ID",
+                    "专业组出现ID",
+                    "院校代码",
+                    "来源页码",
+                    "版面列",
+                    "P0即时三方闭环公开账本ID",
+                    "是否有机器规范候选",
+                    "是否有高校字段线索",
+                    "是否需要双人复核",
+                    "PDF原页核页状态",
+                    "湖北官方系统或省招办计划核验状态",
+                    "高校官网或招生章程辅证状态",
+                    "三方字段一致性状态",
+                    "字段事实写回状态",
+                ]
+            )
+            and all(
+                row.get(field, "") == crop_row.get(field, "")
+                for field in [
+                    "P0即时复核裁图证据索引ID",
+                    "裁图证据编号",
+                    "裁图文件SHA256",
+                    "裁图规格SHA256",
+                    "裁图bbox归一化",
+                    "裁图bbox像素",
+                ]
+            )
+            and (row.get("是否裁图OCR有可比候选") == "true")
+            == (row.get("裁图OCR候选状态") in {
+                "O4-目标行单一候选",
+                "O3-目标行附近多值候选冲突",
+                "O2-候选距目标行偏远需人工确认",
+            })
+            and (row.get("是否裁图OCR与机器候选一致") == "true")
+            == (row.get("裁图OCR与机器候选关系") == "crop_ocr_matches_reference")
+            and (row.get("是否裁图OCR与机器候选冲突") == "true")
+            == (row.get("裁图OCR与机器候选关系") == "crop_ocr_conflicts_reference")
+            and (row.get("是否裁图OCR与高校辅证一致") == "true")
+            == (row.get("裁图OCR与高校辅证关系") == "crop_ocr_matches_reference")
+            and (row.get("是否裁图OCR与高校辅证冲突") == "true")
+            == (row.get("裁图OCR与高校辅证关系") == "crop_ocr_conflicts_reference")
+        )
+    p0_crop_ocr_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_crop_ocr_summary_path, p0_crop_ocr_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 即时裁图 OCR 公开审计摘要、任务集合和候选关系正确",
+        p0_crop_ocr_summary.get("status") == "issue19_p0_immediate_crop_ocr_public_audit_not_final"
+        and p0_crop_ocr_summary.get("generated_by") == "build_issue19_p0_immediate_crop_ocr_audit.py"
+        and p0_crop_ocr_summary.get("source_three_way_ledger")
+        == "data/working/issue19-p0-immediate-three-way-closure-public-ledger.csv"
+        and p0_crop_ocr_summary.get("source_immediate_packet")
+        == "data/working/issue19-field-fact-p0-immediate-review-packet.csv"
+        and p0_crop_ocr_summary.get("source_crop_evidence_index")
+        == "data/working/issue19-p0-immediate-pdf-crop-evidence-index.csv"
+        and p0_crop_ocr_summary.get("source_private_crop_ocr_run") == "private_crop_ocr_run_not_public"
+        and p0_crop_ocr_summary.get("output_table")
+        == "data/working/issue19-p0-immediate-crop-ocr-public-audit.csv"
+        and p0_crop_ocr_summary.get("row_count") == 319
+        and p0_crop_ocr_summary.get("private_reading_candidate_file_generated") is True
+        and p0_crop_ocr_summary.get("unique_public_audit_id_count") == 319
+        and p0_crop_ocr_summary.get("unique_immediate_task_id_count") == 319
+        and p0_crop_ocr_summary.get("unique_three_way_ledger_id_count") == 319
+        and p0_crop_ocr_summary.get("unique_crop_index_id_count") == 319
+        and p0_crop_ocr_summary.get("unique_crop_evidence_id_count") == 319
+        and p0_crop_ocr_summary.get("unique_major_field_pair_count") == 319
+        and p0_crop_ocr_summary.get("field_counts") == {
+            "专业计划数": 281,
+            "学费": 19,
+            "再选科目": 19,
+        }
+        and p0_crop_ocr_summary.get("ocr_line_zero_count") == 0
+        and p0_crop_ocr_summary.get("ocr_candidate_available_count") == 253
+        and p0_crop_ocr_summary.get("ocr_candidate_unavailable_count") == 66
+        and p0_crop_ocr_summary.get("ocr_machine_agree_count") == 35
+        and p0_crop_ocr_summary.get("ocr_machine_conflict_count") == 9
+        and p0_crop_ocr_summary.get("ocr_school_agree_count") == 29
+        and p0_crop_ocr_summary.get("ocr_school_conflict_count") == 24
+        and p0_crop_ocr_summary.get("manual_priority_count") == 271
+        and p0_crop_ocr_summary.get("double_review_required_count") == 245
+        and p0_crop_ocr_summary.get("candidate_status_counts") == {
+            "O4-目标行单一候选": 170,
+            "O3-目标行附近多值候选冲突": 23,
+            "O0-未识别可比候选": 36,
+            "O2-候选距目标行偏远需人工确认": 60,
+            "O1-有候选但未能贴合目标行": 30,
+        }
+        and p0_crop_ocr_summary.get("helper_bucket_counts") == {
+            "A0-裁图OCR提示冲突优先人工核页": 50,
+            "A1-裁图OCR与既有线索一致但仍待三方核验": 35,
+            "A3-裁图OCR未能稳定补读需人工看图": 66,
+            "A2-裁图OCR有候选但需人工确认": 168,
+        }
+        and p0_crop_ocr_summary.get("machine_relation_counts") == {
+            "crop_ocr_matches_reference": 35,
+            "crop_ocr_conflicts_reference": 9,
+            "crop_ocr_no_comparable_candidate": 5,
+            "no_machine_reference": 270,
+        }
+        and p0_crop_ocr_summary.get("school_relation_counts") == {
+            "crop_ocr_conflicts_reference": 24,
+            "no_school_reference": 244,
+            "crop_ocr_matches_reference": 29,
+            "crop_ocr_no_comparable_candidate": 22,
+        }
+        and p0_crop_ocr_summary.get("ocr_confidence_bucket_counts") == {
+            "C2-中置信": 100,
+            "C3-中高置信": 195,
+            "C1-低置信": 10,
+            "C4-高置信": 14,
+        }
+        and len(p0_crop_ocr_rows) == 319
+        and {row.get("P0字段即时复核任务ID") for row in p0_crop_ocr_rows}
+        == set(p0_immediate_by_task_id)
+        and {row.get("P0字段即时复核任务ID") for row in p0_crop_ocr_rows}
+        == set(p0_crop_by_task_id)
+        and {row.get("P0字段即时复核任务ID") for row in p0_crop_ocr_rows}
+        == set(p0_three_way_by_task_id),
+        f"{len(p0_crop_ocr_rows)} crop OCR audit rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时裁图 OCR 公开审计字段、门禁和状态关系正确",
+        p0_crop_ocr_fields == expected_p0_crop_ocr_fields
+        and len({row.get("P0即时裁图OCR公开审计ID") for row in p0_crop_ocr_rows}) == 319
+        and len({row.get("P0字段即时复核任务ID") for row in p0_crop_ocr_rows}) == 319
+        and len({row.get("P0即时三方闭环公开账本ID") for row in p0_crop_ocr_rows}) == 319
+        and len({row.get("P0即时复核裁图证据索引ID") for row in p0_crop_ocr_rows}) == 319
+        and len({row.get("裁图证据编号") for row in p0_crop_ocr_rows}) == 319
+        and [as_int(row.get("裁图OCR公开审计总序")) for row in p0_crop_ocr_rows] == list(range(1, 320))
+        and p0_crop_ocr_summary.get("pdf_manual_review_pending_count") == 319
+        and p0_crop_ocr_summary.get("hubei_official_review_pending_count") == 319
+        and p0_crop_ocr_summary.get("three_way_closure_pending_count") == 319
+        and p0_crop_ocr_summary.get("field_writeback_ready_count") == 0
+        and p0_crop_ocr_summary.get("final_available_count") == 0
+        and p0_crop_ocr_summary.get("next_stage_available_count") == 0
+        and p0_crop_ocr_summary.get("field_writeback_allowed_count") == 0
+        and p0_crop_ocr_summary.get("recommendation_basis_allowed_count") == 0
+        and p0_crop_ocr_summary.get("school_major_suggestion_allowed_count") == 0
+        and p0_crop_ocr_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时裁图 OCR 公开审计不含私有路径、图片路径、OCR原文、字段读数、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(p0_crop_ocr_public_text) is None
+        and "private/" not in p0_crop_ocr_public_text
+        and "private\\" not in p0_crop_ocr_public_text
+        and "/Users/" not in p0_crop_ocr_public_text
+        and "ocr-runs" not in p0_crop_ocr_public_text
+        and "rendered-pages" not in p0_crop_ocr_public_text
+        and ".png" not in p0_crop_ocr_public_text
+        and ".jpg" not in p0_crop_ocr_public_text
+        and ".jpeg" not in p0_crop_ocr_public_text
+        and "Authorization" not in p0_crop_ocr_public_text
+        and "Bearer " not in p0_crop_ocr_public_text
+        and "Cookie" not in p0_crop_ocr_public_text
+        and "院校名称OCR" not in p0_crop_ocr_public_text
+        and "院校专业组代码OCR规范化" not in p0_crop_ocr_public_text
+        and "专业代号OCR" not in p0_crop_ocr_public_text
+        and "专业名称及备注" not in p0_crop_ocr_public_text
+        and "组内招生明细" not in p0_crop_ocr_public_text
+        and "机器候选字段值" not in p0_crop_ocr_public_text
+        and "机器候选规范值" not in p0_crop_ocr_public_text
+        and "高校官网字段候选值" not in p0_crop_ocr_public_text
+        and "高校官网字段规范值" not in p0_crop_ocr_public_text
+        and "裁图OCR候选字段值" not in p0_crop_ocr_public_text
+        and "裁图OCR候选规范值" not in p0_crop_ocr_public_text
+        and "OCR文本" not in p0_crop_ocr_public_text
+        and "PDF原页人工读数" not in p0_crop_ocr_public_text
+        and "湖北官方字段值" not in p0_crop_ocr_public_text
+        and "高校官网或招生章程字段值" not in p0_crop_ocr_public_text
+        and "字段确认值" not in p0_crop_ocr_public_text
+        and "已确认" not in p0_crop_ocr_public_text
+        and "已核准" not in p0_crop_ocr_public_text
+        and "最终推荐" not in p0_crop_ocr_public_text
+        and "最终方案" not in p0_crop_ocr_public_text
+        and "可填报" not in p0_crop_ocr_public_text
+        and "可排序" not in p0_crop_ocr_public_text
+        and not any(token in p0_crop_ocr_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())

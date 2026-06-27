@@ -1,0 +1,75 @@
+{
+  "status": "issue19_p0_immediate_crop_ocr_public_audit_not_final",
+  "generated_by": "build_issue19_p0_immediate_crop_ocr_audit.py",
+  "source_three_way_ledger": "data/working/issue19-p0-immediate-three-way-closure-public-ledger.csv",
+  "source_immediate_packet": "data/working/issue19-field-fact-p0-immediate-review-packet.csv",
+  "source_crop_evidence_index": "data/working/issue19-p0-immediate-pdf-crop-evidence-index.csv",
+  "source_private_crop_ocr_run": "private_crop_ocr_run_not_public",
+  "output_table": "data/working/issue19-p0-immediate-crop-ocr-public-audit.csv",
+  "row_grain": "逐专业招生明细×P0字段×裁图OCR辅助审计",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "row_count": 319,
+  "private_reading_candidate_file_generated": true,
+  "unique_public_audit_id_count": 319,
+  "unique_immediate_task_id_count": 319,
+  "unique_three_way_ledger_id_count": 319,
+  "unique_crop_index_id_count": 319,
+  "unique_crop_evidence_id_count": 319,
+  "unique_major_field_pair_count": 319,
+  "field_counts": {
+    "专业计划数": 281,
+    "学费": 19,
+    "再选科目": 19
+  },
+  "ocr_line_zero_count": 0,
+  "ocr_candidate_available_count": 253,
+  "ocr_candidate_unavailable_count": 66,
+  "ocr_machine_agree_count": 35,
+  "ocr_machine_conflict_count": 9,
+  "ocr_school_agree_count": 29,
+  "ocr_school_conflict_count": 24,
+  "manual_priority_count": 271,
+  "double_review_required_count": 245,
+  "candidate_status_counts": {
+    "O4-目标行单一候选": 170,
+    "O3-目标行附近多值候选冲突": 23,
+    "O0-未识别可比候选": 36,
+    "O2-候选距目标行偏远需人工确认": 60,
+    "O1-有候选但未能贴合目标行": 30
+  },
+  "helper_bucket_counts": {
+    "A0-裁图OCR提示冲突优先人工核页": 50,
+    "A1-裁图OCR与既有线索一致但仍待三方核验": 35,
+    "A3-裁图OCR未能稳定补读需人工看图": 66,
+    "A2-裁图OCR有候选但需人工确认": 168
+  },
+  "machine_relation_counts": {
+    "crop_ocr_matches_reference": 35,
+    "crop_ocr_conflicts_reference": 9,
+    "crop_ocr_no_comparable_candidate": 5,
+    "no_machine_reference": 270
+  },
+  "school_relation_counts": {
+    "crop_ocr_conflicts_reference": 24,
+    "no_school_reference": 244,
+    "crop_ocr_matches_reference": 29,
+    "crop_ocr_no_comparable_candidate": 22
+  },
+  "ocr_confidence_bucket_counts": {
+    "C2-中置信": 100,
+    "C3-中高置信": 195,
+    "C1-低置信": 10,
+    "C4-高置信": 14
+  },
+  "pdf_manual_review_pending_count": 319,
+  "hubei_official_review_pending_count": 319,
+  "three_way_closure_pending_count": 319,
+  "field_writeback_ready_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "public_safety_note": "公开审计只保存裁图OCR状态、关系、SHA和门禁；不保存具体识别文本、候选读数、图片路径、院校名、专业名、专业代号或专业组代码。"
+}
