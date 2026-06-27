@@ -13191,6 +13191,281 @@ def main():
         and not any(token in field_p0_triage_public_text for token in shared_forbidden_tokens),
     ))
 
+    p0_immediate_summary_path = ROOT / "data/working/issue19-field-fact-p0-immediate-review-packet-summary.json"
+    p0_immediate_csv = ROOT / "data/working/issue19-field-fact-p0-immediate-review-packet.csv"
+    p0_immediate_summary = json.loads(p0_immediate_summary_path.read_text())
+    with p0_immediate_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_immediate_reader = csv.DictReader(f)
+        p0_immediate_rows = list(p0_immediate_reader)
+        p0_immediate_fields = p0_immediate_reader.fieldnames or []
+    expected_p0_immediate_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_field_fact_p0_immediate_review_packet.py",
+        "FIELDS",
+    )
+    p0_immediate_allowed_batches = {
+        "EXEC-01-冲突异常立即核页",
+        "EXEC-02-计划数偏大重点核页",
+        "EXEC-03-高校辅证线索三方核验",
+        "EXEC-04-多值坐标冲突核页",
+    }
+    p0_immediate_parent_rows = [
+        row for row in field_p0_triage_rows
+        if row.get("执行批次") in p0_immediate_allowed_batches
+    ]
+    p0_immediate_parent_by_task_id = {
+        row.get("P0字段三方核验任务ID"): row for row in p0_immediate_parent_rows
+    }
+    p0_immediate_stage_by_batch = {
+        "EXEC-01-冲突异常立即核页": "IR-01-冲突异常和偏大先核",
+        "EXEC-02-计划数偏大重点核页": "IR-01-冲突异常和偏大先核",
+        "EXEC-03-高校辅证线索三方核验": "IR-02-高校辅证线索先核",
+        "EXEC-04-多值坐标冲突核页": "IR-03-多值坐标冲突先核",
+    }
+    p0_immediate_stage_order = {
+        "IR-01-冲突异常和偏大先核": "1",
+        "IR-02-高校辅证线索先核": "2",
+        "IR-03-多值坐标冲突先核": "3",
+    }
+    p0_immediate_join_ok = True
+    inherited_fields = [
+        "来源P0字段语义与多源线索审计表",
+        "来源专业行原页证据锚点表",
+        "来源P0字段闭环推进工作台",
+        "来源湖北官方系统核验包",
+        "来源B0B1高校官网辅证旁挂表",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "来源页码",
+        "版面列",
+        "字段名",
+        "执行批次",
+        "执行方式",
+        "执行总序",
+        "执行优先级数值",
+        "语义多源优先桶",
+        "语义多源执行优先级",
+        "P0闭环动作桶",
+        "P0闭环批次",
+        "P0字段语义多源审计ID",
+        "P0字段闭环推进任务ID",
+        "P0字段机器候选任务ID",
+        "来源P0字段原页重读任务ID",
+        "来源字段事实核验任务ID",
+        "字段事实闭环ID",
+        "专业行原页证据锚点ID",
+        "专业起始行号",
+        "专业窗口行号范围",
+        "OCR窗口y上界",
+        "OCR窗口y下界",
+        "窗口坐标摘要",
+        "窗口文本SHA256",
+        "起始行文本SHA256",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "私有窗口证据编号",
+        "机器候选状态",
+        "机器候选置信等级",
+        "机器候选规则ID",
+        "机器候选字段值",
+        "机器候选规范值",
+        "机器候选语义状态",
+        "机器候选语义风险标签",
+        "机器候选语义后可作为核页线索",
+        "候选证据行号集合",
+        "候选证据x集合",
+        "候选证据y集合",
+        "高校官网辅证覆盖状态",
+        "高校官网证据旁挂ID",
+        "高校官网证据强度",
+        "高校官网证据匹配状态",
+        "高校官网字段候选值",
+        "高校官网字段规范值",
+        "高校官网字段来源文件",
+        "机器候选与高校辅证关系",
+        "湖北官方核验包任务ID",
+        "湖北官方平台匹配状态",
+        "湖北官方字段核验状态",
+        "湖北官方证据编号",
+        "湖北官方证据SHA256",
+        "PDF原页核页状态",
+        "湖北官方系统或省招办计划核验状态",
+        "高校官网或招生章程辅证状态",
+        "三方字段一致性状态",
+        "字段事实写回状态",
+    ]
+    for row in p0_immediate_rows:
+        parent_row = p0_immediate_parent_by_task_id.get(row.get("来源P0字段三方核验任务ID", ""), {})
+        expected_stage = p0_immediate_stage_by_batch.get(row.get("执行批次", ""))
+        p0_immediate_join_ok = (
+            p0_immediate_join_ok
+            and bool(parent_row)
+            and row.get("P0字段即时复核任务ID")
+            == stable_id(
+                "P0IMMEDIATE",
+                [
+                    row.get("来源P0字段三方核验任务ID", ""),
+                    row.get("专业行ID", ""),
+                    row.get("字段名", ""),
+                ],
+            )
+            and row.get("来源P0字段三方核验执行工作台")
+            == "data/working/issue19-field-fact-p0-triage-execution-workbench.csv"
+            and row.get("来源P0字段三方核验执行包ID")
+            == parent_row.get("P0字段三方核验执行包ID")
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_field_fact_p0_immediate_review_packet"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×P0字段×即时复核批次"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("即时复核阶段") == expected_stage
+            and row.get("即时复核阶段序号") == p0_immediate_stage_order.get(expected_stage)
+            and "PDF 原页" in row.get("即时复核动作", "")
+            and "PDF原页" in row.get("必须核验步骤", "")
+            and "湖北官方" in row.get("必须核验步骤", "")
+            and "高校官网" in row.get("必须核验步骤", "")
+            and "三方闭环" in row.get("不得进入原因", "")
+            and not row.get("PDF原页人工读数")
+            and not row.get("湖北官方字段值")
+            and not row.get("高校官网或招生章程字段值")
+            and p0_semantic_public_school_source_ok(row.get("高校官网字段来源文件", ""))
+            and all(row.get(field, "") == parent_row.get(field, "") for field in inherited_fields)
+        )
+    p0_immediate_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_immediate_summary_path, p0_immediate_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 字段即时复核包摘要、父表切片和分布正确",
+        p0_immediate_summary.get("status") == "issue19_field_fact_p0_immediate_review_packet_not_final"
+        and p0_immediate_summary.get("generated_by")
+        == "build_issue19_field_fact_p0_immediate_review_packet.py"
+        and p0_immediate_summary.get("source_parent_table")
+        == "data/working/issue19-field-fact-p0-triage-execution-workbench.csv"
+        and p0_immediate_summary.get("output_table")
+        == "data/working/issue19-field-fact-p0-immediate-review-packet.csv"
+        and p0_immediate_summary.get("parent_row_count") == 11444
+        and p0_immediate_summary.get("slice_row_count") == 319
+        and p0_immediate_summary.get("row_count") == 319
+        and p0_immediate_summary.get("unique_immediate_task_id_count") == 319
+        and p0_immediate_summary.get("unique_source_triage_task_id_count") == 319
+        and p0_immediate_summary.get("unique_execution_package_id_count") == 222
+        and p0_immediate_summary.get("unique_major_line_id_count") == 319
+        and p0_immediate_summary.get("unique_pdf_page_count") == 114
+        and p0_immediate_summary.get("unique_school_code_count") == 202
+        and p0_immediate_summary.get("field_counts") == {
+            "专业计划数": 281,
+            "学费": 19,
+            "再选科目": 19,
+        }
+        and p0_immediate_summary.get("execution_batch_counts") == {
+            "EXEC-01-冲突异常立即核页": 16,
+            "EXEC-02-计划数偏大重点核页": 11,
+            "EXEC-03-高校辅证线索三方核验": 74,
+            "EXEC-04-多值坐标冲突核页": 218,
+        }
+        and p0_immediate_summary.get("immediate_stage_counts") == {
+            "IR-01-冲突异常和偏大先核": 27,
+            "IR-02-高校辅证线索先核": 74,
+            "IR-03-多值坐标冲突先核": 218,
+        }
+        and p0_immediate_summary.get("execution_mode_counts") == {
+            "双人复核": 245,
+            "三方线索优先核验": 74,
+        }
+        and p0_immediate_summary.get("semantic_priority_bucket_counts") == {
+            "S1-多源字段冲突优先核页": 1,
+            "S2-机器候选语义异常优先排除": 15,
+            "S5-机器候选偏大重点核页": 11,
+            "S3-机器与高校辅证一致优先核PDF和湖北官方": 22,
+            "S4-高校辅证补缺线索优先核PDF": 52,
+            "S6-多值坐标冲突核页": 218,
+        }
+        and p0_immediate_summary.get("double_review_required_count") == 245
+        and p0_immediate_summary.get("pdf_anchor_link_count") == 319
+        and p0_immediate_summary.get("hubei_official_packet_link_count") == 319
+        and p0_immediate_summary.get("school_sidecar_row_count") == 86
+        and p0_immediate_summary.get("school_sidecar_field_value_count") == 75
+        and p0_immediate_summary.get("school_source_bad_count") == 0
+        and len(p0_immediate_rows) == 319
+        and set(row.get("执行批次") for row in p0_immediate_rows) == p0_immediate_allowed_batches
+        and {row.get("来源P0字段三方核验任务ID") for row in p0_immediate_rows}
+        == set(p0_immediate_parent_by_task_id)
+        and {row.get("执行批次") for row in field_p0_triage_rows if row.get("执行批次") not in p0_immediate_allowed_batches}
+        == {
+            "EXEC-05-常规机器候选核页",
+            "EXEC-06-无候选原页重读",
+        },
+        f"{len(p0_immediate_rows)} immediate rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段即时复核包字段、来源继承和门禁正确",
+        p0_immediate_fields == expected_p0_immediate_fields
+        and len({row.get("P0字段即时复核任务ID") for row in p0_immediate_rows}) == 319
+        and len({row.get("来源P0字段三方核验任务ID") for row in p0_immediate_rows}) == 319
+        and len({row.get("P0字段语义多源审计ID") for row in p0_immediate_rows}) == 319
+        and len({row.get("P0字段闭环推进任务ID") for row in p0_immediate_rows}) == 319
+        and len({(row.get("专业行ID"), row.get("字段名")) for row in p0_immediate_rows}) == 319
+        and [as_int(row.get("即时复核总序")) for row in p0_immediate_rows] == list(range(1, 320))
+        and [as_int(row.get("执行总序")) for row in p0_immediate_rows] == list(range(1, 320))
+        and p0_immediate_summary.get("pdf_manual_review_pending_count") == 319
+        and p0_immediate_summary.get("hubei_official_review_pending_count") == 319
+        and p0_immediate_summary.get("three_way_closure_pending_count") == 319
+        and p0_immediate_summary.get("pdf_confirmed_count") == 0
+        and p0_immediate_summary.get("official_confirmed_count") == 0
+        and p0_immediate_summary.get("school_official_confirmed_count") == 0
+        and p0_immediate_summary.get("field_writeback_ready_count") == 0
+        and p0_immediate_summary.get("final_available_count") == 0
+        and p0_immediate_summary.get("next_stage_available_count") == 0
+        and p0_immediate_summary.get("auto_writeback_allowed_count") == 0
+        and p0_immediate_summary.get("auto_candidate_fill_allowed_count") == 0
+        and p0_immediate_summary.get("field_writeback_allowed_count") == 0
+        and p0_immediate_summary.get("recommendation_basis_allowed_count") == 0
+        and p0_immediate_summary.get("school_major_suggestion_allowed_count") == 0
+        and all(row.get("字段事实写回状态") == "blocked_until_pdf_hubei_school_three_way_closure" for row in p0_immediate_rows)
+        and p0_immediate_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段即时复核包公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(p0_immediate_public_text) is None
+        and "private/" not in p0_immediate_public_text
+        and "private\\" not in p0_immediate_public_text
+        and "/Users/" not in p0_immediate_public_text
+        and "ocr-runs" not in p0_immediate_public_text
+        and "rendered-pages" not in p0_immediate_public_text
+        and ".png" not in p0_immediate_public_text
+        and ".jpg" not in p0_immediate_public_text
+        and ".jpeg" not in p0_immediate_public_text
+        and "Authorization" not in p0_immediate_public_text
+        and "Bearer " not in p0_immediate_public_text
+        and "Cookie" not in p0_immediate_public_text
+        and "院校名称OCR" not in p0_immediate_public_text
+        and "院校专业组代码OCR规范化" not in p0_immediate_public_text
+        and "专业代号OCR" not in p0_immediate_public_text
+        and "专业名称及备注短摘" not in p0_immediate_public_text
+        and "组内招生明细" not in p0_immediate_public_text
+        and "字段确认值" not in p0_immediate_public_text
+        and "原始接口响应保存位置" not in p0_immediate_public_text
+        and "final_allowed" not in p0_immediate_public_text
+        and "ready_for_discussion" not in p0_immediate_public_text
+        and "已确认" not in p0_immediate_public_text
+        and "已核准" not in p0_immediate_public_text
+        and "最终推荐" not in p0_immediate_public_text
+        and "最终方案" not in p0_immediate_public_text
+        and "可填报" not in p0_immediate_public_text
+        and "可排序" not in p0_immediate_public_text
+        and not any(token in p0_immediate_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())

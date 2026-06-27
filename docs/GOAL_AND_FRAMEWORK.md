@@ -37,7 +37,7 @@
 - 2026 湖北招生计划、选科要求、专业备注和招生章程。
 
 2026 招生计划明细底座的默认粒度是一行一个招生专业明细，院校专业组只是投档和调剂范围字段。只有当原始招生专业明细准确结构化之后，后续才适合叠加家庭偏好、专业研究、城市偏好、近三年投档稳定性和冲稳保排序。
-当前第 19 期底座数据坐稳的直接入口是 `data/working/issue19-field-fact-closure-ledger.csv`、`data/working/issue19-field-fact-verification-tasks.csv`、`data/working/issue19-field-fact-p0-reread-worklist.csv`、`data/working/issue19-field-fact-p0-reread-machine-candidates.csv`、`data/working/issue19-field-fact-p0-closure-action-workbench.csv`、`data/working/issue19-field-fact-p0-semantic-crosssource-audit.csv` 和 `data/working/issue19-field-fact-p0-triage-execution-workbench.csv`：它们不替代湖北官方计划，只负责把再选科目、专业计划数、学费三项关键字段的缺口、候选、语义风险、PDF 原页待核状态、高校官网/章程辅证线索和湖北官方待核状态逐专业、逐字段结构化。P0 字段原页重读清单专门处理 K0 无候选字段，机器坐标候选表只给人工回页提供候选值和坐标线索，闭环推进工作台再把 PDF 原页、湖北官方系统或省招办计划、高校官网或章程三方待核状态分列，语义多源审计表把明显 OCR 噪声、候选偏大、官网补缺线索和多源冲突提前标出，三方核验执行工作台把 11444 条字段任务排成稳定执行顺序并逐行回连 PDF 原页锚点、湖北官方待核包和高校辅证线索，保证后续家庭偏好和专业分析不会建立在含混字段上。
+当前第 19 期底座数据坐稳的直接入口是 `data/working/issue19-field-fact-p0-immediate-review-packet.csv`、`data/working/issue19-field-fact-closure-ledger.csv`、`data/working/issue19-field-fact-verification-tasks.csv`、`data/working/issue19-field-fact-p0-reread-worklist.csv`、`data/working/issue19-field-fact-p0-reread-machine-candidates.csv`、`data/working/issue19-field-fact-p0-closure-action-workbench.csv`、`data/working/issue19-field-fact-p0-semantic-crosssource-audit.csv` 和 `data/working/issue19-field-fact-p0-triage-execution-workbench.csv`：它们不替代湖北官方计划，只负责把再选科目、专业计划数、学费三项关键字段的缺口、候选、语义风险、PDF 原页待核状态、高校官网/章程辅证线索和湖北官方待核状态逐专业、逐字段结构化。P0 字段原页重读清单专门处理 K0 无候选字段，机器坐标候选表只给人工回页提供候选值和坐标线索，闭环推进工作台再把 PDF 原页、湖北官方系统或省招办计划、高校官网或章程三方待核状态分列，语义多源审计表把明显 OCR 噪声、候选偏大、官网补缺线索和多源冲突提前标出，三方核验执行工作台把 11444 条字段任务排成稳定执行顺序并逐行回连 PDF 原页锚点、湖北官方待核包和高校辅证线索，即时复核包再从中切出 319 条最高优先级字段任务，保证后续家庭偏好和专业分析不会建立在含混字段上。
 
 ## 三、学校分析维度
 
