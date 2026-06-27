@@ -191,6 +191,10 @@
 - `data/working/issue19-official-unavailable-sampling-triage-prefill-summary.json`：上述预填公开审计摘要，记录 153 条私有预填明细、97 条高校辅证线索、16 个高校来源文件、128 条需高校辅证复核、25 条待补源，以及字段写回/推荐/下一阶段/最终可用计数均为 0。
 - `data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv`：C4/C6 高校源刷新执行包，36 行；把 411 条 C4 补结构化明细和 196 条 C6 继续补源明细拆成可并行执行的学校包，公开层只保存计数、泳道、集合 SHA、私有 CSV SHA 和非最终门禁。
 - `data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json`：上述执行包摘要，记录 30 所学校、36 个包、607 条私有逐专业明细、X0/X1/X2/X3 泳道分布，以及所有字段写回/推荐/下一阶段/最终可用计数均为 0。
+- `data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv`：C4/C6 已留存官网源复用公开审计，36 行；把 C4/C6 执行包同已留存官网标准化证据做保守匹配，公开层只保存包级计数、优先级和私有明细 SHA。
+- `data/working/issue19-c4-c6-retained-source-reuse-summary.json`：上述复用审计摘要，记录 607 条私有明细中 203 条专业名匹配、83 条计划数一致候选、104 条 OCR 计划数补缺候选、18 条计划数冲突候选，全部不得写回或推荐。
+- `data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json`：北京语言大学招生系统 API 原始留存，参数为湖北、2026、物理类、普通类；返回 14 条逐专业计划和 1 条汇总行，仅作高校侧辅证。
+- `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv`：北京语言大学 C6 官方 API 抓取公开账本，1 行；只记录来源、请求参数摘要、本地 SHA、行数合计和非最终门禁。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
 - `data/working/issue19-pdf-source.json`：第 19 期 PDF 元数据和私有留存边界。
 - `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。
@@ -493,6 +497,8 @@
 - `scripts/build_issue19_stable_foundation_next_closure_workbench.py`：读取稳定基座筛选视图、逐专业证据路由、B0/B1 高校官网证据旁挂、P0 字段确认账本、P0 页列进度和湖北官方公开入口状态，生成 854 行自动官网辅证交叉核验工作台、319 行最小人工闭环工作台和摘要；用于把官方公开结构化源暂不可得时的 double check 与人工核页路径落成可复跑任务表。
 - `scripts/build_issue19_stable_foundation_school_source_refresh_queue.py`：读取稳定基座自动官网辅证交叉核验工作台、B0/B1 高校官网补源种子表和湖北官方公开入口状态，生成 78 行高校侧辅证刷新公开账本，并在 Git 忽略目录生成私有复跑/人工核验工作台；用于把学校官网 double check 自动化、抽检和补源任务降到学校级，不确认字段事实。
 - `scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py`：读取高校侧辅证刷新公开账本、稳定基座自动交叉核验工作台和高校官网补源种子表，把 C4/C6 最大补源缺口拆成 36 个公开执行包和 Git 忽略的 607 条私有逐专业明细；用于并行补源、补结构化和生成后续 diff，不写回字段事实。
+- `scripts/build_issue19_c4_c6_retained_source_reuse_audit.py`：读取 C4/C6 执行包、私有逐专业明细、已留存官网标准化证据和全量字段保真总账，生成 C4/C6 已留存官网源复用公开审计和 Git 忽略的逐专业候选明细；用于确定哪些包可直接生成候选 diff，仍不写回字段事实。
+- `scripts/fetch_issue19_c4_c6_blcu_official_source.py`：抓取北京语言大学招生系统 2026 湖北物理类普通类计划 API，留存原始 JSON 并生成公开抓取账本；该源只作高校侧辅证，不替代湖北省招办计划。
 - `scripts/build_issue19_stable_foundation_first_closure_packet.py`：读取稳定基座下一步闭环工作台，把最高优先级 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成 205 条明细任务和 36 个页列执行包。
 - `scripts/build_issue19_first_closure_review_materials.py`：读取第一闭环明细包、页列包、页列底座公开进度账本、字段线索审计、人工复核 Overlay、官方入口状态和私有 OCR 证据，生成第一闭环公开复核账本，并在 Git 忽略的 `private/` 目录生成 36 份页列 HTML/CSV 核页材料。
 - `scripts/build_issue19_first_closure_task_review_ledger.py`：读取第一闭环明细包、页列包、第一闭环复核公开账本和官方入口状态，生成 205 行任务级公开复核账本；公共高校来源文件只公开相对路径和 SHA，字段读数、OCR 原文、页图路径和人工记录继续留在私有复核材料。

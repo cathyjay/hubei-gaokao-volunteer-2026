@@ -125,6 +125,8 @@
 - 已新增 `data/working/issue19-official-unavailable-sampling-review-execution-queue.csv` 作为 46 个页列核验包的公开执行顺序。它把任务分为 E0 冲突/错位先核 6 个、E1 官网未匹配专业名归属 11 个、E2 官网补缺候选核页 3 个、E3 C2 强辅证抽检 2 个、E4 P3 低风险抽检 24 个；人工可以按队列打开私有 HTML/CSV 和原页核验，但字段写回、推荐依据和最终可用仍全部关闭。
 - 已新增 `data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv` 作为 46 个页列执行队列的私有预填公开审计。它在 Git 忽略目录生成 153 条私有预填明细，把 97 条高校官网辅证线索、16 个高校来源文件、OCR 计划数/学费/选科线索先放到人工核页入口；公开层只保留页列计数、来源文件聚合计数、私有 CSV SHA 和非最终门禁。该表减少人工逐校查找成本，但不确认字段事实，不替代第 19 期原页和湖北官方侧核验。
 - 已新增 `data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv` 作为 C4/C6 高校源刷新执行包。它把 36 个学校侧 C4/C6 任务拆成 4 条泳道：X0 无官网计划入口需搜索 8 包、X1 有入口待获取湖北计划 6 包、X2 有入口但未留存结果 6 包、X3 已有部分来源待结构化 16 包；私有层承接 607 条逐专业补源/补结构化明细。该表只安排自动抓取、结构化和后续 diff，不能把高校官网结果直接写成湖北官方计划事实。
+- 已新增 `data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv` 作为 C4/C6 已留存高校官网源复用审计。它把 36 个 C4/C6 包接到 434 条已留存官网/API/PDF/XLSX/HTML 标准化证据，公开层只保留包级匹配计数和私有明细 SHA；当前 16 个包已有可复用官网源，83 条私有明细出现计划数一致候选、104 条可提示 OCR 计划数漏识、18 条存在计划数冲突。该审计只决定后续 diff 和核验优先级。
+- 已新增北京语言大学官方 API 原始源：`data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json`，公开账本为 `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv`。该源来自北京语言大学招生系统，参数为湖北、2026、物理类、普通类，返回 14 条逐专业计划、计划数合计 34；它仍只是高校侧辅证，不能替代湖北省招办计划。
 - 第 19 期 PDF 原页或纸质原页仍作为省招办原件层，优先核最终候选、冲稳保边界、B0/B1 优先组、计划数冲突、官网未匹配、补源缺口和字段空缺但进入候选的专业。
 - 高校官网/API/XLSX/PDF/图片只用于自动 double check 专业名、计划数、学费、选科、校区、学制和章程限制；专业组边界、调剂范围和最终志愿系统代码仍必须回到湖北省招办渠道。
 - `strong_support`、计划数一致或官网字段齐全的行只能进入分层抽检，不能自动定稿。抽样出现结构错误、关键限定词丢失、计划数冲突、OCR 把学费读成计划数、物理/历史未拆分、官网来源不是 2026 湖北物理普通本科，或同组存在家庭不能接受专业时，同页列、同校或同组升级 100% 人工核验。

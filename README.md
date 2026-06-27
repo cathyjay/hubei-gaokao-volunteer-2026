@@ -137,6 +137,8 @@ python3 scripts/build_issue19_stable_foundation_screening_views.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
 python3 scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py
+python3 scripts/build_issue19_c4_c6_retained_source_reuse_audit.py
+python3 scripts/fetch_issue19_c4_c6_blcu_official_source.py
 python3 scripts/build_issue19_stable_foundation_first_closure_packet.py
 python3 scripts/build_issue19_first_closure_review_materials.py
 python3 scripts/build_issue19_first_closure_task_review_ledger.py
@@ -215,6 +217,10 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 高校侧辅证刷新公开账本：`data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 把上述 854 条 B0/B1 高校辅证任务按 `高校×高校侧辅证动作` 聚合成 78 条公开刷新任务，覆盖 36 所学校。它用于自动复跑高校官网/API/XLSX/PDF/图片来源、补结构化、继续补源和分层抽检；公开层只保存任务桶、计数、集合 SHA、公开来源数量和非最终门禁，私有工作台才记录复跑结果和人工核验结论。当前 S0 PDF 原页与湖北官方优先闭环 14 条、S1 专业名匹配人工确认 12 条、S2 高校官网来源结构化刷新 23 条、S3 强辅证分层抽检 10 条、S4 继续补高校官网计划源 14 条、S5 章程规则核特殊限制 5 条；它能减少人工打开学校官网的工作量，但不能替代第 19 期 PDF 原页和湖北官方侧。
 
 C4/C6 高校源刷新执行包：`data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv` 把上述学校刷新账本里最大的自动化缺口单独拆出，覆盖 36 个高校源刷新包、30 所学校和 607 条私有逐专业执行明细。其中 C4 22 个包、411 条明细需要补湖北物理行结构化，C6 14 个包、196 条明细需要继续找或获取高校官网 2026 湖北计划源。公开层只保存包级计数、泳道、集合 SHA 和私有 CSV SHA，不保存专业字段值、OCR 原文或人工记录；它只用于并行补源和生成后续 diff，不能替代湖北官方计划。
+
+C4/C6 已留存官网源复用审计：`data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv` 把 36 个 C4/C6 执行包同 434 条已留存高校官网标准化证据做保守匹配，公开层只保留包级计数和私有明细 SHA。当前 16 个包已有可复用官网源，607 条私有明细中 203 条有专业名匹配、83 条出现计划数一致候选、104 条可提示 OCR 计划数漏识、18 条存在计划数冲突；这些只生成候选 diff 和核验优先级，不写回字段事实。
+
+北京语言大学 C6 官方 API 原始源：`data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json` 已从北京语言大学招生系统无登录 API 留存，公开账本为 `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv`。该源返回 2026 湖北物理类普通类 14 条逐专业计划、计划数合计 34；它是高校侧辅证，仍不能替代第 19 期 PDF 原页和湖北官方侧。
 
 第一闭环批次包：`data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 把最高优先级的 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成第一批可执行核验包。当前 205 条明细任务被压缩到 36 个 `PDF页码×版面列`、32 个 PDF 页；其中 28 个页列含计划数冲突或补缺，29 个页列需要双人复核。该包只决定“先核哪些页列、哪些字段和哪些官网线索”，仍不确认字段事实，不替代湖北官方计划，不生成学校专业建议。
 

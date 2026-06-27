@@ -21147,6 +21147,410 @@ def main():
         and not any(token in c4_c6_packets_public_text for token in shared_forbidden_tokens),
     ))
 
+    c4_c6_reuse_summary_path = (
+        ROOT / "data/working/issue19-c4-c6-retained-source-reuse-summary.json"
+    )
+    c4_c6_reuse_csv = (
+        ROOT / "data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv"
+    )
+    c4_c6_reuse_private_dir = ROOT / "private/review-assets/issue19-c4-c6-retained-source-reuse"
+    c4_c6_reuse_private_detail_csv = (
+        c4_c6_reuse_private_dir / "c4-c6-retained-source-reuse-private-detail.csv"
+    )
+    c4_c6_reuse_private_index_csv = (
+        c4_c6_reuse_private_dir / "c4-c6-retained-source-reuse-private-index.csv"
+    )
+    c4_c6_reuse_summary = json.loads(c4_c6_reuse_summary_path.read_text())
+    with c4_c6_reuse_csv.open(newline="", encoding="utf-8-sig") as f:
+        c4_c6_reuse_reader = csv.DictReader(f)
+        c4_c6_reuse_rows = list(c4_c6_reuse_reader)
+        c4_c6_reuse_fields = c4_c6_reuse_reader.fieldnames or []
+    c4_c6_reuse_private_detail_rows = []
+    c4_c6_reuse_private_detail_fields = []
+    c4_c6_reuse_private_index_rows = []
+    c4_c6_reuse_private_index_fields = []
+    if c4_c6_reuse_private_detail_csv.exists():
+        with c4_c6_reuse_private_detail_csv.open(newline="", encoding="utf-8-sig") as f:
+            c4_c6_reuse_private_detail_reader = csv.DictReader(f)
+            c4_c6_reuse_private_detail_rows = list(c4_c6_reuse_private_detail_reader)
+            c4_c6_reuse_private_detail_fields = c4_c6_reuse_private_detail_reader.fieldnames or []
+    if c4_c6_reuse_private_index_csv.exists():
+        with c4_c6_reuse_private_index_csv.open(newline="", encoding="utf-8-sig") as f:
+            c4_c6_reuse_private_index_reader = csv.DictReader(f)
+            c4_c6_reuse_private_index_rows = list(c4_c6_reuse_private_index_reader)
+            c4_c6_reuse_private_index_fields = c4_c6_reuse_private_index_reader.fieldnames or []
+    expected_c4_c6_reuse_public_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_c4_c6_retained_source_reuse_audit.py",
+        "PUBLIC_FIELDS",
+    )
+    expected_c4_c6_reuse_private_detail_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_c4_c6_retained_source_reuse_audit.py",
+        "PRIVATE_DETAIL_FIELDS",
+    )
+    expected_c4_c6_reuse_private_index_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_c4_c6_retained_source_reuse_audit.py",
+        "PRIVATE_INDEX_FIELDS",
+    )
+    retained_rows_by_school = defaultdict(list)
+    for row in b0_b1_retained_official_rows:
+        retained_rows_by_school[row.get("学校名称", "")].append(row)
+    c4_c6_packets_by_id = {
+        row.get("C4C6高校源刷新执行包ID", ""): row for row in c4_c6_packets_rows
+    }
+    c4_c6_reuse_private_detail_by_packet = defaultdict(list)
+    for row in c4_c6_reuse_private_detail_rows:
+        c4_c6_reuse_private_detail_by_packet[row.get("来源C4C6执行包ID", "")].append(row)
+    c4_c6_reuse_public_by_id = {
+        row.get("C4C6官网源复用审计ID", ""): row for row in c4_c6_reuse_rows
+    }
+    c4_c6_reuse_private_index_by_id = {
+        row.get("C4C6官网源复用审计ID", ""): row for row in c4_c6_reuse_private_index_rows
+    }
+    c4_c6_reuse_false_fields = [
+        "最终可用",
+        "可进入下一阶段",
+        "可否进入最终志愿方案",
+        "是否允许作为志愿推荐依据",
+        "是否允许自动写回主表",
+        "是否允许官网证据替代湖北官方计划",
+        "是否允许生成学校专业建议",
+        "是否允许写回字段事实",
+    ]
+    c4_c6_reuse_join_ok = True
+    for row in c4_c6_reuse_rows:
+        packet = c4_c6_packets_by_id.get(row.get("C4C6高校源刷新执行包ID", ""), {})
+        private_rows = c4_c6_reuse_private_detail_by_packet.get(
+            row.get("C4C6高校源刷新执行包ID", ""),
+            [],
+        )
+        private_index = c4_c6_reuse_private_index_by_id.get(
+            row.get("C4C6官网源复用审计ID", ""),
+            {},
+        )
+        retained_school_rows = retained_rows_by_school.get(row.get("院校名称OCR", ""), [])
+        private_match_counts = Counter(item.get("本轮官网证据匹配状态") for item in private_rows)
+        private_plan_counts = Counter(item.get("本轮计划数核验状态") for item in private_rows)
+        c4_c6_reuse_join_ok = (
+            c4_c6_reuse_join_ok
+            and bool(packet)
+            and bool(private_index)
+            and row.get("C4C6官网源复用审计ID")
+            == stable_id(
+                "C4C6REUSE",
+                [
+                    row.get("C4C6高校源刷新执行包ID", ""),
+                    row.get("院校代码", ""),
+                    row.get("官网辅证自动动作", ""),
+                ],
+            )
+            and row.get("来源C4C6执行包表")
+            == "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv"
+            and row.get("来源C4C6执行包摘要")
+            == "data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json"
+            and row.get("来源官网标准化证据表")
+            == "data/working/issue19-b0-b1-retained-official-plan-normalized.csv"
+            and row.get("来源全量字段保真总账")
+            == "data/working/issue19-full-major-field-fidelity-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_c4_c6_retained_source_reuse_audit"
+            and row.get("主表粒度") == "C4/C6高校源刷新执行包×已留存官网标准化证据复用"
+            and all(row.get(field) == "false" for field in c4_c6_reuse_false_fields)
+            and row.get("执行总序") == packet.get("执行总序")
+            and row.get("执行泳道") == packet.get("执行泳道")
+            and row.get("院校代码") == packet.get("院校代码")
+            and row.get("院校名称OCR") == packet.get("院校名称OCR")
+            and row.get("官网辅证自动动作") == packet.get("官网辅证自动动作")
+            and as_int(row.get("涉及私有明细数")) == len(private_rows)
+            and as_int(row.get("本地未公开明细行数")) == len(private_rows)
+            and as_int(row.get("已有标准化官网证据行数")) == len(retained_school_rows)
+            and as_int(row.get("已有标准化官网来源文件数"))
+            == len({item.get("官方来源文件", "") for item in retained_school_rows if item.get("官方来源文件", "")})
+            and as_int(row.get("本轮官网专业名匹配明细数")) == private_match_counts.get("matched", 0)
+            and as_int(row.get("本轮官网疑似匹配明细数")) == private_match_counts.get("possible_match", 0)
+            and as_int(row.get("本轮官网未匹配明细数")) == private_match_counts.get("unmatched", 0)
+            and as_int(row.get("本轮无留存结构化官网源明细数"))
+            == private_match_counts.get("no_school_source", 0)
+            and as_int(row.get("计划数一致候选数")) == private_plan_counts.get("match", 0)
+            and as_int(row.get("官网可补OCR计划数候选数"))
+            == private_plan_counts.get("ocr_plan_missing_official_available", 0)
+            and as_int(row.get("计划数冲突候选数")) == private_plan_counts.get("mismatch", 0)
+            and as_int(row.get("计划数未覆盖数")) == private_plan_counts.get("not_covered", 0)
+            and as_int(row.get("已有源可生成候选diff明细数"))
+            == private_match_counts.get("matched", 0) + private_match_counts.get("possible_match", 0)
+            and row.get("本地未公开明细CSV_SHA256")
+            == c4_c6_reuse_summary.get("private_detail_csv_sha256")
+            and private_index.get("C4C6官网源复用审计ID") == row.get("C4C6官网源复用审计ID")
+            and private_index.get("私有明细行数") == row.get("涉及私有明细数")
+            and private_index.get("结构化复用优先级") == row.get("结构化复用优先级")
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("高校官网源复用状态") == "retained_source_reuse_audit_not_verified"
+            and row.get("字段事实写回状态") == "blocked_until_pdf_hubei_official_review"
+        )
+    c4_c6_reuse_private_match_counts = Counter(
+        row.get("本轮官网证据匹配状态") for row in c4_c6_reuse_private_detail_rows
+    )
+    c4_c6_reuse_private_plan_counts = Counter(
+        row.get("本轮计划数核验状态") for row in c4_c6_reuse_private_detail_rows
+    )
+    c4_c6_reuse_priority_counts = Counter(row.get("结构化复用优先级") for row in c4_c6_reuse_rows)
+    c4_c6_reuse_lane_priority_counts = Counter(
+        f"{row.get('执行泳道')}|{row.get('结构化复用优先级')}" for row in c4_c6_reuse_rows
+    )
+    c4_c6_reuse_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [c4_c6_reuse_summary_path, c4_c6_reuse_csv]
+    )
+    checks.append(ok(
+        "第 19 期 C4/C6 已留存官网源复用审计摘要、规模和候选分布正确",
+        c4_c6_reuse_summary.get("status")
+        == "issue19_c4_c6_retained_source_reuse_audit_not_final"
+        and c4_c6_reuse_summary.get("generated_by")
+        == "build_issue19_c4_c6_retained_source_reuse_audit.py"
+        and c4_c6_reuse_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and c4_c6_reuse_summary.get("source_c4_c6_packets")
+        == "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv"
+        and c4_c6_reuse_summary.get("source_c4_c6_packets_summary")
+        == "data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json"
+        and c4_c6_reuse_summary.get("source_retained_official_plan")
+        == "data/working/issue19-b0-b1-retained-official-plan-normalized.csv"
+        and c4_c6_reuse_summary.get("source_field_fidelity_ledger")
+        == "data/working/issue19-full-major-field-fidelity-ledger.csv"
+        and c4_c6_reuse_summary.get("official_can_finalize") is False
+        and c4_c6_reuse_summary.get("official_without_login_structured_plan_available") is False
+        and c4_c6_reuse_summary.get("public_packet_count") == len(c4_c6_reuse_rows) == 36
+        and c4_c6_reuse_summary.get("private_detail_row_count")
+        == len(c4_c6_reuse_private_detail_rows) == 607
+        and c4_c6_reuse_summary.get("private_index_row_count")
+        == len(c4_c6_reuse_private_index_rows) == 36
+        and c4_c6_reuse_summary.get("retained_official_row_count")
+        == len(b0_b1_retained_official_rows) == 434
+        and c4_c6_reuse_summary.get("retained_official_school_count") == 17
+        and c4_c6_reuse_summary.get("packet_with_retained_source_count") == 16
+        and c4_c6_reuse_summary.get("packet_with_reuse_candidate_count") == 16
+        and c4_c6_reuse_private_match_counts == Counter({
+            "no_school_source": 352,
+            "matched": 203,
+            "unmatched": 50,
+            "possible_match": 2,
+        })
+        and c4_c6_reuse_private_plan_counts == Counter({
+            "not_covered": 402,
+            "match": 83,
+            "ocr_plan_missing_official_available": 104,
+            "mismatch": 18,
+        })
+        and c4_c6_reuse_summary.get("detail_match_status_counts")
+        == dict(c4_c6_reuse_private_match_counts)
+        and c4_c6_reuse_summary.get("detail_plan_check_counts")
+        == dict(c4_c6_reuse_private_plan_counts)
+        and c4_c6_reuse_summary.get("plan_match_candidate_count") == 83
+        and c4_c6_reuse_summary.get("ocr_plan_missing_official_available_count") == 104
+        and c4_c6_reuse_summary.get("plan_mismatch_candidate_count") == 18
+        and c4_c6_reuse_summary.get("no_retained_source_detail_count") == 352,
+        f"{len(c4_c6_reuse_rows)} retained source reuse packets",
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 已留存官网源复用审计字段、优先级和私有SHA正确",
+        c4_c6_reuse_fields == expected_c4_c6_reuse_public_fields
+        and c4_c6_reuse_private_detail_fields == expected_c4_c6_reuse_private_detail_fields
+        and c4_c6_reuse_private_index_fields == expected_c4_c6_reuse_private_index_fields
+        and c4_c6_reuse_private_detail_csv.exists()
+        and c4_c6_reuse_private_index_csv.exists()
+        and c4_c6_reuse_summary.get("private_detail_csv_sha256")
+        == sha256(c4_c6_reuse_private_detail_csv)
+        and c4_c6_reuse_summary.get("private_index_csv_sha256")
+        == sha256(c4_c6_reuse_private_index_csv)
+        and c4_c6_reuse_priority_counts == Counter({
+            "R3-无留存标准化源但有入口需抓取或补parser": 12,
+            "R0-已有官网源且存在计划数一致候选": 8,
+            "R1-已有官网源但计划数需核页或OCR补缺": 8,
+            "R4-无入口需搜索高校官网计划源": 8,
+        })
+        and c4_c6_reuse_summary.get("priority_counts") == dict(c4_c6_reuse_priority_counts)
+        and c4_c6_reuse_lane_priority_counts == Counter({
+            "X3-C4已有部分来源待结构化|R3-无留存标准化源但有入口需抓取或补parser": 6,
+            "X2-C4有入口但未留存结果|R0-已有官网源且存在计划数一致候选": 3,
+            "X2-C4有入口但未留存结果|R1-已有官网源但计划数需核页或OCR补缺": 3,
+            "X3-C4已有部分来源待结构化|R0-已有官网源且存在计划数一致候选": 5,
+            "X3-C4已有部分来源待结构化|R1-已有官网源但计划数需核页或OCR补缺": 5,
+            "X1-C6有入口待获取湖北计划|R3-无留存标准化源但有入口需抓取或补parser": 6,
+            "X0-C6无官网计划入口需搜索|R4-无入口需搜索高校官网计划源": 8,
+        })
+        and c4_c6_reuse_summary.get("lane_priority_counts")
+        == dict(c4_c6_reuse_lane_priority_counts)
+        and all(
+            row.get(field) == "false"
+            for row in c4_c6_reuse_rows + c4_c6_reuse_private_detail_rows
+            for field in c4_c6_reuse_false_fields
+        )
+        and c4_c6_reuse_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 已留存官网源复用公开文件不含私有路径、字段值、人工记录和最终误导结论",
+        "/Users/" not in c4_c6_reuse_public_text
+        and "/home/" not in c4_c6_reuse_public_text
+        and "/var/folders/" not in c4_c6_reuse_public_text
+        and "/private/" not in c4_c6_reuse_public_text
+        and "private/" not in c4_c6_reuse_public_text
+        and "private\\" not in c4_c6_reuse_public_text
+        and "ocr-runs" not in c4_c6_reuse_public_text
+        and "rendered-pages" not in c4_c6_reuse_public_text
+        and ".png" not in c4_c6_reuse_public_text
+        and ".jpg" not in c4_c6_reuse_public_text
+        and ".jpeg" not in c4_c6_reuse_public_text
+        and ".webp" not in c4_c6_reuse_public_text
+        and ".tif" not in c4_c6_reuse_public_text
+        and ".tiff" not in c4_c6_reuse_public_text
+        and ".heic" not in c4_c6_reuse_public_text
+        and "Authorization" not in c4_c6_reuse_public_text
+        and "Bearer " not in c4_c6_reuse_public_text
+        and "Cookie" not in c4_c6_reuse_public_text
+        and "专业名称及备注OCR" not in c4_c6_reuse_public_text
+        and "OCR专业计划数候选" not in c4_c6_reuse_public_text
+        and "OCR学费候选" not in c4_c6_reuse_public_text
+        and "OCR再选科目候选" not in c4_c6_reuse_public_text
+        and "最佳官网专业名称" not in c4_c6_reuse_public_text
+        and "最佳官网计划数" not in c4_c6_reuse_public_text
+        and "人工读数" not in c4_c6_reuse_public_text
+        and "人工记录" not in c4_c6_reuse_public_text
+        and "已确认" not in c4_c6_reuse_public_text
+        and "已核准" not in c4_c6_reuse_public_text
+        and "最终推荐" not in c4_c6_reuse_public_text
+        and "最终方案" not in c4_c6_reuse_public_text
+        and "可填报" not in c4_c6_reuse_public_text
+        and "可排序" not in c4_c6_reuse_public_text
+        and not any(token in c4_c6_reuse_public_text for token in shared_forbidden_tokens),
+    ))
+
+    blcu_c4_c6_raw_json = (
+        ROOT / "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json"
+    )
+    blcu_c4_c6_fetch_ledger_csv = (
+        ROOT / "data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv"
+    )
+    blcu_c4_c6_fetch_summary_path = (
+        ROOT / "data/working/issue19-c4-c6-blcu-official-source-fetch-summary.json"
+    )
+    blcu_c4_c6_obj = json.loads(blcu_c4_c6_raw_json.read_text(encoding="utf-8"))
+    blcu_c4_c6_data = blcu_c4_c6_obj.get("data", {})
+    blcu_c4_c6_plan_rows = blcu_c4_c6_data.get("zsjhList", [])
+    blcu_c4_c6_total_rows = blcu_c4_c6_data.get("zsjhTotal", [])
+    blcu_c4_c6_fetch_summary = json.loads(blcu_c4_c6_fetch_summary_path.read_text())
+    with blcu_c4_c6_fetch_ledger_csv.open(newline="", encoding="utf-8-sig") as f:
+        blcu_c4_c6_fetch_reader = csv.DictReader(f)
+        blcu_c4_c6_fetch_rows = list(blcu_c4_c6_fetch_reader)
+        blcu_c4_c6_fetch_fields = blcu_c4_c6_fetch_reader.fieldnames or []
+    expected_blcu_c4_c6_fetch_fields = script_list_constant(
+        ROOT / "scripts/fetch_issue19_c4_c6_blcu_official_source.py",
+        "PUBLIC_FIELDS",
+    )
+    blcu_c4_c6_fetch_row = blcu_c4_c6_fetch_rows[0] if blcu_c4_c6_fetch_rows else {}
+    blcu_plan_sum = sum(as_int(row.get("zsjhs")) for row in blcu_c4_c6_plan_rows)
+    blcu_total_sum = sum(as_int(row.get("zsjhs")) for row in blcu_c4_c6_total_rows)
+    blcu_c4_c6_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [blcu_c4_c6_fetch_summary_path, blcu_c4_c6_fetch_ledger_csv]
+    )
+    blcu_false_fields = [
+        "最终可用",
+        "可进入下一阶段",
+        "可否进入最终志愿方案",
+        "是否允许作为志愿推荐依据",
+        "是否允许自动写回主表",
+        "是否允许官网证据替代湖北官方计划",
+        "是否允许生成学校专业建议",
+        "是否允许写回字段事实",
+    ]
+    checks.append(ok(
+        "第 19 期 C4/C6 北京语言大学官方API原始源已留存且边界正确",
+        blcu_c4_c6_fetch_summary.get("status")
+        == "issue19_c4_c6_blcu_official_source_retained_not_final"
+        and blcu_c4_c6_fetch_summary.get("generated_by")
+        == "fetch_issue19_c4_c6_blcu_official_source.py"
+        and blcu_c4_c6_fetch_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and blcu_c4_c6_fetch_summary.get("source_api_url")
+        == "http://lqcx.blcu.edu.cn/f/ajax_zsjh"
+        and blcu_c4_c6_fetch_summary.get("request_form")
+        == {"ssmc": "湖北", "zsnf": "2026", "klmc": "物理类", "zslx": "普通类"}
+        and blcu_c4_c6_fetch_summary.get("raw_output")
+        == "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json"
+        and blcu_c4_c6_fetch_summary.get("raw_output_sha256") == sha256(blcu_c4_c6_raw_json)
+        and blcu_c4_c6_fetch_summary.get("public_ledger")
+        == "data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv"
+        and blcu_c4_c6_fetch_summary.get("state") == 1
+        and blcu_c4_c6_fetch_summary.get("msg") == "操作成功"
+        and blcu_c4_c6_fetch_summary.get("plan_row_count") == len(blcu_c4_c6_plan_rows) == 14
+        and blcu_c4_c6_fetch_summary.get("total_row_count") == len(blcu_c4_c6_total_rows) == 1
+        and blcu_c4_c6_fetch_summary.get("plan_sum") == blcu_plan_sum == 34
+        and blcu_c4_c6_fetch_summary.get("total_sum") == blcu_total_sum == 34
+        and blcu_c4_c6_fetch_summary.get("all_year_2026") is True
+        and blcu_c4_c6_fetch_summary.get("all_province_hubei") is True
+        and blcu_c4_c6_fetch_summary.get("all_subject_physics") is True
+        and blcu_c4_c6_fetch_summary.get("official_plan_replacement_allowed") is False
+        and blcu_c4_c6_fetch_summary.get("field_writeback_allowed") is False
+        and blcu_c4_c6_fetch_summary.get("recommendation_basis_allowed") is False
+        and blcu_c4_c6_obj.get("state") == 1
+        and blcu_c4_c6_obj.get("msg") == "操作成功"
+        and all(row.get("nf") == "2026" for row in blcu_c4_c6_plan_rows)
+        and all(row.get("ssmc") == "湖北" for row in blcu_c4_c6_plan_rows)
+        and all(row.get("klmc") == "物理类" for row in blcu_c4_c6_plan_rows)
+        and {row.get("zycc", "") for row in blcu_c4_c6_plan_rows} == {"本科普通批单设志愿"},
+        f"{len(blcu_c4_c6_plan_rows)} BLCU API rows",
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 北京语言大学官方API公开账本字段、SHA和门禁正确",
+        blcu_c4_c6_fetch_fields == expected_blcu_c4_c6_fetch_fields
+        and len(blcu_c4_c6_fetch_rows) == 1
+        and blcu_c4_c6_fetch_row.get("C4C6高校官网源抓取ID")
+        == "C4C6FETCH-BLCU-A032-2026-HUBEI-PHYSICS-NORMAL"
+        and blcu_c4_c6_fetch_row.get("来源C4C6执行包ID") == "C4C6PACKET-122c97b755de364b"
+        and blcu_c4_c6_fetch_row.get("院校代码") == "A032"
+        and blcu_c4_c6_fetch_row.get("院校名称OCR") == "北京语言大学"
+        and blcu_c4_c6_fetch_row.get("官网辅证自动动作")
+        == "C6-继续搜索高校官网2026湖北计划源"
+        and blcu_c4_c6_fetch_row.get("本地留存文件")
+        == "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json"
+        and blcu_c4_c6_fetch_row.get("本地留存文件SHA256") == sha256(blcu_c4_c6_raw_json)
+        and as_int(blcu_c4_c6_fetch_row.get("逐专业计划行数")) == 14
+        and as_int(blcu_c4_c6_fetch_row.get("逐专业计划数合计")) == 34
+        and as_int(blcu_c4_c6_fetch_row.get("汇总计划数合计")) == 34
+        and blcu_c4_c6_fetch_row.get("年份一致性") == "all_2026"
+        and blcu_c4_c6_fetch_row.get("省份一致性") == "all_hubei"
+        and blcu_c4_c6_fetch_row.get("科类一致性") == "all_physics"
+        and all(blcu_c4_c6_fetch_row.get(field) == "false" for field in blcu_false_fields)
+        and blcu_c4_c6_fetch_row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+        and blcu_c4_c6_fetch_row.get("湖北官方系统或省招办计划核验状态")
+        == "pending_hubei_official_review"
+        and blcu_c4_c6_fetch_row.get("高校官网源抓取状态")
+        == "official_school_api_source_retained_not_verified"
+        and blcu_c4_c6_fetch_row.get("字段事实写回状态")
+        == "blocked_until_pdf_hubei_official_review",
+    ))
+    checks.append(ok(
+        "第 19 期 C4/C6 北京语言大学官方API公开账本不含私有路径、登录态和最终误导结论",
+        "/Users/" not in blcu_c4_c6_public_text
+        and "/home/" not in blcu_c4_c6_public_text
+        and "/var/folders/" not in blcu_c4_c6_public_text
+        and "/private/" not in blcu_c4_c6_public_text
+        and "private/" not in blcu_c4_c6_public_text
+        and "private\\" not in blcu_c4_c6_public_text
+        and "Authorization" not in blcu_c4_c6_public_text
+        and "Bearer " not in blcu_c4_c6_public_text
+        and "Cookie" not in blcu_c4_c6_public_text
+        and "access_token" not in blcu_c4_c6_public_text
+        and "password" not in blcu_c4_c6_public_text
+        and "secret" not in blcu_c4_c6_public_text
+        and "人工读数" not in blcu_c4_c6_public_text
+        and "已确认" not in blcu_c4_c6_public_text
+        and "已核准" not in blcu_c4_c6_public_text
+        and "最终推荐" not in blcu_c4_c6_public_text
+        and "最终方案" not in blcu_c4_c6_public_text
+        and "可填报" not in blcu_c4_c6_public_text
+        and "可排序" not in blcu_c4_c6_public_text
+        and not any(token in blcu_c4_c6_public_text for token in shared_forbidden_tokens),
+    ))
+
     first_closure_summary_path = (
         ROOT / "data/working/issue19-stable-foundation-first-closure-packet-summary.json"
     )

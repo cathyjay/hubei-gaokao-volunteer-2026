@@ -60,6 +60,10 @@
 
 新增 C4/C6 高校源刷新执行包：`data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv` 把学校刷新账本中最大的自动化缺口单独拆出，覆盖 36 个执行包、30 所学校和 607 条私有逐专业执行明细。其中 C4 411 条负责补湖北物理普通本科计划行结构化，C6 196 条负责继续寻找或获取高校官网 2026 湖北计划源。执行包按 X0/X1/X2/X3 分泳道，后续可以并行补源和解析；但它仍只生成来源 diff 和候选线索，不确认字段事实、不写回主表、不进入学校专业建议。
 
+新增 C4/C6 已留存官网源复用审计：`data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv` 把 36 个执行包同已留存官网标准化证据做第一轮自动匹配，筛出 16 个已有可复用官网源的包和 205 条可生成候选 diff 的私有明细。下一步应优先处理 R0/R1 包，再把北京语言大学等新增 C6 原始源接入结构化 diff；所有候选仍需回 PDF 原页和湖北官方侧。
+
+新增北京语言大学 C6 官方 API 源留存：`data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json` 和 `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv` 已证明该校 2026 湖北物理类普通类计划可无登录抓取。下一步是把该原始 JSON 接入 C4/C6 结构化候选 diff，并重点核第 19 期原页中的 OCR 计划数、专业组代码和中外合作边界。
+
 新增官方公开入口活体复查：`data/working/issue19-official-public-entry-live-recheck.json` 让“湖北官方是否可得”从一次性判断变成可复跑证据。当前招生计划页、索引页和数智平台首页 SHA 均与留存副本一致，招生计划页仍含“持续更新中/敬请期待”，5 个无登录接口探针仍返回 401；所以当前仍不能自动取得可逐字段定稿的湖北官方结构化计划。
 
 新增官方不可得抽样门禁：`data/working/issue19-official-unavailable-sampling-gates.csv` 把“高校官网 double check + 最小人工核验”落成 103 行门禁：78 条高校侧任务继续负责自动复跑、补结构化、补源和强辅证抽检；25 条 P3 低风险专业明细用于抽样验收。C0/C1/C7 共 104 条明细必须 100% 核第 19 期原页，C2 强辅证抽检最低覆盖 20 条以上，抽检失败升级同页列、同校或同组 100% 核验。它只能压缩人工工作量，不能打开字段写回、推荐依据或最终可用门禁。

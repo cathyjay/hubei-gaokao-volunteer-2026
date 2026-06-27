@@ -1,0 +1,29 @@
+{
+  "status": "issue19_c4_c6_blcu_official_source_retained_not_final",
+  "generated_by": "fetch_issue19_c4_c6_blcu_official_source.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_api_url": "http://lqcx.blcu.edu.cn/f/ajax_zsjh",
+  "request_form": {
+    "ssmc": "湖北",
+    "zsnf": "2026",
+    "klmc": "物理类",
+    "zslx": "普通类"
+  },
+  "raw_output": "data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json",
+  "raw_output_sha256": "e6130c9d5a73e3dee41fd230b57e04c2d279d51144d1123b0d69367eff2c2be8",
+  "public_ledger": "data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv",
+  "state": 1,
+  "msg": "操作成功",
+  "plan_row_count": 14,
+  "total_row_count": 1,
+  "plan_sum": 34,
+  "total_sum": 34,
+  "all_year_2026": true,
+  "all_province_hubei": true,
+  "all_subject_physics": true,
+  "official_plan_replacement_allowed": false,
+  "field_writeback_allowed": false,
+  "recommendation_basis_allowed": false,
+  "policy": "高校官网API只作辅证和差异发现，不能替代湖北省招办计划或第19期PDF原页。"
+}
