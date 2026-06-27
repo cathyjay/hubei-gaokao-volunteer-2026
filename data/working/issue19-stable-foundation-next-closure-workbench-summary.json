@@ -1,0 +1,115 @@
+{
+  "status": "issue19_stable_foundation_next_closure_workbench_not_final",
+  "generated_by": "build_issue19_stable_foundation_next_closure_workbench.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "official_public_status_source": "data/working/issue19-official-public-entry-status.json",
+  "official_public_plan_page_can_finalize": false,
+  "zspt_platform_can_finalize": false,
+  "input_files": [
+    {
+      "path": "data/working/issue19-stable-foundation-major-screening-view.csv",
+      "sha256": "8abc03946fcb1bdbd18d565428bf402e46915f778150420726a1afb413472885",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-stable-foundation-group-screening-view.csv",
+      "sha256": "536b023f65d8986ae73cc4f43c1c4434bf65aaa15b3ec0eaeb99e4ad237d5052",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-major-evidence-level-routing.csv",
+      "sha256": "0110ed8ce58b32b6fd1731615d7937b92015b39cc977419a724e754ade8d9795",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-b0-b1-official-evidence-by-major-line.csv",
+      "sha256": "73bd9c3ad276d8533936b676cd174c6d8d19aabc1a410419455da7af492c40c6",
+      "row_count": 854
+    },
+    {
+      "path": "data/working/issue19-b0-b1-public-official-diff-ledger.csv",
+      "sha256": "56e84609ffdd4407f9a12761489dd01638c188d4eaa28f6bfcbb440898ee31fa",
+      "row_count": 854
+    },
+    {
+      "path": "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv",
+      "sha256": "87ec452071e325daaf9ff0e51c221e6e217932d8f8eeebc6f8eb17c5729b3236",
+      "row_count": 319
+    },
+    {
+      "path": "data/working/issue19-p0-immediate-page-execution-progress-public-ledger.csv",
+      "sha256": "75cde6d5bead1eb7af5254deca8f46d73cf9b2fa13ad8421ecbf9e29e67cfc65",
+      "row_count": 148
+    },
+    {
+      "path": "data/working/issue19-official-public-entry-status.json",
+      "sha256": "dec81d791f223ca0b757dcf4ec6646afaf7ac15c1d08c94ed0b744e9cac02dd5"
+    }
+  ],
+  "auto_crosscheck_output_table": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
+  "manual_closure_output_table": "data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv",
+  "auto_workbench_row_count": 854,
+  "manual_workbench_row_count": 319,
+  "unique_auto_task_id_count": 854,
+  "unique_manual_task_id_count": 319,
+  "unique_auto_major_line_id_count": 854,
+  "unique_manual_major_line_id_count": 319,
+  "unique_manual_page_side_count": 148,
+  "auto_action_counts": {
+    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C1-官网补缺候选但禁止自动写回": 55,
+    "C7-官网源未匹配专业需人工确认专业名": 31,
+    "C2-强辅证抽检并等待湖北官方闭环": 61,
+    "C3-字段辅证补充结构化后核原页": 19,
+    "C4-已有部分来源需补结构化或补湖北行": 411,
+    "C5-仅章程规则核特殊要求不能核计划数": 63,
+    "C6-继续搜索高校官网2026湖北计划源": 196
+  },
+  "auto_evidence_strength_counts": {
+    "conflict_review": 18,
+    "fill_candidate": 55,
+    "unmatched": 31,
+    "strong_support": 61,
+    "field_support": 19,
+    "partial_source": 411,
+    "rules_only": 63,
+    "needs_source": 196
+  },
+  "manual_field_counts": {
+    "专业计划数": 281,
+    "学费": 19,
+    "再选科目": 19
+  },
+  "manual_execution_batch_counts": {
+    "EXEC-01-冲突异常立即核页": 16,
+    "EXEC-02-计划数偏大重点核页": 11,
+    "EXEC-03-高校辅证线索三方核验": 74,
+    "EXEC-04-多值坐标冲突核页": 218
+  },
+  "manual_page_progress_bucket_counts": {
+    "R0-未开始PDF和湖北官方核验": 319
+  },
+  "manual_double_review_required_count": 290,
+  "manual_school_support_required_count": 75,
+  "manual_crop_machine_conflict_count": 9,
+  "manual_crop_school_conflict_count": 24,
+  "manual_machine_school_conflict_count": 1,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "policy": {
+    "official_boundary": "湖北官方公开结构化计划暂不可自动取得时，第19期PDF原页和后续湖北官方系统/省招办计划仍是最终闭环条件。",
+    "school_evidence_boundary": "高校官网/API/PDF/附件/章程只作自动double-check、补缺候选和冲突发现，不能替代湖北官方计划。",
+    "manual_compression": "人工核验优先压缩到P0即时字段：319个字段、148个页列，按页列集中核，不按全量13736行散扫。",
+    "no_finalization": "本工作台不确认任何字段值，不自动写回主表，不生成学校专业建议。"
+  },
+  "next_steps": [
+    "先处理C0冲突与C1补缺候选：回到PDF原页和湖北官方系统/省招办计划核验。",
+    "并行继续补C4/C6高校官网2026湖北计划源，自动抓取后只生成diff。",
+    "人工只在最小闭环表中记录私有读数和复核状态，公开层保持任务ID、SHA、bbox和状态。"
+  ]
+}

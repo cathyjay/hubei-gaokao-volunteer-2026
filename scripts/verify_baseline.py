@@ -18913,6 +18913,270 @@ def main():
         and not any(token in stable_public_text for token in shared_forbidden_tokens),
     ))
 
+    next_closure_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-next-closure-workbench-summary.json"
+    )
+    next_closure_auto_csv = (
+        ROOT / "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv"
+    )
+    next_closure_manual_csv = (
+        ROOT / "data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv"
+    )
+    next_closure_summary = json.loads(next_closure_summary_path.read_text())
+    with next_closure_auto_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_closure_auto_reader = csv.DictReader(f)
+        next_closure_auto_rows = list(next_closure_auto_reader)
+        next_closure_auto_fields = next_closure_auto_reader.fieldnames or []
+    with next_closure_manual_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_closure_manual_reader = csv.DictReader(f)
+        next_closure_manual_rows = list(next_closure_manual_reader)
+        next_closure_manual_fields = next_closure_manual_reader.fieldnames or []
+    expected_next_closure_auto_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_stable_foundation_next_closure_workbench.py",
+        "AUTO_FIELDS",
+    )
+    expected_next_closure_manual_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_stable_foundation_next_closure_workbench.py",
+        "MANUAL_FIELDS",
+    )
+    next_auto_by_major_id = {row.get("专业行ID"): row for row in next_closure_auto_rows}
+    next_manual_by_task_id = {
+        row.get("P0字段即时复核任务ID"): row for row in next_closure_manual_rows
+    }
+    official_sidecar_by_major_id = {
+        row.get("专业行ID"): row for row in official_sidecar_rows
+    }
+    p0_page_progress_by_page_side_key = {
+        row.get("页码版面键"): row for row in p0_page_progress_rows
+    }
+    next_auto_action_counts = Counter(row.get("官网辅证自动动作") for row in next_closure_auto_rows)
+    next_auto_strength_counts = Counter(row.get("官网证据强度") for row in next_closure_auto_rows)
+    next_manual_field_counts = Counter(row.get("字段名") for row in next_closure_manual_rows)
+    next_manual_batch_counts = Counter(row.get("执行批次") for row in next_closure_manual_rows)
+    next_manual_progress_counts = Counter(row.get("页列执行进度桶") for row in next_closure_manual_rows)
+    next_closure_auto_join_ok = True
+    for row in next_closure_auto_rows:
+        major_id = row.get("专业行ID", "")
+        sidecar_row = official_sidecar_by_major_id.get(major_id, {})
+        stable_row = stable_major_by_id.get(major_id, {})
+        route_row = major_evidence_route_by_major_id.get(major_id, {})
+        next_closure_auto_join_ok = (
+            next_closure_auto_join_ok
+            and bool(sidecar_row)
+            and bool(stable_row)
+            and bool(route_row)
+            and row.get("来源稳定基座逐专业筛选视图")
+            == "data/working/issue19-stable-foundation-major-screening-view.csv"
+            and row.get("来源逐专业证据路由表")
+            == "data/working/issue19-major-evidence-level-routing.csv"
+            and row.get("来源B0B1高校官网证据旁挂表")
+            == "data/working/issue19-b0-b1-official-evidence-by-major-line.csv"
+            and row.get("来源B0B1公开官网差异账")
+            == "data/working/issue19-b0-b1-public-official-diff-ledger.csv"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_stable_foundation_auto_official_crosscheck_workbench"
+            and row.get("主表粒度") == "逐专业招生明细×高校官网辅证"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("可否进入最终志愿方案") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许自动写回主表") == "false"
+            and row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("专业组出现ID") == sidecar_row.get("专业组出现ID")
+            and row.get("院校代码") == sidecar_row.get("院校代码")
+            and row.get("官网证据强度") == sidecar_row.get("官网证据强度")
+            and row.get("官网来源状态") == sidecar_row.get("官网来源状态")
+            and row.get("官网证据匹配状态") == sidecar_row.get("官网证据匹配状态")
+            and row.get("计划数核验状态") == sidecar_row.get("计划数核验状态")
+            and row.get("最佳官网来源文件") == sidecar_row.get("最佳官网来源文件")
+            and row.get("人工核验优先级") == route_row.get("人工核验优先级")
+            and row.get("自动官网核验可执行性") == route_row.get("自动官网核验可执行性")
+            and row.get("官网辅证状态") == "school_official_evidence_sidecar_only_not_replacement"
+            and row.get("字段写回状态") == "blocked_until_pdf_hubei_official_review"
+            and "湖北官方" in row.get("下一步", "")
+        )
+    next_closure_manual_join_ok = True
+    for row in next_closure_manual_rows:
+        task_id = row.get("P0字段即时复核任务ID", "")
+        p0_row = p0_field_confirm_by_task_id.get(task_id, {})
+        stable_row = stable_major_by_id.get(row.get("专业行ID", ""), {})
+        progress_row = p0_page_progress_by_page_side_key.get(row.get("页码版面键", ""), {})
+        next_closure_manual_join_ok = (
+            next_closure_manual_join_ok
+            and bool(p0_row)
+            and bool(stable_row)
+            and bool(progress_row)
+            and row.get("稳定基座最小人工闭环任务ID")
+            == stable_id("STABLEMANUAL", [task_id, row.get("专业行ID", ""), row.get("字段名", "")])
+            and row.get("来源P0即时字段确认公开账本")
+            == "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv"
+            and row.get("来源P0页列执行进度公开账本")
+            == "data/working/issue19-p0-immediate-page-execution-progress-public-ledger.csv"
+            and row.get("来源稳定基座逐专业筛选视图")
+            == "data/working/issue19-stable-foundation-major-screening-view.csv"
+            and row.get("来源自动交叉核验工作台")
+            == "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_stable_foundation_minimal_manual_closure_workbench"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×P0字段×最小人工闭环"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("可否进入最终志愿方案") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许自动写回主表") == "false"
+            and row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("P0即时字段确认公开账本ID")
+            == p0_row.get("P0即时字段确认公开账本ID")
+            and row.get("专业行ID") == p0_row.get("专业行ID")
+            and row.get("字段名") == p0_row.get("字段名")
+            and row.get("页码版面键") == progress_row.get("页码版面键")
+            and row.get("页列执行进度桶") == progress_row.get("页列执行进度桶")
+            and row.get("裁图证据编号") == p0_row.get("裁图证据编号")
+            and row.get("裁图文件SHA256") == p0_row.get("裁图文件SHA256")
+            and row.get("是否需要双人复核") == p0_row.get("是否需要双人复核")
+            and row.get("是否有高校字段线索") == p0_row.get("是否有高校字段线索")
+            and row.get("PDF原页核页状态") == p0_row.get("PDF原页核页状态")
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == p0_row.get("湖北官方系统或省招办计划核验状态")
+            and row.get("字段事实写回状态") == p0_row.get("字段事实写回状态")
+            and row.get("最小人工闭环阶段") == "H0-P0即时字段核页"
+            and "PDF原页" in row.get("人工必做步骤", "")
+            and "湖北官方" in row.get("人工必做步骤", "")
+        )
+    next_closure_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [next_closure_summary_path, next_closure_auto_csv, next_closure_manual_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座下一步闭环工作台摘要、规模和官方边界正确",
+        next_closure_summary.get("status")
+        == "issue19_stable_foundation_next_closure_workbench_not_final"
+        and next_closure_summary.get("generated_by")
+        == "build_issue19_stable_foundation_next_closure_workbench.py"
+        and next_closure_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and next_closure_summary.get("official_public_status_source")
+        == "data/working/issue19-official-public-entry-status.json"
+        and next_closure_summary.get("official_public_plan_page_can_finalize") is False
+        and next_closure_summary.get("zspt_platform_can_finalize") is False
+        and next_closure_summary.get("auto_crosscheck_output_table")
+        == "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv"
+        and next_closure_summary.get("manual_closure_output_table")
+        == "data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv"
+        and next_closure_summary.get("auto_workbench_row_count") == len(next_closure_auto_rows) == 854
+        and next_closure_summary.get("manual_workbench_row_count") == len(next_closure_manual_rows) == 319
+        and next_closure_summary.get("unique_auto_task_id_count") == 854
+        and next_closure_summary.get("unique_manual_task_id_count") == 319
+        and next_closure_summary.get("unique_auto_major_line_id_count") == 854
+        and next_closure_summary.get("unique_manual_major_line_id_count") == 319
+        and next_closure_summary.get("unique_manual_page_side_count") == 148
+        and next_closure_summary.get("final_available_count") == 0
+        and next_closure_summary.get("next_stage_available_count") == 0
+        and next_closure_summary.get("recommendation_basis_allowed_count") == 0
+        and next_closure_summary.get("school_major_suggestion_allowed_count") == 0
+        and next_closure_summary.get("official_plan_replacement_allowed_count") == 0
+        and next_closure_summary.get("field_writeback_allowed_count") == 0,
+        f"{len(next_closure_auto_rows)} auto rows, {len(next_closure_manual_rows)} manual rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座下一步闭环工作台分桶守恒正确",
+        next_auto_action_counts == Counter({
+            "C0-冲突先核PDF原页和湖北官方系统": 18,
+            "C1-官网补缺候选但禁止自动写回": 55,
+            "C7-官网源未匹配专业需人工确认专业名": 31,
+            "C2-强辅证抽检并等待湖北官方闭环": 61,
+            "C3-字段辅证补充结构化后核原页": 19,
+            "C4-已有部分来源需补结构化或补湖北行": 411,
+            "C5-仅章程规则核特殊要求不能核计划数": 63,
+            "C6-继续搜索高校官网2026湖北计划源": 196,
+        })
+        and next_auto_strength_counts == Counter({
+            "conflict_review": 18,
+            "fill_candidate": 55,
+            "unmatched": 31,
+            "strong_support": 61,
+            "field_support": 19,
+            "partial_source": 411,
+            "rules_only": 63,
+            "needs_source": 196,
+        })
+        and next_manual_field_counts == Counter({
+            "专业计划数": 281,
+            "学费": 19,
+            "再选科目": 19,
+        })
+        and next_manual_batch_counts == Counter({
+            "EXEC-01-冲突异常立即核页": 16,
+            "EXEC-02-计划数偏大重点核页": 11,
+            "EXEC-03-高校辅证线索三方核验": 74,
+            "EXEC-04-多值坐标冲突核页": 218,
+        })
+        and next_manual_progress_counts == Counter({
+            "R0-未开始PDF和湖北官方核验": 319,
+        })
+        and next_closure_summary.get("manual_double_review_required_count") == 290
+        and next_closure_summary.get("manual_school_support_required_count") == 75
+        and next_closure_summary.get("manual_crop_machine_conflict_count") == 9
+        and next_closure_summary.get("manual_crop_school_conflict_count") == 24
+        and next_closure_summary.get("manual_machine_school_conflict_count") == 1
+        and next_closure_summary.get("auto_action_counts") == dict(next_auto_action_counts)
+        and next_closure_summary.get("auto_evidence_strength_counts") == dict(next_auto_strength_counts)
+        and next_closure_summary.get("manual_field_counts") == dict(next_manual_field_counts)
+        and next_closure_summary.get("manual_execution_batch_counts") == dict(next_manual_batch_counts)
+        and next_closure_summary.get("manual_page_progress_bucket_counts") == dict(next_manual_progress_counts),
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座下一步闭环工作台字段、主键和来源回链正确",
+        next_closure_auto_fields == expected_next_closure_auto_fields
+        and next_closure_manual_fields == expected_next_closure_manual_fields
+        and len({row.get("稳定基座自动交叉核验任务ID") for row in next_closure_auto_rows}) == 854
+        and len({row.get("稳定基座最小人工闭环任务ID") for row in next_closure_manual_rows}) == 319
+        and set(next_auto_by_major_id) == {row.get("专业行ID") for row in official_sidecar_rows}
+        and set(next_manual_by_task_id) == {
+            row.get("P0字段即时复核任务ID") for row in p0_field_confirm_rows
+        }
+        and next_closure_auto_join_ok
+        and next_closure_manual_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座下一步闭环工作台公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in next_closure_public_text
+        and "/home/" not in next_closure_public_text
+        and "/var/folders/" not in next_closure_public_text
+        and "/private/" not in next_closure_public_text
+        and "private/" not in next_closure_public_text
+        and "private\\" not in next_closure_public_text
+        and "ocr-runs" not in next_closure_public_text
+        and "rendered-pages" not in next_closure_public_text
+        and ".png" not in next_closure_public_text
+        and ".jpg" not in next_closure_public_text
+        and ".jpeg" not in next_closure_public_text
+        and ".webp" not in next_closure_public_text
+        and ".tif" not in next_closure_public_text
+        and ".tiff" not in next_closure_public_text
+        and ".heic" not in next_closure_public_text
+        and "Authorization" not in next_closure_public_text
+        and "Bearer " not in next_closure_public_text
+        and "Cookie" not in next_closure_public_text
+        and "身份证" not in next_closure_public_text
+        and "准考证" not in next_closure_public_text
+        and "报名号" not in next_closure_public_text
+        and "序列号" not in next_closure_public_text
+        and "已确认" not in next_closure_public_text
+        and "已核准" not in next_closure_public_text
+        and "最终推荐" not in next_closure_public_text
+        and "最终方案" not in next_closure_public_text
+        and "可填报" not in next_closure_public_text
+        and "可排序" not in next_closure_public_text
+        and not any(token in next_closure_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
