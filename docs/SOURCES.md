@@ -189,6 +189,8 @@
 - `data/working/issue19-priority-group-major-review-pack-summary.json`：优先整组逐专业核验包摘要；记录 W0-W3、A0-A9、T1/T2/T3 分布和全部不可进入最终专业列表的门禁。
 - `data/working/issue19-priority-major-evidence-workbench.csv`：第 19 期优先逐专业证据执行工作台，覆盖同一批 7537 条招生专业明细；把全量核验批次、全量保真总账、家庭逐专业表、页级保真队列、V3 保真总账、B0/B1 官网来源、D0 原页证据和三年投档线索下沉到每条专业行。
 - `data/working/issue19-priority-major-evidence-workbench-summary.json`：优先逐专业证据执行摘要；记录 E0-E6 执行优先级、辅证命中、字段缺口、三年投档线索和全部不可进入最终专业列表的门禁。
+- `data/working/issue19-full-major-evidence-workbench.csv`：第 19 期全量逐专业证据执行工作台，覆盖 13736 条招生专业明细；一行一个专业，把全量核验批次、全量保真总账、家庭底线、页级保真、优先整组包、B0/B1 官网辅证、D0 原页证据和三年投档线索统一到同一张执行视图。
+- `data/working/issue19-full-major-evidence-workbench-summary.json`：全量逐专业证据执行摘要；记录 7537 条优先包明细、6199 条非优先包明细、F0-F4 非优先包补证优先级、辅证命中、字段缺口、历史线索和全部不可进入最终专业列表的门禁。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。
@@ -255,6 +257,7 @@
 - `scripts/build_issue19_full_major_verification_batches.py`：根据全量逐专业字段保真总账和页级保真复核队列生成 A0-A9 全量逐专业核验批次表；只用于安排人工核验顺序，不生成可报结论。
 - `scripts/build_issue19_priority_group_major_review_pack.py`：根据全量逐专业核验批次表，把有历史候选、样本学校、偏好专业或待补证字段种子的专业组完整展开为逐专业明细包；用于整组核页和调剂风险判断，不生成可报结论。
 - `scripts/build_issue19_priority_major_evidence_workbench.py`：根据优先整组逐专业核验包和现有证据表生成逐专业证据执行工作台；用于安排 PDF 原页、湖北官方系统、高校官网/章程、家庭接受度、调剂结论和三年稳定性核验，不生成可报结论。
+- `scripts/build_issue19_full_major_evidence_workbench.py`：根据全量逐专业核验批次表、优先逐专业证据工作台和现有辅证表生成 13736 行全量逐专业证据执行工作台；用于把全量底座和优先核验切片统一起来，不生成可报结论。
 - `scripts/build_issue19_foundation_audit.py`：根据全量 OCR 初稿、质量分层、逐专业工作台、结构异常和候选覆盖生成底座审计表；用于证明机器层面的行数、页码、主键、异常和发布边界闭环。
 - `scripts/build_issue19_candidate_evidence_ledgers.py`：根据候选 V2 升级工作台、全量逐专业工作台和底座审计生成字段复核总账与三方证据矩阵；用于后续人工回填和候选升级。
 - `scripts/build_issue19_page_manifest.py`：根据私有 OCR 运行目录和公开结构化表生成 240 页公开页级 manifest；只输出页级元数据和哈希，不输出私有页图、整页 OCR 文本或本机路径。
