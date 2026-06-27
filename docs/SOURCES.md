@@ -193,6 +193,8 @@
 - `data/working/issue19-full-major-evidence-workbench-summary.json`：全量逐专业证据执行摘要；记录 7537 条优先包明细、6199 条非优先包明细、F0-F4 非优先包补证优先级、辅证命中、字段缺口、历史线索和全部不可进入最终专业列表的门禁。
 - `data/working/issue19-full-major-evidence-closure-tasks.csv`：第 19 期全量逐专业证据闭环任务队列，覆盖 13736 条招生专业明细并拆成 94935 条证据任务；一行对应一个专业行和一个证据项，只保留紧凑执行索引，完整 OCR 原文回链到全量证据工作台。
 - `data/working/issue19-full-major-evidence-closure-tasks-summary.json`：证据闭环任务摘要；记录 82416 条基础任务、12473 条字段完整性补证任务、46 条 B0/B1 官网冲突或未匹配任务、P0/P1/P2 优先级和全部非最终门禁。
+- `data/working/issue19-p0-evidence-execution-packets.csv`：第 19 期 P0 证据执行包，严格从证据闭环任务队列中抽取 `P0-` 任务，当前 6619 条任务、5310 条招生专业明细、2282 个执行包、231 个 PDF 页、1056 所学校；一行对应一个专业行和一个 P0 证据项，`P0执行包ID` 只用于按页/学校/类型批量执行。
+- `data/working/issue19-p0-evidence-execution-packets-summary.json`：P0 证据执行包摘要；记录 P0A PDF 原页结构阻断 4047 条、P0B 三方证据闭环 2526 条、P0C B0/B1 差异复核 46 条，以及全部不可升级、不可最终可用的门禁。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。
@@ -261,6 +263,7 @@
 - `scripts/build_issue19_priority_major_evidence_workbench.py`：根据优先整组逐专业核验包和现有证据表生成逐专业证据执行工作台；用于安排 PDF 原页、湖北官方系统、高校官网/章程、家庭接受度、调剂结论和三年稳定性核验，不生成可报结论。
 - `scripts/build_issue19_full_major_evidence_workbench.py`：根据全量逐专业核验批次表、优先逐专业证据工作台和现有辅证表生成 13736 行全量逐专业证据执行工作台；用于把全量底座和优先核验切片统一起来，不生成可报结论。
 - `scripts/build_issue19_full_major_evidence_closure_tasks.py`：根据全量逐专业证据工作台生成证据闭环任务队列；每条招生专业至少拆成 PDF 原页、湖北官方系统/省招办计划、高校官网/章程、家庭接受度、同组调剂和三年投档稳定性 6 类任务，额外补字段完整性和 B0/B1 冲突任务，不生成可报结论。
+- `scripts/build_issue19_p0_evidence_execution_packets.py`：从全量逐专业证据闭环任务队列抽取 P0 任务，按页码、学校、专业组和 P0 类型生成执行包；包 ID 只用于组织核验工作，不改变一行一个招生专业明细和一个证据项的任务粒度。
 - `scripts/build_issue19_foundation_audit.py`：根据全量 OCR 初稿、质量分层、逐专业工作台、结构异常和候选覆盖生成底座审计表；用于证明机器层面的行数、页码、主键、异常和发布边界闭环。
 - `scripts/build_issue19_candidate_evidence_ledgers.py`：根据候选 V2 升级工作台、全量逐专业工作台和底座审计生成字段复核总账与三方证据矩阵；用于后续人工回填和候选升级。
 - `scripts/build_issue19_page_manifest.py`：根据私有 OCR 运行目录和公开结构化表生成 240 页公开页级 manifest；只输出页级元数据和哈希，不输出私有页图、整页 OCR 文本或本机路径。

@@ -3,6 +3,7 @@ import csv
 import hashlib
 import json
 import re
+import subprocess
 from collections import Counter
 from pathlib import Path
 
@@ -6497,6 +6498,21 @@ def main():
     full_major_closure_execution_counts = Counter(
         row.get("全量证据执行优先级") for row in full_major_closure_rows
     )
+    full_major_closure_base_items = {
+        "PDF原页核验",
+        "湖北官方系统/省招办计划核验",
+        "高校官网/章程辅证",
+        "家庭接受度核验",
+        "同组调剂结论核验",
+        "三年投档稳定性核验",
+    }
+    full_major_closure_items_by_major = {}
+    full_major_closure_task_count_by_major = Counter()
+    for row in full_major_closure_rows:
+        major_id = row.get("专业行ID")
+        full_major_closure_items_by_major.setdefault(major_id, Counter())[row.get("证据项")] += 1
+        full_major_closure_task_count_by_major[major_id] += 1
+    full_major_closure_task_count_distribution = Counter(full_major_closure_task_count_by_major.values())
     full_major_closure_distribution_ok = True
     for row in full_major_closure_rows:
         source_row = full_major_evidence_by_workbench_id.get(
@@ -6545,6 +6561,12 @@ def main():
         required_full_major_closure_fields.issubset(full_major_closure_fields)
         and len(full_major_closure_ids) == len(full_major_closure_rows)
         and full_major_closure_major_ids == full_major_evidence_ids
+        and full_major_closure_task_count_distribution == Counter({7: 12433, 6: 1260, 8: 43})
+        and all(
+            full_major_closure_items_by_major.get(major_id, Counter()).get(item) == 1
+            for major_id in full_major_evidence_ids
+            for item in full_major_closure_base_items
+        )
         and all(
             row.get("最终可用") == "false"
             and row.get("是否可升级") == "false"
@@ -6635,6 +6657,226 @@ def main():
         and "可排序" not in full_major_closure_public_text
         and not any(token in full_major_closure_public_text for token in shared_forbidden_tokens),
     ))
+
+    p0_execution_summary_path = (
+        ROOT / "data/working/issue19-p0-evidence-execution-packets-summary.json"
+    )
+    p0_execution_csv = ROOT / "data/working/issue19-p0-evidence-execution-packets.csv"
+    p0_execution_summary = json.loads(p0_execution_summary_path.read_text())
+    with p0_execution_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_execution_reader = csv.DictReader(f)
+        p0_execution_rows = list(p0_execution_reader)
+        p0_execution_fields = set(p0_execution_reader.fieldnames or [])
+    required_p0_execution_fields = {
+        "P0执行包任务ID",
+        "P0执行包ID",
+        "来源证据闭环任务队列",
+        "来源证据闭环任务ID",
+        "来源全量证据工作台ID",
+        "数据阶段",
+        "主表粒度",
+        "任务粒度",
+        "最终可用",
+        "是否可升级",
+        "执行包状态",
+        "P0执行包类型",
+        "P0页码优先序",
+        "P0学校优先序",
+        "P0页内任务数",
+        "P0学校任务数",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "全量证据执行优先级",
+        "证据项",
+        "证据任务优先级",
+        "证据任务状态",
+        "需要核验字段",
+        "执行动作代码",
+        "阻断或待核原因",
+    }
+    p0_priority_to_packet_type = {
+        "P0-先核PDF结构阻断": "P0A-PDF原页结构阻断",
+        "P0-三方证据闭环先核": "P0B-三方证据闭环",
+        "P0-B0B1冲突/未匹配先核": "P0C-B0B1差异复核",
+    }
+    p0_source_closure_rows = [
+        row for row in full_major_closure_rows if row.get("证据任务优先级", "").startswith("P0-")
+    ]
+    p0_source_by_task_id = {
+        row.get("证据闭环任务ID"): row for row in p0_source_closure_rows
+    }
+    p0_execution_task_ids = {row.get("P0执行包任务ID") for row in p0_execution_rows}
+    p0_execution_source_task_ids = {
+        row.get("来源证据闭环任务ID") for row in p0_execution_rows
+    }
+    p0_execution_major_ids = {row.get("专业行ID") for row in p0_execution_rows}
+    p0_source_major_ids = {row.get("专业行ID") for row in p0_source_closure_rows}
+    p0_execution_packet_ids = {row.get("P0执行包ID") for row in p0_execution_rows}
+    p0_execution_packet_type_counts = Counter(row.get("P0执行包类型") for row in p0_execution_rows)
+    p0_execution_status_counts = Counter(row.get("证据任务状态") for row in p0_execution_rows)
+    p0_execution_item_counts = Counter(row.get("证据项") for row in p0_execution_rows)
+    p0_source_page_counts = Counter(row.get("来源页码") for row in p0_source_closure_rows)
+    p0_source_school_counts = Counter(
+        (row.get("院校代码"), row.get("院校名称OCR")) for row in p0_source_closure_rows
+    )
+    p0_source_packet_groups = {
+        stable_id(
+            "P0PACK",
+            [
+                row.get("来源页码", ""),
+                row.get("院校代码", ""),
+                row.get("院校专业组代码OCR规范化", ""),
+                p0_priority_to_packet_type.get(row.get("证据任务优先级", ""), ""),
+            ],
+        )
+        for row in p0_source_closure_rows
+    }
+    p0_execution_distribution_ok = True
+    for row in p0_execution_rows:
+        source_row = p0_source_by_task_id.get(row.get("来源证据闭环任务ID"))
+        expected_packet_type = p0_priority_to_packet_type.get(row.get("证据任务优先级", ""))
+        expected_packet_id = stable_id(
+            "P0PACK",
+            [
+                row.get("来源页码", ""),
+                row.get("院校代码", ""),
+                row.get("院校专业组代码OCR规范化", ""),
+                row.get("P0执行包类型", ""),
+            ],
+        )
+        p0_execution_distribution_ok = (
+            p0_execution_distribution_ok
+            and bool(source_row)
+            and row.get("P0执行包ID") == expected_packet_id
+            and row.get("P0执行包任务ID")
+            == stable_id("P0TASK", [row.get("P0执行包ID", ""), row.get("来源证据闭环任务ID", "")])
+            and row.get("P0执行包类型") == expected_packet_type
+            and row.get("来源全量证据工作台ID") == source_row.get("来源全量证据工作台ID")
+            and row.get("专业行ID") == source_row.get("专业行ID")
+            and row.get("专业组出现ID") == source_row.get("专业组出现ID")
+            and row.get("院校代码") == source_row.get("院校代码")
+            and row.get("院校名称OCR") == source_row.get("院校名称OCR")
+            and row.get("院校专业组代码OCR规范化") == source_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == source_row.get("来源页码")
+            and row.get("专业组内专业序号") == source_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == source_row.get("专业代号OCR")
+            and row.get("专业名称及备注OCR短摘") == source_row.get("专业名称及备注OCR短摘")
+            and row.get("全量证据执行优先级") == source_row.get("全量证据执行优先级")
+            and row.get("证据项") == source_row.get("证据项")
+            and row.get("证据任务优先级") == source_row.get("证据任务优先级")
+            and row.get("证据任务状态") == source_row.get("证据任务状态")
+            and row.get("执行动作代码") == source_row.get("执行动作代码")
+            and as_int(row.get("P0页内任务数")) == p0_source_page_counts[row.get("来源页码")]
+            and as_int(row.get("P0学校任务数"))
+            == p0_source_school_counts[(row.get("院校代码"), row.get("院校名称OCR"))]
+        )
+    p0_execution_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_execution_summary_path, p0_execution_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 证据执行包摘要和行数正确",
+        p0_execution_summary.get("status") == "issue19_p0_evidence_execution_packets_not_final"
+        and p0_execution_summary.get("generated_by") == "build_issue19_p0_evidence_execution_packets.py"
+        and p0_execution_summary.get("source_closure_tasks")
+        == "data/working/issue19-full-major-evidence-closure-tasks.csv"
+        and p0_execution_summary.get("output_table")
+        == "data/working/issue19-p0-evidence-execution-packets.csv"
+        and p0_execution_summary.get("source_closure_task_count") == 94935
+        and p0_execution_summary.get("p0_task_row_count") == 6619
+        and p0_execution_summary.get("unique_p0_task_id_count") == 6619
+        and p0_execution_summary.get("unique_source_closure_task_id_count") == 6619
+        and p0_execution_summary.get("unique_major_line_id_count") == 5310
+        and p0_execution_summary.get("unique_packet_id_count") == 2282
+        and p0_execution_summary.get("unique_pdf_page_count") == 231
+        and p0_execution_summary.get("unique_school_count") == 1056
+        and p0_execution_summary.get("auto_upgrade_allowed_count") == 0
+        and p0_execution_summary.get("final_available_count") == 0
+        and len(p0_execution_rows) == 6619,
+        f"{len(p0_execution_rows)} P0 tasks",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 证据执行包字段、主键和逐专业粒度正确",
+        required_p0_execution_fields.issubset(p0_execution_fields)
+        and len(p0_execution_task_ids) == len(p0_execution_rows)
+        and p0_execution_source_task_ids == set(p0_source_by_task_id)
+        and p0_execution_major_ids == p0_source_major_ids
+        and p0_execution_packet_ids == p0_source_packet_groups
+        and all(
+            row.get("来源证据闭环任务队列")
+            == "data/working/issue19-full-major-evidence-closure-tasks.csv"
+            and row.get("数据阶段") == "issue19_p0_evidence_execution_packets"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×P0证据项"
+            and row.get("最终可用") == "false"
+            and row.get("是否可升级") == "false"
+            and row.get("执行包状态") == "pending_p0_evidence_execution"
+            and row.get("专业行ID")
+            and row.get("来源全量证据工作台ID")
+            for row in p0_execution_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期 P0 证据执行包任务分布和闭环来源正确",
+        p0_execution_packet_type_counts == Counter(p0_execution_summary.get("packet_type_counts", {}))
+        and p0_execution_status_counts == Counter(p0_execution_summary.get("task_status_counts", {}))
+        and p0_execution_item_counts == Counter(p0_execution_summary.get("evidence_item_counts", {}))
+        and p0_execution_summary.get("packet_type_counts") == {
+            "P0A-PDF原页结构阻断": 4047,
+            "P0B-三方证据闭环": 2526,
+            "P0C-B0B1差异复核": 46,
+        }
+        and p0_execution_summary.get("evidence_item_counts") == {
+            "PDF原页核验": 4047,
+            "湖北官方系统/省招办计划核验": 1263,
+            "高校官网/章程辅证": 1263,
+            "B0/B1官网冲突或未匹配复核": 46,
+        }
+        and p0_execution_summary.get("task_status_counts") == {
+            "pending_original_pdf_page_review": 3991,
+            "pending_hubei_official_plan_review": 1263,
+            "pending_school_plan_source_search": 148,
+            "pending_school_plan_or_charter_review": 581,
+            "has_school_plan_source_pending_crosscheck": 143,
+            "has_d0_page_ocr_evidence_pending_original_pdf_review": 56,
+            "has_partial_school_source_pending_followup": 346,
+            "pending_b0_b1_unmatched_major_review": 28,
+            "school_source_conflict_pending_pdf_and_hubei_review": 4,
+            "pending_b0_b1_plan_conflict_review": 18,
+            "has_charter_or_rules_but_no_plan_detail": 41,
+        }
+        and p0_execution_distribution_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 证据执行包公开文件不含本地路径、图片扩展名、身份信息、登录态和最终建议结论",
+        "private/" not in p0_execution_public_text
+        and "private\\" not in p0_execution_public_text
+        and "/Users/" not in p0_execution_public_text
+        and "ocr-runs" not in p0_execution_public_text
+        and "rendered-pages" not in p0_execution_public_text
+        and ".png" not in p0_execution_public_text
+        and ".jpg" not in p0_execution_public_text
+        and ".jpeg" not in p0_execution_public_text
+        and "Authorization" not in p0_execution_public_text
+        and "Bearer " not in p0_execution_public_text
+        and "Cookie" not in p0_execution_public_text
+        and "final_allowed" not in p0_execution_public_text
+        and "ready_for_discussion" not in p0_execution_public_text
+        and "已确认" not in p0_execution_public_text
+        and "已核准" not in p0_execution_public_text
+        and "最终推荐" not in p0_execution_public_text
+        and "最终方案" not in p0_execution_public_text
+        and "可填报" not in p0_execution_public_text
+        and "可排序" not in p0_execution_public_text
+        and not any(token in p0_execution_public_text for token in shared_forbidden_tokens),
+    ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
         "final_allowed" not in page_manifest_public_text
@@ -6679,6 +6921,23 @@ def main():
         "第 19 期组级索引/队列表不得冒充逐专业候选讨论主表",
         group_index_misuse_ok,
     ))
+
+    if (ROOT / ".git").exists():
+        tracked_pyc_result = subprocess.run(
+            ["git", "ls-files", "*.pyc"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        tracked_pyc_files = [
+            line for line in tracked_pyc_result.stdout.splitlines() if line.strip()
+        ]
+        checks.append(ok(
+            "公开仓库未跟踪 Python 编译缓存",
+            tracked_pyc_result.returncode == 0 and not tracked_pyc_files,
+            "；".join(tracked_pyc_files[:5]),
+        ))
 
     checksum_path = ROOT / "CHECKSUMS.sha256"
     if checksum_path.exists():
