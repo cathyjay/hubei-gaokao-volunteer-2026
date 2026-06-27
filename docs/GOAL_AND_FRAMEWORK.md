@@ -51,6 +51,8 @@
 
 新增的 `data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json` 只公开第一闭环私有预填的页列级审计：36 个页列、205 条任务、73 条高校侧辅证候选线索已经进入私有核页提示层，但公开层不保存候选值。它的作用是减少人工打开高校官网和逐行查找成本，不改变“PDF 原页、省招办/湖北官方侧、必要高校侧辅证和双人复核闭环前不得定案”的原则。
 
+新增的 `data/working/issue19-stable-foundation-first-closure-execution-queue.csv` 和 `data/working/issue19-stable-foundation-first-closure-execution-queue-summary.json` 把这 36 个页列排成第一闭环核验顺序：E0 冲突异常双人优先核验 17 个、E1 计划数补缺或偏大优先核验 11 个、E2 官网未匹配专业名归属核验 8 个。它只公开页列顺序、计数、证据编号、SHA、完成条件和阻断原因，不公开学校专业明细、候选值、人工读数、识别正文或私有路径；它是“先核什么”的工作台，不是“已经核准”的事实表。
+
 ## 三、学校分析维度
 
 - 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。
