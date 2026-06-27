@@ -10,6 +10,7 @@
 
 - 不保存考生姓名、身份证号、准考证号、报名号等直接身份信息。
 - 官方网页、PDF、图片原件是第一证据；OCR/CSV 只是便于筛选的派生数据。
+- 证据层级固定为：第 19 期 PDF 原页或纸质原页是省招办原件底座；湖北官方系统在可得时用于官方系统核验和最终代码确认；高校官网、招生章程、官网 API、XLSX、PDF 或图片计划只作为高校侧辅证和差异发现；第三方平台和 OCR 只作为线索。
 - 最终志愿只允许使用已经回看官方原件、招生计划和招生章程复核过的逐专业招生明细及其所在院校专业组。
 - 以位次和等位分为主，不用裸分直觉做判断。
 - 所有候选必须展开到招生专业明细，记录“为什么选、有什么风险、是否能接受调剂”。
@@ -130,6 +131,7 @@ python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_first_closure_packet.py
 python3 scripts/build_issue19_first_closure_review_materials.py
 python3 scripts/build_issue19_first_closure_task_review_ledger.py
+python3 scripts/build_issue19_first_closure_private_triage_prefill.py
 python3 scripts/build_issue19_major_line_layout_continuity_risk_ledger.py
 python3 scripts/build_issue19_major_code_order_risk_ledger.py
 python3 scripts/build_issue19_foundation_audit.py
@@ -187,6 +189,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 第一闭环复核材料公开账本：`data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-review-summary.json` 把上述 36 个页列接到 Git 忽略的私有 HTML/CSV 复核材料。公开层只保存页列、任务计数、优先级、私有材料 SHA、回链状态和非最终门禁；私有层才展示页图、OCR 行和待填写字段。当前 36 个页列全部为 `R0-Overlay已生成未填写`，205 条任务中自动官网辅证 104 条、人工字段核页 101 条，完成计数、推荐依据、字段写回、学校专业建议和最终可用仍全部为 0。
 
 第一闭环任务级复核公开账本：`data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-task-review-summary.json` 把同一批 205 条任务逐条回连到 36 个页列材料、PDF 原页待核、湖北官方侧待核、高校辅证线索、双人复核要求和公共高校来源文件 SHA。它只回答“每条任务卡在哪条证据链、下一步怎么核”，不公开字段读数、不确认字段事实、不进入学校专业建议。
+
+第一闭环私有预填公开审计：`data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json` 把 205 条第一闭环任务的高校侧辅证候选只预填到 Git 忽略的私有工作台，公开层只保留 36 个页列的任务计数、私有 CSV SHA 和非最终门禁。当前 73 条任务有公共高校来源文件线索，35 条含学费线索，48 条含选科线索；这些都只是核页提示，不替代第 19 期 PDF 原页、湖北官方侧核验或字段确认。
 
 P0 字段原页重读工作清单：`data/working/issue19-field-fact-p0-reread-worklist.csv` 从字段事实核验任务队列中严格抽取 11444 条 K0 无候选字段任务，覆盖 8536 条招生专业明细、231 个 PDF 明细页和 967 所学校。它把每个 `专业行ID × 字段名` 回连到字段任务、原始源证据审计、PDF 原页锚点和页级保真队列，用于优先回看专业计划数、再选科目、学费三项原始字段；全部 `最终可用=false`、`可进入下一阶段=false`，不得自动写回主表，也不得生成学校或专业建议。
 

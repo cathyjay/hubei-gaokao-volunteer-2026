@@ -10591,6 +10591,24 @@ def main():
         and "同页列、同校或同组 100% 人工核验" in hubei_official_fallback_policy_text
         and "回到湖北省招办渠道" in hubei_official_fallback_policy_text,
     ))
+    official_unavailable_docs_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            ROOT / "README.md",
+            ROOT / "docs/2026_ADMISSION_PLAN_ACQUISITION.md",
+            ROOT / "docs/ISSUE19_PDF_EXTRACTION_PLAN.md",
+            ROOT / "docs/VERIFICATION.md",
+            ROOT / "docs/EXECUTION_PLAN.md",
+        ]
+    )
+    checks.append(ok(
+        "湖北官方不可得时的公开文档保持省源优先和应急门禁收紧",
+        "official_system_unavailable" in official_unavailable_docs_text
+        and "PDF 原页或纸质原页双人复核" in official_unavailable_docs_text
+        and "人工确认的应急项" not in official_unavailable_docs_text
+        and "低风险抽检必须有升级边界" in official_unavailable_docs_text
+        and "第 19 期 PDF 原页或纸质原页是省招办原件底座" in official_unavailable_docs_text,
+    ))
 
     raw_lineage_summary_path = ROOT / "data/working/issue19-raw-major-lineage-consistency-audit-summary.json"
     raw_lineage_csv = ROOT / "data/working/issue19-raw-major-lineage-consistency-audit.csv"
@@ -20073,6 +20091,365 @@ def main():
         and "可填报" not in first_task_review_public_text
         and "可排序" not in first_task_review_public_text
         and not any(token in first_task_review_public_text for token in shared_forbidden_tokens),
+    ))
+
+    first_prefill_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json"
+    )
+    first_prefill_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv"
+    )
+    first_prefill_summary = json.loads(first_prefill_summary_path.read_text())
+    with first_prefill_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_prefill_reader = csv.DictReader(f)
+        first_prefill_rows = list(first_prefill_reader)
+        first_prefill_fields = first_prefill_reader.fieldnames or []
+    expected_first_prefill_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_private_triage_prefill.py",
+        "PUBLIC_AUDIT_FIELDS",
+    )
+    expected_first_prefill_private_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_private_triage_prefill.py",
+        "PRIVATE_WORKBENCH_FIELDS",
+    )
+    expected_first_prefill_private_index_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_private_triage_prefill.py",
+        "PRIVATE_INDEX_FIELDS",
+    )
+    first_prefill_by_key = {row.get("页码版面键", ""): row for row in first_prefill_rows}
+    first_prefill_private_dir = (
+        ROOT / "private/review-assets/issue19-stable-foundation-first-closure-triage-prefill"
+    )
+    first_prefill_private_index = first_prefill_private_dir / "first-closure-triage-prefill-private-index.csv"
+    first_prefill_private_master_csv = first_prefill_private_dir / "first-closure-triage-prefill-private-workbench.csv"
+    first_prefill_private_master_html = first_prefill_private_dir / "index.html"
+    first_prefill_private_rows = []
+    first_prefill_private_index_rows = []
+    first_prefill_private_by_key = {}
+    first_prefill_private_ok = True
+    if first_prefill_private_index.exists():
+        with first_prefill_private_index.open(newline="", encoding="utf-8-sig") as f:
+            private_index_reader = csv.DictReader(f)
+            first_prefill_private_index_rows = list(private_index_reader)
+            private_index_fields = private_index_reader.fieldnames or []
+        with first_prefill_private_master_csv.open(newline="", encoding="utf-8-sig") as f:
+            private_master_reader = csv.DictReader(f)
+            first_prefill_private_rows = list(private_master_reader)
+            private_master_fields = private_master_reader.fieldnames or []
+        first_prefill_private_ok = (
+            private_index_fields == expected_first_prefill_private_index_fields
+            and private_master_fields == expected_first_prefill_private_fields
+            and len(first_prefill_private_index_rows) == 36
+            and len(first_prefill_private_rows) == 205
+            and first_prefill_summary.get("private_master_csv_sha256")
+            == sha256(first_prefill_private_master_csv)
+            and first_prefill_summary.get("private_index_csv_sha256")
+            == sha256(first_prefill_private_index)
+            and first_prefill_summary.get("private_master_html_sha256")
+            == sha256(first_prefill_private_master_html)
+        )
+        private_rows_by_task_id = {
+            row.get("稳定基座第一闭环明细任务ID", ""): row
+            for row in first_prefill_private_rows
+        }
+        first_prefill_private_ok = (
+            first_prefill_private_ok
+            and set(private_rows_by_task_id) == set(first_detail_by_task_id)
+            and all(
+                row.get("PDF原页人工读数") == ""
+                and row.get("湖北官方字段值") == ""
+                and row.get("高校官网或招生章程字段值") == ""
+                and row.get("字段确认值") == ""
+                and row.get("一审记录") == ""
+                and row.get("二审记录") == ""
+                and row.get("复核结论") == ""
+                and row.get("复核备注") == ""
+                for row in first_prefill_private_rows
+            )
+        )
+        for task_id, private_row in private_rows_by_task_id.items():
+            detail = first_detail_by_task_id.get(task_id, {})
+            task = first_task_review_by_task_id.get(task_id, {})
+            first_prefill_private_ok = (
+                first_prefill_private_ok
+                and bool(detail)
+                and bool(task)
+                and private_row.get("稳定基座第一闭环私有预填任务ID")
+                == stable_id("FIRSTPREFILL", [task_id])
+                and private_row.get("稳定基座第一闭环任务复核公开账本ID")
+                == task.get("稳定基座第一闭环任务复核公开账本ID")
+                and private_row.get("专业行ID") == task.get("专业行ID")
+                and private_row.get("页码版面键") == task.get("页码版面键")
+                and private_row.get("高校辅证候选计划数") == detail.get("最佳官网计划数")
+                and private_row.get("高校辅证候选学费") == detail.get("最佳官网学费")
+                and private_row.get("高校辅证候选选科") == detail.get("最佳官网选科")
+                and private_row.get("OCR候选计划数") == detail.get("OCR专业计划数候选")
+                and private_row.get("OCR候选学费") == detail.get("OCR学费候选")
+                and private_row.get("OCR候选选科") == detail.get("OCR再选科目候选")
+                and private_row.get("自动辅证是否可替代湖北官方计划") == "false"
+            )
+        for index_row in first_prefill_private_index_rows:
+            key = index_row.get("页码版面键", "")
+            page_csv = first_prefill_private_dir / index_row.get("私有预填页列CSV相对路径", "")
+            if not page_csv.exists():
+                first_prefill_private_ok = False
+                continue
+            with page_csv.open(newline="", encoding="utf-8-sig") as f:
+                private_page_reader = csv.DictReader(f)
+                private_page_rows = list(private_page_reader)
+                private_page_fields = private_page_reader.fieldnames or []
+            expected_task_ids = {
+                row.get("稳定基座第一闭环明细任务ID")
+                for row in first_task_review_rows
+                if row.get("页码版面键") == key
+            }
+            actual_task_ids = {
+                row.get("稳定基座第一闭环明细任务ID") for row in private_page_rows
+            }
+            first_prefill_private_by_key[key] = {
+                "index": index_row,
+                "rows": private_page_rows,
+                "csv": page_csv,
+            }
+            first_prefill_private_ok = (
+                first_prefill_private_ok
+                and private_page_fields == expected_first_prefill_private_fields
+                and sha256(page_csv) == index_row.get("私有预填页列CSV_SHA256")
+                and actual_task_ids == expected_task_ids
+                and len(private_page_rows) == (as_int(index_row.get("预填任务数")) or -1)
+            )
+    def first_prefill_has_any_candidate(detail):
+        return bool(detail.get("最佳官网计划数") or detail.get("最佳官网学费") or detail.get("最佳官网选科"))
+
+    first_prefill_join_ok = True
+    for row in first_prefill_rows:
+        key = row.get("页码版面键", "")
+        group = [task for task in first_task_review_rows if task.get("页码版面键") == key]
+        review = first_review_by_key.get(key, {})
+        private = first_prefill_private_by_key.get(key, {})
+        private_index_row = private.get("index", {})
+        detail_group = [
+            first_detail_by_task_id.get(task.get("稳定基座第一闭环明细任务ID", ""), {})
+            for task in group
+        ]
+        first_prefill_join_ok = (
+            first_prefill_join_ok
+            and bool(group)
+            and bool(review)
+            and row.get("第一闭环私有预填公开审计ID") == stable_id("FIRSTPREFILLAUDIT", [key])
+            and row.get("来源第一闭环任务复核公开账本")
+            == "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv"
+            and row.get("来源第一闭环复核公开账本")
+            == "data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源第一闭环私有预填材料")
+            == "first_closure_triage_prefill_private_material_not_public"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_stable_foundation_first_closure_triage_prefill_public_audit"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×第一闭环私有预填审计"
+            and all(row.get(field) == "false" for field in first_false_fields)
+            and row.get("稳定基座第一闭环页列包ID") == review.get("稳定基座第一闭环页列包ID")
+            and row.get("稳定基座第一闭环复核公开账本ID")
+            == review.get("稳定基座第一闭环复核公开账本ID")
+            and row.get("来源页码") == review.get("来源页码")
+            and row.get("版面列") == review.get("版面列")
+            and row.get("第一闭环页列优先级") == review.get("第一闭环页列优先级")
+            and as_int(row.get("预填任务数")) == len(group)
+            and as_int(row.get("自动官网辅证任务数"))
+            == sum(1 for task in group if task.get("任务来源类型") == "自动官网辅证任务")
+            and as_int(row.get("P0人工字段任务数"))
+            == sum(1 for task in group if task.get("任务来源类型") == "P0人工字段任务")
+            and as_int(row.get("高校辅证线索任务数"))
+            == sum(1 for detail in detail_group if first_prefill_has_any_candidate(detail))
+            and as_int(row.get("含高校计划数线索任务数"))
+            == sum(1 for detail in detail_group if detail.get("最佳官网计划数"))
+            and as_int(row.get("含高校学费线索任务数"))
+            == sum(1 for detail in detail_group if detail.get("最佳官网学费"))
+            and as_int(row.get("含高校选科线索任务数"))
+            == sum(1 for detail in detail_group if detail.get("最佳官网选科"))
+            and as_int(row.get("公共高校来源文件任务数"))
+            == sum(1 for task in group if task.get("最佳官网来源文件"))
+            and as_int(row.get("公共高校来源文件数"))
+            == len({task.get("最佳官网来源文件") for task in group if task.get("最佳官网来源文件")})
+            and as_int(row.get("自动辅证可作为核页提示任务数"))
+            == sum(1 for task in group if task.get("自动辅证是否可作为核页提示") == "true")
+            and as_int(row.get("PDF原页必核任务数")) == len(group)
+            and as_int(row.get("湖北官方侧必核任务数")) == len(group)
+            and as_int(row.get("高校辅证需复核任务数"))
+            == sum(1 for task in group if task.get("高校辅证是否需要复核") == "true")
+            and as_int(row.get("双人复核任务数"))
+            == sum(1 for task in group if task.get("是否需要双人复核") == "true")
+            and as_int(row.get("C0冲突任务数"))
+            == sum(1 for task in group if task.get("官网辅证自动动作") == "C0-冲突先核PDF原页和湖北官方系统")
+            and as_int(row.get("C1官网补缺任务数"))
+            == sum(1 for task in group if task.get("官网辅证自动动作") == "C1-官网补缺候选但禁止自动写回")
+            and as_int(row.get("C7官网未匹配任务数"))
+            == sum(1 for task in group if task.get("官网辅证自动动作") == "C7-官网源未匹配专业需人工确认专业名")
+            and as_int(row.get("EXEC01冲突异常字段数"))
+            == sum(1 for task in group if task.get("执行批次") == "EXEC-01-冲突异常立即核页")
+            and as_int(row.get("EXEC02计划数偏大字段数"))
+            == sum(1 for task in group if task.get("执行批次") == "EXEC-02-计划数偏大重点核页")
+            and as_int(row.get("EXEC03高校辅证字段数"))
+            == sum(1 for task in group if task.get("执行批次") == "EXEC-03-高校辅证线索三方核验")
+            and row.get("私有预填页列CSV证据编号") == f"FIRST-CLOSURE-PREFILL-CSV-{key}"
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有预填页列CSV_SHA256", "") or "")
+            and row.get("私有预填材料状态") == "private_triage_prefill_material_generated_not_reviewed"
+            and row.get("官方公开计划页可定稿") == "false"
+            and row.get("数智平台可定稿") == "false"
+            and row.get("字段事实写回状态")
+            == "blocked_until_private_pdf_hubei_review_confirms_values"
+            and (
+                not first_prefill_private_index.exists()
+                or (
+                    private_index_row
+                    and row.get("私有预填页列CSV_SHA256")
+                    == private_index_row.get("私有预填页列CSV_SHA256")
+                )
+            )
+        )
+    first_prefill_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_prefill_summary_path, first_prefill_csv]
+    )
+    first_prefill_private_candidates = first_prefill_private_rows or [
+        {
+            "稳定基座第一闭环明细任务ID": task.get("稳定基座第一闭环明细任务ID", ""),
+            "预填候选字段集合": "x" if first_prefill_has_any_candidate(
+                first_detail_by_task_id.get(task.get("稳定基座第一闭环明细任务ID", ""), {})
+            ) else "",
+            "高校辅证候选计划数": first_detail_by_task_id.get(
+                task.get("稳定基座第一闭环明细任务ID", ""), {}
+            ).get("最佳官网计划数", ""),
+            "高校辅证候选学费": first_detail_by_task_id.get(
+                task.get("稳定基座第一闭环明细任务ID", ""), {}
+            ).get("最佳官网学费", ""),
+            "高校辅证候选选科": first_detail_by_task_id.get(
+                task.get("稳定基座第一闭环明细任务ID", ""), {}
+            ).get("最佳官网选科", ""),
+            "最佳官网来源文件": task.get("最佳官网来源文件", ""),
+            "是否需要双人复核": task.get("是否需要双人复核", ""),
+            "PDF原页是否必核": task.get("PDF原页是否必核", ""),
+            "湖北官方侧是否必核": task.get("湖北官方侧是否必核", ""),
+            "高校辅证是否需要复核": task.get("高校辅证是否需要复核", ""),
+        }
+        for task in first_task_review_rows
+    ]
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环私有预填公开审计摘要、规模和官方边界正确",
+        first_prefill_summary.get("status")
+        == "issue19_stable_foundation_first_closure_triage_prefill_not_final"
+        and first_prefill_summary.get("generated_by")
+        == "build_issue19_first_closure_private_triage_prefill.py"
+        and first_prefill_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_prefill_summary.get("output_public_audit")
+        == "data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv"
+        and first_prefill_summary.get("source_private_triage_prefill_material")
+        == "first_closure_triage_prefill_private_material_not_public"
+        and first_prefill_summary.get("public_row_count") == len(first_prefill_rows) == 36
+        and first_prefill_summary.get("private_workbench_row_count") == 205
+        and first_prefill_summary.get("unique_task_count") == 205
+        and first_prefill_summary.get("unique_page_side_count") == 36
+        and first_prefill_summary.get("unique_pdf_page_count") == 32
+        and first_prefill_summary.get("official_public_plan_page_can_finalize") is False
+        and first_prefill_summary.get("zspt_platform_can_finalize") is False
+        and first_prefill_summary.get("field_writeback_allowed_count") == 0
+        and first_prefill_summary.get("final_available_count") == 0
+        and first_prefill_summary.get("next_stage_available_count") == 0
+        and first_prefill_summary.get("recommendation_basis_allowed_count") == 0
+        and first_prefill_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_prefill_summary.get("official_plan_replacement_allowed_count") == 0,
+        f"{len(first_prefill_rows)} prefill audit rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环私有预填公开审计计数、私有SHA和候选线索边界正确",
+        first_prefill_summary.get("prefill_candidate_task_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("预填候选字段集合"))
+        and first_prefill_summary.get("candidate_plan_task_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("高校辅证候选计划数"))
+        and first_prefill_summary.get("candidate_tuition_task_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("高校辅证候选学费"))
+        and first_prefill_summary.get("candidate_elective_task_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("高校辅证候选选科"))
+        and first_prefill_summary.get("public_school_source_file_task_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("最佳官网来源文件"))
+        and first_prefill_summary.get("unique_public_school_source_file_count")
+        == len({row.get("最佳官网来源文件") for row in first_prefill_private_candidates if row.get("最佳官网来源文件")})
+        and first_prefill_summary.get("double_review_required_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("是否需要双人复核") == "true")
+        and first_prefill_summary.get("pdf_required_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("PDF原页是否必核") == "true")
+        and first_prefill_summary.get("hubei_official_required_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("湖北官方侧是否必核") == "true")
+        and first_prefill_summary.get("school_support_required_count")
+        == sum(1 for row in first_prefill_private_candidates if row.get("高校辅证是否需要复核") == "true")
+        and (
+            not first_prefill_private_index.exists()
+            or first_prefill_private_ok
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环私有预填公开审计字段、门禁、页列回链正确",
+        first_prefill_fields == expected_first_prefill_fields
+        and len({row.get("第一闭环私有预填公开审计ID") for row in first_prefill_rows}) == 36
+        and set(first_prefill_by_key) == set(first_review_by_key)
+        and all(row.get(field) == "false" for row in first_prefill_rows for field in first_false_fields)
+        and first_prefill_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环私有预填公开文件不含候选值、私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in first_prefill_public_text
+        and "/home/" not in first_prefill_public_text
+        and "/var/folders/" not in first_prefill_public_text
+        and "/private/" not in first_prefill_public_text
+        and "private/" not in first_prefill_public_text
+        and "private\\" not in first_prefill_public_text
+        and "ocr-runs" not in first_prefill_public_text
+        and "rendered-pages" not in first_prefill_public_text
+        and "file://" not in first_prefill_public_text
+        and ".png" not in first_prefill_public_text
+        and ".jpg" not in first_prefill_public_text
+        and ".jpeg" not in first_prefill_public_text
+        and ".webp" not in first_prefill_public_text
+        and ".tif" not in first_prefill_public_text
+        and ".tiff" not in first_prefill_public_text
+        and ".heic" not in first_prefill_public_text
+        and "Authorization" not in first_prefill_public_text
+        and "Bearer " not in first_prefill_public_text
+        and "Cookie" not in first_prefill_public_text
+        and "Set-Cookie" not in first_prefill_public_text
+        and "access_token" not in first_prefill_public_text
+        and "refresh_token" not in first_prefill_public_text
+        and "password" not in first_prefill_public_text
+        and "secret" not in first_prefill_public_text
+        and "api_key" not in first_prefill_public_text
+        and "身份证" not in first_prefill_public_text
+        and "准考证" not in first_prefill_public_text
+        and "报名号" not in first_prefill_public_text
+        and "序列号" not in first_prefill_public_text
+        and "手机号" not in first_prefill_public_text
+        and "候选计划数" not in first_prefill_public_text
+        and "候选学费" not in first_prefill_public_text
+        and "候选选科" not in first_prefill_public_text
+        and "最佳官网计划数" not in first_prefill_public_text
+        and "最佳官网学费" not in first_prefill_public_text
+        and "最佳官网选科" not in first_prefill_public_text
+        and "PDF原页人工读数" not in first_prefill_public_text
+        and "湖北官方字段值" not in first_prefill_public_text
+        and "高校官网或招生章程字段值" not in first_prefill_public_text
+        and "字段确认值" not in first_prefill_public_text
+        and "一审记录" not in first_prefill_public_text
+        and "二审记录" not in first_prefill_public_text
+        and "复核结论" not in first_prefill_public_text
+        and "复核备注" not in first_prefill_public_text
+        and "已确认" not in first_prefill_public_text
+        and "已核准" not in first_prefill_public_text
+        and "最终推荐" not in first_prefill_public_text
+        and "最终方案" not in first_prefill_public_text
+        and "可填报" not in first_prefill_public_text
+        and "可排序" not in first_prefill_public_text
+        and not any(token in first_prefill_public_text for token in shared_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())

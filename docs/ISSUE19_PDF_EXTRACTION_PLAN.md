@@ -176,7 +176,7 @@ private/derived/issue19-sample-school-ocr/样本学校OCR定位.csv
 
 进入最终志愿表前，至少需要达到 `manual_verified`，关键候选应尽量达到 `cross_checked_system`。
 
-技术闸门：`ocr_raw -> parsed_unverified -> manual_checked -> official_system_verified -> final_allowed`。最终志愿表生成时，只允许 `final_allowed` 或经过人工确认的应急项进入最终方案。
+技术闸门：`ocr_raw -> parsed_unverified -> manual_checked -> official_system_verified -> final_allowed`。任何应急使用项也必须完成 PDF 原页或纸质原页双人复核；湖北官方系统可得时必须补核，不可得时必须记录不可得状态和风险标签。没有完成这些步骤前，不得进入最终方案。
 
 ## 八、下一步
 

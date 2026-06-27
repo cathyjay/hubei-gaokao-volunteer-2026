@@ -49,6 +49,8 @@
 
 进一步的 `data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-task-review-summary.json` 把 205 条任务逐条回连到页列材料、PDF 原页、湖北官方侧、高校辅证线索和公共来源文件 SHA。它让后续人工核页可以按任务推进，但所有推荐、写回、最终可用门禁仍为 0。
 
+新增的 `data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json` 只公开第一闭环私有预填的页列级审计：36 个页列、205 条任务、73 条高校侧辅证候选线索已经进入私有核页提示层，但公开层不保存候选值。它的作用是减少人工打开高校官网和逐行查找成本，不改变“PDF 原页、省招办/湖北官方侧、必要高校侧辅证和双人复核闭环前不得定案”的原则。
+
 ## 三、学校分析维度
 
 - 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。
