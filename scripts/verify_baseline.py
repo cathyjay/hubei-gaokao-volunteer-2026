@@ -14267,6 +14267,9 @@ def main():
     p0_crop_ocr_by_task_id = {
         row.get("P0字段即时复核任务ID"): row for row in p0_crop_ocr_rows
     }
+    p0_field_confirm_by_task_id = {
+        row.get("P0字段即时复核任务ID"): row for row in p0_field_confirm_rows
+    }
     p0_field_confirm_join_ok = True
     for row in p0_field_confirm_rows:
         task_id = row.get("P0字段即时复核任务ID", "")
@@ -14925,6 +14928,286 @@ def main():
         "第 19 期 P0 即时私有页列核页材料存在时本地文件、空白人工字段和状态计数一致",
         p0_page_private_optional_ok,
         p0_page_private_detail,
+    ))
+
+    p0_pdf_candidate_summary_path = (
+        ROOT / "data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit-summary.json"
+    )
+    p0_pdf_candidate_csv = (
+        ROOT / "data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv"
+    )
+    p0_pdf_candidate_summary = json.loads(p0_pdf_candidate_summary_path.read_text())
+    with p0_pdf_candidate_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_pdf_candidate_reader = csv.DictReader(f)
+        p0_pdf_candidate_rows = list(p0_pdf_candidate_reader)
+        p0_pdf_candidate_fields = p0_pdf_candidate_reader.fieldnames or []
+    expected_p0_pdf_candidate_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_p0_immediate_pdf_reading_candidates.py",
+        "FIELDS",
+    )
+    p0_pdf_candidate_by_task = {
+        row.get("P0字段即时复核任务ID"): row for row in p0_pdf_candidate_rows
+    }
+    p0_page_packet_by_id = {
+        row.get("P0即时按页核页包ID"): row for row in p0_page_packet_rows
+    }
+    p0_pdf_candidate_join_ok = True
+    for row in p0_pdf_candidate_rows:
+        task_id = row.get("P0字段即时复核任务ID", "")
+        field_row = p0_field_confirm_by_task_id.get(task_id, {})
+        crop_ocr_row = p0_crop_ocr_by_task_id.get(task_id, {})
+        packet_row = p0_page_packet_by_id.get(row.get("P0即时按页核页包ID", ""), {})
+        has_private_candidate = crop_ocr_row.get("是否裁图OCR有可比候选") == "true"
+        has_candidate_conflict = (
+            crop_ocr_row.get("是否裁图OCR与机器候选冲突") == "true"
+            or crop_ocr_row.get("是否裁图OCR与高校辅证冲突") == "true"
+        )
+        has_candidate_match = (
+            crop_ocr_row.get("是否裁图OCR与机器候选一致") == "true"
+            or crop_ocr_row.get("是否裁图OCR与高校辅证一致") == "true"
+        )
+        expected_bucket = "P2-有候选但需人工确认"
+        if not has_private_candidate:
+            expected_bucket = "P3-无稳定候选需人工看图"
+        elif has_candidate_conflict:
+            expected_bucket = "P0-候选冲突优先核图"
+        elif has_candidate_match:
+            expected_bucket = "P1-候选与既有线索一致仍需核官方"
+        p0_pdf_candidate_join_ok = (
+            p0_pdf_candidate_join_ok
+            and bool(field_row)
+            and bool(crop_ocr_row)
+            and bool(packet_row)
+            and row.get("P0即时PDF原页候选公开审计ID")
+            == stable_id("P0PDFCAND", [task_id, row.get("裁图证据编号", ""), row.get("字段名", "")])
+            and row.get("来源P0即时字段确认公开账本")
+            == "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv"
+            and row.get("来源P0即时裁图OCR公开审计")
+            == "data/working/issue19-p0-immediate-crop-ocr-public-audit.csv"
+            and row.get("来源P0即时按页核页包")
+            == "data/working/issue19-p0-immediate-page-review-packets.csv"
+            and row.get("来源私有裁图OCR读数候选") == "private_crop_ocr_reading_candidates_not_public"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_p0_immediate_pdf_reading_candidate_public_audit"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×P0字段×PDF原页读数候选公开状态"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("P0即时字段确认公开账本ID") == field_row.get("P0即时字段确认公开账本ID")
+            and row.get("P0即时裁图OCR公开审计ID") == crop_ocr_row.get("P0即时裁图OCR公开审计ID")
+            and row.get("专业行ID") == field_row.get("专业行ID") == crop_ocr_row.get("专业行ID")
+            and row.get("字段名") == field_row.get("字段名") == crop_ocr_row.get("字段名")
+            and row.get("来源页码") == field_row.get("来源页码") == crop_ocr_row.get("来源页码")
+            and row.get("版面列") == field_row.get("版面列") == crop_ocr_row.get("版面列")
+            and row.get("裁图证据编号") == field_row.get("裁图证据编号") == crop_ocr_row.get("裁图证据编号")
+            and row.get("裁图文件SHA256") == field_row.get("裁图文件SHA256") == crop_ocr_row.get("裁图文件SHA256")
+            and row.get("裁图规格SHA256") == field_row.get("裁图规格SHA256") == crop_ocr_row.get("裁图规格SHA256")
+            and row.get("PDF原页候选审阅桶") == expected_bucket
+            and row.get("PDF原页候选来源状态")
+            == (
+                "private_crop_ocr_candidate_available"
+                if has_private_candidate
+                else "private_crop_ocr_candidate_unavailable"
+            )
+            and (row.get("是否已有私有PDF原页候选") == "true") == has_private_candidate
+            and row.get("是否候选与机器线索一致") == crop_ocr_row.get("是否裁图OCR与机器候选一致")
+            and row.get("是否候选与机器线索冲突") == crop_ocr_row.get("是否裁图OCR与机器候选冲突")
+            and row.get("是否候选与高校线索一致") == crop_ocr_row.get("是否裁图OCR与高校辅证一致")
+            and row.get("是否候选与高校线索冲突") == crop_ocr_row.get("是否裁图OCR与高校辅证冲突")
+            and row.get("是否有机器规范线索") == field_row.get("是否有机器规范候选")
+            and row.get("是否有高校字段线索") == field_row.get("是否有高校字段线索")
+            and (row.get("是否需要人工直接看图") == "true")
+            == (expected_bucket in {"P0-候选冲突优先核图", "P3-无稳定候选需人工看图"})
+            and row.get("是否需要双人复核") == field_row.get("是否需要双人复核")
+            and row.get("是否可自动写入人工读数") == "false"
+            and row.get("是否仍需PDF原页人工核页") == "true"
+            and row.get("是否仍需湖北官方核验") == "true"
+            and row.get("是否仍需高校辅证核验") == field_row.get("是否有高校字段线索")
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("高校官网或招生章程辅证状态") == "pending_if_school_clue_present"
+            and row.get("三方字段一致性状态") == "pending_private_three_way_field_confirmation"
+            and row.get("字段事实写回状态") == "blocked_until_required_private_readings_complete"
+        )
+    p0_pdf_candidate_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_pdf_candidate_summary_path, p0_pdf_candidate_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 即时 PDF 原页读数候选公开审计摘要、任务集合和候选桶正确",
+        p0_pdf_candidate_summary.get("status")
+        == "issue19_p0_immediate_pdf_reading_candidate_public_audit_not_final"
+        and p0_pdf_candidate_summary.get("generated_by")
+        == "build_issue19_p0_immediate_pdf_reading_candidates.py"
+        and p0_pdf_candidate_summary.get("source_field_confirmation_ledger")
+        == "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv"
+        and p0_pdf_candidate_summary.get("source_crop_ocr_audit")
+        == "data/working/issue19-p0-immediate-crop-ocr-public-audit.csv"
+        and p0_pdf_candidate_summary.get("source_page_review_packets")
+        == "data/working/issue19-p0-immediate-page-review-packets.csv"
+        and p0_pdf_candidate_summary.get("source_private_crop_ocr_reading")
+        == "private_crop_ocr_reading_candidates_not_public"
+        and p0_pdf_candidate_summary.get("output_table")
+        == "data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv"
+        and p0_pdf_candidate_summary.get("row_count") == 319
+        and p0_pdf_candidate_summary.get("private_pdf_reading_candidate_file_generated") is True
+        and p0_pdf_candidate_summary.get("unique_public_audit_id_count") == 319
+        and p0_pdf_candidate_summary.get("unique_immediate_task_id_count") == 319
+        and p0_pdf_candidate_summary.get("unique_field_confirmation_ledger_id_count") == 319
+        and p0_pdf_candidate_summary.get("unique_crop_ocr_audit_id_count") == 319
+        and p0_pdf_candidate_summary.get("unique_page_review_packet_count") == 148
+        and p0_pdf_candidate_summary.get("unique_major_field_pair_count") == 319
+        and p0_pdf_candidate_summary.get("unique_pdf_page_count") == 114
+        and p0_pdf_candidate_summary.get("unique_page_side_count") == 148
+        and p0_pdf_candidate_summary.get("field_counts") == {
+            "专业计划数": 281,
+            "学费": 19,
+            "再选科目": 19,
+        }
+        and p0_pdf_candidate_summary.get("candidate_private_status_counts") == {
+            "private_pdf_reading_candidate_seeded": 253,
+            "private_pdf_reading_candidate_unavailable_needs_manual_image_review": 66,
+        }
+        and p0_pdf_candidate_summary.get("candidate_review_bucket_counts") == {
+            "P0-候选冲突优先核图": 33,
+            "P1-候选与既有线索一致仍需核官方": 43,
+            "P2-有候选但需人工确认": 177,
+            "P3-无稳定候选需人工看图": 66,
+        }
+        and p0_pdf_candidate_summary.get("candidate_source_status_counts") == {
+            "private_crop_ocr_candidate_available": 253,
+            "private_crop_ocr_candidate_unavailable": 66,
+        }
+        and p0_pdf_candidate_summary.get("candidate_seeded_count") == 253
+        and p0_pdf_candidate_summary.get("candidate_unavailable_count") == 66
+        and p0_pdf_candidate_summary.get("candidate_machine_match_count") == 35
+        and p0_pdf_candidate_summary.get("candidate_machine_conflict_count") == 9
+        and p0_pdf_candidate_summary.get("candidate_school_match_count") == 29
+        and p0_pdf_candidate_summary.get("candidate_school_conflict_count") == 24
+        and p0_pdf_candidate_summary.get("direct_image_review_required_count") == 99
+        and p0_pdf_candidate_summary.get("double_review_required_count") == 290
+        and p0_pdf_candidate_summary.get("auto_manual_reading_write_allowed_count") == 0
+        and p0_pdf_candidate_summary.get("pdf_manual_review_required_count") == 319
+        and p0_pdf_candidate_summary.get("hubei_official_review_required_count") == 319
+        and p0_pdf_candidate_summary.get("school_side_review_required_count") == 75
+        and p0_pdf_candidate_summary.get("final_available_count") == 0
+        and p0_pdf_candidate_summary.get("next_stage_available_count") == 0
+        and p0_pdf_candidate_summary.get("field_writeback_allowed_count") == 0
+        and p0_pdf_candidate_summary.get("recommendation_basis_allowed_count") == 0
+        and p0_pdf_candidate_summary.get("school_major_suggestion_allowed_count") == 0
+        and len(p0_pdf_candidate_rows) == 319
+        and set(p0_pdf_candidate_by_task) == {row.get("P0字段即时复核任务ID") for row in p0_field_confirm_rows}
+        and set(p0_pdf_candidate_by_task) == {row.get("P0字段即时复核任务ID") for row in p0_crop_ocr_rows}
+        and set(row.get("P0即时按页核页包ID") for row in p0_pdf_candidate_rows)
+        == {row.get("P0即时按页核页包ID") for row in p0_page_packet_rows},
+        f"{len(p0_pdf_candidate_rows)} pdf reading candidate rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时 PDF 原页读数候选公开审计字段、门禁和来源回链正确",
+        p0_pdf_candidate_fields == expected_p0_pdf_candidate_fields
+        and len({row.get("P0即时PDF原页候选公开审计ID") for row in p0_pdf_candidate_rows}) == 319
+        and len({row.get("P0字段即时复核任务ID") for row in p0_pdf_candidate_rows}) == 319
+        and len({(row.get("专业行ID"), row.get("字段名")) for row in p0_pdf_candidate_rows}) == 319
+        and [as_int(row.get("PDF原页候选公开审计总序")) for row in p0_pdf_candidate_rows] == list(range(1, 320))
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in p0_pdf_candidate_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in p0_pdf_candidate_rows)
+        and all(row.get("机器是否允许自动回填候选") == "false" for row in p0_pdf_candidate_rows)
+        and all(row.get("是否允许写回字段") == "false" for row in p0_pdf_candidate_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in p0_pdf_candidate_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in p0_pdf_candidate_rows)
+        and all(row.get("是否可自动写入人工读数") == "false" for row in p0_pdf_candidate_rows)
+        and all(row.get("是否仍需PDF原页人工核页") == "true" for row in p0_pdf_candidate_rows)
+        and all(row.get("是否仍需湖北官方核验") == "true" for row in p0_pdf_candidate_rows)
+        and p0_pdf_candidate_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时 PDF 原页读数候选公开审计不含私有路径、候选值、OCR原文、人工读数、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(p0_pdf_candidate_public_text) is None
+        and "/Users/" not in p0_pdf_candidate_public_text
+        and "/home/" not in p0_pdf_candidate_public_text
+        and "/var/folders/" not in p0_pdf_candidate_public_text
+        and "/private/" not in p0_pdf_candidate_public_text
+        and "private/" not in p0_pdf_candidate_public_text
+        and "private\\" not in p0_pdf_candidate_public_text
+        and "ocr-runs" not in p0_pdf_candidate_public_text
+        and "rendered-pages" not in p0_pdf_candidate_public_text
+        and ".png" not in p0_pdf_candidate_public_text
+        and ".jpg" not in p0_pdf_candidate_public_text
+        and ".jpeg" not in p0_pdf_candidate_public_text
+        and ".webp" not in p0_pdf_candidate_public_text
+        and ".tif" not in p0_pdf_candidate_public_text
+        and ".tiff" not in p0_pdf_candidate_public_text
+        and ".heic" not in p0_pdf_candidate_public_text
+        and "Authorization" not in p0_pdf_candidate_public_text
+        and "Bearer " not in p0_pdf_candidate_public_text
+        and "Cookie" not in p0_pdf_candidate_public_text
+        and "院校名称OCR" not in p0_pdf_candidate_public_text
+        and "院校专业组代码OCR规范化" not in p0_pdf_candidate_public_text
+        and "专业代号OCR" not in p0_pdf_candidate_public_text
+        and "专业名称及备注" not in p0_pdf_candidate_public_text
+        and "组内招生明细" not in p0_pdf_candidate_public_text
+        and "机器候选字段值" not in p0_pdf_candidate_public_text
+        and "机器候选规范值" not in p0_pdf_candidate_public_text
+        and "高校官网字段候选值" not in p0_pdf_candidate_public_text
+        and "高校官网字段规范值" not in p0_pdf_candidate_public_text
+        and "裁图OCR候选字段值" not in p0_pdf_candidate_public_text
+        and "裁图OCR候选规范值" not in p0_pdf_candidate_public_text
+        and "裁图OCR候选行文本" not in p0_pdf_candidate_public_text
+        and "PDF原页人工读数" not in p0_pdf_candidate_public_text
+        and "湖北官方字段值" not in p0_pdf_candidate_public_text
+        and "高校官网或招生章程字段值" not in p0_pdf_candidate_public_text
+        and "字段确认值" not in p0_pdf_candidate_public_text
+        and "PDF原页私有候选字段读数" not in p0_pdf_candidate_public_text
+        and "PDF原页私有候选规范读数" not in p0_pdf_candidate_public_text
+        and "私有OCR图片本地路径" not in p0_pdf_candidate_public_text
+        and "OCR文本" not in p0_pdf_candidate_public_text
+        and "OCR原文" not in p0_pdf_candidate_public_text
+        and "已确认" not in p0_pdf_candidate_public_text
+        and "已核准" not in p0_pdf_candidate_public_text
+        and "最终推荐" not in p0_pdf_candidate_public_text
+        and "最终方案" not in p0_pdf_candidate_public_text
+        and "可填报" not in p0_pdf_candidate_public_text
+        and "可排序" not in p0_pdf_candidate_public_text
+        and not any(token in p0_pdf_candidate_public_text for token in shared_forbidden_tokens),
+    ))
+
+    p0_pdf_candidate_private_path = (
+        ROOT / "private/review-assets/issue19-p0-immediate-pdf-reading-candidates/pdf-reading-candidates-private.csv"
+    )
+    p0_pdf_candidate_private_optional_ok = True
+    p0_pdf_candidate_private_detail = "private assets absent"
+    if p0_pdf_candidate_private_path.exists():
+        with p0_pdf_candidate_private_path.open(newline="", encoding="utf-8-sig") as f:
+            p0_pdf_candidate_private_rows = list(csv.DictReader(f))
+        p0_pdf_candidate_private_optional_ok = (
+            len(p0_pdf_candidate_private_rows) == 319
+            and len({row.get("P0字段即时复核任务ID") for row in p0_pdf_candidate_private_rows}) == 319
+            and Counter(row.get("PDF原页私有候选来源说明") for row in p0_pdf_candidate_private_rows)
+            == {
+                "来自私有裁图OCR，仅作PDF原页人工核页线索，不得自动写入人工读数。": 319,
+            }
+            and Counter(bool(row.get("PDF原页私有候选规范读数")) for row in p0_pdf_candidate_private_rows)
+            == {True: 253, False: 66}
+            and sum(bool(row.get("PDF原页私有候选字段读数")) for row in p0_pdf_candidate_private_rows) == 253
+            and sum(bool(row.get("私有OCR图片本地路径")) for row in p0_pdf_candidate_private_rows) == 319
+            and all(Path(row.get("私有OCR图片本地路径", "")).exists() for row in p0_pdf_candidate_private_rows)
+            and all(
+                row.get("候选不得自动写回声明")
+                == "候选值必须经PDF原页人工读数、湖北官方核验和三方一致性复核后，才可进入字段确认工作台。"
+                for row in p0_pdf_candidate_private_rows
+            )
+        )
+        p0_pdf_candidate_private_detail = "private assets present"
+    checks.append(ok(
+        "第 19 期 P0 即时 PDF 原页读数候选私有材料存在时候选数量、图片路径和禁止写回声明一致",
+        p0_pdf_candidate_private_optional_ok,
+        p0_pdf_candidate_private_detail,
     ))
 
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"

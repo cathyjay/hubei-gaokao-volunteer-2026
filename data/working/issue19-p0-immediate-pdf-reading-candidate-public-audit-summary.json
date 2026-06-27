@@ -1,0 +1,74 @@
+{
+  "status": "issue19_p0_immediate_pdf_reading_candidate_public_audit_not_final",
+  "generated_by": "build_issue19_p0_immediate_pdf_reading_candidates.py",
+  "source_field_confirmation_ledger": "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv",
+  "source_crop_ocr_audit": "data/working/issue19-p0-immediate-crop-ocr-public-audit.csv",
+  "source_page_review_packets": "data/working/issue19-p0-immediate-page-review-packets.csv",
+  "source_private_crop_ocr_reading": "private_crop_ocr_reading_candidates_not_public",
+  "output_table": "data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv",
+  "row_count": 319,
+  "private_pdf_reading_candidate_file_generated": true,
+  "unique_public_audit_id_count": 319,
+  "unique_immediate_task_id_count": 319,
+  "unique_field_confirmation_ledger_id_count": 319,
+  "unique_crop_ocr_audit_id_count": 319,
+  "unique_page_review_packet_count": 148,
+  "unique_major_field_pair_count": 319,
+  "unique_pdf_page_count": 114,
+  "unique_page_side_count": 148,
+  "field_counts": {
+    "专业计划数": 281,
+    "学费": 19,
+    "再选科目": 19
+  },
+  "candidate_private_status_counts": {
+    "private_pdf_reading_candidate_seeded": 253,
+    "private_pdf_reading_candidate_unavailable_needs_manual_image_review": 66
+  },
+  "candidate_review_bucket_counts": {
+    "P0-候选冲突优先核图": 33,
+    "P1-候选与既有线索一致仍需核官方": 43,
+    "P3-无稳定候选需人工看图": 66,
+    "P2-有候选但需人工确认": 177
+  },
+  "candidate_source_status_counts": {
+    "private_crop_ocr_candidate_available": 253,
+    "private_crop_ocr_candidate_unavailable": 66
+  },
+  "candidate_confidence_counts": {
+    "high": 161,
+    "low": 149,
+    "medium": 9
+  },
+  "crop_ocr_candidate_status_counts": {
+    "O4-目标行单一候选": 170,
+    "O2-候选距目标行偏远需人工确认": 60,
+    "O3-目标行附近多值候选冲突": 23,
+    "O0-未识别可比候选": 36,
+    "O1-有候选但未能贴合目标行": 30
+  },
+  "crop_ocr_helper_bucket_counts": {
+    "A0-裁图OCR提示冲突优先人工核页": 50,
+    "A1-裁图OCR与既有线索一致但仍待三方核验": 35,
+    "A2-裁图OCR有候选但需人工确认": 168,
+    "A3-裁图OCR未能稳定补读需人工看图": 66
+  },
+  "candidate_seeded_count": 253,
+  "candidate_unavailable_count": 66,
+  "candidate_machine_match_count": 35,
+  "candidate_machine_conflict_count": 9,
+  "candidate_school_match_count": 29,
+  "candidate_school_conflict_count": 24,
+  "direct_image_review_required_count": 99,
+  "double_review_required_count": 290,
+  "auto_manual_reading_write_allowed_count": 0,
+  "pdf_manual_review_required_count": 319,
+  "hubei_official_review_required_count": 319,
+  "school_side_review_required_count": 75,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "public_safety_note": "公开表只保存候选存在性、关系桶、证据编号、SHA、bbox和门禁；私有候选明细和人工记录不公开。"
+}
