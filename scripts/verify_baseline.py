@@ -12518,6 +12518,359 @@ def main():
         and not any(token in field_p0_action_public_text for token in shared_forbidden_tokens),
     ))
 
+    field_p0_semantic_summary_path = ROOT / "data/working/issue19-field-fact-p0-semantic-crosssource-audit-summary.json"
+    field_p0_semantic_csv = ROOT / "data/working/issue19-field-fact-p0-semantic-crosssource-audit.csv"
+    field_p0_semantic_summary = json.loads(field_p0_semantic_summary_path.read_text())
+    with field_p0_semantic_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_p0_semantic_reader = csv.DictReader(f)
+        field_p0_semantic_rows = list(field_p0_semantic_reader)
+        field_p0_semantic_fields = field_p0_semantic_reader.fieldnames or []
+    expected_field_p0_semantic_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_field_fact_p0_semantic_crosssource_audit.py",
+        "FIELDS",
+    )
+    field_p0_action_by_id = {
+        row.get("P0字段闭环推进任务ID"): row for row in field_p0_action_rows
+    }
+    official_sidecar_by_major_id_for_p0 = {
+        row.get("专业行ID"): row for row in official_sidecar_rows
+    }
+    hubei_official_by_major_id_for_p0 = {
+        row.get("专业行ID"): row for row in hubei_official_rows
+    }
+    allowed_reselect_subjects = {"不限", "化学", "生物", "政治", "地理"}
+
+    def p0_semantic_number(value):
+        if re.fullmatch(r"\d+", str(value or "")):
+            return as_int(value)
+        return None
+
+    def p0_semantic_status_ok(row):
+        field_name = row.get("字段名")
+        semantic_status = row.get("机器候选语义状态")
+        machine_value = row.get("机器候选字段值")
+        machine_norm = row.get("机器候选规范值")
+        machine_number = p0_semantic_number(machine_norm)
+        if semantic_status == "M0-无机器候选":
+            return not machine_value and not machine_norm
+        if semantic_status == "M1-语义枚举通过":
+            return field_name == "再选科目" and machine_norm in allowed_reselect_subjects
+        if semantic_status == "M1-语义范围通过" and field_name == "专业计划数":
+            return machine_number is not None and 1 <= machine_number <= 100
+        if semantic_status == "M1-语义范围通过" and field_name == "学费":
+            return machine_number is not None and 1000 <= machine_number <= 100000
+        if semantic_status == "M2-计划数偏大需重点核页":
+            return field_name == "专业计划数" and machine_number is not None and 101 <= machine_number <= 200
+        if semantic_status == "M4-计划数异常偏大":
+            return field_name == "专业计划数" and machine_number is not None and machine_number > 200
+        if semantic_status == "M4-计划数非正数":
+            return field_name == "专业计划数" and machine_number is not None and machine_number <= 0
+        if semantic_status == "M4-学费异常偏高":
+            return field_name == "学费" and machine_number is not None and machine_number > 100000
+        return False
+
+    def p0_semantic_priority_ok(row):
+        priority = row.get("语义多源优先桶", "")
+        semantic_status = row.get("机器候选语义状态", "")
+        relation = row.get("机器候选与高校辅证关系", "")
+        action = row.get("P0闭环动作桶", "")
+        if relation == "R5-机器候选与高校辅证字段冲突":
+            return priority == "S1-多源字段冲突优先核页"
+        if semantic_status.startswith("M4-"):
+            return priority == "S2-机器候选语义异常优先排除"
+        if relation == "R4-机器候选与高校辅证字段一致":
+            return priority == "S3-机器与高校辅证一致优先核PDF和湖北官方"
+        if relation == "R3-高校辅证有字段值但机器无规范候选":
+            return priority == "S4-高校辅证补缺线索优先核PDF"
+        if semantic_status.startswith("M2-"):
+            return priority == "S5-机器候选偏大重点核页"
+        if action.startswith("A2-"):
+            return priority == "S6-多值坐标冲突核页"
+        if action.startswith("A3-"):
+            return priority == "S7-无坐标候选重读"
+        if semantic_status.startswith("M1-"):
+            return priority == "S8-机器候选语义通过常规核页"
+        return priority == "S9-无机器候选保持原页重读"
+
+    field_p0_semantic_join_ok = True
+    for row in field_p0_semantic_rows:
+        action_row = field_p0_action_by_id.get(row.get("P0字段闭环推进任务ID", ""), {})
+        sidecar_row = official_sidecar_by_major_id_for_p0.get(row.get("专业行ID", ""), {})
+        hubei_row = hubei_official_by_major_id_for_p0.get(row.get("专业行ID", ""), {})
+        semantic_candidate_line = row.get("机器候选语义状态", "").startswith(("M1-", "M2-"))
+        sidecar_has_field_value = bool(row.get("高校官网字段候选值", ""))
+        field_p0_semantic_join_ok = (
+            field_p0_semantic_join_ok
+            and bool(action_row)
+            and bool(hubei_row)
+            and row.get("P0字段语义多源审计ID")
+            == stable_id(
+                "P0SEMANTIC",
+                [
+                    row.get("P0字段闭环推进任务ID", ""),
+                    row.get("专业行ID", ""),
+                    row.get("字段名", ""),
+                    issue19_source["source"]["sha256"],
+                ],
+            )
+            and row.get("来源P0字段闭环推进工作台")
+            == "data/working/issue19-field-fact-p0-closure-action-workbench.csv"
+            and row.get("来源B0B1高校官网辅证旁挂表")
+            == "data/working/issue19-b0-b1-official-evidence-by-major-line.csv"
+            and row.get("来源湖北官方系统核验包")
+            == "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_field_fact_p0_semantic_crosssource_audit"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×K0字段×机器候选语义×高校辅证线索×湖北官方待核"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("P0字段机器候选任务ID") == action_row.get("P0字段机器候选任务ID")
+            and row.get("来源P0字段原页重读任务ID") == action_row.get("来源P0字段原页重读任务ID")
+            and row.get("来源字段事实核验任务ID") == action_row.get("来源字段事实核验任务ID")
+            and row.get("字段事实闭环ID") == action_row.get("字段事实闭环ID")
+            and row.get("专业行ID") == action_row.get("专业行ID")
+            and row.get("专业组出现ID") == action_row.get("专业组出现ID")
+            and row.get("院校代码") == action_row.get("院校代码")
+            and row.get("来源页码") == action_row.get("来源页码")
+            and row.get("版面列") == action_row.get("版面列")
+            and row.get("字段名") == action_row.get("字段名")
+            and row.get("P0闭环动作桶") == action_row.get("P0闭环动作桶")
+            and row.get("P0闭环批次") == action_row.get("P0闭环批次")
+            and row.get("机器候选状态") == action_row.get("机器候选状态")
+            and row.get("机器候选字段值") == action_row.get("机器候选字段值")
+            and row.get("候选证据行号集合") == action_row.get("候选证据行号集合")
+            and row.get("候选证据x集合") == action_row.get("候选证据x集合")
+            and row.get("候选证据y集合") == action_row.get("候选证据y集合")
+            and row.get("窗口文本SHA256") == action_row.get("窗口文本SHA256")
+            and row.get("私有窗口证据编号") == action_row.get("私有窗口证据编号")
+            and row.get("机器候选语义后可作为核页线索") == ("true" if semantic_candidate_line else "false")
+            and p0_semantic_status_ok(row)
+            and p0_semantic_priority_ok(row)
+            and row.get("湖北官方核验包任务ID") == hubei_row.get("湖北官方核验包任务ID")
+            and row.get("湖北官方平台匹配状态") == "pending_hubei_official_platform_query"
+            and row.get("湖北官方字段核验状态") == "pending_hubei_official_plan_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_plan_review"
+            and not row.get("湖北官方证据编号")
+            and not row.get("湖北官方证据SHA256")
+            and not row.get("湖北官方字段值")
+            and row.get("PDF原页核页状态") == "pending_pdf_manual_review"
+            and not row.get("PDF原页人工读数")
+            and row.get("三方字段一致性状态") == "pending_three_way_closure"
+            and row.get("高校官网或招生章程字段值") == ""
+            and (
+                (bool(sidecar_row) and row.get("高校官网辅证覆盖状态") == "has_b0b1_school_sidecar")
+                or (not sidecar_row and row.get("高校官网辅证覆盖状态") == "no_b0b1_school_sidecar")
+            )
+            and (
+                not sidecar_row
+                or row.get("高校官网证据旁挂ID") == sidecar_row.get("官网证据旁挂ID")
+            )
+            and (
+                (sidecar_has_field_value and row.get("高校官网或招生章程辅证状态")
+                    == "school_sidecar_field_value_available_pending_pdf_and_hubei_review")
+                or (not sidecar_has_field_value and row.get("高校官网或招生章程辅证状态")
+                    == "pending_school_official_or_charter_review")
+            )
+            and "高校辅证不能替代湖北官方计划" in row.get("语义多源审计说明", "")
+            and "不得写回主表" in row.get("不得进入原因", "")
+            and "报考结论" in row.get("不得进入原因", "")
+        )
+    field_p0_semantic_status_by_field = {
+        field_name: Counter(
+            row.get("机器候选语义状态")
+            for row in field_p0_semantic_rows
+            if row.get("字段名") == field_name
+        )
+        for field_name in ["专业计划数", "学费", "再选科目"]
+    }
+    allowed_school_source_prefixes = (
+        "data/external/issue19-b0-b1-official-sources/",
+        "data/external/issue19-sample-school-official/",
+    )
+
+    def p0_semantic_public_school_source_ok(source):
+        if not source:
+            return True
+        parts = [part.strip() for part in re.split(r"[;；]", source) if part.strip()]
+        if not parts:
+            return False
+        return all(
+            part.startswith(allowed_school_source_prefixes)
+            and not part.startswith("/")
+            and "\\" not in part
+            and (ROOT / part).exists()
+            for part in parts
+        )
+
+    field_p0_semantic_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [field_p0_semantic_summary_path, field_p0_semantic_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 字段语义与多源线索审计表摘要、行数和分布正确",
+        field_p0_semantic_summary.get("status") == "issue19_field_fact_p0_semantic_crosssource_audit_not_final"
+        and field_p0_semantic_summary.get("generated_by")
+        == "build_issue19_field_fact_p0_semantic_crosssource_audit.py"
+        and field_p0_semantic_summary.get("source_p0_action_workbench")
+        == "data/working/issue19-field-fact-p0-closure-action-workbench.csv"
+        and field_p0_semantic_summary.get("source_b0_b1_sidecar")
+        == "data/working/issue19-b0-b1-official-evidence-by-major-line.csv"
+        and field_p0_semantic_summary.get("source_hubei_official_packets")
+        == "data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv"
+        and field_p0_semantic_summary.get("output_table")
+        == "data/working/issue19-field-fact-p0-semantic-crosssource-audit.csv"
+        and field_p0_semantic_summary.get("row_count") == 11444
+        and field_p0_semantic_summary.get("unique_semantic_audit_id_count") == 11444
+        and field_p0_semantic_summary.get("unique_p0_action_task_id_count") == 11444
+        and field_p0_semantic_summary.get("unique_machine_candidate_task_id_count") == 11444
+        and field_p0_semantic_summary.get("unique_major_line_id_count") == 8536
+        and field_p0_semantic_summary.get("unique_pdf_page_count") == 231
+        and field_p0_semantic_summary.get("unique_school_code_count") == 967
+        and field_p0_semantic_summary.get("field_counts") == {
+            "专业计划数": 5739,
+            "学费": 1031,
+            "再选科目": 4674,
+        }
+        and field_p0_semantic_summary.get("machine_semantic_status_counts") == {
+            "M1-语义范围通过": 2820,
+            "M4-计划数异常偏大": 10,
+            "M4-学费异常偏高": 4,
+            "M4-计划数非正数": 1,
+            "M0-无机器候选": 6604,
+            "M2-计划数偏大需重点核页": 11,
+            "M1-语义枚举通过": 1994,
+        }
+        and field_p0_semantic_summary.get("crosssource_relation_counts") == {
+            "R5-机器候选与高校辅证字段冲突": 1,
+            "R0-无高校官网辅证行": 10820,
+            "R1-有高校官网辅证行但本字段无值": 549,
+            "R4-机器候选与高校辅证字段一致": 22,
+            "R3-高校辅证有字段值但机器无规范候选": 52,
+        }
+        and field_p0_semantic_summary.get("semantic_priority_bucket_counts") == {
+            "S1-多源字段冲突优先核页": 1,
+            "S2-机器候选语义异常优先排除": 15,
+            "S3-机器与高校辅证一致优先核PDF和湖北官方": 22,
+            "S4-高校辅证补缺线索优先核PDF": 52,
+            "S5-机器候选偏大重点核页": 11,
+            "S6-多值坐标冲突核页": 218,
+            "S7-无坐标候选重读": 6334,
+            "S8-机器候选语义通过常规核页": 4791,
+        }
+        and field_p0_semantic_summary.get("semantic_candidate_line_count") == 4825
+        and field_p0_semantic_summary.get("semantic_warning_count") == 11
+        and field_p0_semantic_summary.get("semantic_anomaly_count") == 15
+        and field_p0_semantic_summary.get("school_sidecar_row_count") == 624
+        and field_p0_semantic_summary.get("school_sidecar_field_value_count") == 75
+        and field_p0_semantic_summary.get("machine_school_same_field_match_count") == 22
+        and field_p0_semantic_summary.get("machine_school_same_field_conflict_count") == 1
+        and field_p0_semantic_summary.get("school_field_value_machine_empty_count") == 52
+        and field_p0_semantic_summary.get("hubei_official_packet_link_count") == 11444
+        and field_p0_semantic_summary.get("hubei_official_status_counts")
+        == {"pending_hubei_official_plan_review": 11444}
+        and len(field_p0_semantic_rows) == 11444,
+        f"{len(field_p0_semantic_rows)} p0 semantic rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段语义与多源线索审计表字段、来源闭环和门禁正确",
+        field_p0_semantic_fields == expected_field_p0_semantic_fields
+        and len({row.get("P0字段语义多源审计ID") for row in field_p0_semantic_rows}) == 11444
+        and len({(row.get("专业行ID"), row.get("字段名")) for row in field_p0_semantic_rows}) == 11444
+        and len({(row.get("P0字段闭环推进任务ID"), row.get("字段名")) for row in field_p0_semantic_rows}) == 11444
+        and {row.get("P0字段闭环推进任务ID") for row in field_p0_semantic_rows}
+        == set(field_p0_action_by_id)
+        and Counter(row.get("字段名") for row in field_p0_semantic_rows)
+        == Counter(field_p0_semantic_summary.get("field_counts", {}))
+        and Counter(row.get("机器候选语义状态") for row in field_p0_semantic_rows)
+        == Counter(field_p0_semantic_summary.get("machine_semantic_status_counts", {}))
+        and Counter(row.get("机器候选与高校辅证关系") for row in field_p0_semantic_rows)
+        == Counter(field_p0_semantic_summary.get("crosssource_relation_counts", {}))
+        and Counter(row.get("语义多源优先桶") for row in field_p0_semantic_rows)
+        == Counter(field_p0_semantic_summary.get("semantic_priority_bucket_counts", {}))
+        and field_p0_semantic_status_by_field == {
+            "专业计划数": Counter({
+                "M1-语义范围通过": 2153,
+                "M4-计划数异常偏大": 10,
+                "M4-计划数非正数": 1,
+                "M0-无机器候选": 3564,
+                "M2-计划数偏大需重点核页": 11,
+            }),
+            "学费": Counter({
+                "M4-学费异常偏高": 4,
+                "M1-语义范围通过": 667,
+                "M0-无机器候选": 360,
+            }),
+            "再选科目": Counter({
+                "M0-无机器候选": 2680,
+                "M1-语义枚举通过": 1994,
+            }),
+        }
+        and sum(row.get("机器候选语义后可作为核页线索") == "true" for row in field_p0_semantic_rows) == 4825
+        and sum(row.get("语义多源优先桶") == "S2-机器候选语义异常优先排除" for row in field_p0_semantic_rows) == 15
+        and sum(row.get("语义多源优先桶") == "S1-多源字段冲突优先核页" for row in field_p0_semantic_rows) == 1
+        and field_p0_semantic_summary.get("pdf_confirmed_count") == 0
+        and field_p0_semantic_summary.get("official_confirmed_count") == 0
+        and field_p0_semantic_summary.get("school_official_confirmed_count") == 0
+        and field_p0_semantic_summary.get("final_available_count") == 0
+        and field_p0_semantic_summary.get("next_stage_available_count") == 0
+        and field_p0_semantic_summary.get("auto_writeback_allowed_count") == 0
+        and field_p0_semantic_summary.get("auto_candidate_fill_allowed_count") == 0
+        and field_p0_semantic_summary.get("field_writeback_allowed_count") == 0
+        and field_p0_semantic_summary.get("recommendation_basis_allowed_count") == 0
+        and field_p0_semantic_summary.get("school_major_suggestion_allowed_count") == 0
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            for row in field_p0_semantic_rows
+        )
+        and all(
+            p0_semantic_public_school_source_ok(row.get("高校官网字段来源文件", ""))
+            for row in field_p0_semantic_rows
+        )
+        and field_p0_semantic_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段语义与多源线索审计表公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(field_p0_semantic_public_text) is None
+        and "private/" not in field_p0_semantic_public_text
+        and "private\\" not in field_p0_semantic_public_text
+        and "/Users/" not in field_p0_semantic_public_text
+        and "ocr-runs" not in field_p0_semantic_public_text
+        and "rendered-pages" not in field_p0_semantic_public_text
+        and ".png" not in field_p0_semantic_public_text
+        and ".jpg" not in field_p0_semantic_public_text
+        and ".jpeg" not in field_p0_semantic_public_text
+        and "Authorization" not in field_p0_semantic_public_text
+        and "Bearer " not in field_p0_semantic_public_text
+        and "Cookie" not in field_p0_semantic_public_text
+        and "院校名称OCR" not in field_p0_semantic_public_text
+        and "院校专业组代码OCR规范化" not in field_p0_semantic_public_text
+        and "专业代号OCR" not in field_p0_semantic_public_text
+        and "专业名称及备注短摘" not in field_p0_semantic_public_text
+        and "组内招生明细" not in field_p0_semantic_public_text
+        and "字段确认值" not in field_p0_semantic_public_text
+        and "final_allowed" not in field_p0_semantic_public_text
+        and "ready_for_discussion" not in field_p0_semantic_public_text
+        and "已确认" not in field_p0_semantic_public_text
+        and "已核准" not in field_p0_semantic_public_text
+        and "最终推荐" not in field_p0_semantic_public_text
+        and "最终方案" not in field_p0_semantic_public_text
+        and "可填报" not in field_p0_semantic_public_text
+        and "可排序" not in field_p0_semantic_public_text
+        and not any(token in field_p0_semantic_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
