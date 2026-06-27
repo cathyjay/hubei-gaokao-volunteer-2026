@@ -185,6 +185,8 @@
 - `data/working/issue19-full-major-field-fidelity-ledger-summary.json`：全量逐专业字段保真总账摘要；记录 13736 行总账、13486 条高风险保真行、250 条暂未触发机器高风险行、主键唯一性和风险计数。
 - `data/working/issue19-full-major-verification-batches.csv`：第 19 期全量逐专业核验批次表，覆盖 13736 条招生专业行；一行对应一个专业，合并全量字段保真总账和页级保真队列，给出 A0-A9 人工核验批次、触发原因和核验动作。
 - `data/working/issue19-full-major-verification-batches-summary.json`：全量逐专业核验批次摘要；记录 13736 行、231 个 PDF 页、A0-A9 分布和全部不可进入最终专业列表的门禁。
+- `data/working/issue19-priority-group-major-review-pack.csv`：第 19 期优先整组逐专业核验包，覆盖 1043 个优先专业组内的 7537 条招生专业明细；一行对应一个专业，专业组字段只作为投档和调剂范围上下文。
+- `data/working/issue19-priority-group-major-review-pack-summary.json`：优先整组逐专业核验包摘要；记录 W0-W3、A0-A9、T1/T2/T3 分布和全部不可进入最终专业列表的门禁。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。
@@ -249,6 +251,7 @@
 - `scripts/build_issue19_major_detail_quality_workbench.py`：根据全量专业明细、专业组质量索引和结构异常队列生成逐专业明细质量工作台；后续候选讨论必须使用该表展开完整专业明细。
 - `scripts/build_issue19_full_major_field_fidelity_ledger.py`：根据第 19 期全量逐专业质量工作台、家庭底线逐专业表和家庭底线专业组表生成全量逐专业字段保真总账；这是全量底座默认逐专业证据视图，不生成可填报结论。
 - `scripts/build_issue19_full_major_verification_batches.py`：根据全量逐专业字段保真总账和页级保真复核队列生成 A0-A9 全量逐专业核验批次表；只用于安排人工核验顺序，不生成可报结论。
+- `scripts/build_issue19_priority_group_major_review_pack.py`：根据全量逐专业核验批次表，把有历史候选、样本学校、偏好专业或待补证字段种子的专业组完整展开为逐专业明细包；用于整组核页和调剂风险判断，不生成可报结论。
 - `scripts/build_issue19_foundation_audit.py`：根据全量 OCR 初稿、质量分层、逐专业工作台、结构异常和候选覆盖生成底座审计表；用于证明机器层面的行数、页码、主键、异常和发布边界闭环。
 - `scripts/build_issue19_candidate_evidence_ledgers.py`：根据候选 V2 升级工作台、全量逐专业工作台和底座审计生成字段复核总账与三方证据矩阵；用于后续人工回填和候选升级。
 - `scripts/build_issue19_page_manifest.py`：根据私有 OCR 运行目录和公开结构化表生成 240 页公开页级 manifest；只输出页级元数据和哈希，不输出私有页图、整页 OCR 文本或本机路径。

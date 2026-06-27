@@ -5470,6 +5470,276 @@ def main():
         and "最终方案" not in full_major_verification_batches_public_text
         and not any(token in full_major_verification_batches_public_text for token in shared_forbidden_tokens),
     ))
+
+    priority_group_major_pack_summary_path = (
+        ROOT / "data/working/issue19-priority-group-major-review-pack-summary.json"
+    )
+    priority_group_major_pack_csv = (
+        ROOT / "data/working/issue19-priority-group-major-review-pack.csv"
+    )
+    priority_group_major_pack_summary = json.loads(
+        priority_group_major_pack_summary_path.read_text()
+    )
+    with priority_group_major_pack_csv.open(newline="", encoding="utf-8-sig") as f:
+        priority_group_major_pack_reader = csv.DictReader(f)
+        priority_group_major_pack_rows = list(priority_group_major_pack_reader)
+        priority_group_major_pack_fields = set(
+            priority_group_major_pack_reader.fieldnames or []
+        )
+    required_priority_group_major_pack_fields = {
+        "优先整组核验包ID",
+        "优先整组核验明细ID",
+        "来源全量逐专业核验批次表",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "主表粒度",
+        "最终可用",
+        "核验状态",
+        "是否可进入最终专业列表",
+        "可进入下一阶段",
+        "专业组信息用途",
+        "整组核验优先级",
+        "整组核验排序",
+        "整组入选原因",
+        "整组调剂机器风险",
+        "整组招生明细数",
+        "整组种子专业数",
+        "整组偏好专业数",
+        "整组默认不能接受专业数",
+        "整组特殊限制待核专业数",
+        "整组批次分布",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "专业代号OCR",
+        "专业名称及备注OCR",
+        "专业计划数OCR候选",
+        "学费OCR候选",
+        "页级保真队列ID",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "逐专业核验批次",
+        "批次触发原因",
+        "全量保真复核优先级",
+        "风险阻断等级",
+        "高风险字段集合",
+        "风险触发规则",
+        "专业偏好方向",
+        "专业风险类型",
+        "机器专业接受度初判",
+        "机器阻断或待核原因",
+        "调剂影响等级",
+        "候选池V1命中",
+        "样本学校命中",
+        "必须核验字段",
+        "核验动作",
+        "下一步",
+    }
+    priority_group_major_pack_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            priority_group_major_pack_summary_path,
+            priority_group_major_pack_csv,
+        ]
+    )
+    priority_group_major_pack_priority_counts = Counter(
+        row.get("整组核验优先级") for row in priority_group_major_pack_rows
+    )
+    priority_group_major_pack_batch_counts = Counter(
+        row.get("逐专业核验批次") for row in priority_group_major_pack_rows
+    )
+    priority_group_major_pack_adjustment_counts = Counter(
+        row.get("整组调剂机器风险") for row in priority_group_major_pack_rows
+    )
+    seed_batches = {
+        "A1-历史候选和样本先核",
+        "A2-偏好专业逐专业先核",
+        "A8-待补证字段核验",
+    }
+    source_groups_by_id = {}
+    seed_group_ids = set()
+    source_rows_by_major_id = {}
+    for row in full_major_verification_batches_rows:
+        group_id = row.get("专业组出现ID")
+        source_groups_by_id.setdefault(group_id, []).append(row)
+        source_rows_by_major_id[row.get("专业行ID")] = row
+        if row.get("逐专业核验批次") in seed_batches:
+            seed_group_ids.add(group_id)
+    pack_groups_by_id = {}
+    pack_major_ids = set()
+    priority_group_major_pack_distribution_ok = True
+    for row in priority_group_major_pack_rows:
+        group_id = row.get("专业组出现ID")
+        source_row = source_rows_by_major_id.get(row.get("专业行ID"))
+        pack_groups_by_id.setdefault(group_id, []).append(row)
+        pack_major_ids.add(row.get("专业行ID"))
+        priority_group_major_pack_distribution_ok = (
+            priority_group_major_pack_distribution_ok
+            and bool(source_row)
+            and row.get("专业组出现ID") == source_row.get("专业组出现ID")
+            and row.get("院校代码") == source_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化")
+            == source_row.get("院校专业组代码OCR规范化")
+            and row.get("专业代号OCR") == source_row.get("专业代号OCR")
+            and row.get("专业名称及备注OCR") == source_row.get("专业名称及备注OCR")
+            and row.get("逐专业核验批次") == source_row.get("逐专业核验批次")
+            and row.get("风险阻断等级") == source_row.get("风险阻断等级")
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+        )
+    priority_group_major_pack_group_completeness_ok = True
+    for group_id, pack_rows in pack_groups_by_id.items():
+        source_group_rows = source_groups_by_id.get(group_id, [])
+        source_group_major_ids = {row.get("专业行ID") for row in source_group_rows}
+        pack_group_major_ids = {row.get("专业行ID") for row in pack_rows}
+        seed_count = sum(
+            row.get("逐专业核验批次") in seed_batches
+            for row in source_group_rows
+        )
+        preference_count = sum(bool(row.get("专业偏好方向")) for row in source_group_rows)
+        default_no_count = sum(
+            row.get("机器专业接受度初判", "").startswith("默认不能接受")
+            for row in source_group_rows
+        )
+        special_count = sum(
+            row.get("机器专业接受度初判", "").startswith("暂缓判断")
+            for row in source_group_rows
+        )
+        if default_no_count:
+            expected_risk = "T1-同组存在默认不能接受专业，调剂高风险"
+        elif special_count:
+            expected_risk = "T2-同组存在特殊限制待核专业，调剂中风险"
+        else:
+            expected_risk = "T3-未见机器默认不能接受专业，仍需家庭逐专业确认"
+        priority_group_major_pack_group_completeness_ok = (
+            priority_group_major_pack_group_completeness_ok
+            and group_id in seed_group_ids
+            and len(pack_rows) == len(source_group_rows)
+            and pack_group_major_ids == source_group_major_ids
+            and all(
+                as_int(row.get("整组招生明细数")) == len(source_group_rows)
+                and as_int(row.get("整组种子专业数")) == seed_count
+                and as_int(row.get("整组偏好专业数")) == preference_count
+                and as_int(row.get("整组默认不能接受专业数")) == default_no_count
+                and as_int(row.get("整组特殊限制待核专业数")) == special_count
+                and row.get("整组调剂机器风险") == expected_risk
+                for row in pack_rows
+            )
+        )
+    priority_group_major_required_core_tokens = [
+        "PDF原页",
+        "湖北官方系统",
+        "高校官网/章程",
+        "专业组边界",
+        "调剂范围",
+        "家庭接受度",
+    ]
+    checks.append(ok(
+        "第 19 期优先整组逐专业核验包摘要和行数正确",
+        priority_group_major_pack_summary.get("status")
+        == "issue19_priority_group_major_review_pack_not_final"
+        and priority_group_major_pack_summary.get("generated_by")
+        == "build_issue19_priority_group_major_review_pack.py"
+        and priority_group_major_pack_summary.get("source_full_major_verification_batches")
+        == "data/working/issue19-full-major-verification-batches.csv"
+        and priority_group_major_pack_summary.get("output_table")
+        == "data/working/issue19-priority-group-major-review-pack.csv"
+        and priority_group_major_pack_summary.get("row_count") == 7537
+        and priority_group_major_pack_summary.get("source_row_count") == 13736
+        and priority_group_major_pack_summary.get("seed_group_count") == 1043
+        and priority_group_major_pack_summary.get("unique_group_occurrence_id_count") == 1043
+        and priority_group_major_pack_summary.get("unique_major_line_id_count") == 7537
+        and priority_group_major_pack_summary.get("unique_school_count") == 631
+        and priority_group_major_pack_summary.get("unique_pdf_page_count") == 230
+        and priority_group_major_pack_summary.get("candidate_v1_hit_row_count") == 70
+        and priority_group_major_pack_summary.get("sample_school_hit_row_count") == 514
+        and priority_group_major_pack_summary.get("preference_major_row_count") == 2097
+        and priority_group_major_pack_summary.get("auto_final_list_allowed_count") == 0
+        and priority_group_major_pack_summary.get("next_stage_allowed_count") == 0
+        and len(priority_group_major_pack_rows) == 7537,
+        f"{len(priority_group_major_pack_rows)} priority group major rows",
+    ))
+    checks.append(ok(
+        "第 19 期优先整组逐专业核验包字段、主键和非最终门禁正确",
+        required_priority_group_major_pack_fields.issubset(priority_group_major_pack_fields)
+        and len({row.get("优先整组核验明细ID") for row in priority_group_major_pack_rows})
+        == len(priority_group_major_pack_rows)
+        and len(pack_major_ids) == len(priority_group_major_pack_rows)
+        and pack_major_ids.issubset(full_major_verification_ids)
+        and all(
+            row.get("来源全量逐专业核验批次表")
+            == "data/working/issue19-full-major-verification-batches.csv"
+            and row.get("数据阶段") == "issue19_priority_group_major_review_pack"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("专业组信息用途")
+            == "本行携带院校专业组上下文用于判断调剂范围；不得把本表降格为学校/专业组两层摘要。"
+            and row.get("最终可用") == "false"
+            and row.get("核验状态") == "pending_priority_group_major_review"
+            and row.get("是否可进入最终专业列表") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and all(
+                token in row.get("必须核验字段", "")
+                for token in priority_group_major_required_core_tokens
+            )
+            for row in priority_group_major_pack_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期优先整组逐专业核验包批次、调剂风险和整组完整性正确",
+        priority_group_major_pack_priority_counts
+        == Counter(priority_group_major_pack_summary.get("priority_counts", {}))
+        and priority_group_major_pack_batch_counts
+        == Counter(priority_group_major_pack_summary.get("batch_counts", {}))
+        and priority_group_major_pack_adjustment_counts
+        == Counter(priority_group_major_pack_summary.get("adjustment_risk_counts", {}))
+        and priority_group_major_pack_summary.get("priority_counts") == {
+            "W0-历史候选/样本整组先核": 515,
+            "W1-数字媒体技术整组先核": 468,
+            "W2-其他偏好专业整组先核": 6476,
+            "W3-待补证整组先核": 78,
+        }
+        and priority_group_major_pack_summary.get("batch_counts") == {
+            "A0-阻断级结构先核": 1313,
+            "A1-历史候选和样本先核": 472,
+            "A2-偏好专业逐专业先核": 1672,
+            "A3-家庭底线和费用先核": 517,
+            "A4-调剂风险先核": 1220,
+            "A5-计划数字段先核": 1750,
+            "A6-选科和特殊限制先核": 506,
+            "A7-学费字段先核": 3,
+            "A8-待补证字段核验": 18,
+            "A9-低风险抽检但非最终": 66,
+        }
+        and priority_group_major_pack_summary.get("adjustment_risk_counts") == {
+            "T1-同组存在默认不能接受专业，调剂高风险": 3308,
+            "T2-同组存在特殊限制待核专业，调剂中风险": 1329,
+            "T3-未见机器默认不能接受专业，仍需家庭逐专业确认": 2900,
+        }
+        and set(pack_groups_by_id) == seed_group_ids
+        and len(pack_groups_by_id) == 1043
+        and priority_group_major_pack_distribution_ok
+        and priority_group_major_pack_group_completeness_ok,
+    ))
+    checks.append(ok(
+        "第 19 期优先整组逐专业核验包公开文件不含本地路径、图片扩展名、身份信息和最终可用结论",
+        "private/" not in priority_group_major_pack_public_text
+        and "/Users/" not in priority_group_major_pack_public_text
+        and "ocr-runs" not in priority_group_major_pack_public_text
+        and "rendered-pages" not in priority_group_major_pack_public_text
+        and ".png" not in priority_group_major_pack_public_text
+        and ".jpg" not in priority_group_major_pack_public_text
+        and ".jpeg" not in priority_group_major_pack_public_text
+        and "final_allowed" not in priority_group_major_pack_public_text
+        and "ready_for_discussion" not in priority_group_major_pack_public_text
+        and "已确认" not in priority_group_major_pack_public_text
+        and "最终推荐" not in priority_group_major_pack_public_text
+        and "最终方案" not in priority_group_major_pack_public_text
+        and not any(token in priority_group_major_pack_public_text for token in shared_forbidden_tokens),
+    ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
         "final_allowed" not in page_manifest_public_text
