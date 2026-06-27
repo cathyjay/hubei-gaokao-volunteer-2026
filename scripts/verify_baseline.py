@@ -18556,6 +18556,163 @@ def main():
         "；".join(all_batch_review_sensitive_value_hits),
     ))
 
+    major_evidence_routing_summary_path = (
+        ROOT / "data/working/issue19-major-evidence-level-routing-summary.json"
+    )
+    major_evidence_routing_csv = ROOT / "data/working/issue19-major-evidence-level-routing.csv"
+    major_evidence_routing_summary = json.loads(major_evidence_routing_summary_path.read_text())
+    with major_evidence_routing_csv.open(newline="", encoding="utf-8-sig") as f:
+        major_evidence_routing_reader = csv.DictReader(f)
+        major_evidence_routing_rows = list(major_evidence_routing_reader)
+        major_evidence_routing_fields = major_evidence_routing_reader.fieldnames or []
+    expected_major_evidence_routing_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_major_evidence_level_routing.py",
+        "FIELDS",
+    )
+    major_evidence_route_by_major_id = {
+        row.get("专业行ID"): row for row in major_evidence_routing_rows
+    }
+    major_evidence_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [major_evidence_routing_summary_path, major_evidence_routing_csv]
+    )
+    checks.append(ok(
+        "第 19 期逐专业证据等级与核验路由表摘要、规模和分布正确",
+        major_evidence_routing_summary.get("status")
+        == "issue19_major_evidence_level_routing_not_final"
+        and major_evidence_routing_summary.get("generated_by")
+        == "build_issue19_major_evidence_level_routing.py"
+        and major_evidence_routing_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and major_evidence_routing_summary.get("output_table")
+        == "data/working/issue19-major-evidence-level-routing.csv"
+        and major_evidence_routing_summary.get("source_master_workbench")
+        == "data/working/issue19-admission-detail-master-workbench.csv"
+        and major_evidence_routing_summary.get("row_count") == len(major_evidence_routing_rows) == 13736
+        and major_evidence_routing_summary.get("unique_route_id_count") == 13736
+        and major_evidence_routing_summary.get("unique_major_line_id_count") == 13736
+        and major_evidence_routing_summary.get("unique_group_occurrence_id_count") == 3289
+        and major_evidence_routing_summary.get("unique_school_code_name_count") == 1100
+        and major_evidence_routing_summary.get("missing_join_counts") == {}
+        and major_evidence_routing_summary.get("evidence_level_counts") == {
+            "L4-OCR或单源线索": 12882,
+            "L3-高校辅证加第三方提示": 854,
+        }
+        and major_evidence_routing_summary.get("automatic_route_counts") == {
+            "A5-暂未搜索到高校官网源": 12882,
+            "A2-已有部分高校来源需补结构化": 326,
+            "A1-已有高校官网结构化源可自动复跑比对": 298,
+            "A3-仅章程规则辅证不可核计划数": 63,
+            "A4-需继续自动搜索高校官网计划源": 167,
+        }
+        and major_evidence_routing_summary.get("manual_priority_counts") == {
+            "P1-字段缺口和B0B1辅证优先核": 7952,
+            "P0-最终候选/冲突/结构强阻断先核": 5043,
+            "P2-家庭费用调剂与三方闭环核": 557,
+            "P3-低风险抽检但非最终": 184,
+        }
+        and major_evidence_routing_summary.get("manual_strength_counts") == {
+            "H1-页列集中人工核验": 7952,
+            "H0-100%人工核验": 5043,
+            "H2-自动官网核验后人工确认": 557,
+            "H4-低风险抽检": 184,
+        }
+        and major_evidence_routing_summary.get("must_100_percent_manual_review_count") == 5043
+        and major_evidence_routing_summary.get("low_risk_sampling_allowed_count") == 184
+        and major_evidence_routing_summary.get("school_official_diff_hit_count") == 854
+        and major_evidence_routing_summary.get("reusable_school_auto_check_target_count") == 624
+        and major_evidence_routing_summary.get("pdf_page_review_required_count") == 13736
+        and major_evidence_routing_summary.get("hubei_official_review_required_count") == 13736
+        and major_evidence_routing_summary.get("candidate_discussion_allowed_count") == 0
+        and major_evidence_routing_summary.get("final_plan_allowed_count") == 0
+        and major_evidence_routing_summary.get("final_available_count") == 0
+        and major_evidence_routing_summary.get("next_stage_available_count") == 0
+        and major_evidence_routing_summary.get("recommendation_basis_allowed_count") == 0
+        and major_evidence_routing_summary.get("school_major_suggestion_allowed_count") == 0,
+        f"{len(major_evidence_routing_rows)} major evidence routing rows",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业证据等级与核验路由表字段、主键和非最终门禁正确",
+        major_evidence_routing_fields == expected_major_evidence_routing_fields
+        and len({row.get("逐专业证据路由ID") for row in major_evidence_routing_rows}) == 13736
+        and len(major_evidence_route_by_major_id) == 13736
+        and set(major_evidence_route_by_major_id)
+        == {row.get("专业行ID") for row in ps_master_rows}
+        and all(
+            row.get("来源单一逐专业招生明细总工作台")
+            == "data/working/issue19-admission-detail-master-workbench.csv"
+            and row.get("来源底座稳定性总看板")
+            == "data/working/issue19-foundation-stability-dashboard.csv"
+            and row.get("来源逐专业决策闸门表")
+            == "data/working/issue19-major-decision-readiness-gates.csv"
+            and row.get("来源字段事实闭环总账")
+            == "data/working/issue19-field-fact-closure-ledger.csv"
+            and row.get("来源B0B1高校官网差异账")
+            == "data/working/issue19-b0-b1-public-official-diff-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_major_evidence_level_routing"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("高校官网能否替代湖北官方计划") == "false"
+            and row.get("可否进入候选讨论") == "false"
+            and row.get("可否进入最终志愿方案") == "false"
+            for row in major_evidence_routing_rows
+        )
+        and all(
+            (
+                row.get("是否必须100%人工核验") == "true"
+                and row.get("是否可低风险抽检") == "false"
+            )
+            or row.get("是否必须100%人工核验") == "false"
+            for row in major_evidence_routing_rows
+        )
+        and all(
+            (
+                row.get("是否可低风险抽检") == "true"
+                and row.get("人工核验优先级") == "P3-低风险抽检但非最终"
+            )
+            or row.get("是否可低风险抽检") == "false"
+            for row in major_evidence_routing_rows
+        )
+        and all(
+            row.get("省招办证据等级") in {"L3-高校辅证加第三方提示", "L4-OCR或单源线索"}
+            for row in major_evidence_routing_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期逐专业证据等级与核验路由公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        "/Users/" not in major_evidence_public_text
+        and "/home/" not in major_evidence_public_text
+        and "/var/folders/" not in major_evidence_public_text
+        and "/private/" not in major_evidence_public_text
+        and "private/" not in major_evidence_public_text
+        and "private\\" not in major_evidence_public_text
+        and "ocr-runs" not in major_evidence_public_text
+        and "rendered-pages" not in major_evidence_public_text
+        and ".png" not in major_evidence_public_text
+        and ".jpg" not in major_evidence_public_text
+        and ".jpeg" not in major_evidence_public_text
+        and ".webp" not in major_evidence_public_text
+        and ".tif" not in major_evidence_public_text
+        and ".tiff" not in major_evidence_public_text
+        and ".heic" not in major_evidence_public_text
+        and "Authorization" not in major_evidence_public_text
+        and "Bearer " not in major_evidence_public_text
+        and "Cookie" not in major_evidence_public_text
+        and "身份证" not in major_evidence_public_text
+        and "准考证" not in major_evidence_public_text
+        and "报名号" not in major_evidence_public_text
+        and "序列号" not in major_evidence_public_text
+        and "已确认" not in major_evidence_public_text
+        and "已核准" not in major_evidence_public_text
+        and "可排序" not in major_evidence_public_text
+        and not any(token in major_evidence_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
