@@ -45,6 +45,8 @@
 
 新增的 `data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 是第一批执行入口：把最高优先级的 205 条明细任务集中到 36 个页列，先核冲突、补缺、官网未匹配和高校辅证字段线索。它只压缩人工工作量和安排核验顺序，不改变“湖北官方计划和 PDF 原页闭环前不得定案”的原则。
 
+配套的 `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-review-summary.json` 已把这 36 个页列接入私有复核页面和公开状态机。公开层只同步任务数、私有材料 SHA、回链和门禁；当前 36 个页列全部还是 `R0-Overlay已生成未填写`，所以它只是第一闭环的执行承接材料，不是字段核准表或志愿建议表。
+
 ## 三、学校分析维度
 
 - 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。

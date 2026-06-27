@@ -120,6 +120,8 @@
    - `L4-OCR或单源线索`：只来自 OCR、第三方、单个网页或未闭环接口。
    - 限制：`L2` 可以进入候选讨论和人工抽检，不能自动定稿；`L3/L4` 只能用于发现候选和安排核验顺序。
    - 官方结构化计划暂不可得时的替代保真策略：第 19 期 PDF 原页仍是省招办原件层，高校官网/API/XLSX/PDF/图片只做自动 double check；最终候选、冲稳保边界、B0/B1 组、计划数冲突、官网未匹配、字段空缺但进入候选的专业必须 100% 回看原页并尽量核湖北官方系统。低风险辅证只做分层抽检，抽检出现结构错误、计划数冲突、关键限定词丢失、物理/历史未拆分、官网不是 2026 湖北物理普通本科、同组有家庭不能接受专业等情况时，升级同页列、同校或同组 100% 人工核验。
+   - 自动核验优先级：优先抓高校官网的 API/JSON/XLSX，其次 HTML 表格，再其次 PDF 或图片计划；所有自动结果只作为字段候选、冲突提示或抽检样本，不能直接生成最终字段事实。
+   - 人工核验降载方式：家庭或人工只集中签认最终候选完整专业组、冲稳保边界、红色冲突项和抽检失败升级项；不把 41208 个字段全部摊给人工逐项核对。
 
 7. 《湖北招生考试》第 16/19 期专项检索
    - 检索记录：`docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`
@@ -328,6 +330,8 @@
 - `data/working/issue19-stable-foundation-first-closure-detail-packet.csv`：稳定基座第一闭环明细包，205 行；只纳入 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务，用于先核最高风险冲突、补缺、未匹配和高校辅证线索。
 - `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv`：稳定基座第一闭环页列包，36 行；把 205 条明细任务聚合到 36 个 `PDF页码×版面列`，用于集中人工核 PDF 原页、湖北官方侧和高校官网辅证。
 - `data/working/issue19-stable-foundation-first-closure-packet-summary.json`：第一闭环批次包摘要；记录 205 条明细、36 个页列、32 个 PDF 页、28 个计划数冲突或补缺页列、29 个双人复核页列，以及所有最终门禁为 0。
+- `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv`：第一闭环复核材料公开账本，36 行；把第一闭环页列包接到 Git 忽略的私有 HTML/CSV 核页材料和 Overlay 状态机。公开表只保存页列计数、任务分布、材料 SHA、回链状态和非最终门禁，不保存页图路径、OCR 原文、人工读数或字段记录值。
+- `data/working/issue19-stable-foundation-first-closure-review-summary.json`：第一闭环复核材料摘要；记录 36 个页列、32 个 PDF 页、205 条任务、104 条自动官网辅证任务、101 条人工字段任务、Q0/Q1/Q2 分布、私有材料 SHA、官方公开入口不可定稿和所有最终门禁为 0。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -443,6 +447,8 @@
 - `scripts/build_issue19_major_evidence_level_routing.py`：读取单一逐专业招生明细总工作台、底座稳定性看板、决策闸门、字段事实闭环总账、B0/B1 高校官网差异账和三年投档旁挂表，生成 13736 行逐专业证据等级与核验路由表；用于在官方结构化计划不可得时自动分流高校官网 double check、P0/P1/P2/P3 人工核验和低风险抽检，不允许自动写回字段或生成志愿建议。
 - `scripts/build_issue19_stable_foundation_screening_views.py`：读取单一逐专业总工作台、候选筛选准备表、字段事实闭环、证据路由、教育部学校属性、三年投档旁挂和家庭专业组筛选表，生成稳定基座逐专业/专业组筛选视图；用于后续筛学校、专业和专业组时统一查看家庭底线、字段缺口、学校属性、历史线索和整组调剂风险，不打开最终门禁，不替代湖北官方系统或省招办计划。
 - `scripts/build_issue19_stable_foundation_next_closure_workbench.py`：读取稳定基座筛选视图、逐专业证据路由、B0/B1 高校官网证据旁挂、P0 字段确认账本、P0 页列进度和湖北官方公开入口状态，生成 854 行自动官网辅证交叉核验工作台、319 行最小人工闭环工作台和摘要；用于把官方公开结构化源暂不可得时的 double check 与人工核页路径落成可复跑任务表。
+- `scripts/build_issue19_stable_foundation_first_closure_packet.py`：读取稳定基座下一步闭环工作台，把最高优先级 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成 205 条明细任务和 36 个页列执行包。
+- `scripts/build_issue19_first_closure_review_materials.py`：读取第一闭环明细包、页列包、页列底座公开进度账本、字段线索审计、人工复核 Overlay、官方入口状态和私有 OCR 证据，生成第一闭环公开复核账本，并在 Git 忽略的 `private/` 目录生成 36 份页列 HTML/CSV 核页材料。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。

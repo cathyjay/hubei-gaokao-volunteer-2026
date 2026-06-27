@@ -1,0 +1,50 @@
+{
+  "status": "issue19_stable_foundation_first_closure_review_materials_not_final",
+  "generated_by": "build_issue19_first_closure_review_materials.py",
+  "source_first_closure_detail_packet": "data/working/issue19-stable-foundation-first-closure-detail-packet.csv",
+  "source_first_closure_page_side_packet": "data/working/issue19-stable-foundation-first-closure-page-side-packet.csv",
+  "source_page_side_progress": "data/working/issue19-page-side-foundation-review-progress-public-ledger.csv",
+  "source_page_side_field_clue": "data/working/issue19-page-side-foundation-field-clue-public-audit.csv",
+  "source_page_side_overlay": "data/working/issue19-page-side-foundation-human-review-overlay-public-ledger.csv",
+  "source_official_public_status": "data/working/issue19-official-public-entry-status.json",
+  "source_private_first_closure_review_material": "first_closure_private_review_material_not_public",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_table": "data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv",
+  "public_row_count": 36,
+  "private_page_side_material_count": 36,
+  "unique_page_side_count": 36,
+  "unique_pdf_page_count": 32,
+  "first_closure_detail_task_count": 205,
+  "auto_task_count": 104,
+  "manual_task_count": 101,
+  "page_side_priority_counts": {
+    "Q0-冲突页列第一批先核": 17,
+    "Q1-补缺或计划数偏大页列先核": 11,
+    "Q2-官网未匹配或高校辅证页列先核": 8
+  },
+  "material_status_counts": {
+    "private_first_closure_review_material_generated": 36
+  },
+  "overlay_progress_bucket_counts": {
+    "R0-Overlay已生成未填写": 36
+  },
+  "official_public_plan_page_can_finalize": false,
+  "zspt_platform_can_finalize": false,
+  "private_index_csv_sha256": "052f0c3fba5e1b6d0aaeec035c5c1ad37d8f5c9833c613cfe97bb31574f54f46",
+  "private_master_html_sha256": "b94f6a0d62e08ae72ba1ddf43f69f7d01f244ac92890f290e5f61fdd591f0641",
+  "pdf_review_completed_task_count": 0,
+  "hubei_official_completed_task_count": 0,
+  "school_support_completed_task_count": 0,
+  "field_writeback_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "policy": {
+    "purpose": "把第一闭环36个页列接到既有页图、OCR、全量页列底座和Overlay，方便优先人工核页。",
+    "public_boundary": "公开表只保存状态、计数和SHA；私有HTML/CSV保留页图、OCR行和待核明细。",
+    "no_finalization": "本材料包不确认字段事实，不自动写回，不生成学校专业建议。"
+  }
+}

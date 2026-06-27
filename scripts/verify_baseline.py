@@ -19520,6 +19520,294 @@ def main():
         and not any(token in first_closure_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_review_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-review-summary.json"
+    )
+    first_review_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv"
+    )
+    first_review_summary = json.loads(first_review_summary_path.read_text())
+    with first_review_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_review_reader = csv.DictReader(f)
+        first_review_rows = list(first_review_reader)
+        first_review_fields = first_review_reader.fieldnames or []
+    expected_first_review_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_review_materials.py",
+        "PUBLIC_FIELDS",
+    )
+    expected_first_review_private_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_review_materials.py",
+        "PRIVATE_DETAIL_FIELDS",
+    )
+    expected_first_review_private_index_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_review_materials.py",
+        "PRIVATE_INDEX_FIELDS",
+    )
+    first_review_by_key = {row.get("页码版面键", ""): row for row in first_review_rows}
+    ps_progress_by_key = {row.get("页码版面键", ""): row for row in ps_progress_rows}
+    ps_field_clue_by_key = {row.get("页码版面键", ""): row for row in ps_field_clue_rows}
+    ps_overlay_by_key = {row.get("页码版面键", ""): row for row in ps_overlay_rows}
+    first_review_private_dir = (
+        ROOT / "private/review-assets/issue19-stable-foundation-first-closure-review"
+    )
+    first_review_private_index = first_review_private_dir / "first-closure-review-private-index.csv"
+    first_review_private_index_rows = []
+    first_review_private_by_key = {}
+    first_review_private_ok = True
+    if first_review_private_index.exists():
+        with first_review_private_index.open(newline="", encoding="utf-8-sig") as f:
+            private_index_reader = csv.DictReader(f)
+            first_review_private_index_rows = list(private_index_reader)
+            private_index_fields = private_index_reader.fieldnames or []
+        first_review_private_ok = (
+            private_index_fields == expected_first_review_private_index_fields
+            and len(first_review_private_index_rows) == 36
+        )
+        for index_row in first_review_private_index_rows:
+            key = index_row.get("页码版面键", "")
+            private_csv = first_review_private_dir / index_row.get("私有第一闭环页列CSV相对路径", "")
+            private_html = first_review_private_dir / index_row.get("私有第一闭环页列HTML相对路径", "")
+            if not private_csv.exists() or not private_html.exists():
+                first_review_private_ok = False
+                continue
+            with private_csv.open(newline="", encoding="utf-8-sig") as f:
+                private_reader = csv.DictReader(f)
+                private_rows = list(private_reader)
+                private_fields = private_reader.fieldnames or []
+            expected_task_ids = {
+                row.get("稳定基座第一闭环明细任务ID")
+                for row in first_detail_by_page_side.get(key, [])
+            }
+            actual_task_ids = {
+                row.get("稳定基座第一闭环明细任务ID") for row in private_rows
+            }
+            first_review_private_by_key[key] = {
+                "index": index_row,
+                "rows": private_rows,
+                "csv": private_csv,
+                "html": private_html,
+            }
+            first_review_private_ok = (
+                first_review_private_ok
+                and private_fields == expected_first_review_private_fields
+                and sha256(private_csv) == index_row.get("私有第一闭环页列CSV_SHA256")
+                and sha256(private_html) == index_row.get("私有第一闭环页列HTML_SHA256")
+                and actual_task_ids == expected_task_ids
+                and len(private_rows) == (as_int(index_row.get("第一闭环明细任务数")) or -1)
+                and all(row.get("PDF原页人工读数") == "" for row in private_rows)
+                and all(row.get("湖北官方字段值") == "" for row in private_rows)
+                and all(row.get("高校官网或招生章程字段值") == "" for row in private_rows)
+                and all(row.get("字段确认值") == "" for row in private_rows)
+                and all(row.get("一审记录") == "" for row in private_rows)
+                and all(row.get("二审记录") == "" for row in private_rows)
+                and all(row.get("复核结论") == "" for row in private_rows)
+            )
+    first_review_join_ok = True
+    for row in first_review_rows:
+        key = row.get("页码版面键", "")
+        page_side = first_page_side_by_key.get(key, {})
+        progress = ps_progress_by_key.get(key, {})
+        field_clue = ps_field_clue_by_key.get(key, {})
+        overlay = ps_overlay_by_key.get(key, {})
+        private = first_review_private_by_key.get(key, {})
+        private_index_row = private.get("index", {})
+        first_review_join_ok = (
+            first_review_join_ok
+            and bool(page_side)
+            and bool(progress)
+            and bool(field_clue)
+            and bool(overlay)
+            and row.get("稳定基座第一闭环复核公开账本ID") == stable_id("FIRSTREVIEW", [key])
+            and row.get("来源第一闭环明细包")
+            == "data/working/issue19-stable-foundation-first-closure-detail-packet.csv"
+            and row.get("来源第一闭环页列包")
+            == "data/working/issue19-stable-foundation-first-closure-page-side-packet.csv"
+            and row.get("来源页列底座公开核页进度账本")
+            == "data/working/issue19-page-side-foundation-review-progress-public-ledger.csv"
+            and row.get("来源页列底座字段线索公开审计")
+            == "data/working/issue19-page-side-foundation-field-clue-public-audit.csv"
+            and row.get("来源页列底座人工复核Overlay公开账本")
+            == "data/working/issue19-page-side-foundation-human-review-overlay-public-ledger.csv"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源第一闭环私有复核材料")
+            == "first_closure_private_review_material_not_public"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_stable_foundation_first_closure_review_public_ledger"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×第一闭环私有复核材料进度"
+            and all(row.get(field) == "false" for field in first_false_fields)
+            and row.get("稳定基座第一闭环页列包ID")
+            == page_side.get("稳定基座第一闭环页列包ID")
+            and row.get("页列底座核验批次行ID") == progress.get("页列底座核验批次行ID")
+            and row.get("页列底座核页进度公开账本ID")
+            == progress.get("页列底座核页进度公开账本ID")
+            and row.get("页列底座字段线索公开审计ID")
+            == field_clue.get("页列底座字段线索公开审计ID")
+            and row.get("页列底座Overlay公开账本ID")
+            == overlay.get("页列底座Overlay公开账本ID")
+            and row.get("来源页码") == page_side.get("来源页码") == progress.get("来源页码")
+            and row.get("版面列") == page_side.get("版面列") == progress.get("版面列")
+            and row.get("第一闭环页列优先级") == page_side.get("第一闭环页列优先级")
+            and row.get("第一闭环页列执行状态") == "R0-私有复核材料已生成但未核页"
+            and as_int(row.get("第一闭环明细任务数")) == as_int(page_side.get("页列总任务数"))
+            and as_int(row.get("自动官网辅证任务数")) == as_int(page_side.get("自动官网辅证任务数"))
+            and as_int(row.get("P0人工字段任务数")) == as_int(page_side.get("P0人工字段任务数"))
+            and as_int(row.get("C0冲突任务数")) == as_int(page_side.get("C0冲突任务数"))
+            and as_int(row.get("C1官网补缺任务数")) == as_int(page_side.get("C1官网补缺任务数"))
+            and as_int(row.get("C7官网未匹配任务数")) == as_int(page_side.get("C7官网未匹配任务数"))
+            and as_int(row.get("EXEC01冲突异常字段数")) == as_int(page_side.get("EXEC01冲突异常字段数"))
+            and as_int(row.get("EXEC02计划数偏大字段数")) == as_int(page_side.get("EXEC02计划数偏大字段数"))
+            and as_int(row.get("EXEC03高校辅证字段数")) == as_int(page_side.get("EXEC03高校辅证字段数"))
+            and as_int(row.get("涉及专业行数")) == as_int(page_side.get("涉及专业行数"))
+            and as_int(row.get("涉及字段任务数")) == as_int(page_side.get("涉及字段任务数"))
+            and row.get("是否含计划数冲突或补缺") == page_side.get("是否含计划数冲突或补缺")
+            and row.get("是否需要双人复核") == page_side.get("是否需要双人复核")
+            and row.get("批次总序") == progress.get("批次总序")
+            and row.get("批次ID") == progress.get("批次ID")
+            and row.get("批次名称") == progress.get("批次名称")
+            and row.get("批内页列序号") == progress.get("批内页列序号")
+            and row.get("页列全局风险总序") == progress.get("页列全局风险总序")
+            and row.get("综合风险优先级桶") == progress.get("综合风险优先级桶")
+            and row.get("页列首要核验动作") == progress.get("页列首要核验动作")
+            and as_int(row.get("全量底座包内专业行数")) == as_int(progress.get("包内专业行数"))
+            and as_int(row.get("全量底座包内字段任务数")) == as_int(progress.get("包内字段任务数"))
+            and row.get("私有页图证据编号") == progress.get("私有页图证据编号")
+            and row.get("私有页图SHA256") == progress.get("私有页图SHA256")
+            and row.get("Overlay进度桶") == overlay.get("Overlay进度桶")
+            and row.get("PDF原页记录已填字段数") == overlay.get("PDF原页记录已填字段数")
+            and row.get("湖北官方记录已填字段数") == overlay.get("湖北官方记录已填字段数")
+            and row.get("高校辅证记录已填字段数") == overlay.get("高校辅证记录已填字段数")
+            and row.get("字段最终记录已填字段数") == overlay.get("字段最终记录已填字段数")
+            and row.get("三方一致性可评估字段数") == overlay.get("三方一致性可评估字段数")
+            and row.get("第一闭环PDF原页完成任务数") == "0"
+            and row.get("第一闭环湖北官方完成任务数") == "0"
+            and row.get("第一闭环高校辅证完成任务数") == "0"
+            and row.get("第一闭环字段事实写回可进入任务数") == "0"
+            and row.get("官方公开计划页可定稿") == "false"
+            and row.get("数智平台可定稿") == "false"
+            and row.get("字段事实写回状态")
+            == "blocked_until_first_closure_pdf_hubei_review_closed"
+            and row.get("私有第一闭环材料状态")
+            == "private_first_closure_review_material_generated"
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有第一闭环页列CSV_SHA256", "") or "")
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有第一闭环页列HTML_SHA256", "") or "")
+            and (
+                not first_review_private_index.exists()
+                or (
+                    private_index_row
+                    and row.get("私有第一闭环页列CSV_SHA256")
+                    == private_index_row.get("私有第一闭环页列CSV_SHA256")
+                    and row.get("私有第一闭环页列HTML_SHA256")
+                    == private_index_row.get("私有第一闭环页列HTML_SHA256")
+                )
+            )
+        )
+    first_review_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_review_summary_path, first_review_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环私有复核材料公开摘要、规模和官方边界正确",
+        first_review_summary.get("status")
+        == "issue19_stable_foundation_first_closure_review_materials_not_final"
+        and first_review_summary.get("generated_by")
+        == "build_issue19_first_closure_review_materials.py"
+        and first_review_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_review_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv"
+        and first_review_summary.get("public_row_count") == len(first_review_rows) == 36
+        and first_review_summary.get("private_page_side_material_count") == 36
+        and first_review_summary.get("unique_page_side_count") == 36
+        and first_review_summary.get("unique_pdf_page_count") == 32
+        and first_review_summary.get("first_closure_detail_task_count") == 205
+        and first_review_summary.get("auto_task_count") == 104
+        and first_review_summary.get("manual_task_count") == 101
+        and first_review_summary.get("page_side_priority_counts") == dict(first_page_priority_counts)
+        and first_review_summary.get("material_status_counts")
+        == {"private_first_closure_review_material_generated": 36}
+        and first_review_summary.get("overlay_progress_bucket_counts")
+        == {"R0-Overlay已生成未填写": 36}
+        and first_review_summary.get("official_public_plan_page_can_finalize") is False
+        and first_review_summary.get("zspt_platform_can_finalize") is False
+        and first_review_summary.get("pdf_review_completed_task_count") == 0
+        and first_review_summary.get("hubei_official_completed_task_count") == 0
+        and first_review_summary.get("school_support_completed_task_count") == 0
+        and first_review_summary.get("field_writeback_allowed_count") == 0
+        and first_review_summary.get("final_available_count") == 0
+        and first_review_summary.get("next_stage_available_count") == 0
+        and first_review_summary.get("recommendation_basis_allowed_count") == 0
+        and first_review_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_review_summary.get("official_plan_replacement_allowed_count") == 0,
+        f"{len(first_review_rows)} review rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环私有复核材料字段、回链、门禁和私有SHA正确",
+        first_review_fields == expected_first_review_fields
+        and len({row.get("稳定基座第一闭环复核公开账本ID") for row in first_review_rows}) == 36
+        and set(first_review_by_key) == set(first_page_side_by_key)
+        and set(first_review_by_key).issubset(set(ps_progress_by_key))
+        and set(first_review_by_key).issubset(set(ps_field_clue_by_key))
+        and set(first_review_by_key).issubset(set(ps_overlay_by_key))
+        and all(row.get(field) == "false" for row in first_review_rows for field in first_false_fields)
+        and (
+            not first_review_private_index.exists()
+            or first_review_summary.get("private_index_csv_sha256") == sha256(first_review_private_index)
+        )
+        and (
+            not first_review_private_index.exists()
+            or first_review_summary.get("private_master_html_sha256")
+            == sha256(first_review_private_dir / "index.html")
+        )
+        and (
+            not first_review_private_index.exists()
+            or len(first_review_private_by_key) == 36
+        )
+        and first_review_private_ok
+        and first_review_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环私有复核材料公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in first_review_public_text
+        and "/home/" not in first_review_public_text
+        and "/var/folders/" not in first_review_public_text
+        and "/private/" not in first_review_public_text
+        and "private/" not in first_review_public_text
+        and "private\\" not in first_review_public_text
+        and "ocr-runs" not in first_review_public_text
+        and "rendered-pages" not in first_review_public_text
+        and ".png" not in first_review_public_text
+        and ".jpg" not in first_review_public_text
+        and ".jpeg" not in first_review_public_text
+        and ".webp" not in first_review_public_text
+        and ".tif" not in first_review_public_text
+        and ".tiff" not in first_review_public_text
+        and ".heic" not in first_review_public_text
+        and "Authorization" not in first_review_public_text
+        and "Bearer " not in first_review_public_text
+        and "Cookie" not in first_review_public_text
+        and "身份证" not in first_review_public_text
+        and "准考证" not in first_review_public_text
+        and "报名号" not in first_review_public_text
+        and "序列号" not in first_review_public_text
+        and "OCR行文本" not in first_review_public_text
+        and "PDF原页人工读数" not in first_review_public_text
+        and "湖北官方字段值" not in first_review_public_text
+        and "高校官网或招生章程字段值" not in first_review_public_text
+        and "字段确认值" not in first_review_public_text
+        and "一审记录" not in first_review_public_text
+        and "二审记录" not in first_review_public_text
+        and "复核结论" not in first_review_public_text
+        and "复核备注" not in first_review_public_text
+        and "已确认" not in first_review_public_text
+        and "已核准" not in first_review_public_text
+        and "最终推荐" not in first_review_public_text
+        and "最终方案" not in first_review_public_text
+        and "可填报" not in first_review_public_text
+        and "可排序" not in first_review_public_text
+        and not any(token in first_review_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",
