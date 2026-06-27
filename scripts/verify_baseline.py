@@ -21431,6 +21431,270 @@ def main():
         and not any(token in first_machine_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_field_confirm_summary_path = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger-summary.json"
+    )
+    first_field_confirm_csv = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv"
+    )
+    first_field_confirm_summary = json.loads(first_field_confirm_summary_path.read_text())
+    with first_field_confirm_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_field_confirm_reader = csv.DictReader(f)
+        first_field_confirm_rows = list(first_field_confirm_reader)
+        first_field_confirm_fields = first_field_confirm_reader.fieldnames or []
+    expected_first_field_confirm_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_field_confirmation_workbench.py",
+        "PUBLIC_FIELDS",
+    )
+    expected_first_field_confirm_private_extra_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_first_closure_field_confirmation_workbench.py",
+        "PRIVATE_EXTRA_FIELDS",
+    )
+    expected_first_field_confirm_private_fields = (
+        expected_first_field_confirm_fields + expected_first_field_confirm_private_extra_fields
+    )
+    first_field_confirm_private_csv = (
+        ROOT
+        / "private/review-assets/issue19-stable-foundation-first-closure-field-confirmation/first-closure-field-confirmation-private-workbench.csv"
+    )
+    first_field_confirm_private_rows = []
+    first_field_confirm_private_fields = []
+    if first_field_confirm_private_csv.exists():
+        with first_field_confirm_private_csv.open(newline="", encoding="utf-8-sig") as f:
+            first_field_confirm_private_reader = csv.DictReader(f)
+            first_field_confirm_private_rows = list(first_field_confirm_private_reader)
+            first_field_confirm_private_fields = first_field_confirm_private_reader.fieldnames or []
+    first_pdf_ocr_by_task_id = {
+        row.get("稳定基座第一闭环明细任务ID", ""): row for row in first_pdf_ocr_rows
+    }
+    first_machine_by_task_id = {
+        row.get("稳定基座第一闭环明细任务ID", ""): row for row in first_machine_rows
+    }
+    first_page_candidate_by_key = {
+        row.get("页码版面键", ""): row for row in first_page_candidate_rows
+    }
+    first_field_private_by_id = {
+        row.get("第一闭环字段确认公开账本ID", ""): row
+        for row in first_field_confirm_private_rows
+    }
+    first_field_confirm_join_ok = True
+    for row in first_field_confirm_rows:
+        task_id = row.get("稳定基座第一闭环明细任务ID", "")
+        task = first_task_review_by_task_id.get(task_id, {})
+        pdf_row = first_pdf_ocr_by_task_id.get(task_id, {})
+        machine_row = first_machine_by_task_id.get(task_id, {})
+        page_row = first_page_candidate_by_key.get(row.get("页码版面键", ""), {})
+        private_row = first_field_private_by_id.get(row.get("第一闭环字段确认公开账本ID", ""), {})
+        first_field_confirm_join_ok = (
+            first_field_confirm_join_ok
+            and bool(task)
+            and bool(pdf_row)
+            and bool(machine_row)
+            and bool(page_row)
+            and bool(private_row)
+            and row.get("第一闭环字段确认公开账本ID") == stable_id("FIRSTFCONF", [task_id])
+            and row.get("来源第一闭环任务复核公开账本")
+            == "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv"
+            and row.get("来源第一闭环PDFOCR候选公开审计")
+            == "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv"
+            and row.get("来源第一闭环机器坐标候选公开审计")
+            == "data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv"
+            and row.get("来源第一闭环页列候选看板")
+            == "data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv"
+            and row.get("来源私有字段确认工作台")
+            == "first_closure_field_confirmation_private_workbench_not_public"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_field_confirmation_public_ledger"
+            and row.get("主表粒度") == "逐专业招生明细×第一闭环任务"
+            and row.get("任务粒度") == "逐任务×第一闭环字段确认公开状态"
+            and row.get("第一闭环执行顺序") == pdf_row.get("第一闭环执行顺序")
+            and row.get("执行泳道") == pdf_row.get("执行泳道")
+            and row.get("第一闭环页列优先级") == pdf_row.get("第一闭环页列优先级")
+            and row.get("专业行ID") == task.get("专业行ID")
+            and row.get("来源页码") == task.get("来源页码")
+            and row.get("版面列") == task.get("版面列")
+            and row.get("第一闭环PDFOCR候选公开审计ID")
+            == pdf_row.get("第一闭环PDFOCR候选公开审计ID")
+            and row.get("第一闭环机器坐标候选公开审计ID")
+            == machine_row.get("第一闭环机器坐标候选公开审计ID")
+            and row.get("第一闭环页列候选看板ID")
+            == page_row.get("第一闭环页列候选看板ID")
+            and row.get("PDFOCR提示记录状态") == pdf_row.get("PDFOCR候选记录状态")
+            and row.get("PDFOCR提示审阅桶") == pdf_row.get("PDFOCR候选审阅桶")
+            and row.get("PDFOCR与高校辅证关系桶") == pdf_row.get("PDFOCR与高校辅证关系桶")
+            and row.get("PDFOCR提示字段数") == pdf_row.get("PDFOCR候选字段数")
+            and row.get("高校辅证提示字段数") == pdf_row.get("高校辅证候选字段数")
+            and row.get("机器坐标提示记录状态") == machine_row.get("机器坐标候选记录状态")
+            and row.get("机器坐标提示审阅桶") == machine_row.get("机器坐标候选审阅桶")
+            and row.get("机器坐标提示关系桶") == machine_row.get("机器坐标候选关系桶")
+            and row.get("机器坐标是否可辅助核页")
+            == machine_row.get("是否机器坐标可补候选")
+            and row.get("机器坐标提示字段数") == machine_row.get("机器坐标候选字段数")
+            and row.get("PDF原页私有记录状态") == "pending_private_pdf_reading"
+            and row.get("湖北官方私有记录状态") == "pending_private_hubei_reading"
+            and row.get("三方字段一致性公开状态")
+            == "pending_private_three_way_field_confirmation"
+            and row.get("字段事实写回评估状态")
+            == "blocked_until_required_private_readings_complete"
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_review"
+            and row.get("字段事实写回状态")
+            == "blocked_until_required_private_readings_complete"
+            and row.get("私有字段确认工作台状态")
+            == "private_first_closure_field_confirmation_workbench_generated"
+            and all(private_row.get(field, "") == row.get(field, "") for field in first_field_confirm_fields)
+        )
+    first_field_confirm_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_field_confirm_summary_path, first_field_confirm_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环字段确认公开账本摘要、规模和状态机正确",
+        first_field_confirm_summary.get("status")
+        == "issue19_stable_foundation_first_closure_field_confirmation_public_ledger_not_final"
+        and first_field_confirm_summary.get("generated_by")
+        == "build_issue19_first_closure_field_confirmation_workbench.py"
+        and first_field_confirm_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_field_confirm_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv"
+        and first_field_confirm_summary.get("row_count") == len(first_field_confirm_rows) == 205
+        and first_field_confirm_summary.get("private_field_confirmation_workbench_generated") is True
+        and first_field_confirm_summary.get("unique_public_ledger_id_count") == 205
+        and first_field_confirm_summary.get("unique_first_closure_task_id_count") == 205
+        and first_field_confirm_summary.get("unique_pdf_ocr_audit_id_count") == 205
+        and first_field_confirm_summary.get("unique_machine_coordinate_audit_id_count") == 205
+        and first_field_confirm_summary.get("unique_page_side_count") == 36
+        and first_field_confirm_summary.get("unique_pdf_page_count") == 32
+        and first_field_confirm_summary.get("task_source_type_counts")
+        == {"自动官网辅证任务": 104, "P0人工字段任务": 101}
+        and first_field_confirm_summary.get("manual_review_lane_counts")
+        == {
+            "F0-PDFOCR与高校辅证冲突双人核页": 25,
+            "F1-机器坐标候选辅助核页": 49,
+            "F2-PDFOCR候选人工确认": 77,
+            "F4-无候选人工看图": 54,
+        }
+        and first_field_confirm_summary.get("manual_review_mode_counts")
+        == {"双人复核": 25, "单人初核加抽检": 126, "人工看图": 54}
+        and first_field_confirm_summary.get("combined_hint_bucket_counts")
+        == {
+            "H0-PDFOCR与高校辅证冲突": 25,
+            "H1-原缺PDFOCR但有机器坐标候选": 49,
+            "H2-已有PDFOCR候选": 77,
+            "H4-无候选需人工看图": 54,
+        }
+        and first_field_confirm_summary.get("pdf_private_record_status_counts")
+        == {"pending_private_pdf_reading": 205}
+        and first_field_confirm_summary.get("hubei_private_record_status_counts")
+        == {"pending_private_hubei_reading": 205}
+        and first_field_confirm_summary.get("school_private_record_status_counts")
+        == {"pending_private_school_reading": 179, "not_applicable_no_school_field_clue": 26}
+        and first_field_confirm_summary.get("double_review_status_counts")
+        == {"pending_double_review": 90, "double_review_not_required": 115}
+        and first_field_confirm_summary.get("three_way_public_status_counts")
+        == {"pending_private_three_way_field_confirmation": 205}
+        and first_field_confirm_summary.get("field_writeback_review_status_counts")
+        == {"blocked_until_required_private_readings_complete": 205}
+        and first_field_confirm_summary.get("pdf_ocr_hint_task_count") == 102
+        and first_field_confirm_summary.get("machine_coordinate_hint_task_count") == 49
+        and first_field_confirm_summary.get("school_hint_task_count") == 73
+        and first_field_confirm_summary.get("direct_image_review_required_count") == 79
+        and first_field_confirm_summary.get("double_review_required_count") == 90
+        and first_field_confirm_summary.get("pdf_manual_review_pending_count") == 205
+        and first_field_confirm_summary.get("hubei_official_review_pending_count") == 205
+        and first_field_confirm_summary.get("three_way_closure_pending_count") == 205
+        and first_field_confirm_summary.get("field_writeback_ready_count") == 0
+        and first_field_confirm_summary.get("field_conflict_blocked_count") == 0
+        and first_field_confirm_summary.get("final_available_count") == 0
+        and first_field_confirm_summary.get("next_stage_available_count") == 0
+        and first_field_confirm_summary.get("field_writeback_allowed_count") == 0
+        and first_field_confirm_summary.get("recommendation_basis_allowed_count") == 0
+        and first_field_confirm_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_field_confirm_summary.get("official_plan_replacement_allowed_count") == 0,
+        f"{len(first_field_confirm_rows)} first-closure field confirmation rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环字段确认公开账本字段、私有SHA和门禁正确",
+        first_field_confirm_fields == expected_first_field_confirm_fields
+        and first_field_confirm_private_fields == expected_first_field_confirm_private_fields
+        and first_field_confirm_private_csv.exists()
+        and first_field_confirm_summary.get("private_field_confirmation_workbench_sha256")
+        == sha256(first_field_confirm_private_csv)
+        and len(first_field_confirm_private_rows) == 205
+        and len({row.get("第一闭环字段确认公开账本ID") for row in first_field_confirm_rows}) == 205
+        and len({row.get("稳定基座第一闭环明细任务ID") for row in first_field_confirm_rows}) == 205
+        and {row.get("稳定基座第一闭环明细任务ID") for row in first_field_confirm_rows}
+        == set(first_task_review_by_task_id)
+        and {row.get("第一闭环PDFOCR候选公开审计ID") for row in first_field_confirm_rows}
+        == {row.get("第一闭环PDFOCR候选公开审计ID") for row in first_pdf_ocr_rows}
+        and {row.get("第一闭环机器坐标候选公开审计ID") for row in first_field_confirm_rows}
+        == {row.get("第一闭环机器坐标候选公开审计ID") for row in first_machine_rows}
+        and [as_int(row.get("字段确认公开账本总序")) for row in first_field_confirm_rows]
+        == list(range(1, 206))
+        and all(row.get(field) == "false" for row in first_field_confirm_rows for field in first_false_fields)
+        and all(row.get("是否允许写回字段事实") == "false" for row in first_field_confirm_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in first_field_confirm_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in first_field_confirm_rows)
+        and first_field_confirm_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环字段确认公开文件不含字段读数、候选明细、私有路径、登录态、身份信息和最终误导结论",
+        "/Users/" not in first_field_confirm_public_text
+        and "/home/" not in first_field_confirm_public_text
+        and "/var/folders/" not in first_field_confirm_public_text
+        and "/private/" not in first_field_confirm_public_text
+        and "private/" not in first_field_confirm_public_text
+        and "private\\" not in first_field_confirm_public_text
+        and "ocr-runs" not in first_field_confirm_public_text
+        and "rendered-pages" not in first_field_confirm_public_text
+        and "file://" not in first_field_confirm_public_text
+        and ".png" not in first_field_confirm_public_text
+        and ".jpg" not in first_field_confirm_public_text
+        and ".jpeg" not in first_field_confirm_public_text
+        and ".webp" not in first_field_confirm_public_text
+        and ".tif" not in first_field_confirm_public_text
+        and ".tiff" not in first_field_confirm_public_text
+        and ".heic" not in first_field_confirm_public_text
+        and "Authorization" not in first_field_confirm_public_text
+        and "Bearer " not in first_field_confirm_public_text
+        and "Cookie" not in first_field_confirm_public_text
+        and "Set-Cookie" not in first_field_confirm_public_text
+        and "access_token" not in first_field_confirm_public_text
+        and "refresh_token" not in first_field_confirm_public_text
+        and "password" not in first_field_confirm_public_text
+        and "secret" not in first_field_confirm_public_text
+        and "api_key" not in first_field_confirm_public_text
+        and "身份证" not in first_field_confirm_public_text
+        and "准考证" not in first_field_confirm_public_text
+        and "报名号" not in first_field_confirm_public_text
+        and "序列号" not in first_field_confirm_public_text
+        and "手机号" not in first_field_confirm_public_text
+        and "院校名称" not in first_field_confirm_public_text
+        and "专业名称" not in first_field_confirm_public_text
+        and "专业代号" not in first_field_confirm_public_text
+        and "院校专业组" not in first_field_confirm_public_text
+        and "候选值" not in first_field_confirm_public_text
+        and "PDF原页人工读数" not in first_field_confirm_public_text
+        and "湖北官方字段值" not in first_field_confirm_public_text
+        and "高校官网或招生章程字段值" not in first_field_confirm_public_text
+        and "字段确认值" not in first_field_confirm_public_text
+        and "OCR行文本" not in first_field_confirm_public_text
+        and "人工读数" not in first_field_confirm_public_text
+        and "已确认" not in first_field_confirm_public_text
+        and "已核准" not in first_field_confirm_public_text
+        and "最终推荐" not in first_field_confirm_public_text
+        and "最终方案" not in first_field_confirm_public_text
+        and "可填报" not in first_field_confirm_public_text
+        and "可排序" not in first_field_confirm_public_text
+        and not any(token in first_field_confirm_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

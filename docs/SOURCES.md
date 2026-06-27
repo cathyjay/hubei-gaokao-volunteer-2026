@@ -344,6 +344,8 @@
 - `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard-summary.json`：第一闭环页列候选看板摘要；记录 36 个页列、205 条任务、9 个先核冲突页列、21 个先人工看图页列、6 个按 PDF OCR 候选确认页列，以及全部非最终门禁。
 - `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv`：第一闭环机器坐标候选公开审计，205 行；读取 P0 字段机器坐标候选表和第一闭环 PDF OCR 候选私有工作台，把 103 条原缺 PDF OCR 候选任务中的 49 条标为机器坐标候选待人工核页，公开层只保存状态桶、计数、证据编号和门禁。
 - `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit-summary.json`：第一闭环机器坐标候选摘要；记录原缺 PDF OCR 候选 103 条、机器坐标可补候选 49 条、剩余缺候选 54 条、字段分布为专业计划数 44 条和学费 5 条。私有机器坐标候选工作台 SHA 保存在摘要中，字段明细只在 Git 忽略目录。
+- `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv`：第一闭环字段确认公开账本，205 行；一行对应一条第一闭环任务，把任务级复核账本、PDF OCR 候选、机器坐标候选、页列候选看板和私有字段确认工作台接到同一个公开状态机。公开层只保存核验泳道、候选提示状态、PDF 原页/湖北官方/高校辅证私有记录状态、双人复核状态、三方一致性公开状态和非最终门禁，不保存任何候选值或人工字段值。
+- `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger-summary.json`：第一闭环字段确认摘要；记录 205 条任务、36 个页列、32 个 PDF 页、PDF OCR 提示 102 条、机器坐标提示 49 条、高校辅证线索 73 条、直接看图 79 条、双人复核 90 条，以及 PDF 原页和湖北官方侧记录均待完成。字段写回、推荐依据、学校专业建议和最终可用仍全部为 0；私有字段确认工作台 SHA 保存在摘要中，具体读数只在 Git 忽略目录。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。

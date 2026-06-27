@@ -57,6 +57,8 @@
 
 新增的 `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv` 和 `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv` 继续压缩第一闭环人工工作量：前者把 205 条任务按 36 个页列给出核验动作，后者把 103 条原缺 PDF OCR 候选任务中的 49 条提升为机器坐标候选待人工核页。机器坐标候选只用于提示人工回看 PDF 原页，仍必须核湖北官方侧，不得自动写回字段事实或进入志愿推荐。
 
+新增的 `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv` 是第一闭环的字段确认桥：它不公开候选值和人工读数，只把 205 条任务的 PDF 原页私有记录、湖北官方侧私有记录、高校辅证私有记录、双人复核和三方一致性状态同步为公开状态机。当前它显示 205 条任务仍全部卡在 PDF 原页和湖北官方侧待核阶段，字段写回、推荐依据、学校专业建议和最终可用全部为 0；这正是后续人工或登录官方系统核验的执行入口，而不是最终招生计划事实表。
+
 ## 三、学校分析维度
 
 - 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。
