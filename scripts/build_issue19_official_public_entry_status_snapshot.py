@@ -6,11 +6,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+CHECKED_AT = "2026-06-28"
 
 OFFICIAL_DIR = ROOT / "data/official/hubei-2026-admission-plan-platform"
 PLAN_PAGE = OFFICIAL_DIR / "hbccks-2026-plan-page.html"
 PLAN_INDEX = OFFICIAL_DIR / "hbccks-plan-index.html"
-ZSPT_HOME = OFFICIAL_DIR / "index-live-20260627.html"
+ZSPT_HOME = OFFICIAL_DIR / "index-live-20260628.html"
 ZSPT_NFS_PROBE = OFFICIAL_DIR / "api-probes/planQuery-plan-nfs-no-token.json"
 ZSPT_YXLIST_PROBE = OFFICIAL_DIR / "api-probes/planQuery-plan-yxList-2026-wuhan-no-token.json"
 OUTPUT = ROOT / "data/working/issue19-official-public-entry-status.json"
@@ -53,34 +54,53 @@ def main():
     status = {
         "status": "issue19_official_public_entry_status_not_final",
         "generated_by": "build_issue19_official_public_entry_status_snapshot.py",
-        "checked_at": "2026-06-27",
+        "checked_at": CHECKED_AT,
         "output_file": "data/working/issue19-official-public-entry-status.json",
         "row_grain_policy": "本状态快照只判断官方公开入口可用性；招生计划底座仍以逐专业招生明细为主粒度。",
         "official_plan_page": {
             "url": "http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html",
+            "method": "GET",
+            "http_status": 200,
+            "effective_url": "http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html",
             "local_copy": PLAN_PAGE.relative_to(ROOT).as_posix(),
             "sha256": sha256(PLAN_PAGE),
+            "content_length_bytes": PLAN_PAGE.stat().st_size,
             "title": title_of(plan_page_html),
             "contains_2026_plan_title": "2026年普通高等学校招生计划" in plan_page_html,
             "contains_waiting_notice": "持续更新中" in plan_page_html or "敬请期待" in plan_page_html,
-            "live_check_note": "2026-06-27 使用公开 HTTP 拉取返回 200；SHA256 与本地留存一致。",
+            "live_check_note": f"{CHECKED_AT} 使用公开 HTTP 拉取返回 200；SHA256 与本地留存一致。",
+            "evidence_role": "official_public_entry_evidence",
+            "can_finalize": False,
             "foundation_meaning": "页面公开但正文仍含持续更新/敬请期待提示，不能单独作为最终招生计划底稿。",
         },
         "official_plan_index": {
             "url": "http://www.hbccks.cn/html/gkgzzt/gkzsjh/",
+            "method": "GET",
+            "http_status": 200,
+            "effective_url": "http://www.hbccks.cn/html/gkgzzt/gkzsjh/",
             "local_copy": PLAN_INDEX.relative_to(ROOT).as_posix(),
             "sha256": sha256(PLAN_INDEX),
+            "content_length_bytes": PLAN_INDEX.stat().st_size,
             "title": title_of(plan_index_html),
             "contains_2026_plan_link": "2026年普通高等学校招生计划" in plan_index_html,
             "contains_waiting_notice": "持续更新中" in plan_index_html or "敬请期待" in plan_index_html,
-            "live_check_note": "2026-06-27 使用公开 HTTP 拉取返回 200；SHA256 与本地留存一致。",
+            "live_check_note": f"{CHECKED_AT} 使用公开 HTTP 拉取返回 200；SHA256 与本地留存一致。",
+            "evidence_role": "official_public_index_evidence",
+            "can_finalize": False,
             "foundation_meaning": "索引能证明官方计划入口存在，但不能替代第19期逐专业明细和官方系统字段核验。",
         },
         "zspt_platform": {
             "url": "https://zspt.hubzs.com.cn",
+            "method": "GET",
+            "http_status": 200,
+            "effective_url": "https://zspt.hubzs.com.cn/",
             "local_copy": ZSPT_HOME.relative_to(ROOT).as_posix(),
             "sha256": sha256(ZSPT_HOME),
+            "content_length_bytes": ZSPT_HOME.stat().st_size,
             "title": title_of(zspt_home_html),
+            "live_check_note": f"{CHECKED_AT} 使用公开 HTTPS 拉取返回 200；首页只证明平台入口和前端资源可访问，不能证明招生计划明细可无登录取得。",
+            "evidence_role": "official_platform_entry_evidence",
+            "can_finalize": False,
             "unauthenticated_probe_results": [
                 probe_result(ZSPT_NFS_PROBE),
                 probe_result(ZSPT_YXLIST_PROBE),

@@ -1,6 +1,6 @@
 # 2026 招生计划获取状态
 
-最后更新：2026-06-27
+最后更新：2026-06-28
 
 ## 一、为什么必须获取 2026 招生计划
 
@@ -19,9 +19,9 @@
 
 | 来源 | URL 或位置 | 当前状态 | 用途 |
 | --- | --- | --- | --- |
-| 湖北教育考试网招生计划专题 | http://www.hbccks.cn/html/gkgzzt/gkzsjh/ | 已留存索引页；2026-06-27 公开 HTTP 复核返回 200 | 官方公开入口 |
-| 2026 年普通高等学校招生计划页面 | http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html | 2026-06-27 公开 HTTP 复核返回 200，但页面显示“持续更新中，敬请期待” | 等待官方公开完整计划 |
-| 湖北招生数智综合平台 | https://zspt.hubzs.com.cn | 2026-06-27 首页和当前前端资源已留存 | 官方志愿系统和智能参考系统 |
+| 湖北教育考试网招生计划专题 | http://www.hbccks.cn/html/gkgzzt/gkzsjh/ | 已留存索引页；2026-06-28 公开 HTTP 复核返回 200，SHA 与 2026-06-27 留存一致 | 官方公开入口 |
+| 2026 年普通高等学校招生计划页面 | http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html | 2026-06-28 公开 HTTP 复核返回 200，但页面仍显示“持续更新中，敬请期待”；`can_finalize=false` | 等待官方公开完整计划 |
+| 湖北招生数智综合平台 | https://zspt.hubzs.com.cn | 2026-06-28 首页已留存，公开 HTTPS 返回 200；首页只证明平台入口可访问 | 官方志愿系统和智能参考系统 |
 | 平台计划查询接口 | `/prod-api/planQuery/plan/*` | 无登录请求返回 `401 令牌不能为空`；已写可复跑抓取脚本 | 需要考生登录态或平台权限 |
 | 《湖北招生考试》杂志 | 第 13、16、19、22 期 | 需人工获取 | 官方纸质/电子招生计划来源 |
 | 第 16/19 期专项检索 | `docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md` | 未找到公开完整电子版 | 获取路径和线索记录 |
@@ -33,6 +33,7 @@
 - `data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html`
 - `data/official/hubei-2026-admission-plan-platform/index.html`
 - `data/official/hubei-2026-admission-plan-platform/index-live-20260627.html`
+- `data/official/hubei-2026-admission-plan-platform/index-live-20260628.html`
 - `data/official/hubei-2026-admission-plan-platform/assets/`
 - `data/official/hubei-2026-admission-plan-platform/api-probes/`
 - `data/working/issue19-official-public-entry-status.json`
@@ -44,7 +45,7 @@
 
 ## 三、已发现的平台接口
 
-从湖北招生数智综合平台 2026-06-27 前端资源中发现以下只读计划查询接口：
+从湖北招生数智综合平台 2026-06-27 前端资源中发现以下只读计划查询接口；2026-06-28 首页已重新留存，但无登录探测边界不变：
 
 - `/prod-api/planQuery/plan/nfs`
 - `/prod-api/planQuery/plan/yxList?nf=2026&keyword=...&limit=...`
@@ -58,6 +59,7 @@
 | 文件 | SHA256 | 用途 |
 | --- | --- | --- |
 | `data/official/hubei-2026-admission-plan-platform/index-live-20260627.html` | `253e6dd5c05c99af0ca9f52ee72182fcdcb70f188eae1bd88df456009dc6298d` | 当日平台首页快照 |
+| `data/official/hubei-2026-admission-plan-platform/index-live-20260628.html` | `6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3` | 2026-06-28 平台首页快照；不能证明结构化计划可无登录取得 |
 | `data/official/hubei-2026-admission-plan-platform/assets/index-Cut-ZwER.js` | `191ac7517cf0c9ea22cb82d98c381664ba439ffe485936b600405b92593e4de4` | 当前主入口资源，含请求封装 |
 | `data/official/hubei-2026-admission-plan-platform/assets/planQuery-DaPwtzYm.js` | `1013eb61f6f142b97d439269397b4674d778cf2c00483120462d83748cfd90ee` | 当前计划查询接口定义 |
 | `data/official/hubei-2026-admission-plan-platform/assets/planQueryDicts-CJncJeD8.js` | `3ba9e346cea6e9f44f4a5f2c6b00f4a021678006a6cc8a295ddddc2d439d09f4` | 当前计划查询字典辅助 |
@@ -90,7 +92,16 @@
 
 上述无登录探测 JSON 的 SHA256 均为 `02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f`，内容均为 `{"code":401,"msg":"令牌不能为空"}`。
 
-## 四、官方平台抓取脚手架
+## 四、官方结构化计划暂不可得时的保真办法
+
+当前能自动取得的是官方入口证据，不是可定稿的官方逐专业结构化明细。若决策窗口内仍无法直接取得湖北官方系统导出的结构化计划，底座按降级闭环推进：
+
+- 第 19 期 PDF 原页或纸质原页仍作为省招办原件层，优先核最终候选、冲稳保边界、B0/B1 优先组、计划数冲突、官网未匹配、补源缺口和字段空缺但进入候选的专业。
+- 高校官网/API/XLSX/PDF/图片只用于自动 double check 专业名、计划数、学费、选科、校区、学制和章程限制；专业组边界、调剂范围和最终志愿系统代码仍必须回到湖北省招办渠道。
+- `strong_support`、计划数一致或官网字段齐全的行只能进入分层抽检，不能自动定稿。抽样出现结构错误、关键限定词丢失、计划数冲突、OCR 把学费读成计划数、物理/历史未拆分、官网来源不是 2026 湖北物理普通本科，或同组存在家庭不能接受专业时，同页列、同校或同组升级 100% 人工核验。
+- 家庭人工只签认最终候选完整专业组、红色冲突项和抽检失败升级项；脚本负责把 41208 个字段任务全量排序和分流，避免把全量字段核验压力摊给家庭。
+
+## 五、官方平台抓取脚手架
 
 已新增脚本：
 
@@ -118,7 +129,7 @@ python3 scripts/fetch_hubei_plan_platform.py \
 - 公开 CSV 默认保存原始行 SHA，不保存完整原始行 JSON；如确需字段级审计，可显式加 `--include-raw-json-in-csv`，但提交前必须做隐私和敏感字段扫描。
 - 平台数据进入最终方案前，仍要和第 19 期 PDF 原页、高校官网/章程、家庭接受度和调剂结论闭环。
 
-## 五、下一步获取方案
+## 六、下一步获取方案
 
 优先级从高到低：
 
@@ -129,7 +140,7 @@ python3 scripts/fetch_hubei_plan_platform.py \
 
 湖北官方政策问答已明确：考生填报的志愿代号必须以 2026 年省招办通过《湖北招生考试》杂志第 13、16、19、22 期公布的招生计划为准，不能使用往年资料上的代号。第 16 期对应历史类计划，若后续做历史类对照或家庭扩展需求再获取；当前考生首选物理，核心是第 19 期。
 
-## 六、需要导出的字段
+## 七、需要导出的字段
 
 整理 2026 计划时，默认按“招生明细”记录，一行一个专业；院校专业组只作为索引和调剂范围。每条招生明细至少记录：
 
@@ -156,7 +167,7 @@ python3 scripts/fetch_hubei_plan_platform.py \
 私有原始响应编号
 ```
 
-## 七、当前可先推进的工作
+## 八、当前可先推进的工作
 
 在完整 2026 计划拿到前，可以先做：
 

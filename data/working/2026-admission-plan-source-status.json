@@ -1,21 +1,25 @@
 {
-  "last_updated": "2026-06-27",
+  "last_updated": "2026-06-28",
   "official_plan_page": {
     "url": "http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html",
     "local_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html",
     "sha256": "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776",
+    "can_finalize": false,
     "status": "页面已公开，但正文显示“持续更新中，敬请期待”。",
-    "checked_note": "2026-06-27 使用公开 HTTP 复核返回 200；SHA256 与本地留存一致。"
+    "checked_note": "2026-06-28 使用公开 HTTP 复核返回 200；SHA256 与本地留存一致。"
   },
   "official_plan_index": {
     "url": "http://www.hbccks.cn/html/gkgzzt/gkzsjh/",
     "local_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html",
     "sha256": "804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50",
-    "status": "已留存索引页；2026-06-27 公开 HTTP 复核返回 200。"
+    "can_finalize": false,
+    "status": "已留存索引页；2026-06-28 公开 HTTP 复核返回 200。"
   },
   "zspt_platform": {
     "url": "https://zspt.hubzs.com.cn",
-    "local_copy": "data/official/hubei-2026-admission-plan-platform/index.html",
+    "local_copy": "data/official/hubei-2026-admission-plan-platform/index-live-20260628.html",
+    "sha256": "6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3",
+    "can_finalize": false,
     "frontend_asset": "data/official/hubei-2026-admission-plan-platform/assets/index-cIDuPUOY.js",
     "frontend_asset_dir": "data/official/hubei-2026-admission-plan-platform/assets",
     "unauthenticated_probe_files": [

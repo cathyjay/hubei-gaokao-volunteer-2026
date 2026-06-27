@@ -10444,6 +10444,15 @@ def main():
             admission_plan_source_status_path,
         ]
     )
+    hubei_official_fallback_policy_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            ROOT / "docs/SOURCES.md",
+            ROOT / "docs/VERIFICATION.md",
+            ROOT / "docs/2026_ADMISSION_PLAN_ACQUISITION.md",
+            ROOT / "docs/EXECUTION_PLAN.md",
+        ]
+    )
     checks.append(ok(
         "第 19 期逐专业稳定化任务表摘要、行数和分布正确",
         stabilization_tasks_summary.get("status")
@@ -10521,18 +10530,40 @@ def main():
         == "issue19_official_public_entry_status_not_final"
         and official_public_entry_status.get("generated_by")
         == "build_issue19_official_public_entry_status_snapshot.py"
-        and official_public_entry_status.get("checked_at") == "2026-06-27"
+        and official_public_entry_status.get("checked_at") == "2026-06-28"
+        and official_public_entry_status.get("official_plan_page", {}).get("method") == "GET"
+        and official_public_entry_status.get("official_plan_page", {}).get("http_status") == 200
         and official_public_entry_status.get("official_plan_page", {}).get("sha256")
         == "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776"
+        and official_public_entry_status.get("official_plan_page", {}).get("content_length_bytes") == 20774
         and official_public_entry_status.get("official_plan_page", {}).get("contains_waiting_notice") is True
+        and official_public_entry_status.get("official_plan_page", {}).get("can_finalize") is False
+        and official_public_entry_status.get("official_plan_index", {}).get("method") == "GET"
+        and official_public_entry_status.get("official_plan_index", {}).get("http_status") == 200
         and official_public_entry_status.get("official_plan_index", {}).get("sha256")
         == "804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50"
+        and official_public_entry_status.get("official_plan_index", {}).get("content_length_bytes") == 27204
         and official_public_entry_status.get("official_plan_index", {}).get("contains_2026_plan_link") is True
+        and official_public_entry_status.get("official_plan_index", {}).get("can_finalize") is False
+        and official_public_entry_status.get("zspt_platform", {}).get("method") == "GET"
+        and official_public_entry_status.get("zspt_platform", {}).get("http_status") == 200
+        and official_public_entry_status.get("zspt_platform", {}).get("sha256")
+        == "6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3"
+        and official_public_entry_status.get("zspt_platform", {}).get("local_copy")
+        == "data/official/hubei-2026-admission-plan-platform/index-live-20260628.html"
+        and official_public_entry_status.get("zspt_platform", {}).get("can_finalize") is False
         and all(
             probe.get("is_unauthenticated_blocked") is True
             for probe in official_public_entry_status.get("zspt_platform", {}).get("unauthenticated_probe_results", [])
         )
-        and admission_plan_source_status.get("last_updated") == "2026-06-27"
+        and admission_plan_source_status.get("last_updated") == "2026-06-28"
+        and admission_plan_source_status.get("official_plan_page", {}).get("can_finalize") is False
+        and admission_plan_source_status.get("official_plan_index", {}).get("can_finalize") is False
+        and admission_plan_source_status.get("zspt_platform", {}).get("can_finalize") is False
+        and admission_plan_source_status.get("zspt_platform", {}).get("local_copy")
+        == "data/official/hubei-2026-admission-plan-platform/index-live-20260628.html"
+        and admission_plan_source_status.get("zspt_platform", {}).get("sha256")
+        == "6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3"
         and admission_plan_source_status.get("zspt_platform", {}).get("status_snapshot")
         == "data/working/issue19-official-public-entry-status.json",
     ))
@@ -10549,6 +10580,16 @@ def main():
         and "最终方案" not in stabilization_public_text
         and "可填报" not in stabilization_public_text
         and "可排序" not in stabilization_public_text,
+    ))
+    checks.append(ok(
+        "湖北官方结构化计划暂不可得时的高校辅证抽检和人工升级策略已沉淀",
+        "高校官网/API/XLSX/PDF/图片" in hubei_official_fallback_policy_text
+        and "最终候选" in hubei_official_fallback_policy_text
+        and "冲稳保边界" in hubei_official_fallback_policy_text
+        and "100% 回看" in hubei_official_fallback_policy_text
+        and "抽检" in hubei_official_fallback_policy_text
+        and "同页列、同校或同组 100% 人工核验" in hubei_official_fallback_policy_text
+        and "回到湖北省招办渠道" in hubei_official_fallback_policy_text,
     ))
 
     raw_lineage_summary_path = ROOT / "data/working/issue19-raw-major-lineage-consistency-audit-summary.json"
@@ -18252,6 +18293,267 @@ def main():
         and "可排序" not in sample_batch01_public_text
         and not any(token in sample_batch01_public_text for token in shared_forbidden_tokens),
         "；".join(sample_batch01_sensitive_value_hits),
+    ))
+
+    all_batch_review_summary_path = (
+        ROOT / "data/working/issue19-page-side-foundation-all-batch-review-public-ledger-summary.json"
+    )
+    all_batch_review_csv = (
+        ROOT / "data/working/issue19-page-side-foundation-all-batch-review-public-ledger.csv"
+    )
+    all_batch_review_summary = json.loads(all_batch_review_summary_path.read_text())
+    with all_batch_review_csv.open(newline="", encoding="utf-8-sig") as f:
+        all_batch_review_reader = csv.DictReader(f)
+        all_batch_review_rows = list(all_batch_review_reader)
+        all_batch_review_fields = all_batch_review_reader.fieldnames or []
+    expected_all_batch_review_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_all_batch_review.py",
+        "PUBLIC_FIELDS",
+    )
+    expected_all_batch_review_private_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_all_batch_review.py",
+        "PRIVATE_FIELDS",
+    )
+    expected_all_batch_review_private_index_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_page_side_foundation_all_batch_review.py",
+        "PRIVATE_INDEX_FIELDS",
+    )
+    all_batch_review_private_index = (
+        ROOT
+        / "private/review-assets/issue19-page-side-foundation-all-batch-review/all-batch-review-private-index.csv"
+    )
+    all_batch_review_by_row_id = {
+        row.get("页列底座核验批次行ID"): row for row in all_batch_review_rows
+    }
+    all_batch_review_private_ok = True
+    all_batch_review_private_rows = []
+    all_batch_review_private_index_rows = []
+    if all_batch_review_private_index.exists():
+        with all_batch_review_private_index.open(newline="", encoding="utf-8-sig") as f:
+            all_batch_review_private_index_reader = csv.DictReader(f)
+            all_batch_review_private_index_rows = list(all_batch_review_private_index_reader)
+            all_batch_review_private_index_fields = all_batch_review_private_index_reader.fieldnames or []
+        all_batch_review_private_ok = (
+            all_batch_review_private_index_fields == expected_all_batch_review_private_index_fields
+            and len(all_batch_review_private_index_rows) == 19
+        )
+        private_base = all_batch_review_private_index.parent
+        for index_row in all_batch_review_private_index_rows:
+            batch_no = as_int(index_row.get("批次总序")) or 0
+            detail_path = private_base / index_row.get("私有批次明细相对路径", "")
+            if not detail_path.exists():
+                all_batch_review_private_ok = False
+                continue
+            with detail_path.open(newline="", encoding="utf-8-sig") as f:
+                private_reader = csv.DictReader(f)
+                private_rows = list(private_reader)
+                private_fields = private_reader.fieldnames or []
+            all_batch_review_private_rows.extend(private_rows)
+            expected_task_ids = {
+                row.get("字段事实核验任务ID")
+                for row in ps_field_clue_private_rows_by_batch.get(batch_no, [])
+            }
+            actual_task_ids = {row.get("字段事实核验任务ID") for row in private_rows}
+            all_batch_review_private_ok = (
+                all_batch_review_private_ok
+                and private_fields == expected_all_batch_review_private_fields
+                and sha256(detail_path) == index_row.get("私有批次明细CSV_SHA256")
+                and len(private_rows) == (as_int(index_row.get("批次字段任务数")) or -1)
+                and len(private_rows) == len(actual_task_ids)
+                and actual_task_ids == expected_task_ids
+                and all(row.get("批次总序") == str(batch_no) for row in private_rows)
+                and all(row.get("正式Overlay记录是否存在") == "true" for row in private_rows)
+                and all(row.get("正式Overlay是否已有人工填写") == "false" for row in private_rows)
+                and all(row.get("可否自动写入正式Overlay") == "false" for row in private_rows)
+                and (as_int(index_row.get("正式Overlay缺失记录数")) or 0) == 0
+                and (as_int(index_row.get("正式Overlay已有人工填写记录数")) or 0) == 0
+                and (as_int(index_row.get("可自动写入正式Overlay记录数")) or 0) == 0
+            )
+    all_batch_review_join_ok = True
+    for row in all_batch_review_rows:
+        field_clue = ps_field_clue_by_row_id.get(row.get("页列底座核验批次行ID", ""), {})
+        all_batch_review_join_ok = (
+            all_batch_review_join_ok
+            and bool(field_clue)
+            and row.get("页列底座全批次公开审计ID")
+            == stable_id(
+                "PSALLBATCHPUB",
+                [row.get("批次总序", ""), row.get("页列底座核验批次行ID", "")],
+            )
+            and row.get("来源页列底座字段线索公开审计")
+            == "data/working/issue19-page-side-foundation-field-clue-public-audit.csv"
+            and row.get("来源私有字段线索模板") == "private_field_clue_templates_not_public"
+            and row.get("来源私有人工复核Overlay") == "private_human_review_overlay_not_public"
+            and row.get("来源期号") == "湖北招生考试2026年19期·本科普通批（下）"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_page_side_foundation_all_batch_review_public_ledger"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×全批次复核审计"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动标记核验完成") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("批次ID") == field_clue.get("批次ID")
+            and row.get("批次名称") == field_clue.get("批次名称")
+            and row.get("批内页列序号") == field_clue.get("批内页列序号")
+            and row.get("页列全局风险总序") == field_clue.get("页列全局风险总序")
+            and row.get("页列底座字段线索公开审计ID")
+            == field_clue.get("页列底座字段线索公开审计ID")
+            and row.get("来源页码") == field_clue.get("来源页码")
+            and row.get("版面列") == field_clue.get("版面列")
+            and row.get("页码版面键") == field_clue.get("页码版面键")
+            and row.get("综合风险优先级桶") == field_clue.get("综合风险优先级桶")
+            and row.get("页列首要核验动作") == field_clue.get("页列首要核验动作")
+            and to_int(row, "包内专业行数") == to_int(field_clue, "包内专业行数")
+            and to_int(row, "包内字段任务数") == to_int(field_clue, "包内字段任务数")
+            and to_int(row, "批次字段任务数") == to_int(field_clue, "包内字段任务数")
+            and to_int(row, "批次专业行覆盖数") == to_int(field_clue, "包内专业行数")
+            and to_int(row, "批次需PDF原页核验任务数") == to_int(field_clue, "包内字段任务数")
+            and to_int(row, "批次需湖北官方核验任务数") == to_int(field_clue, "包内字段任务数")
+            and row.get("批次可自动写入正式Overlay任务数") == "0"
+            and row.get("批次页列状态") == "S0-批次已生成但未事实核准"
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有批次明细CSV_SHA256", "") or "")
+        )
+    all_batch_review_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [all_batch_review_summary_path, all_batch_review_csv]
+    )
+    all_batch_review_sensitive_value_hits = [
+        value for value in ps_overlay_sensitive_values if value and value in all_batch_review_public_text
+    ][:5]
+    checks.append(ok(
+        "第 19 期页列底座全批次复核公开账本摘要、规模和非最终门禁正确",
+        all_batch_review_summary.get("status")
+        == "issue19_page_side_foundation_all_batch_review_not_final"
+        and all_batch_review_summary.get("generated_by")
+        == "build_issue19_page_side_foundation_all_batch_review.py"
+        and all_batch_review_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and all_batch_review_summary.get("source_field_clue_public_audit")
+        == "data/working/issue19-page-side-foundation-field-clue-public-audit.csv"
+        and all_batch_review_summary.get("output_table")
+        == "data/working/issue19-page-side-foundation-all-batch-review-public-ledger.csv"
+        and all_batch_review_summary.get("public_row_count") == len(all_batch_review_rows) == 462
+        and all_batch_review_summary.get("private_detail_file_count") == 19
+        and all_batch_review_summary.get("private_detail_row_count") == 41208
+        and all_batch_review_summary.get("batch_count") == 19
+        and all_batch_review_summary.get("unique_page_side_count") == 462
+        and all_batch_review_summary.get("unique_pdf_page_count") == 231
+        and all_batch_review_summary.get("unique_major_count") == 13736
+        and all_batch_review_summary.get("field_task_count") == 41208
+        and all_batch_review_summary.get("field_name_distribution") == {
+            "再选科目": 13736,
+            "专业计划数": 13736,
+            "学费": 13736,
+        }
+        and all_batch_review_summary.get("block_level_distribution") == {
+            "Q0-字段缺口无候选阻断": 15813,
+            "Q1-字段缺口有候选待人工核验": 21606,
+            "Q2-OCR字段齐全但PDF和官方未闭环": 3789,
+        }
+        and all_batch_review_summary.get("fact_status_distribution") == {
+            "K0-字段缺口无候选需原页重读": 11444,
+            "K1-字段缺口有候选待PDF原页和官方核验": 7621,
+            "K2-OCR候选存在但三方核验未闭环": 22143,
+        }
+        and all_batch_review_summary.get("normalized_clue_nonempty_count") == 7621
+        and all_batch_review_summary.get("ocr_clue_nonempty_count") == 22973
+        and all_batch_review_summary.get("multi_value_clue_count") == 694
+        and all_batch_review_summary.get("suspected_misaligned_clue_count") == 0
+        and all_batch_review_summary.get("pdf_page_review_required_count") == 41208
+        and all_batch_review_summary.get("hubei_official_review_required_count") == 41208
+        and all_batch_review_summary.get("school_support_required_count") == 2562
+        and all_batch_review_summary.get("official_overlay_existing_record_count") == 41208
+        and all_batch_review_summary.get("official_overlay_missing_record_count") == 0
+        and all_batch_review_summary.get("official_overlay_manual_filled_count") == 0
+        and all_batch_review_summary.get("auto_write_to_formal_overlay_allowed_count") == 0
+        and all_batch_review_summary.get("final_available_count") == 0
+        and all_batch_review_summary.get("next_stage_available_count") == 0
+        and all_batch_review_summary.get("recommendation_basis_allowed_count") == 0
+        and all_batch_review_summary.get("school_major_suggestion_allowed_count") == 0,
+        f"{len(all_batch_review_rows)} all-batch page-side rows",
+    ))
+    checks.append(ok(
+        "第 19 期页列底座全批次复核字段、回链和私有详表正确",
+        all_batch_review_fields == expected_all_batch_review_fields
+        and len({row.get("页列底座全批次公开审计ID") for row in all_batch_review_rows}) == 462
+        and len(all_batch_review_by_row_id) == 462
+        and set(all_batch_review_by_row_id) == set(ps_field_clue_by_row_id)
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in all_batch_review_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in all_batch_review_rows)
+        and all(row.get("机器是否允许自动标记核验完成") == "false" for row in all_batch_review_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in all_batch_review_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in all_batch_review_rows)
+        and all(row.get("批次页列状态") == "S0-批次已生成但未事实核准" for row in all_batch_review_rows)
+        and all(row.get("批次可自动写入正式Overlay任务数") == "0" for row in all_batch_review_rows)
+        and (
+            not all_batch_review_private_index.exists()
+            or all_batch_review_summary.get("private_batch_detail_index_sha256")
+            == sha256(all_batch_review_private_index)
+        )
+        and (
+            not all_batch_review_private_index.exists()
+            or len(all_batch_review_private_rows) == 41208
+        )
+        and (
+            not all_batch_review_private_index.exists()
+            or {row.get("字段事实核验任务ID") for row in all_batch_review_private_rows}
+            == {row.get("字段事实核验任务ID") for row in field_fact_tasks_rows}
+        )
+        and all_batch_review_private_ok
+        and all_batch_review_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期页列底座全批次复核公开文件不含私有路径、字段读数、人工内容和最终误导结论",
+        foundation_release_sensitive_re.search(all_batch_review_public_text) is None
+        and not all_batch_review_sensitive_value_hits
+        and "/Users/" not in all_batch_review_public_text
+        and "/home/" not in all_batch_review_public_text
+        and "/var/folders/" not in all_batch_review_public_text
+        and "/private/" not in all_batch_review_public_text
+        and "private/" not in all_batch_review_public_text
+        and "private\\" not in all_batch_review_public_text
+        and "ocr-runs" not in all_batch_review_public_text
+        and "rendered-pages" not in all_batch_review_public_text
+        and ".png" not in all_batch_review_public_text
+        and ".jpg" not in all_batch_review_public_text
+        and ".jpeg" not in all_batch_review_public_text
+        and ".webp" not in all_batch_review_public_text
+        and ".tif" not in all_batch_review_public_text
+        and ".tiff" not in all_batch_review_public_text
+        and ".heic" not in all_batch_review_public_text
+        and "Authorization" not in all_batch_review_public_text
+        and "Bearer " not in all_batch_review_public_text
+        and "Cookie" not in all_batch_review_public_text
+        and "院校名称OCR" not in all_batch_review_public_text
+        and "院校专业组代码OCR规范化" not in all_batch_review_public_text
+        and "专业代号OCR" not in all_batch_review_public_text
+        and "专业名称及备注" not in all_batch_review_public_text
+        and "组内招生明细" not in all_batch_review_public_text
+        and "字段OCR候选" not in all_batch_review_public_text
+        and "字段候选值集合" not in all_batch_review_public_text
+        and "字段候选来源类型集合" not in all_batch_review_public_text
+        and "字段候选置信等级集合" not in all_batch_review_public_text
+        and "字段候选状态集合" not in all_batch_review_public_text
+        and "PDF原页人工读数" not in all_batch_review_public_text
+        and "湖北官方字段值" not in all_batch_review_public_text
+        and "高校官网或招生章程字段值" not in all_batch_review_public_text
+        and "字段确认值" not in all_batch_review_public_text
+        and "核页人" not in all_batch_review_public_text
+        and "复核备注" not in all_batch_review_public_text
+        and "一审" not in all_batch_review_public_text
+        and "二审" not in all_batch_review_public_text
+        and "OCR文本" not in all_batch_review_public_text
+        and "OCR原文" not in all_batch_review_public_text
+        and "已确认" not in all_batch_review_public_text
+        and "已核准" not in all_batch_review_public_text
+        and "最终推荐" not in all_batch_review_public_text
+        and "最终方案" not in all_batch_review_public_text
+        and "可填报" not in all_batch_review_public_text
+        and "可排序" not in all_batch_review_public_text
+        and not any(token in all_batch_review_public_text for token in shared_forbidden_tokens),
+        "；".join(all_batch_review_sensitive_value_hits),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
