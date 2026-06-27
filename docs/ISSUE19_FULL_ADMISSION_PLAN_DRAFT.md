@@ -90,6 +90,8 @@
 | `data/working/issue19-field-fact-closure-ledger-summary.json` | 字段事实闭环摘要 | 看 L0-L4 字段闭环等级、Q0-Q2 阻断等级、K0/K1/K2 三字段状态、字段候选任务 19065 条和非空候选 7621 条 |
 | `data/working/issue19-field-fact-verification-tasks.csv` | 字段事实核验任务队列 | 覆盖 41208 条逐字段任务；每条招生专业明细拆成再选科目、专业计划数、学费三项任务，回连字段总账和页级保真队列 |
 | `data/working/issue19-field-fact-verification-tasks-summary.json` | 字段事实核验任务摘要 | 看 K0 无候选原页重读 11444 条、K1 有候选待核 7621 条、K2 OCR 候选待三方闭环 22143 条；全部仍非最终 |
+| `data/working/issue19-field-fact-page-side-verification-queue.csv` | 全量字段页列核验队列 | 把 41208 条字段任务按 `PDF页码×版面列` 聚合成 462 个页列执行单元，覆盖 231 个招生计划明细页和全部 13736 条专业明细 |
+| `data/working/issue19-field-fact-page-side-verification-queue-summary.json` | 全量字段页列核验摘要 | 看 450 个 V0 无候选阻断页列、12 个 V1 有候选待人工核验页列，以及全部仍需 PDF 原页和湖北官方侧核验的门禁 |
 | `data/working/issue19-field-fact-p0-reread-worklist.csv` | P0 字段原页重读工作清单 | 覆盖 11444 条 K0 无候选字段任务；一行一个 `专业行ID × 字段名`，回连字段任务、原始源证据审计、PDF 锚点和页级保真队列 |
 | `data/working/issue19-field-fact-p0-reread-worklist-summary.json` | P0 字段原页重读摘要 | 看专业计划数、再选科目、学费三类 K0 字段的原页重读规模、覆盖页码、学校数和四路证据命中 |
 | `data/working/issue19-field-fact-p0-reread-machine-candidates.csv` | P0 字段机器坐标候选表 | 覆盖同一批 11444 条 K0 字段任务；用私有 OCR 窗口坐标和保守字段规则生成候选值，公开输出只保存候选值、坐标摘要、必要来源 ID、页码/版面列、字段名、证据编号、哈希和非最终门禁 |
@@ -116,6 +118,8 @@
 | `data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit-summary.json` | P0 即时 PDF 原页读数候选摘要 | 看 253 条私有候选已挂线索、66 条需要人工直接看图、99 条需要直接图像复核、290 条需要双人复核、字段写回允许数 0 和全部非最终门禁 |
 | `data/working/issue19-p0-immediate-page-execution-queue.csv` | P0 即时页列核页执行队列 | 把 148 个页列包按候选冲突、无稳定候选、候选一致待官方、常规候选四档排序；公开表只保存执行顺序、任务数量、证据编号、SHA、bbox 和状态 |
 | `data/working/issue19-p0-immediate-page-execution-queue-summary.json` | P0 即时页列核页执行摘要 | 看 11 个候选冲突先核页列、34 个无稳定候选先看图页列、11 个候选一致仍需官方闭环页列、92 个常规候选确认页列和全部非最终门禁 |
+| `data/working/issue19-p0-immediate-page-execution-progress-public-ledger.csv` | P0 即时页列执行进度公开账本 | 把 148 个页列执行包接到私有字段确认工作台，只公开完成计数、状态分布、任务集合 SHA 和非最终门禁 |
+| `data/working/issue19-p0-immediate-page-execution-progress-public-ledger-summary.json` | P0 即时页列执行进度摘要 | 看 148 个页列包全部 R0，PDF 原页记录、湖北官方侧记录、高校辅证记录、双人复核、字段写回复查和最终可用均未完成 |
 | `data/working/issue19-major-line-layout-continuity-risk-ledger.csv` | 专业行版面连续性风险清单 | 1934 条风险事件；只用公开原页锚点字段检查行号和坐标连续性 |
 | `data/working/issue19-major-code-order-risk-ledger.csv` | 专业代号顺序风险清单 | 355 条风险事件；检查专业代号无法解析、相邻不递增和大跳变 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |

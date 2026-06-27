@@ -260,6 +260,8 @@
 - `data/working/issue19-field-fact-closure-ledger-summary.json`：字段事实闭环总账摘要；记录 L0 三字段缺口 693 条、L1 两字段缺口 5206 条、L2 单字段缺口有候选 3803 条、L3 单字段缺口无候选 2771 条、L4 三字段 OCR 齐全但待三方闭环 1263 条；字段候选任务 19065 条、非空候选 7621 条，PDF 原页和湖北官方字段核验仍全部待核。
 - `data/working/issue19-field-fact-verification-tasks.csv`：第 19 期字段事实核验任务队列，41208 行；一行对应一个招生专业明细和一个关键字段，即 13736 条专业明细 × 再选科目、专业计划数、学费。用于逐字段安排原页重读、候选值回看、湖北官方系统核验和高校官网/章程辅证，全部不自动写回、不生成学校或专业建议。
 - `data/working/issue19-field-fact-verification-tasks-summary.json`：字段事实核验任务摘要；记录三字段各 13736 条任务，K0 无候选原页重读 11444 条、K1 有候选待核 7621 条、K2 OCR 候选待三方闭环 22143 条，页级保真队列命中 41208 条。
+- `data/working/issue19-field-fact-page-side-verification-queue.csv`：第 19 期全量字段页列核验队列，462 行；把 41208 条字段任务按 `PDF页码×版面列` 聚合，覆盖 231 个招生计划明细页、13736 条专业明细。公开表只保存页列计数、字段任务集合 SHA、证据编号和非最终门禁，不保存候选读数、院校名、专业名、专业代号或专业组代码。
+- `data/working/issue19-field-fact-page-side-verification-queue-summary.json`：全量字段页列核验队列摘要；记录 450 个 V0 无候选阻断页列、12 个 V1 有候选待人工核验页列，41208 条任务均仍需 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用计数均为 0。
 - `data/working/issue19-field-fact-p0-reread-worklist.csv`：第 19 期 P0 字段原页重读工作清单，11444 行；从字段事实核验任务队列中只抽取 K0 无候选字段，一行对应一个 `专业行ID × 字段名`，回连字段任务、原始源证据审计、PDF 原页证据锚点和页级保真队列，用于优先回看专业计划数、再选科目和学费的原页字段。
 - `data/working/issue19-field-fact-p0-reread-worklist-summary.json`：P0 字段原页重读摘要；记录专业计划数 5739 条、再选科目 4674 条、学费 1031 条，覆盖 8536 条招生专业明细、231 个 PDF 明细页和 967 所学校；原始源证据、PDF 锚点和页级保真队列均 11444/11444 命中，全部仍为非最终状态。
 - `data/working/issue19-field-fact-p0-reread-machine-candidates.csv`：第 19 期 P0 字段机器坐标候选表，11444 行；在 P0 字段原页重读工作清单的 K0 无候选字段上，用私有 OCR 窗口坐标和保守规则抽取候选值。公开输出只保存候选值、坐标摘要、必要来源 ID、页码/版面列、字段名、证据编号、哈希和非最终门禁，不保存 OCR 窗口原文、院校名、专业名、专业代号或专业组代码等上下文字段。当前非空候选 4840 条，其中专业计划数 2175 条、再选科目 1994 条、学费 671 条；6386 条仍需人工原页重读，218 条多值冲突需核页。
@@ -286,6 +288,8 @@
 - `data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit-summary.json`：P0 即时 PDF 原页读数候选摘要；记录 319 条字段任务中 253 条有私有候选线索、66 条无稳定候选需人工看图、33 条候选冲突优先核图、43 条候选与既有线索一致但仍需核官方、177 条有候选但需人工确认、99 条需直接图像复核、290 条需双人复核、自动写入人工读数 0。该摘要只用于排人工核页顺序，不生成字段事实或推荐依据。
 - `data/working/issue19-p0-immediate-page-execution-queue.csv`：第 19 期 P0 即时页列核页执行队列，148 行；一行对应一个 `PDF页码×版面列`，把按页核页包和 PDF 原页读数候选审计合并后重新排序。公开表只保存执行顺序、页列优先级、任务数量、证据编号、SHA、bbox 和非最终门禁，不保存候选读数、OCR 行文本、图片路径、院校名、专业名、专业代号或专业组代码。
 - `data/working/issue19-p0-immediate-page-execution-queue-summary.json`：P0 即时页列核页执行摘要；记录 148 个页列包覆盖 114 页和 319 条字段任务，其中 11 个页列包为候选冲突先核、34 个为无稳定候选先看图、11 个为候选一致仍需官方闭环、92 个为常规候选人工确认。该摘要只用于组织核 PDF 原页和湖北官方核验顺序，不生成字段事实或推荐依据。
+- `data/working/issue19-p0-immediate-page-execution-progress-public-ledger.csv`：第 19 期 P0 即时页列执行进度公开账本，148 行；把 P0 即时页列核页执行队列接到私有字段确认工作台，公开层只保存完成计数、状态分布、任务集合 SHA 和非最终门禁，不保存私有记录值、候选值、识别文本、图片路径、院校名、专业名、专业代号或专业组代码。
+- `data/working/issue19-p0-immediate-page-execution-progress-public-ledger-summary.json`：P0 即时页列执行进度摘要；记录 148 个页列包全部为 R0，319 条 PDF 原页记录、319 条湖北官方侧记录、75 条高校辅证记录、290 条双人复核均未完成；三方一致性可评估数、字段写回复查数、推荐依据数和最终可用数全部为 0。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -389,6 +393,7 @@
 - `scripts/build_issue19_major_source_evidence_risk_sidecar.py`：生成逐专业源证据风险侧账，把原始源证据风险、底座稳定性、闭环缺口和 P0 复核任务下沉到 `专业行ID`。
 - `scripts/build_issue19_field_fact_closure_ledger.py`：生成字段事实闭环总账，逐专业汇总再选科目、专业计划数、学费的 OCR 候选、字段缺口候选、PDF/湖北官方待核状态和禁止写回边界。
 - `scripts/build_issue19_field_fact_verification_tasks.py`：生成字段事实核验任务队列，把每条招生专业明细拆成再选科目、专业计划数、学费三项字段任务，并回连字段事实总账和页级保真队列。
+- `scripts/build_issue19_field_fact_page_side_verification_queue.py`：生成全量字段页列核验队列，把 41208 条逐字段任务按 `PDF页码×版面列` 聚合成 462 个执行单元，用于全量核页排程和字段任务集合保真校验。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。
@@ -401,6 +406,7 @@
 - `scripts/build_issue19_p0_immediate_field_confirmation_workbench.py`：生成 P0 即时字段确认公开账本和本地私有字段确认工作台；私有表承接 PDF 原页、湖北官方、高校辅证和双人复核记录，公开表只同步状态机和门禁，不同步字段记录值。
 - `scripts/build_issue19_p0_immediate_page_review_packets.py`：读取 P0 即时字段确认公开账本、本地私有裁图索引和私有字段确认工作台，生成 148 个 `PDF页码×版面列` 核页执行包；公开输出只保存聚合状态和证据哈希，私有目录生成本地 HTML/CSV 审阅材料。
 - `scripts/build_issue19_p0_immediate_page_execution_queue.py`：读取 P0 即时按页核页包和 P0 即时 PDF 原页读数候选公开审计，把 148 个 `PDF页码×版面列` 包按候选冲突、无稳定候选、候选一致待官方闭环和常规人工确认重新排序；公开输出只保存执行顺序、任务数、证据编号、SHA、bbox 和非最终门禁。
+- `scripts/build_issue19_p0_immediate_page_execution_progress_ledger.py`：读取 P0 即时页列核页执行队列、公开字段确认账本和 Git 忽略的私有字段确认工作台，生成不含私有值的页列进度公开账本。
 - `scripts/issue19_review_rules.py`：第 19 期候选工作台和复核队列共用的风险标签、风险等级、SHA 和行数记录规则。
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按成都、西安、武汉、北京生成的三年历史投档候选池，只用于发现候选；进入最终表前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。

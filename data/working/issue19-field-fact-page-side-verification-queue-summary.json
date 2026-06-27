@@ -1,0 +1,36 @@
+{
+  "status": "issue19_field_fact_page_side_verification_queue_not_final",
+  "generated_by": "build_issue19_field_fact_page_side_verification_queue.py",
+  "source_field_fact_verification_tasks": "data/working/issue19-field-fact-verification-tasks.csv",
+  "source_page_fidelity_review_queue": "data/working/issue19-page-fidelity-review-queue.csv",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_table": "data/working/issue19-field-fact-page-side-verification-queue.csv",
+  "row_count": 462,
+  "source_field_task_count": 41208,
+  "unique_pdf_page_count": 231,
+  "unique_page_side_count": 462,
+  "unique_major_line_count": 13736,
+  "field_counts": {
+    "专业计划数": 13736,
+    "再选科目": 13736,
+    "学费": 13736
+  },
+  "field_block_counts": {
+    "Q0-字段缺口无候选阻断": 15813,
+    "Q1-字段缺口有候选待人工核验": 21606,
+    "Q2-OCR字段齐全但PDF和官方未闭环": 3789
+  },
+  "page_side_priority_counts": {
+    "V0-Q0无候选阻断页列先核": 450,
+    "V1-Q1有候选待人工核验页列": 12
+  },
+  "pdf_manual_review_required_task_count": 41208,
+  "hubei_official_review_required_task_count": 41208,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "safety_note": "公开队列只保存页列执行顺序、任务数量、状态、证据编号、SHA和任务集合哈希；不保存字段候选值、人工确认值、私有识别材料、图片路径、院校名、专业名、专业代号或专业组代码。"
+}

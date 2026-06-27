@@ -64,6 +64,11 @@ def join_unique(rows, field):
     return "；".join(values)
 
 
+def sha_list(values):
+    normalized = "；".join(sorted({value for value in values if value}))
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
 def script_list_constant(path, name):
     tree = ast.parse(path.read_text(encoding="utf-8"))
     for node in tree.body:
@@ -11718,6 +11723,220 @@ def main():
         and not any(token in field_fact_tasks_public_text for token in shared_forbidden_tokens),
     ))
 
+    field_fact_page_side_summary_path = (
+        ROOT / "data/working/issue19-field-fact-page-side-verification-queue-summary.json"
+    )
+    field_fact_page_side_csv = (
+        ROOT / "data/working/issue19-field-fact-page-side-verification-queue.csv"
+    )
+    field_fact_page_side_summary = json.loads(field_fact_page_side_summary_path.read_text())
+    with field_fact_page_side_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_fact_page_side_reader = csv.DictReader(f)
+        field_fact_page_side_rows = list(field_fact_page_side_reader)
+        field_fact_page_side_fields = field_fact_page_side_reader.fieldnames or []
+    expected_field_fact_page_side_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_field_fact_page_side_verification_queue.py",
+        "FIELDS",
+    )
+    field_fact_tasks_by_page_side = defaultdict(list)
+    for row in field_fact_tasks_rows:
+        field_fact_tasks_by_page_side[(row.get("来源页码", ""), row.get("版面列", ""))].append(row)
+
+    def expected_page_side_priority(rows):
+        block_counts = Counter(row.get("字段事实阻断等级") for row in rows)
+        if block_counts.get("Q0-字段缺口无候选阻断", 0):
+            return (
+                "V0-Q0无候选阻断页列先核",
+                "0",
+                "先按页列重读无候选字段，优先补专业计划数、再选科目和学费缺口。",
+            )
+        if block_counts.get("Q1-字段缺口有候选待人工核验", 0):
+            return (
+                "V1-Q1有候选待人工核验页列",
+                "1",
+                "核对已有候选字段，候选不得自动写回，仍需 PDF 原页和湖北官方闭环。",
+            )
+        return (
+            "V2-Q2 OCR齐全待三方闭环页列",
+            "2",
+            "OCR 三字段齐全但仍需 PDF 原页、湖北官方系统和必要官网章程闭环。",
+        )
+
+    field_fact_page_side_join_ok = True
+    field_fact_page_side_task_total = 0
+    for row in field_fact_page_side_rows:
+        key = (row.get("来源页码", ""), row.get("版面列", ""))
+        rows = field_fact_tasks_by_page_side.get(key, [])
+        page_row = page_fidelity_by_page.get(as_int(row.get("来源页码")))
+        bucket, priority, action = expected_page_side_priority(rows)
+        field_counts = Counter(task.get("字段名") for task in rows)
+        verification_priority_counts = Counter(task.get("字段核验优先级") for task in rows)
+        block_counts = Counter(task.get("字段事实阻断等级") for task in rows)
+        source_priority_counts = Counter(task.get("源证据核页优先级") for task in rows)
+        field_fact_page_side_task_total += len(rows)
+        field_fact_page_side_join_ok = (
+            field_fact_page_side_join_ok
+            and bool(rows)
+            and bool(page_row)
+            and row.get("全量字段页列核验队列ID")
+            == stable_id("FIELDPSIDE", [row.get("来源页码", ""), row.get("版面列", "")])
+            and row.get("来源字段事实核验任务队列")
+            == "data/working/issue19-field-fact-verification-tasks.csv"
+            and row.get("来源页级保真复核队列")
+            == "data/working/issue19-page-fidelity-review-queue.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_field_fact_page_side_verification_queue"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×全量字段事实核验任务"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("页码版面键") == f"{as_int(row.get('来源页码')):03d}-{row.get('版面列')}"
+            and row.get("页列核验优先级桶") == bucket
+            and row.get("页列核验优先级数值") == priority
+            and row.get("页列首要动作") == action
+            and as_int(row.get("包内字段任务数")) == len(rows)
+            and as_int(row.get("包内专业行数")) == len({task.get("专业行ID") for task in rows})
+            and as_int(row.get("包内专业组数")) == len({task.get("专业组出现ID") for task in rows})
+            and as_int(row.get("包内院校代码数")) == len({task.get("院校代码") for task in rows})
+            and row.get("包内字段名分布") == counter_text(field_counts)
+            and row.get("包内字段核验优先级分布") == counter_text(verification_priority_counts)
+            and row.get("包内字段事实阻断等级分布") == counter_text(block_counts)
+            and as_int(row.get("包内Q0无候选阻断任务数")) == block_counts.get("Q0-字段缺口无候选阻断", 0)
+            and as_int(row.get("包内Q1有候选待人工核验任务数"))
+            == block_counts.get("Q1-字段缺口有候选待人工核验", 0)
+            and as_int(row.get("包内Q2OCR齐全待三方闭环任务数"))
+            == block_counts.get("Q2-OCR字段齐全但PDF和官方未闭环", 0)
+            and as_int(row.get("包内专业计划数字段任务数")) == field_counts.get("专业计划数", 0)
+            and as_int(row.get("包内学费字段任务数")) == field_counts.get("学费", 0)
+            and as_int(row.get("包内再选科目字段任务数")) == field_counts.get("再选科目", 0)
+            and as_int(row.get("包内PDF原页核验待完成任务数")) == len(rows)
+            and as_int(row.get("包内湖北官方核验待完成任务数")) == len(rows)
+            and as_int(row.get("包内高校官网辅证线索任务数"))
+            == sum((as_int(task.get("B0B1官网证据任务数")) or 0) > 0 for task in rows)
+            and as_int(row.get("包内源证据P0任务数")) == source_priority_counts.get("P0-源证据阻断级先核", 0)
+            and as_int(row.get("包内源证据P1任务数")) == source_priority_counts.get("P1-源证据优先复核", 0)
+            and row.get("页面复核优先级") == page_row.get("页面复核优先级")
+            and row.get("页面阻断等级") == page_row.get("页面阻断等级")
+            and row.get("页级保真队列ID") == page_row.get("页级保真队列ID")
+            and row.get("私有页图证据编号") == page_row.get("私有页图证据编号")
+            and row.get("私有页图SHA256") == page_row.get("私有页图SHA256")
+            and row.get("私有识别材料证据编号") == page_row.get("私有OCR文本证据编号")
+            and row.get("私有识别材料SHA256") == page_row.get("私有OCR文本SHA256")
+            and row.get("OCR平均置信度") == page_row.get("OCR平均置信度")
+            and row.get("OCR_QC_P0数") == page_row.get("OCR_QC_P0数")
+            and row.get("OCR_QC_P1数") == page_row.get("OCR_QC_P1数")
+            and row.get("页面专业明细数") == page_row.get("页面专业明细数")
+            and row.get("页面结构异常数") == page_row.get("页面结构异常数")
+            and row.get("页面高严重结构异常数") == page_row.get("页面高严重结构异常数")
+            and row.get("字段任务ID集合SHA256")
+            == sha_list(task.get("字段事实核验任务ID", "") for task in rows)
+            and row.get("专业行ID集合SHA256") == sha_list(task.get("专业行ID", "") for task in rows)
+            and row.get("专业组出现ID集合SHA256")
+            == sha_list(task.get("专业组出现ID", "") for task in rows)
+            and row.get("院校代码集合SHA256") == sha_list(task.get("院校代码", "") for task in rows)
+            and row.get("下钻筛选键") == f"来源页码={row.get('来源页码')}；版面列={row.get('版面列')}"
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("字段事实写回状态") == "blocked_until_pdf_and_hubei_official_fields_verified"
+        )
+    field_fact_page_side_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [field_fact_page_side_summary_path, field_fact_page_side_csv]
+    )
+    checks.append(ok(
+        "第 19 期全量字段页列核验队列摘要、任务集合和优先级正确",
+        field_fact_page_side_summary.get("status")
+        == "issue19_field_fact_page_side_verification_queue_not_final"
+        and field_fact_page_side_summary.get("generated_by")
+        == "build_issue19_field_fact_page_side_verification_queue.py"
+        and field_fact_page_side_summary.get("source_field_fact_verification_tasks")
+        == "data/working/issue19-field-fact-verification-tasks.csv"
+        and field_fact_page_side_summary.get("source_page_fidelity_review_queue")
+        == "data/working/issue19-page-fidelity-review-queue.csv"
+        and field_fact_page_side_summary.get("output_table")
+        == "data/working/issue19-field-fact-page-side-verification-queue.csv"
+        and field_fact_page_side_summary.get("row_count") == 462
+        and field_fact_page_side_summary.get("source_field_task_count") == 41208
+        and field_fact_page_side_summary.get("unique_pdf_page_count") == 231
+        and field_fact_page_side_summary.get("unique_page_side_count") == 462
+        and field_fact_page_side_summary.get("unique_major_line_count") == 13736
+        and field_fact_page_side_summary.get("field_counts") == {
+            "专业计划数": 13736,
+            "再选科目": 13736,
+            "学费": 13736,
+        }
+        and field_fact_page_side_summary.get("field_block_counts") == {
+            "Q0-字段缺口无候选阻断": 15813,
+            "Q1-字段缺口有候选待人工核验": 21606,
+            "Q2-OCR字段齐全但PDF和官方未闭环": 3789,
+        }
+        and field_fact_page_side_summary.get("page_side_priority_counts") == {
+            "V0-Q0无候选阻断页列先核": 450,
+            "V1-Q1有候选待人工核验页列": 12,
+        }
+        and field_fact_page_side_summary.get("pdf_manual_review_required_task_count") == 41208
+        and field_fact_page_side_summary.get("hubei_official_review_required_task_count") == 41208
+        and field_fact_page_side_summary.get("field_writeback_allowed_count") == 0
+        and field_fact_page_side_summary.get("recommendation_basis_allowed_count") == 0
+        and field_fact_page_side_summary.get("school_major_suggestion_allowed_count") == 0
+        and field_fact_page_side_summary.get("final_available_count") == 0
+        and field_fact_page_side_summary.get("next_stage_available_count") == 0
+        and len(field_fact_page_side_rows) == 462
+        and field_fact_page_side_task_total == 41208,
+        f"{len(field_fact_page_side_rows)} page-side queue rows",
+    ))
+    checks.append(ok(
+        "第 19 期全量字段页列核验队列字段、门禁和来源回链正确",
+        field_fact_page_side_fields == expected_field_fact_page_side_fields
+        and len({row.get("全量字段页列核验队列ID") for row in field_fact_page_side_rows}) == 462
+        and [as_int(row.get("页列执行总序")) for row in field_fact_page_side_rows] == list(range(1, 463))
+        and set(field_fact_tasks_by_page_side) == {
+            (row.get("来源页码", ""), row.get("版面列", "")) for row in field_fact_page_side_rows
+        }
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in field_fact_page_side_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in field_fact_page_side_rows)
+        and all(row.get("机器是否允许自动回填候选") == "false" for row in field_fact_page_side_rows)
+        and all(row.get("是否允许写回字段") == "false" for row in field_fact_page_side_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in field_fact_page_side_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in field_fact_page_side_rows)
+        and field_fact_page_side_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期全量字段页列核验队列不含私有路径、字段值、OCR原文、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(field_fact_page_side_public_text) is None
+        and "private/" not in field_fact_page_side_public_text
+        and "private\\" not in field_fact_page_side_public_text
+        and "/Users/" not in field_fact_page_side_public_text
+        and "ocr-runs" not in field_fact_page_side_public_text
+        and "rendered-pages" not in field_fact_page_side_public_text
+        and ".png" not in field_fact_page_side_public_text
+        and ".jpg" not in field_fact_page_side_public_text
+        and ".jpeg" not in field_fact_page_side_public_text
+        and "Authorization" not in field_fact_page_side_public_text
+        and "Bearer " not in field_fact_page_side_public_text
+        and "Cookie" not in field_fact_page_side_public_text
+        and "字段OCR候选" not in field_fact_page_side_public_text
+        and "字段人工确认" not in field_fact_page_side_public_text
+        and "院校名称OCR" not in field_fact_page_side_public_text
+        and "专业名称及备注" not in field_fact_page_side_public_text
+        and "专业代号OCR" not in field_fact_page_side_public_text
+        and "院校专业组代码OCR规范化" not in field_fact_page_side_public_text
+        and "final_allowed" not in field_fact_page_side_public_text
+        and "ready_for_discussion" not in field_fact_page_side_public_text
+        and "已确认" not in field_fact_page_side_public_text
+        and "已核准" not in field_fact_page_side_public_text
+        and "最终推荐" not in field_fact_page_side_public_text
+        and "最终方案" not in field_fact_page_side_public_text
+        and "可填报" not in field_fact_page_side_public_text
+        and "可排序" not in field_fact_page_side_public_text
+        and not any(token in field_fact_page_side_public_text for token in shared_forbidden_tokens),
+    ))
+
     field_p0_reread_summary_path = ROOT / "data/working/issue19-field-fact-p0-reread-worklist-summary.json"
     field_p0_reread_csv = ROOT / "data/working/issue19-field-fact-p0-reread-worklist.csv"
     field_p0_reread_summary = json.loads(field_p0_reread_summary_path.read_text())
@@ -15422,6 +15641,286 @@ def main():
         and "可填报" not in p0_page_exec_public_text
         and "可排序" not in p0_page_exec_public_text
         and not any(token in p0_page_exec_public_text for token in shared_forbidden_tokens),
+    ))
+
+    p0_page_progress_summary_path = (
+        ROOT / "data/working/issue19-p0-immediate-page-execution-progress-public-ledger-summary.json"
+    )
+    p0_page_progress_csv = (
+        ROOT / "data/working/issue19-p0-immediate-page-execution-progress-public-ledger.csv"
+    )
+    p0_private_field_confirm_csv = (
+        ROOT
+        / "private/review-assets/issue19-p0-immediate-field-confirmation/field-confirmation-private-workbench.csv"
+    )
+    p0_page_progress_summary = json.loads(p0_page_progress_summary_path.read_text())
+    with p0_page_progress_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_page_progress_reader = csv.DictReader(f)
+        p0_page_progress_rows = list(p0_page_progress_reader)
+        p0_page_progress_fields = p0_page_progress_reader.fieldnames or []
+    with p0_private_field_confirm_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_private_field_confirm_rows = list(csv.DictReader(f))
+    expected_p0_page_progress_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_p0_immediate_page_execution_progress_ledger.py",
+        "FIELDS",
+    )
+    p0_page_exec_by_queue_id = {
+        row.get("P0即时页列核页执行队列ID"): row for row in p0_page_exec_rows
+    }
+    p0_field_confirm_by_ledger_id = {
+        row.get("P0即时字段确认公开账本ID"): row for row in p0_field_confirm_rows
+    }
+    p0_private_field_confirm_by_ledger_id = {
+        row.get("P0即时字段确认公开账本ID"): row for row in p0_private_field_confirm_rows
+    }
+    p0_private_field_confirm_sha = sha256(p0_private_field_confirm_csv)
+
+    def is_nonempty(row, field):
+        return bool(str(row.get(field, "")).strip())
+
+    p0_page_progress_join_ok = True
+    p0_page_progress_pdf_done = 0
+    p0_page_progress_hubei_done = 0
+    p0_page_progress_school_required = 0
+    p0_page_progress_school_done = 0
+    p0_page_progress_double_required = 0
+    p0_page_progress_double_done = 0
+    p0_page_progress_field_confirm_done = 0
+    p0_page_progress_consistency_ready = 0
+    p0_page_progress_writeback_ready = 0
+    for row in p0_page_progress_rows:
+        queue_id = row.get("P0即时页列核页执行队列ID", "")
+        queue_row = p0_page_exec_by_queue_id.get(queue_id, {})
+        ledger_ids = [
+            value for value in queue_row.get("P0即时字段确认公开账本ID集合", "").split("；")
+            if value
+        ]
+        public_rows = [p0_field_confirm_by_ledger_id.get(value, {}) for value in ledger_ids]
+        private_rows = [p0_private_field_confirm_by_ledger_id.get(value, {}) for value in ledger_ids]
+        total = len(private_rows)
+        pdf_done = sum(is_nonempty(private_row, "PDF原页人工读数") for private_row in private_rows)
+        hubei_done = sum(is_nonempty(private_row, "湖北官方字段值") for private_row in private_rows)
+        school_required = sum(private_row.get("是否有高校字段线索") == "true" for private_row in private_rows)
+        school_done = sum(
+            private_row.get("是否有高校字段线索") == "true"
+            and is_nonempty(private_row, "高校官网或招生章程字段值")
+            for private_row in private_rows
+        )
+        field_confirm_done = sum(is_nonempty(private_row, "字段确认值") for private_row in private_rows)
+        double_required = sum(private_row.get("是否需要双人复核") == "true" for private_row in private_rows)
+        double_done = sum(
+            private_row.get("是否需要双人复核") == "true"
+            and is_nonempty(private_row, "PDF核页复核人A")
+            and is_nonempty(private_row, "PDF核页复核人B")
+            for private_row in private_rows
+        )
+        conflict_count = sum(
+            private_row.get("是否裁图OCR与机器候选冲突") == "true"
+            or private_row.get("是否裁图OCR与高校辅证冲突") == "true"
+            or private_row.get("是否机器高校冲突") == "true"
+            for private_row in private_rows
+        )
+        consistency_ready = sum(
+            is_nonempty(private_row, "PDF原页人工读数")
+            and is_nonempty(private_row, "湖北官方字段值")
+            and (
+                private_row.get("是否有高校字段线索") != "true"
+                or is_nonempty(private_row, "高校官网或招生章程字段值")
+            )
+            for private_row in private_rows
+        )
+        writeback_ready = sum(
+            is_nonempty(private_row, "字段确认值")
+            and is_nonempty(private_row, "PDF原页人工读数")
+            and is_nonempty(private_row, "湖北官方字段值")
+            and (
+                private_row.get("是否有高校字段线索") != "true"
+                or is_nonempty(private_row, "高校官网或招生章程字段值")
+            )
+            and (
+                private_row.get("是否需要双人复核") != "true"
+                or (
+                    is_nonempty(private_row, "PDF核页复核人A")
+                    and is_nonempty(private_row, "PDF核页复核人B")
+                )
+            )
+            for private_row in private_rows
+        )
+        p0_page_progress_pdf_done += pdf_done
+        p0_page_progress_hubei_done += hubei_done
+        p0_page_progress_school_required += school_required
+        p0_page_progress_school_done += school_done
+        p0_page_progress_double_required += double_required
+        p0_page_progress_double_done += double_done
+        p0_page_progress_field_confirm_done += field_confirm_done
+        p0_page_progress_consistency_ready += consistency_ready
+        p0_page_progress_writeback_ready += writeback_ready
+        p0_page_progress_join_ok = (
+            p0_page_progress_join_ok
+            and bool(queue_row)
+            and total > 0
+            and all(public_rows)
+            and all(private_rows)
+            and row.get("P0即时页列执行进度公开账本ID")
+            == stable_id("P0PAGEPROG", [queue_id])
+            and row.get("来源P0即时页列核页执行队列")
+            == "data/working/issue19-p0-immediate-page-execution-queue.csv"
+            and row.get("来源P0即时字段确认公开账本")
+            == "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv"
+            and row.get("来源私有字段确认工作台") == "private_field_confirmation_workbench_not_public"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_p0_immediate_page_execution_progress_public_ledger"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "PDF页码×版面列×P0即时页列执行进度状态"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许写回字段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("页列执行总序") == queue_row.get("页列执行总序")
+            and row.get("来源页码") == queue_row.get("来源页码")
+            and row.get("版面列") == queue_row.get("版面列")
+            and row.get("页码版面键") == queue_row.get("页码版面键")
+            and row.get("P0即时按页核页包ID") == queue_row.get("P0即时按页核页包ID")
+            and row.get("页列核页优先级桶") == queue_row.get("页列核页优先级桶")
+            and row.get("页列核页优先级数值") == queue_row.get("页列核页优先级数值")
+            and as_int(row.get("包内字段任务数")) == total
+            and row.get("包内专业行数") == queue_row.get("包内专业行数")
+            and row.get("包内裁图证据数") == queue_row.get("包内裁图证据数")
+            and as_int(row.get("包内需要双人复核任务数")) == double_required
+            and as_int(row.get("包内高校辅证核验任务数")) == school_required
+            and as_int(row.get("PDF原页私有记录已录数")) == pdf_done
+            and as_int(row.get("PDF原页私有记录未录数")) == total - pdf_done
+            and as_int(row.get("湖北官方私有记录已录数")) == hubei_done
+            and as_int(row.get("湖北官方私有记录未录数")) == total - hubei_done
+            and as_int(row.get("高校辅证应录数")) == school_required
+            and as_int(row.get("高校辅证已录数")) == school_done
+            and as_int(row.get("高校辅证未录数")) == school_required - school_done
+            and as_int(row.get("字段确认私有记录已录数")) == field_confirm_done
+            and as_int(row.get("字段确认私有记录未录数")) == total - field_confirm_done
+            and as_int(row.get("双人复核应完成数")) == double_required
+            and as_int(row.get("双人复核已完成数")) == double_done
+            and as_int(row.get("双人复核未完成数")) == double_required - double_done
+            and as_int(row.get("冲突阻断任务数")) == conflict_count
+            and as_int(row.get("三方字段一致性可评估数")) == consistency_ready
+            and as_int(row.get("可进入字段写回复查数")) == writeback_ready
+            and row.get("PDF原页私有记录状态分布")
+            == counter_text(Counter(private_row.get("PDF原页私有记录状态") for private_row in private_rows))
+            and row.get("湖北官方私有记录状态分布")
+            == counter_text(Counter(private_row.get("湖北官方私有记录状态") for private_row in private_rows))
+            and row.get("高校辅证私有记录状态分布")
+            == counter_text(Counter(private_row.get("高校辅证私有记录状态") for private_row in private_rows))
+            and row.get("双人复核公开状态分布")
+            == counter_text(Counter(private_row.get("双人复核公开状态") for private_row in private_rows))
+            and row.get("字段事实写回评估状态分布")
+            == counter_text(Counter(private_row.get("字段事实写回评估状态") for private_row in private_rows))
+            and row.get("页列执行进度桶") == "R0-未开始PDF和湖北官方核验"
+            and row.get("页列执行进度状态") == "pending_pdf_and_hubei_official_review"
+            and row.get("私有字段确认工作台SHA256") == p0_private_field_confirm_sha
+            and row.get("字段确认公开账本ID集合SHA256")
+            == sha_list(public_row.get("P0即时字段确认公开账本ID", "") for public_row in public_rows)
+            and row.get("P0字段即时复核任务ID集合SHA256")
+            == sha_list(public_row.get("P0字段即时复核任务ID", "") for public_row in public_rows)
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_review"
+            and row.get("字段事实写回状态") == "blocked_until_required_private_readings_complete"
+        )
+    p0_page_progress_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_page_progress_summary_path, p0_page_progress_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 即时页列执行进度公开账本摘要和私有状态计数正确",
+        p0_page_progress_summary.get("status")
+        == "issue19_p0_immediate_page_execution_progress_public_ledger_not_final"
+        and p0_page_progress_summary.get("generated_by")
+        == "build_issue19_p0_immediate_page_execution_progress_ledger.py"
+        and p0_page_progress_summary.get("source_page_execution_queue")
+        == "data/working/issue19-p0-immediate-page-execution-queue.csv"
+        and p0_page_progress_summary.get("source_field_confirmation_public_ledger")
+        == "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv"
+        and p0_page_progress_summary.get("source_private_field_confirmation_workbench")
+        == "private_field_confirmation_workbench_not_public"
+        and p0_page_progress_summary.get("output_table")
+        == "data/working/issue19-p0-immediate-page-execution-progress-public-ledger.csv"
+        and p0_page_progress_summary.get("row_count") == 148
+        and p0_page_progress_summary.get("source_private_task_count") == 319
+        and p0_page_progress_summary.get("unique_page_execution_queue_id_count") == 148
+        and p0_page_progress_summary.get("unique_pdf_page_count") == 114
+        and p0_page_progress_summary.get("unique_page_side_count") == 148
+        and p0_page_progress_summary.get("progress_bucket_counts") == {
+            "R0-未开始PDF和湖北官方核验": 148,
+        }
+        and p0_page_progress_summary.get("pdf_reading_recorded_task_count") == p0_page_progress_pdf_done == 0
+        and p0_page_progress_summary.get("pdf_reading_missing_task_count") == 319
+        and p0_page_progress_summary.get("hubei_official_recorded_task_count") == p0_page_progress_hubei_done == 0
+        and p0_page_progress_summary.get("hubei_official_missing_task_count") == 319
+        and p0_page_progress_summary.get("school_support_required_task_count") == p0_page_progress_school_required == 75
+        and p0_page_progress_summary.get("school_support_recorded_task_count") == p0_page_progress_school_done == 0
+        and p0_page_progress_summary.get("double_review_required_task_count") == p0_page_progress_double_required == 290
+        and p0_page_progress_summary.get("double_review_completed_task_count") == p0_page_progress_double_done == 0
+        and p0_page_progress_summary.get("field_confirmation_recorded_task_count") == p0_page_progress_field_confirm_done == 0
+        and p0_page_progress_summary.get("three_way_consistency_evaluable_task_count") == p0_page_progress_consistency_ready == 0
+        and p0_page_progress_summary.get("field_writeback_review_ready_task_count") == p0_page_progress_writeback_ready == 0
+        and p0_page_progress_summary.get("final_available_count") == 0
+        and p0_page_progress_summary.get("next_stage_available_count") == 0
+        and p0_page_progress_summary.get("recommendation_basis_allowed_count") == 0
+        and p0_page_progress_summary.get("school_major_suggestion_allowed_count") == 0
+        and len(p0_page_progress_rows) == 148,
+        f"{len(p0_page_progress_rows)} progress rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时页列执行进度公开账本字段、门禁和来源回链正确",
+        p0_page_progress_fields == expected_p0_page_progress_fields
+        and len({row.get("P0即时页列执行进度公开账本ID") for row in p0_page_progress_rows}) == 148
+        and {row.get("P0即时页列核页执行队列ID") for row in p0_page_progress_rows}
+        == {row.get("P0即时页列核页执行队列ID") for row in p0_page_exec_rows}
+        and [as_int(row.get("页列执行总序")) for row in p0_page_progress_rows] == list(range(1, 149))
+        and all(row.get("最终可用") == "false" and row.get("可进入下一阶段") == "false" for row in p0_page_progress_rows)
+        and all(row.get("机器是否允许自动写回主表") == "false" for row in p0_page_progress_rows)
+        and all(row.get("机器是否允许自动回填候选") == "false" for row in p0_page_progress_rows)
+        and all(row.get("是否允许写回字段") == "false" for row in p0_page_progress_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in p0_page_progress_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in p0_page_progress_rows)
+        and p0_page_progress_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 即时页列执行进度公开账本不含私有路径、字段值、OCR原文、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(p0_page_progress_public_text) is None
+        and "/Users/" not in p0_page_progress_public_text
+        and "/home/" not in p0_page_progress_public_text
+        and "/var/folders/" not in p0_page_progress_public_text
+        and "/private/" not in p0_page_progress_public_text
+        and "private/" not in p0_page_progress_public_text
+        and "private\\" not in p0_page_progress_public_text
+        and "ocr-runs" not in p0_page_progress_public_text
+        and "rendered-pages" not in p0_page_progress_public_text
+        and ".png" not in p0_page_progress_public_text
+        and ".jpg" not in p0_page_progress_public_text
+        and ".jpeg" not in p0_page_progress_public_text
+        and ".webp" not in p0_page_progress_public_text
+        and "Authorization" not in p0_page_progress_public_text
+        and "Bearer " not in p0_page_progress_public_text
+        and "Cookie" not in p0_page_progress_public_text
+        and "机器候选字段值" not in p0_page_progress_public_text
+        and "高校官网字段候选值" not in p0_page_progress_public_text
+        and "裁图OCR候选字段值" not in p0_page_progress_public_text
+        and "裁图OCR候选行文本" not in p0_page_progress_public_text
+        and "PDF原页人工读数" not in p0_page_progress_public_text
+        and "湖北官方字段值" not in p0_page_progress_public_text
+        and "高校官网或招生章程字段值" not in p0_page_progress_public_text
+        and "字段确认值" not in p0_page_progress_public_text
+        and "OCR文本" not in p0_page_progress_public_text
+        and "OCR原文" not in p0_page_progress_public_text
+        and "已确认" not in p0_page_progress_public_text
+        and "已核准" not in p0_page_progress_public_text
+        and "最终推荐" not in p0_page_progress_public_text
+        and "最终方案" not in p0_page_progress_public_text
+        and "可填报" not in p0_page_progress_public_text
+        and "可排序" not in p0_page_progress_public_text
+        and not any(token in p0_page_progress_public_text for token in shared_forbidden_tokens),
     ))
 
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
