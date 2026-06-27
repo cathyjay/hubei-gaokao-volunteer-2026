@@ -18713,6 +18713,206 @@ def main():
         and not any(token in major_evidence_public_text for token in shared_forbidden_tokens),
     ))
 
+    stable_screening_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-screening-summary.json"
+    )
+    stable_major_csv = ROOT / "data/working/issue19-stable-foundation-major-screening-view.csv"
+    stable_group_csv = ROOT / "data/working/issue19-stable-foundation-group-screening-view.csv"
+    stable_screening_summary = json.loads(stable_screening_summary_path.read_text())
+    with stable_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_major_reader = csv.DictReader(f)
+        stable_major_rows = list(stable_major_reader)
+        stable_major_fields = stable_major_reader.fieldnames or []
+    with stable_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_group_reader = csv.DictReader(f)
+        stable_group_rows = list(stable_group_reader)
+        stable_group_fields = stable_group_reader.fieldnames or []
+    expected_stable_major_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_stable_foundation_screening_views.py",
+        "MAJOR_FIELDS",
+    )
+    expected_stable_group_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_stable_foundation_screening_views.py",
+        "GROUP_FIELDS",
+    )
+    stable_major_by_id = {row.get("专业行ID"): row for row in stable_major_rows}
+    stable_group_by_id = {row.get("专业组出现ID"): row for row in stable_group_rows}
+    stable_major_signal_counts = Counter(row.get("机器初筛线索等级") for row in stable_major_rows)
+    stable_group_value_counts = Counter(row.get("机器筛选价值层级") for row in stable_group_rows)
+    stable_group_review_counts = Counter(row.get("保真核验层级") for row in stable_group_rows)
+    stable_major_rows_by_group = Counter(row.get("专业组出现ID") for row in stable_major_rows)
+    stable_group_summed_major_count = sum(as_int(row.get("专业明细行数")) or 0 for row in stable_group_rows)
+    stable_group_p0_count = sum(as_int(row.get("P0人工核验专业行数")) or 0 for row in stable_group_rows)
+    stable_group_p1_count = sum(as_int(row.get("P1人工核验专业行数")) or 0 for row in stable_group_rows)
+    stable_group_p2_count = sum(as_int(row.get("P2人工核验专业行数")) or 0 for row in stable_group_rows)
+    stable_group_p3_count = sum(as_int(row.get("P3低风险抽检专业行数")) or 0 for row in stable_group_rows)
+    stable_group_pdf_pending_count = sum(as_int(row.get("PDF原页待核专业行数")) or 0 for row in stable_group_rows)
+    stable_group_hubei_pending_count = sum(as_int(row.get("湖北官方系统待核专业行数")) or 0 for row in stable_group_rows)
+    stable_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [stable_screening_summary_path, stable_major_csv, stable_group_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座筛选视图摘要、规模和分层正确",
+        stable_screening_summary.get("status")
+        == "issue19_stable_foundation_screening_views_not_final"
+        and stable_screening_summary.get("generated_by")
+        == "build_issue19_stable_foundation_screening_views.py"
+        and stable_screening_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and stable_screening_summary.get("major_output_table")
+        == "data/working/issue19-stable-foundation-major-screening-view.csv"
+        and stable_screening_summary.get("group_output_table")
+        == "data/working/issue19-stable-foundation-group-screening-view.csv"
+        and stable_screening_summary.get("major_row_count") == len(stable_major_rows) == 13736
+        and stable_screening_summary.get("group_row_count") == len(stable_group_rows) == 3329
+        and stable_screening_summary.get("unique_major_line_id_count") == 13736
+        and stable_screening_summary.get("unique_group_occurrence_id_count_in_major_view") == 3289
+        and stable_screening_summary.get("zero_detail_group_count") == 40
+        and stable_screening_summary.get("missing_join_counts") == {}
+        and stable_screening_summary.get("major_machine_signal_counts") == {
+            "M4-字段缺口先补": 5846,
+            "M0-家庭底线或属性风险先排除": 4545,
+            "M5-结构归属先核": 2667,
+            "M1-可作机器预筛线索但不可定案": 329,
+            "M3-常规留存但不可定案": 349,
+        }
+        and stable_screening_summary.get("major_machine_signal_true_count") == 678
+        and stable_screening_summary.get("group_value_layer_counts") == {
+            "V1-偏好专业优先线索": 722,
+            "V3-历史线索普通留存": 771,
+            "V4-普通留存待了解": 173,
+            "V0-默认不进主方案风险": 1623,
+            "V5-无逐专业明细先补结构": 40,
+        }
+        and stable_screening_summary.get("group_review_layer_counts") == {
+            "R1-P0整组先核": 1816,
+            "R2-P1页列集中核": 1265,
+            "R3-P2官网后人工确认": 110,
+            "R4-P3低风险抽检": 98,
+            "R0-无明细结构阻断": 40,
+        }
+        and stable_screening_summary.get("group_machine_observation_pool_count") == 1666
+        and stable_screening_summary.get("group_default_not_main_plan_count") == 1623
+        and stable_screening_summary.get("group_preference_priority_count") == 722
+        and stable_screening_summary.get("group_zero_detail_count") == 40
+        and stable_screening_summary.get("final_available_count") == 0
+        and stable_screening_summary.get("next_stage_available_count") == 0
+        and stable_screening_summary.get("recommendation_basis_allowed_count") == 0
+        and stable_screening_summary.get("school_major_suggestion_allowed_count") == 0,
+        f"{len(stable_major_rows)} major rows, {len(stable_group_rows)} group rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座筛选视图字段、主键、行集合和聚合守恒正确",
+        stable_major_fields == expected_stable_major_fields
+        and stable_group_fields == expected_stable_group_fields
+        and len({row.get("稳定基座逐专业筛选ID") for row in stable_major_rows}) == 13736
+        and len({row.get("稳定基座专业组筛选ID") for row in stable_group_rows}) == 3329
+        and set(stable_major_by_id) == {row.get("专业行ID") for row in ps_master_rows}
+        and set(stable_group_by_id) == {row.get("专业组出现ID") for row in family_fit_group_rows}
+        and stable_major_signal_counts
+        == Counter(stable_screening_summary.get("major_machine_signal_counts", {}))
+        and stable_group_value_counts
+        == Counter(stable_screening_summary.get("group_value_layer_counts", {}))
+        and stable_group_review_counts
+        == Counter(stable_screening_summary.get("group_review_layer_counts", {}))
+        and stable_group_summed_major_count == 13736
+        and sum(1 for row in stable_group_rows if row.get("无逐专业明细占位") == "true") == 40
+        and all(
+            as_int(row.get("专业明细行数")) == stable_major_rows_by_group.get(row.get("专业组出现ID"), 0)
+            for row in stable_group_rows
+        )
+        and stable_group_p0_count == 5043
+        and stable_group_p1_count == 7952
+        and stable_group_p2_count == 557
+        and stable_group_p3_count == 184
+        and stable_group_pdf_pending_count == 13736
+        and stable_group_hubei_pending_count == 13736,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座筛选视图非最终门禁和官方边界正确",
+        all(
+            row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_stable_foundation_major_screening_view"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("可否进入最终志愿方案") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许自动写回主表") == "false"
+            and row.get("高校官网能否替代湖北官方计划") == "false"
+            for row in stable_major_rows
+        )
+        and all(
+            row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_stable_foundation_group_screening_view"
+            and row.get("主表粒度") == "院校专业组"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("可否进入最终志愿方案") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and (
+                row.get("是否进入机器初筛观察池") == "true"
+                and row.get("机器筛选价值层级") in {
+                    "V1-偏好专业优先线索",
+                    "V2-城市偏好扩展线索",
+                    "V3-历史线索普通留存",
+                    "V4-普通留存待了解",
+                }
+                or row.get("是否进入机器初筛观察池") == "false"
+            )
+            for row in stable_group_rows
+        )
+        and all(
+            (
+                row.get("是否可作为机器初筛线索") == "true"
+                and row.get("机器初筛线索等级") in {
+                    "M1-可作机器预筛线索但不可定案",
+                    "M2-有偏好城市或调剂线索需先核",
+                    "M3-常规留存但不可定案",
+                }
+            )
+            or row.get("是否可作为机器初筛线索") == "false"
+            for row in stable_major_rows
+        )
+        and all(
+            row.get("历史线使用口径") == ""
+            or "不能替代" in row.get("历史线使用口径")
+            or "不能证明" in row.get("历史线使用口径")
+            for row in stable_major_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座筛选视图公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in stable_public_text
+        and "/home/" not in stable_public_text
+        and "/var/folders/" not in stable_public_text
+        and "/private/" not in stable_public_text
+        and "private/" not in stable_public_text
+        and "private\\" not in stable_public_text
+        and "ocr-runs" not in stable_public_text
+        and "rendered-pages" not in stable_public_text
+        and ".png" not in stable_public_text
+        and ".jpg" not in stable_public_text
+        and ".jpeg" not in stable_public_text
+        and ".webp" not in stable_public_text
+        and ".tif" not in stable_public_text
+        and ".tiff" not in stable_public_text
+        and ".heic" not in stable_public_text
+        and "Authorization" not in stable_public_text
+        and "Bearer " not in stable_public_text
+        and "Cookie" not in stable_public_text
+        and "身份证" not in stable_public_text
+        and "准考证" not in stable_public_text
+        and "报名号" not in stable_public_text
+        and "序列号" not in stable_public_text
+        and "已确认" not in stable_public_text
+        and "已核准" not in stable_public_text
+        and "可填报" not in stable_public_text
+        and "可排序" not in stable_public_text
+        and not any(token in stable_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

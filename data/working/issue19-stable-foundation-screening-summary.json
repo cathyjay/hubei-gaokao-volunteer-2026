@@ -1,0 +1,100 @@
+{
+  "status": "issue19_stable_foundation_screening_views_not_final",
+  "generated_by": "build_issue19_stable_foundation_screening_views.py",
+  "major_output_table": "data/working/issue19-stable-foundation-major-screening-view.csv",
+  "group_output_table": "data/working/issue19-stable-foundation-group-screening-view.csv",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "official_public_status_source": "data/working/issue19-official-public-entry-status.json",
+  "official_public_plan_page_sha256": "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776",
+  "inputs": [
+    {
+      "path": "data/working/issue19-admission-detail-master-workbench.csv",
+      "sha256": "de9d7801cf4eacbf7cc34dbd01d275a5f477fb3f9c5976463062093ff2087fea",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-candidate-filter-prep-major-detail.csv",
+      "sha256": "fb9a551a672ad5a39ada1a78f024075c883cf6e1daa5362e912e42bffd2c397a",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-field-fact-closure-ledger.csv",
+      "sha256": "8e19f069c66a0815265d6800f1c6dea4176097cc7c8e01ee69925b2ae19df198",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-major-evidence-level-routing.csv",
+      "sha256": "0110ed8ce58b32b6fd1731615d7937b92015b39cc977419a724e754ade8d9795",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-moe-school-attribute-major-detail.csv",
+      "sha256": "c6bfc0e387201336a205d6f2eaf10eb6b086d3a57e7babd4b15e9b2942c2f3fc",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-major-line-historical-toudang-sidecar.csv",
+      "sha256": "37bf51a7ced119a96a928fc74465d4ec8cdf36a57f442447d4484e964f2cd260",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-family-fit-group-screen.csv",
+      "sha256": "b84709b7a9de9a0632607eaeb9f7021219d25ed7f70b72880673fc046b2d033a",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-official-public-entry-status.json",
+      "sha256": "dec81d791f223ca0b757dcf4ec6646afaf7ac15c1d08c94ed0b744e9cac02dd5"
+    }
+  ],
+  "major_row_count": 13736,
+  "group_row_count": 3329,
+  "unique_major_line_id_count": 13736,
+  "unique_group_occurrence_id_count_in_major_view": 3289,
+  "zero_detail_group_count": 40,
+  "missing_join_counts": {},
+  "major_machine_signal_counts": {
+    "M4-字段缺口先补": 5846,
+    "M0-家庭底线或属性风险先排除": 4545,
+    "M5-结构归属先核": 2667,
+    "M1-可作机器预筛线索但不可定案": 329,
+    "M3-常规留存但不可定案": 349
+  },
+  "major_machine_signal_true_count": 678,
+  "group_value_layer_counts": {
+    "V1-偏好专业优先线索": 722,
+    "V3-历史线索普通留存": 771,
+    "V4-普通留存待了解": 173,
+    "V0-默认不进主方案风险": 1623,
+    "V5-无逐专业明细先补结构": 40
+  },
+  "group_review_layer_counts": {
+    "R1-P0整组先核": 1816,
+    "R2-P1页列集中核": 1265,
+    "R3-P2官网后人工确认": 110,
+    "R4-P3低风险抽检": 98,
+    "R0-无明细结构阻断": 40
+  },
+  "group_machine_observation_pool_count": 1666,
+  "group_default_not_main_plan_count": 1623,
+  "group_preference_priority_count": 722,
+  "group_city_extension_count": 0,
+  "group_zero_detail_count": 40,
+  "p0_group_review_count": 1816,
+  "p1_group_review_count": 1265,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "policy": {
+    "usage": "本产物是稳定数据基座的筛选入口，连接逐专业明细、整组调剂、字段缺口、学校属性、历史线索和核验路由。",
+    "non_final_gate": "所有行最终可用=false、可进入下一阶段=false、可否进入最终志愿方案=false。",
+    "score_line_boundary": "三年投档线只作冲稳保机器线索；不替代2026招生计划、专业组完整明细或投档规则。",
+    "official_boundary": "高校官网和教育部名单只作辅证；不能替代湖北官方系统/省招办计划。"
+  },
+  "notes": [
+    "专业组视图保留整组专业清单索引，后续服从调剂判断必须看完整专业组。",
+    "机器初筛观察池只表示值得继续核验，不表示可以填报。",
+    "零明细专业组单独保留，防止OCR漏拆被静默丢失。"
+  ]
+}

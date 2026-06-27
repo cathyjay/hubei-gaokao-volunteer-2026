@@ -125,6 +125,7 @@ python3 scripts/build_issue19_p0_immediate_pdf_reading_candidates.py
 python3 scripts/build_issue19_p0_immediate_page_execution_queue.py
 python3 scripts/build_issue19_p0_immediate_page_execution_progress_ledger.py
 python3 scripts/build_issue19_major_evidence_level_routing.py
+python3 scripts/build_issue19_stable_foundation_screening_views.py
 python3 scripts/build_issue19_major_line_layout_continuity_risk_ledger.py
 python3 scripts/build_issue19_major_code_order_risk_ledger.py
 python3 scripts/build_issue19_foundation_audit.py
@@ -172,6 +173,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 全 19 批复核公开账本：`data/working/issue19-page-side-foundation-all-batch-review-public-ledger.csv` 已把上述样板扩展到 462 个页列、231 个 PDF 页、13736 条招生专业明细和 41208 个字段任务；公开表只保存计数、状态分布、私有详表 SHA 和非最终门禁，不公开学校专业明细、字段候选、OCR 原文或人工读数。当前 Q0=15813、Q1=21606、Q2=3789；人工填写、字段确认、推荐依据和最终可用仍全部为 0。
 
 逐专业证据等级与核验路由表：`data/working/issue19-major-evidence-level-routing.csv` 是官方结构化计划暂不可公开自动取得时的逐专业核验导航，13736 行一行一个招生专业明细。当前 L3 高校辅证加第三方提示 854 条，L4 OCR 或单源线索 12882 条；P0 100% 人工核验 5043 条，P1 页列集中核验 7952 条，P2 自动官网核验后人工确认 557 条，P3 低风险抽检 184 条。它只决定先核什么、怎么 double check、什么时候升级人工，不确认字段值，也不生成学校专业建议。
+
+稳定基座筛选视图：`data/working/issue19-stable-foundation-major-screening-view.csv` 和 `data/working/issue19-stable-foundation-group-screening-view.csv` 是后续筛学校、专业和专业组的当前统一入口。逐专业视图覆盖 13736 条招生明细，专业组视图覆盖 3329 个院校专业组并保留完整组内专业索引；当前 678 条逐专业明细可作为机器初筛线索但不可定案，1666 个专业组进入机器初筛观察池，所有最终门禁仍为 0。它们只用于把家庭底线、教育部学校属性、字段缺口、证据路由、三年投档线索和整组调剂风险放到同一处看，不替代 PDF 原页、湖北官方系统或省招办计划。
 
 P0 字段原页重读工作清单：`data/working/issue19-field-fact-p0-reread-worklist.csv` 从字段事实核验任务队列中严格抽取 11444 条 K0 无候选字段任务，覆盖 8536 条招生专业明细、231 个 PDF 明细页和 967 所学校。它把每个 `专业行ID × 字段名` 回连到字段任务、原始源证据审计、PDF 原页锚点和页级保真队列，用于优先回看专业计划数、再选科目、学费三项原始字段；全部 `最终可用=false`、`可进入下一阶段=false`，不得自动写回主表，也不得生成学校或专业建议。
 

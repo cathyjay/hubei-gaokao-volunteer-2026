@@ -110,6 +110,9 @@
 | `data/working/issue19-page-side-foundation-all-batch-review-public-ledger-summary.json` | 全 19 批复核摘要 | 看 Q0 15813、Q1 21606、Q2 3789，K0 11444、K1 7621、K2 22143；人工填写、推荐依据和最终可用均为 0 |
 | `data/working/issue19-major-evidence-level-routing.csv` | 逐专业证据等级与核验路由表 | 覆盖全部 13736 条招生专业明细；在湖北官方结构化计划暂不可公开自动取得时，按 `专业行ID` 标出 L3/L4 证据等级、自动高校官网核验可执行性、P0-P3 人工优先级、H0-H4 人工强度和升级触发器 |
 | `data/working/issue19-major-evidence-level-routing-summary.json` | 逐专业证据路由摘要 | 看 L3 高校辅证 854 条、L4 OCR 或单源线索 12882 条、P0 100% 人工核验 5043 条、P1 页列集中核验 7952 条、P2 自动官网核验后人工确认 557 条、P3 低风险抽检 184 条；全部非最终 |
+| `data/working/issue19-stable-foundation-major-screening-view.csv` | 稳定基座逐专业筛选视图 | 覆盖全部 13736 条招生专业明细；把家庭底线、教育部学校属性、字段事实闭环、证据路由、三年投档线索和机器初筛等级统一到同一条 `专业行ID` |
+| `data/working/issue19-stable-foundation-group-screening-view.csv` | 稳定基座专业组筛选视图 | 覆盖 3329 个院校专业组；按完整组内专业聚合 P0/P1/P2/P3、字段缺口、家庭底线、学校属性、调剂风险和历史线索 |
+| `data/working/issue19-stable-foundation-screening-summary.json` | 稳定基座筛选摘要 | 看 678 条逐专业机器初筛线索、1666 个机器观察池专业组、1816 个 P0 整组先核专业组和全部非最终门禁 |
 | `data/working/issue19-field-fact-p0-reread-worklist.csv` | P0 字段原页重读工作清单 | 覆盖 11444 条 K0 无候选字段任务；一行一个 `专业行ID × 字段名`，回连字段任务、原始源证据审计、PDF 锚点和页级保真队列 |
 | `data/working/issue19-field-fact-p0-reread-worklist-summary.json` | P0 字段原页重读摘要 | 看专业计划数、再选科目、学费三类 K0 字段的原页重读规模、覆盖页码、学校数和四路证据命中 |
 | `data/working/issue19-field-fact-p0-reread-machine-candidates.csv` | P0 字段机器坐标候选表 | 覆盖同一批 11444 条 K0 字段任务；用私有 OCR 窗口坐标和保守字段规则生成候选值，公开输出只保存候选值、坐标摘要、必要来源 ID、页码/版面列、字段名、证据编号、哈希和非最终门禁 |
@@ -656,8 +659,9 @@ OCR 字段不等于最终事实。
 65. **第 1 批样板复核**：`data/working/issue19-page-side-foundation-batch-01-sample-public-audit.csv` 先用一个高风险批次验证流程，覆盖 25 个页列、23 个 PDF 页、717 条专业明细和 2151 个字段任务。样板只输出分流和工作量，正式 Overlay 自动写回为 0。
 66. **全 19 批复核公开账本**：`data/working/issue19-page-side-foundation-all-batch-review-public-ledger.csv` 把样板流程扩展到 19 批、462 个页列、13736 条专业明细和 41208 个字段任务。公开层只保存计数、状态分布、SHA 和非最终门禁；它证明全量字段任务已进入可复核流水线，不证明字段事实已经核准。
 67. **逐专业证据等级与核验路由表**：`data/working/issue19-major-evidence-level-routing.csv` 把官方结构化计划暂不可得时的替代保真策略下沉到全部 13736 条招生专业明细。L3 高校辅证 854 条只表示可做 double check，L4 OCR 或单源线索 12882 条只表示需要先补证；P0 5043 条必须 100% 人工核验，P1 7952 条按页列集中核验，P2 557 条自动官网核验后人工确认，P3 184 条低风险抽检但仍非最终。该表不确认字段事实，不生成候选讨论、最终方案、推荐依据或学校专业建议。
-67. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
-68. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
+68. **稳定基座筛选视图**：`data/working/issue19-stable-foundation-major-screening-view.csv` 和 `data/working/issue19-stable-foundation-group-screening-view.csv` 是后续筛学校、专业和专业组的统一入口，但只用于机器初筛和核验排队。当前 678 条逐专业机器线索和 1666 个专业组观察池都不是可填报清单；所有最终门禁仍为 0。
+69. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
+70. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
 
 ## 五、下一步复核优先级
 
