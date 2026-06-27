@@ -1,0 +1,27 @@
+{
+  "status": "issue19_page_side_foundation_batch_execution_packets_not_final",
+  "generated_by": "build_issue19_page_side_foundation_batch_execution_packets.py",
+  "source_page_side_foundation_verification_batches": "data/working/issue19-page-side-foundation-verification-batches.csv",
+  "output_table": "data/working/issue19-page-side-foundation-batch-execution-packets.csv",
+  "row_count": 19,
+  "batch_count": 19,
+  "source_page_side_count": 462,
+  "source_major_line_count": 13736,
+  "source_field_task_count": 41208,
+  "private_batch_review_asset_count": 19,
+  "private_master_html_sha256": "50f4bbcfa3148ba0ade1ec5af632975ced06f889ee0da38152b7edca8a44a9b3",
+  "private_index_csv_sha256": "496d356eb535cd6f4f394c1d434328581050261fcfa68a3c301b13b889c6f298",
+  "batch_status_counts": {
+    "R0-未开始页列底座核验": 19
+  },
+  "private_material_status_counts": {
+    "private_batch_review_assets_generated": 19
+  },
+  "pdf_review_completed_page_side_count": 0,
+  "hubei_official_completed_page_side_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "safety_note": "公开摘要只保存批次计数、私有材料SHA和非最终门禁；私有HTML/CSV在private目录，不提交公开仓库。"
+}
