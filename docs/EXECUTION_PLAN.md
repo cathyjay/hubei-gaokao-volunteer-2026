@@ -58,6 +58,10 @@
 
 新增高校侧辅证刷新公开账本：`data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 覆盖 36 所学校、78 个 `高校×高校侧辅证动作` 任务，把 854 条 B0/B1 高校辅证压缩成可自动复跑、补结构化、继续补源、分层抽检和少量人工确认的工作队列。S0/S1 任务必须回 PDF 原页和湖北官方侧，S3 强辅证只允许抽检，抽检失败立即升级同页列、同校或同专业组 100% 核验；公开层不保存字段读数、登录态或最终结论。
 
+新增官方公开入口活体复查：`data/working/issue19-official-public-entry-live-recheck.json` 让“湖北官方是否可得”从一次性判断变成可复跑证据。当前招生计划页、索引页和数智平台首页 SHA 均与留存副本一致，招生计划页仍含“持续更新中/敬请期待”，5 个无登录接口探针仍返回 401；所以当前仍不能自动取得可逐字段定稿的湖北官方结构化计划。
+
+新增官方不可得抽样门禁：`data/working/issue19-official-unavailable-sampling-gates.csv` 把“高校官网 double check + 最小人工核验”落成 103 行门禁：78 条高校侧任务继续负责自动复跑、补结构化、补源和强辅证抽检；25 条 P3 低风险专业明细用于抽样验收。C0/C1/C7 共 104 条明细必须 100% 核第 19 期原页，C2 强辅证抽检最低覆盖 20 条以上，抽检失败升级同页列、同校或同组 100% 核验。它只能压缩人工工作量，不能打开字段写回、推荐依据或最终可用门禁。
+
 新增第一闭环批次包：`data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 覆盖 205 条最高优先级明细任务，`data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 把它们压缩为 36 个页列、32 个 PDF 页。这个包优先处理 C0 冲突、C1 官网补缺、C7 官网未匹配、EXEC-01 冲突异常、EXEC-02 计划数偏大和 EXEC-03 高校辅证线索，目的是先把最可能影响底座可信度的页列集中核准；全部门禁仍为 false。
 
 新增全量字段页列核验队列：`data/working/issue19-field-fact-page-side-verification-queue.csv` 把 41208 条字段事实核验任务聚合为 462 个 `PDF页码×版面列` 执行单元，覆盖 231 个招生计划明细页和全部 13736 条专业明细。它是全量底座保真的页列层入口，当前 450 个页列为 V0 无候选阻断页列先核、12 个为 V1 有候选待人工核验页列，全部仍需要 PDF 原页和湖北官方侧核验。

@@ -52,8 +52,9 @@
    - 2026 招生计划页面：http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html
    - 本地网页：`data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html`
    - 本地网页：`data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html`
+   - 活体复查账本：`data/working/issue19-official-public-entry-live-recheck.json`
    - SHA256：索引页 `804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50`，2026 页面 `5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776`。
-   - 当前状态：2026-06-28 公开 HTTP 复核返回 200；2026 页面已公开，但正文显示“持续更新中，敬请期待”。`can_finalize=false`，只能作为官方公开入口证据，不能作为结构化招生计划明细。
+   - 当前状态：2026-06-28 公开 HTTP 复核返回 200；活体复查 SHA 与留存副本一致；2026 页面已公开，但正文显示“持续更新中，敬请期待”。`can_finalize=false`，只能作为官方公开入口证据，不能作为结构化招生计划明细。
    - 用途：等待官方公开完整 2026 招生计划。
 
 9. 湖北省招生数智综合平台
@@ -64,7 +65,8 @@
    - 本地前端资源：`data/official/hubei-2026-admission-plan-platform/assets/*.js`
    - 已发现接口：`/prod-api/planQuery/plan/nfs`、`/prod-api/planQuery/plan/yxList`、`/prod-api/planQuery/plan/group` 等。
    - 无登录探测留存：`data/official/hubei-2026-admission-plan-platform/api-probes/*.json`
-   - 当前状态：无登录请求返回 `{"code":401,"msg":"令牌不能为空"}`。
+   - 活体复查账本：`data/working/issue19-official-public-entry-live-recheck.json`
+   - 当前状态：无登录请求返回 `{"code":401,"msg":"令牌不能为空"}`；活体复查覆盖 `nfs`、`yxList`、`group`、`student` 和 `dict/pcdm`，均保持受阻。
    - 2026-06-28 首页 SHA：`6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3`。该变化只说明平台首页前端可访问并有新快照，不说明无登录可取得结构化招生计划。
    - 2026-06-27 当前资源 SHA：`index-Cut-ZwER.js=191ac7517cf0c9ea22cb82d98c381664ba439ffe485936b600405b92593e4de4`、`planQuery-DaPwtzYm.js=1013eb61f6f142b97d439269397b4674d778cf2c00483120462d83748cfd90ee`、`index-BjY7ltef.js=63e980b0c2d033d8cfcc5e46c21690abd9f2b776d940a1f02be7d75d67358522`。
    - 用途：登录后查询或导出 2026 招生计划；未登录状态不能作为完整数据来源。接口结构化时一行一个招生专业，院校专业组只作索引。
@@ -122,6 +124,7 @@
    - 官方结构化计划暂不可得时的替代保真策略：第 19 期 PDF 原页仍是省招办原件层，高校官网/API/XLSX/PDF/图片只做自动 double check；最终候选、冲稳保边界、B0/B1 组、计划数冲突、官网未匹配、字段空缺但进入候选的专业必须 100% 回看原页并尽量核湖北官方系统。低风险辅证只做分层抽检，抽检出现结构错误、计划数冲突、关键限定词丢失、物理/历史未拆分、官网不是 2026 湖北物理普通本科、同组有家庭不能接受专业等情况时，升级同页列、同校或同组 100% 人工核验。
    - 自动核验优先级：优先抓高校官网的 API/JSON/XLSX，其次 HTML 表格，再其次 PDF 或图片计划；所有自动结果只作为字段候选、冲突提示或抽检样本，不能直接生成最终字段事实。
    - 人工核验降载方式：家庭或人工只集中签认最终候选完整专业组、冲稳保边界、红色冲突项和抽检失败升级项；不把 41208 个字段全部摊给人工逐项核对。
+   - 抽样门禁表：`data/working/issue19-official-unavailable-sampling-gates.csv`，用于在湖北官方结构化计划暂不可得时，把 78 条高校侧任务和 25 条 P3 低风险抽样明细变成可执行的 100% 核验、自动 diff、分层抽检和失败升级规则。
 
 7. 《湖北招生考试》第 16/19 期专项检索
    - 检索记录：`docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`
@@ -167,6 +170,9 @@
 - `data/working/family-preferences.json`：当前家庭偏好和筛选底线。
 - `data/working/2026-admission-plan-source-status.json`：2026 招生计划来源状态。
 - `data/working/issue19-official-public-entry-status.json`：第 19 期底座相关官方公开入口状态快照，记录湖北教育考试网计划页/索引页 SHA、平台无登录 401 探针和当前不能直接定稿的边界。
+- `data/working/issue19-official-public-entry-live-recheck.json`：第 19 期底座相关官方公开入口活体复查结果，记录当前公开入口 SHA 是否与留存一致、无登录接口是否仍返回 401，以及当前不能自动取得湖北官方结构化计划的边界。
+- `data/working/issue19-official-unavailable-sampling-gates.csv`：湖北官方结构化计划暂不可得时的高校侧 double check 和分层抽样门禁表；高风险 100% 人工核验，低风险抽检失败后升级同页列、同校或同组。
+- `data/working/issue19-official-unavailable-sampling-gates-summary.json`：上述抽样门禁摘要，记录 103 行门禁、C0/C1/C7 100% 核验明细数、C2 最低抽检明细数、P3 抽样数和全部非最终门禁。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
 - `data/working/issue19-pdf-source.json`：第 19 期 PDF 元数据和私有留存边界。
 - `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。

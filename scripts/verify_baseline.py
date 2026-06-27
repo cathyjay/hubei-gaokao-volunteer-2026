@@ -10371,16 +10371,35 @@ def main():
     stabilization_tasks_summary_path = ROOT / "data/working/issue19-foundation-stabilization-major-detail-tasks-summary.json"
     stabilization_tasks_csv = ROOT / "data/working/issue19-foundation-stabilization-major-detail-tasks.csv"
     official_public_entry_status_path = ROOT / "data/working/issue19-official-public-entry-status.json"
+    official_public_entry_live_recheck_path = ROOT / "data/working/issue19-official-public-entry-live-recheck.json"
+    official_unavailable_sampling_gates_summary_path = ROOT / "data/working/issue19-official-unavailable-sampling-gates-summary.json"
+    official_unavailable_sampling_gates_csv = ROOT / "data/working/issue19-official-unavailable-sampling-gates.csv"
     admission_plan_source_status_path = ROOT / "data/working/2026-admission-plan-source-status.json"
     stabilization_tasks_summary = json.loads(stabilization_tasks_summary_path.read_text())
     official_public_entry_status = json.loads(official_public_entry_status_path.read_text())
+    official_public_entry_live_recheck = json.loads(
+        official_public_entry_live_recheck_path.read_text()
+    )
+    official_unavailable_sampling_gates_summary = json.loads(
+        official_unavailable_sampling_gates_summary_path.read_text()
+    )
     admission_plan_source_status = json.loads(admission_plan_source_status_path.read_text())
     with stabilization_tasks_csv.open(newline="", encoding="utf-8-sig") as f:
         stabilization_tasks_reader = csv.DictReader(f)
         stabilization_tasks_rows = list(stabilization_tasks_reader)
         stabilization_tasks_fields = stabilization_tasks_reader.fieldnames or []
+    with official_unavailable_sampling_gates_csv.open(newline="", encoding="utf-8-sig") as f:
+        official_unavailable_sampling_gates_reader = csv.DictReader(f)
+        official_unavailable_sampling_gates_rows = list(official_unavailable_sampling_gates_reader)
+        official_unavailable_sampling_gates_fields = (
+            official_unavailable_sampling_gates_reader.fieldnames or []
+        )
     expected_stabilization_tasks_fields = script_list_constant(
         ROOT / "scripts/build_issue19_foundation_stabilization_major_detail_tasks.py",
+        "FIELDS",
+    )
+    expected_official_unavailable_sampling_gates_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_official_unavailable_sampling_gates.py",
         "FIELDS",
     )
     stability_dashboard_by_major_id = {row.get("专业行ID"): row for row in stability_dashboard_rows}
@@ -10441,6 +10460,9 @@ def main():
             stabilization_tasks_summary_path,
             stabilization_tasks_csv,
             official_public_entry_status_path,
+            official_public_entry_live_recheck_path,
+            official_unavailable_sampling_gates_summary_path,
+            official_unavailable_sampling_gates_csv,
             admission_plan_source_status_path,
         ]
     )
@@ -10566,6 +10588,138 @@ def main():
         == "6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3"
         and admission_plan_source_status.get("zspt_platform", {}).get("status_snapshot")
         == "data/working/issue19-official-public-entry-status.json",
+    ))
+    live_pages = official_public_entry_live_recheck.get("page_results", {})
+    live_probes = official_public_entry_live_recheck.get("probe_results", {})
+    checks.append(ok(
+        "第 19 期官方公开入口活体复查仍不可定稿且无登录接口受阻",
+        official_public_entry_live_recheck.get("status")
+        == "issue19_official_public_entry_live_recheck_not_final"
+        and official_public_entry_live_recheck.get("generated_by")
+        == "build_issue19_official_public_entry_live_recheck.py"
+        and official_public_entry_live_recheck.get("checked_at", "").startswith("2026-06-28T")
+        and official_public_entry_live_recheck.get("privacy_boundary")
+        == "只保存公开入口元数据、SHA、标题和无登录探针结果；不保存网页登录凭证、个人身份信息或完整 HTML 正文。"
+        and live_pages.get("official_plan_page", {}).get("http_status") == 200
+        and live_pages.get("official_plan_page", {}).get("live_sha256")
+        == "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776"
+        and live_pages.get("official_plan_page", {}).get("same_as_preserved_copy") is True
+        and live_pages.get("official_plan_page", {}).get("contains_waiting_notice") is True
+        and live_pages.get("official_plan_page", {}).get("can_finalize") is False
+        and live_pages.get("official_plan_index", {}).get("http_status") == 200
+        and live_pages.get("official_plan_index", {}).get("live_sha256")
+        == "804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50"
+        and live_pages.get("official_plan_index", {}).get("same_as_preserved_copy") is True
+        and live_pages.get("zspt_platform_home", {}).get("http_status") == 200
+        and live_pages.get("zspt_platform_home", {}).get("live_sha256")
+        == "6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3"
+        and live_pages.get("zspt_platform_home", {}).get("same_as_preserved_copy") is True
+        and set(live_probes.keys())
+        == {
+            "plan_nfs_no_login",
+            "plan_yxlist_2026_wuhan_no_login",
+            "plan_group_current_no_login",
+            "plan_student_no_login",
+            "plan_dict_batch_2026_no_login",
+        }
+        and all(
+            probe.get("http_status") == 200
+            and probe.get("is_unauthenticated_blocked") is True
+            and probe.get("same_as_preserved_copy") is True
+            and probe.get("response") == {"code": 401, "msg": "令牌不能为空"}
+            and probe.get("can_finalize") is False
+            for probe in live_probes.values()
+        )
+        and official_public_entry_live_recheck.get("current_conclusion", {}).get(
+            "can_get_official_structured_plan_without_login"
+        ) is False
+        and official_public_entry_live_recheck.get("current_conclusion", {}).get(
+            "can_finalize_admission_plan_from_public_entry"
+        ) is False
+        and official_public_entry_live_recheck.get("current_conclusion", {}).get(
+            "all_platform_probes_blocked_without_login"
+        ) is True,
+    ))
+    checks.append(ok(
+        "湖北官方不可得时的高校辅证抽样门禁行数、字段和升级边界正确",
+        official_unavailable_sampling_gates_summary.get("status")
+        == "issue19_official_unavailable_sampling_gates_not_final"
+        and official_unavailable_sampling_gates_summary.get("generated_by")
+        == "build_issue19_official_unavailable_sampling_gates.py"
+        and official_unavailable_sampling_gates_summary.get("source_official_live_recheck")
+        == "data/working/issue19-official-public-entry-live-recheck.json"
+        and official_unavailable_sampling_gates_summary.get("official_live_recheck_can_finalize") is False
+        and official_unavailable_sampling_gates_summary.get(
+            "official_live_recheck_without_login_structured_plan_available"
+        ) is False
+        and official_unavailable_sampling_gates_summary.get("row_count") == 103
+        and official_unavailable_sampling_gates_summary.get("unique_sampling_gate_id_count") == 103
+        and official_unavailable_sampling_gates_summary.get("school_refresh_task_count") == 78
+        and official_unavailable_sampling_gates_summary.get("p3_low_risk_pool_major_count") == 184
+        and official_unavailable_sampling_gates_summary.get("p3_low_risk_sample_major_count") == 25
+        and official_unavailable_sampling_gates_summary.get("c0_c1_c7_100pct_major_count") == 104
+        and official_unavailable_sampling_gates_summary.get("c2_strong_support_pool_major_count") == 61
+        and official_unavailable_sampling_gates_summary.get("c2_selected_school_task_count") == 10
+        and official_unavailable_sampling_gates_summary.get("c2_min_sample_major_count") >= 20
+        and official_unavailable_sampling_gates_summary.get("risk_level_counts")
+        == {
+            "R4-blocker": 6,
+            "R3-high": 20,
+            "R2-medium": 42,
+            "R1-low": 10,
+            "R0-observe": 25,
+        }
+        and official_unavailable_sampling_gates_summary.get("action_counts")
+        == {
+            "C0-冲突先核PDF原页和湖北官方系统": 6,
+            "C1-官网补缺候选但禁止自动写回": 8,
+            "C7-官网源未匹配专业需人工确认专业名": 12,
+            "C4-已有部分来源需补结构化或补湖北行": 22,
+            "C3-字段辅证补充结构化后核原页": 1,
+            "C2-强辅证抽检并等待湖北官方闭环": 10,
+            "C6-继续搜索高校官网2026湖北计划源": 14,
+            "C5-仅章程规则核特殊要求不能核计划数": 5,
+            "P3-低风险抽检但非最终": 25,
+        }
+        and official_unavailable_sampling_gates_fields
+        == expected_official_unavailable_sampling_gates_fields
+        and len(official_unavailable_sampling_gates_rows) == 103
+        and len({
+            row.get("官方不可得抽样门禁ID")
+            for row in official_unavailable_sampling_gates_rows
+        }) == 103
+        and sum(
+            as_int(row.get("样本最低明细数")) or 0
+            for row in official_unavailable_sampling_gates_rows
+            if row.get("官网辅证自动动作")
+            in {
+                "C0-冲突先核PDF原页和湖北官方系统",
+                "C1-官网补缺候选但禁止自动写回",
+                "C7-官网源未匹配专业需人工确认专业名",
+            }
+        ) == 104
+        and sum(
+            as_int(row.get("样本最低明细数")) or 0
+            for row in official_unavailable_sampling_gates_rows
+            if row.get("官网辅证自动动作")
+            == "C2-强辅证抽检并等待湖北官方闭环"
+        ) >= 20
+        and sum(
+            1 for row in official_unavailable_sampling_gates_rows
+            if row.get("来源类型") == "P3低风险抽检专业明细"
+        ) == 25
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("是否允许自动写回主表") == "false"
+            and row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许写回字段事实") == "false"
+            and "抽检失败" in row.get("升级触发器", "")
+            and "同页列100%" in row.get("升级范围", "")
+            for row in official_unavailable_sampling_gates_rows
+        ),
     ))
     checks.append(ok(
         "第 19 期逐专业稳定化和官方入口新增公开文件不含私有路径、登录态、身份信息和最终误导结论",

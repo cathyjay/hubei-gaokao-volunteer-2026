@@ -1,0 +1,176 @@
+{
+  "status": "issue19_official_public_entry_live_recheck_not_final",
+  "generated_by": "build_issue19_official_public_entry_live_recheck.py",
+  "checked_at": "2026-06-28T04:23:34+08:00",
+  "output_file": "data/working/issue19-official-public-entry-live-recheck.json",
+  "privacy_boundary": "只保存公开入口元数据、SHA、标题和无登录探针结果；不保存网页登录凭证、个人身份信息或完整 HTML 正文。",
+  "row_grain_policy": "本文件只复核官方入口/接口可得性，不替代一行一个招生专业的第19期底座。",
+  "page_results": {
+    "official_plan_page": {
+      "name": "湖北教育考试网 2026 招生计划页面",
+      "url": "http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html",
+      "method": "GET",
+      "http_status": 200,
+      "effective_url": "http://www.hbccks.cn/html/gkzsjh/2026-05/142888.html",
+      "content_type": "text/html; charset=UTF-8",
+      "body_length_bytes": 20774,
+      "live_sha256": "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776",
+      "title": "2026年普通高等学校招生计划 - 高考招生计划 - 湖北教育考试网",
+      "preserved_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-2026-plan-page.html",
+      "preserved_sha256": "5c56b9582418af6e1cfbd40431920a0fee28807492c6be30b972d118251e8776",
+      "same_as_preserved_copy": true,
+      "can_finalize": false,
+      "contains_2026_plan_title": true,
+      "contains_waiting_notice": true
+    },
+    "official_plan_index": {
+      "name": "湖北教育考试网招生计划索引",
+      "url": "http://www.hbccks.cn/html/gkgzzt/gkzsjh/",
+      "method": "GET",
+      "http_status": 200,
+      "effective_url": "http://www.hbccks.cn/html/gkgzzt/gkzsjh/",
+      "content_type": "text/html; charset=UTF-8",
+      "body_length_bytes": 27204,
+      "live_sha256": "804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50",
+      "title": "高考招生计划 - 湖北教育考试网",
+      "preserved_copy": "data/official/hubei-2026-admission-plan-platform/hbccks-plan-index.html",
+      "preserved_sha256": "804a6e806629cc772677360c074fd5760796682ab0c88108be7ddfae773eaf50",
+      "same_as_preserved_copy": true,
+      "can_finalize": false,
+      "contains_2026_plan_link": true,
+      "contains_waiting_notice": false
+    },
+    "zspt_platform_home": {
+      "name": "湖北招生数智综合平台首页",
+      "url": "https://zspt.hubzs.com.cn",
+      "method": "GET",
+      "http_status": 200,
+      "effective_url": "https://zspt.hubzs.com.cn/",
+      "content_type": "text/html",
+      "body_length_bytes": 5540,
+      "live_sha256": "6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3",
+      "title": "湖北省招生数智综合平台",
+      "preserved_copy": "data/official/hubei-2026-admission-plan-platform/index-live-20260628.html",
+      "preserved_sha256": "6dade2ef84ab249dd9d700a24e98c63f40f8305bba2bb6250acbf8cf10fcaba3",
+      "same_as_preserved_copy": true,
+      "can_finalize": false
+    }
+  },
+  "probe_results": {
+    "plan_nfs_no_login": {
+      "name": "平台计划年份接口无登录探针",
+      "url": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/nfs",
+      "method": "GET",
+      "http_status": 200,
+      "effective_url": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/nfs",
+      "content_type": "application/json",
+      "body_length_bytes": 39,
+      "live_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "preserved_copy": "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-nfs-no-token.json",
+      "preserved_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "same_as_preserved_copy": true,
+      "response": {
+        "code": 401,
+        "msg": "令牌不能为空"
+      },
+      "is_unauthenticated_blocked": true,
+      "can_finalize": false
+    },
+    "plan_yxlist_2026_wuhan_no_login": {
+      "name": "平台学校检索接口无登录探针",
+      "url": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/yxList?nf=2026&keyword=%E6%AD%A6%E6%B1%89",
+      "method": "GET",
+      "http_status": 200,
+      "effective_url": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/yxList?nf=2026&keyword=%E6%AD%A6%E6%B1%89",
+      "content_type": "application/json",
+      "body_length_bytes": 39,
+      "live_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "preserved_copy": "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-yxList-2026-wuhan-no-token.json",
+      "preserved_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "same_as_preserved_copy": true,
+      "response": {
+        "code": 401,
+        "msg": "令牌不能为空"
+      },
+      "is_unauthenticated_blocked": true,
+      "can_finalize": false
+    },
+    "plan_group_current_no_login": {
+      "name": "平台计划分组接口无登录探针",
+      "url": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/group",
+      "method": "GET",
+      "http_status": 200,
+      "effective_url": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/group",
+      "content_type": "application/json",
+      "body_length_bytes": 39,
+      "live_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "preserved_copy": "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-group-current-no-token.json",
+      "preserved_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "same_as_preserved_copy": true,
+      "response": {
+        "code": 401,
+        "msg": "令牌不能为空"
+      },
+      "is_unauthenticated_blocked": true,
+      "can_finalize": false
+    },
+    "plan_student_no_login": {
+      "name": "平台考生计划接口无登录探针",
+      "url": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/student",
+      "method": "GET",
+      "http_status": 200,
+      "effective_url": "https://zspt.hubzs.com.cn/prod-api/planQuery/plan/student",
+      "content_type": "application/json",
+      "body_length_bytes": 39,
+      "live_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "preserved_copy": "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-plan-student-no-token.json",
+      "preserved_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "same_as_preserved_copy": true,
+      "response": {
+        "code": 401,
+        "msg": "令牌不能为空"
+      },
+      "is_unauthenticated_blocked": true,
+      "can_finalize": false
+    },
+    "plan_dict_batch_2026_no_login": {
+      "name": "平台批次字典接口无登录探针",
+      "url": "https://zspt.hubzs.com.cn/prod-api/planQuery/dict/pcdm?nf=2026",
+      "method": "GET",
+      "http_status": 200,
+      "effective_url": "https://zspt.hubzs.com.cn/prod-api/planQuery/dict/pcdm?nf=2026",
+      "content_type": "application/json",
+      "body_length_bytes": 39,
+      "live_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "preserved_copy": "data/official/hubei-2026-admission-plan-platform/api-probes/planQuery-dict-pcdm-2026-no-token.json",
+      "preserved_sha256": "02f44fe53c8befdb83267ceb719f3d697cfa51d39ffa6995a726f017f8425b8f",
+      "same_as_preserved_copy": true,
+      "response": {
+        "code": 401,
+        "msg": "令牌不能为空"
+      },
+      "is_unauthenticated_blocked": true,
+      "can_finalize": false
+    }
+  },
+  "current_conclusion": {
+    "can_get_official_structured_plan_without_login": false,
+    "can_finalize_admission_plan_from_public_entry": false,
+    "official_plan_page_still_waiting": true,
+    "platform_public_home_accessible": true,
+    "all_platform_probes_blocked_without_login": true,
+    "meaning": "截至本次活体复查，能自动取得的是官方入口状态，不是可逐字段定稿的湖北官方结构化招生计划。"
+  },
+  "fallback_when_unavailable": {
+    "automated_first": [
+      "自动复跑高校官网/API/XLSX/PDF/图片计划源，按专业行ID比对专业名、计划数、学费、选科、校区、备注和章程限制。",
+      "把一致项标记为高校侧辅证，把冲突、缺口、未匹配和低置信度项升级到人工核页。",
+      "保留高校侧来源 SHA、抽取方式、字段覆盖和冲突类型，但不把高校官网替代湖北省招办计划。"
+    ],
+    "minimal_manual": [
+      "最终候选、冲稳保边界、B0/B1优先组、计划数冲突、官网未匹配、字段空缺但进入候选的专业必须人工回看第19期原页。",
+      "低风险强辅证只做分层抽检；抽检失败后升级同页列、同校或同专业组100%人工核验。",
+      "人工只签认 PDF 原页读数、湖北官方侧可得时的字段值、高校辅证值、家庭接受度和调剂结论，不承担全量无差别逐字段重录。"
+    ]
+  }
+}
