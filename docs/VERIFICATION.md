@@ -158,6 +158,8 @@ OCR 初稿 / 最终可用=false
 - 统一逐专业底座入口的人工确认列默认空或 `pending`；空再选科目 11456、空计划数 5739、空学费 1040 只能解释为待核缺口，不能解释为不限选科、无计划或无学费。
 - `data/working/issue19-foundation-closure-major-batches.csv` 是当前底座闭环执行主表，仍覆盖全部 13736 条专业明细；C0 P0 证据闭环先核 5310 条，C1 字段缺口先补 7608 条，C2 官网辅证主批次 0 条，C3 常规三方证据闭环 609 条，C4 低风险抽检但非最终 209 条。C2 为 0 不代表没有官网任务；含官网辅证任务和 B0/B1 官网差异任务均为 854 条，按动作维度单独统计。
 - `data/working/issue19-foundation-closure-page-index.csv` 和 `data/working/issue19-foundation-closure-school-index.csv` 分别是 231 页、1100 所学校的执行索引；二者必须从逐专业闭环主表重算，并同时校验 C0-C4 主批次计数、含官网辅证任务计数、B0/B1 官网差异计数和高校官网来源线索计数，不能作为学校或页面层面的可填报结论。
+- `data/working/issue19-field-gap-repair-candidates.csv` 只能作为字段缺口候选线索表：19065 行、7621 条非空候选、自动写回 0 条、最终可用 0 条。再选科目候选来自同组 OCR 上下文时，也必须回看 PDF 原页并用湖北官方系统/省招办计划确认。
+- `data/working/issue19-b0-b1-official-evidence-by-major-line.csv` 是高校官网证据旁挂表：854 行、61 条 strong_support、55 条 fill_candidate、18 条 conflict_review。所有行 `能否替代湖北官方计划=false`，只能用于加速核验顺序和定位冲突。
 - 三年投档线索只按同院校专业组代码挂接，用于稳定性参考；它不能证明 2026 年专业组存在、专业组成不变或计划数准确。
 - 后续新增城市、学校或专业方向时，应先从全量保真总账或全量证据工作台检索逐专业明细，再决定是否进入候选 V3 或新候选表；不能只在已有 V3 候选子集里找。
 - 逐专业工作台仍是待核表，不得出现 `final_allowed`、`ready_for_discussion`、`已确认` 等最终可用结论。

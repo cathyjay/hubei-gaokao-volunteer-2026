@@ -59,8 +59,12 @@
 | `data/working/issue19-p0-evidence-execution-packets.csv` | P0 证据执行包 | 从闭环任务中抽取 6619 条 P0 任务；按页、学校、专业组和任务类型组织核验 |
 | `data/working/issue19-p0-evidence-review-worklist.csv` | P0 逐专业复核工作清单 | 一行一个招生专业明细和一个 P0 证据项，带页图/OCR 哈希、全量证据字段和人工核验闸口 |
 | `data/working/issue19-p1-field-gap-evidence-repair-matrix.csv` | 字段缺口逐专业修复矩阵 | 一行一个招生专业明细和一个字段缺口，拆分再选科目、专业计划数、学费缺口 |
+| `data/working/issue19-field-gap-repair-candidates.csv` | 字段缺口候选修复线索 | 19065 个字段缺口候选任务；给出同组 OCR、当前 OCR 单元格或官网辅证候选值，但全部不可自动写回主表 |
 | `data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv` | 湖北官方系统逐专业核验包 | 一行一个招生专业明细和一个湖北官方系统/省招办计划核验任务 |
 | `data/working/issue19-b0-b1-public-official-diff-ledger.csv` | B0/B1 逐专业官网差异账 | 一行一个已有高校官网/章程辅证线索的招生专业明细，记录匹配、冲突和仍需核验项 |
+| `data/working/issue19-b0-b1-official-evidence-by-major-line.csv` | B0/B1 官网证据逐专业旁挂表 | 覆盖 854 条已有官网线索的专业明细；按 `专业行ID` 标注强辅证、补缺候选、冲突核页、未匹配和待补源 |
+| `data/working/issue19-b0-b1-official-plan-fill-candidates.csv` | B0/B1 官网计划数补缺候选 | 55 条 OCR 计划数缺失但官网有计划数的候选；不能替代湖北官方系统 |
+| `data/working/issue19-b0-b1-official-conflict-review.csv` | B0/B1 官网计划数冲突核页表 | 18 条计划数冲突，优先核 PDF 原页计划数列、学费列和湖北官方系统 |
 | `data/working/issue19-major-detail-foundation-release.csv` | 统一逐专业底座入口 | 覆盖全部 13736 条招生专业明细；一行一个专业，聚合 P0/P1、湖北官方待核、官网差异、页级证据、家庭底线、调剂风险和三年投档线索；只用于检索、复核、补证和筛选预处理 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |
 | `data/working/issue19-foundation-closure-major-batches.csv` | 底座闭环逐专业执行批次 | 覆盖全部 13736 条招生专业明细；一行一个专业，把统一底座入口转成 C0-C4 执行批次和首要核验动作 |
@@ -205,6 +209,18 @@
 | 基础证据任务 | 82416 |
 | 字段完整性补证任务 | 12473 |
 | B0/B1 官网冲突或未匹配任务 | 46 |
+| 字段缺口候选修复任务 | 19065 |
+| 字段缺口非空候选线索 | 7621 |
+| 字段缺口自动写回 | 0 |
+| 字段候选来源：组级 OCR 上下文 | 6782 |
+| 字段候选来源：OCR 单元格 | 817 |
+| 字段候选来源：高校官网辅证 | 22 |
+| 字段候选无候选 | 11444 |
+| B0/B1 官网证据旁挂专业明细 | 854 |
+| B0/B1 官网强辅证 | 61 |
+| B0/B1 官网计划数补缺候选 | 55 |
+| B0/B1 官网计划数冲突核页 | 18 |
+| B0/B1 疑似 OCR 把学费读入计划数 | 13 |
 | 底座闭环逐专业明细执行主表 | 13736 |
 | 底座闭环页级索引 | 231 |
 | 底座闭环学校索引 | 1100 |

@@ -8370,6 +8370,312 @@ def main():
         and "可填报" not in closure_public_text
         and "可排序" not in closure_public_text,
     ))
+
+    field_gap_candidates_summary_path = ROOT / "data/working/issue19-field-gap-repair-candidates-summary.json"
+    field_gap_candidates_csv = ROOT / "data/working/issue19-field-gap-repair-candidates.csv"
+    field_gap_candidates_summary = json.loads(field_gap_candidates_summary_path.read_text())
+    with field_gap_candidates_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_gap_candidates_reader = csv.DictReader(f)
+        field_gap_candidate_rows = list(field_gap_candidates_reader)
+        field_gap_candidate_fields = field_gap_candidates_reader.fieldnames or []
+    expected_field_gap_candidate_fields = [
+        "字段候选任务ID",
+        "来源字段补证任务ID",
+        "来源底座闭环批次ID",
+        "来源统一逐专业底座入口",
+        "来源字段缺口矩阵",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "主表粒度",
+        "任务粒度",
+        "最终可用",
+        "候选可自动写回主表",
+        "候选状态",
+        "候选置信等级",
+        "候选来源类型",
+        "候选值",
+        "候选证据说明",
+        "必须人工核验原因",
+        "闭环执行总序",
+        "闭环执行批次",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "版面列",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "字段名",
+        "当前OCR候选值",
+        "当前OCR数字候选",
+        "字段问题类型",
+        "组级OCR回连状态",
+        "组级再选科目OCR候选",
+        "组级再选科目规范候选",
+        "高校官网计划数候选",
+        "高校官网学费候选",
+        "高校官网辅证状态",
+        "计划数核验状态",
+        "页级保真队列ID",
+        "页面复核优先级",
+        "页面阻断等级",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "下一步",
+    ]
+    field_gap_by_task_id = {
+        row.get("字段补证任务ID"): row for row in field_gap_rows
+    }
+    closure_by_major_id = {
+        row.get("专业行ID"): row for row in closure_major_rows
+    }
+    field_gap_candidate_join_ok = True
+    for row in field_gap_candidate_rows:
+        gap_row = field_gap_by_task_id.get(row.get("来源字段补证任务ID"), {})
+        closure_row = closure_by_major_id.get(row.get("专业行ID"), {})
+        field_gap_candidate_join_ok = (
+            field_gap_candidate_join_ok
+            and bool(gap_row)
+            and bool(closure_row)
+            and row.get("字段候选任务ID")
+            == stable_id("GAPCAND", [row.get("来源字段补证任务ID", ""), row.get("字段名", "")])
+            and row.get("来源底座闭环批次ID") == closure_row.get("底座闭环批次ID")
+            and row.get("来源统一逐专业底座入口")
+            == "data/working/issue19-foundation-closure-major-batches.csv"
+            and row.get("来源字段缺口矩阵")
+            == "data/working/issue19-p1-field-gap-evidence-repair-matrix.csv"
+            and row.get("数据阶段") == "issue19_field_gap_repair_candidates"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×字段缺口×候选修复"
+            and row.get("最终可用") == "false"
+            and row.get("候选可自动写回主表") == "false"
+            and row.get("专业行ID") == gap_row.get("专业行ID")
+            and row.get("专业组出现ID") == gap_row.get("专业组出现ID")
+            and row.get("院校代码") == gap_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化") == gap_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == gap_row.get("来源页码")
+            and row.get("版面列") == gap_row.get("版面列")
+            and row.get("专业组内专业序号") == gap_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == gap_row.get("专业代号OCR")
+            and row.get("字段名") == gap_row.get("字段名")
+            and row.get("当前OCR候选值") == gap_row.get("OCR候选值")
+            and row.get("字段问题类型") == gap_row.get("字段问题类型")
+            and row.get("闭环执行总序") == closure_row.get("闭环执行总序")
+            and row.get("闭环执行批次") == closure_row.get("闭环执行批次")
+            and row.get("候选置信等级") in {"none", "low", "medium"}
+            and "不得写回最终志愿表" in row.get("下一步", "")
+        )
+    field_gap_candidates_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [field_gap_candidates_summary_path, field_gap_candidates_csv]
+    )
+    checks.append(ok(
+        "第 19 期字段缺口候选修复表摘要、行数和候选分布正确",
+        field_gap_candidates_summary.get("status") == "issue19_field_gap_repair_candidates_not_final"
+        and field_gap_candidates_summary.get("generated_by") == "build_issue19_field_gap_repair_candidates.py"
+        and field_gap_candidates_summary.get("source_field_gap_matrix")
+        == "data/working/issue19-p1-field-gap-evidence-repair-matrix.csv"
+        and field_gap_candidates_summary.get("source_foundation_closure")
+        == "data/working/issue19-foundation-closure-major-batches.csv"
+        and field_gap_candidates_summary.get("output_table")
+        == "data/working/issue19-field-gap-repair-candidates.csv"
+        and field_gap_candidates_summary.get("row_count") == 19065
+        and field_gap_candidates_summary.get("unique_candidate_task_id_count") == 19065
+        and field_gap_candidates_summary.get("unique_field_gap_task_id_count") == 19065
+        and field_gap_candidates_summary.get("unique_major_line_id_count") == 12473
+        and field_gap_candidates_summary.get("field_counts") == {
+            "再选科目": 11456,
+            "专业计划数": 6347,
+            "学费": 1262,
+        }
+        and field_gap_candidates_summary.get("candidate_source_type_counts") == {
+            "none": 11444,
+            "group_ocr_context": 6782,
+            "ocr_cell_candidate": 817,
+            "school_official_auxiliary": 22,
+        }
+        and field_gap_candidates_summary.get("non_empty_candidate_value_count") == 7621
+        and field_gap_candidates_summary.get("auto_write_allowed_count") == 0
+        and field_gap_candidates_summary.get("final_available_count") == 0,
+        f"{len(field_gap_candidate_rows)} candidate rows",
+    ))
+    checks.append(ok(
+        "第 19 期字段缺口候选修复表字段、主键和来源闭环正确",
+        field_gap_candidate_fields == expected_field_gap_candidate_fields
+        and len(field_gap_candidate_rows) == 19065
+        and len({row.get("字段候选任务ID") for row in field_gap_candidate_rows}) == 19065
+        and {row.get("来源字段补证任务ID") for row in field_gap_candidate_rows}
+        == {row.get("字段补证任务ID") for row in field_gap_rows}
+        and field_gap_candidate_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期字段缺口候选修复表公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(field_gap_candidates_public_text) is None
+        and "final_allowed" not in field_gap_candidates_public_text
+        and "ready_for_discussion" not in field_gap_candidates_public_text
+        and "已确认" not in field_gap_candidates_public_text
+        and "已核准" not in field_gap_candidates_public_text
+        and "最终推荐" not in field_gap_candidates_public_text
+        and "最终方案" not in field_gap_candidates_public_text
+        and "可填报" not in field_gap_candidates_public_text
+        and "可排序" not in field_gap_candidates_public_text,
+    ))
+
+    official_sidecar_summary_path = ROOT / "data/working/issue19-b0-b1-official-evidence-sidecar-summary.json"
+    official_sidecar_csv = ROOT / "data/working/issue19-b0-b1-official-evidence-by-major-line.csv"
+    official_fill_csv = ROOT / "data/working/issue19-b0-b1-official-plan-fill-candidates.csv"
+    official_conflict_csv = ROOT / "data/working/issue19-b0-b1-official-conflict-review.csv"
+    official_sidecar_summary = json.loads(official_sidecar_summary_path.read_text())
+    with official_sidecar_csv.open(newline="", encoding="utf-8-sig") as f:
+        official_sidecar_reader = csv.DictReader(f)
+        official_sidecar_rows = list(official_sidecar_reader)
+        official_sidecar_fields = official_sidecar_reader.fieldnames or []
+    with official_fill_csv.open(newline="", encoding="utf-8-sig") as f:
+        official_fill_reader = csv.DictReader(f)
+        official_fill_rows = list(official_fill_reader)
+        official_fill_fields = official_fill_reader.fieldnames or []
+    with official_conflict_csv.open(newline="", encoding="utf-8-sig") as f:
+        official_conflict_reader = csv.DictReader(f)
+        official_conflict_rows = list(official_conflict_reader)
+        official_conflict_fields = official_conflict_reader.fieldnames or []
+    expected_official_sidecar_fields = [
+        "官网证据旁挂ID",
+        "来源招生明细主表行ID",
+        "来源公开官网差异账ID",
+        "来源底座闭环批次ID",
+        "来源逐专业闭环主表",
+        "来源公开官网差异账",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "主表粒度",
+        "最终可用",
+        "可进入下一阶段",
+        "能否替代湖北官方计划",
+        "官网证据强度",
+        "官网证据说明",
+        "建议动作",
+        "闭环执行总序",
+        "闭环执行批次",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "OCR计划数",
+        "OCR学费",
+        "OCR再选科目",
+        "官网来源状态",
+        "官网证据匹配状态",
+        "最佳官网来源文件",
+        "最佳官网专业名称",
+        "最佳官网专业代号",
+        "最佳官网计划数",
+        "最佳官网学费",
+        "最佳官网选科",
+        "专业名称匹配方式",
+        "专业名称匹配分",
+        "计划数核验状态",
+        "差异字段集合",
+        "疑似OCR把学费读入计划数",
+        "仍需核验",
+        "下一步",
+    ]
+    official_sidecar_join_ok = True
+    for row in official_sidecar_rows:
+        closure_row = closure_by_major_id.get(row.get("专业行ID"), {})
+        official_sidecar_join_ok = (
+            official_sidecar_join_ok
+            and bool(closure_row)
+            and row.get("官网证据旁挂ID") == stable_id("B0B1SIDE", [row.get("专业行ID", "")])
+            and row.get("来源底座闭环批次ID") == closure_row.get("底座闭环批次ID")
+            and row.get("来源逐专业闭环主表")
+            == "data/working/issue19-foundation-closure-major-batches.csv"
+            and row.get("数据阶段") == "issue19_b0_b1_official_evidence_sidecar"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("能否替代湖北官方计划") == "false"
+            and row.get("闭环执行总序") == closure_row.get("闭环执行总序")
+            and row.get("闭环执行批次") == closure_row.get("闭环执行批次")
+            and row.get("专业组出现ID") == closure_row.get("专业组出现ID")
+            and row.get("院校代码") == closure_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化")
+            == closure_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == closure_row.get("来源页码")
+            and row.get("专业组内专业序号") == closure_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == closure_row.get("专业代号OCR")
+            and "必须回到 PDF 原页" in row.get("下一步", "")
+        )
+    official_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [official_sidecar_summary_path, official_sidecar_csv, official_fill_csv, official_conflict_csv]
+    )
+    checks.append(ok(
+        "第 19 期 B0/B1 官网证据旁挂表摘要、行数和分层正确",
+        official_sidecar_summary.get("status") == "issue19_b0_b1_official_evidence_sidecar_not_final"
+        and official_sidecar_summary.get("generated_by")
+        == "build_issue19_b0_b1_official_evidence_sidecar.py"
+        and official_sidecar_summary.get("source_public_official_diff_ledger")
+        == "data/working/issue19-b0-b1-public-official-diff-ledger.csv"
+        and official_sidecar_summary.get("source_foundation_closure")
+        == "data/working/issue19-foundation-closure-major-batches.csv"
+        and official_sidecar_summary.get("sidecar_row_count") == 854
+        and official_sidecar_summary.get("unique_major_line_id_count") == 854
+        and official_sidecar_summary.get("unique_school_count") == 36
+        and official_sidecar_summary.get("evidence_strength_counts") == {
+            "needs_source": 196,
+            "unmatched": 31,
+            "fill_candidate": 55,
+            "strong_support": 61,
+            "rules_only": 63,
+            "partial_source": 411,
+            "conflict_review": 18,
+            "field_support": 19,
+        }
+        and official_sidecar_summary.get("fill_candidate_row_count") == 55
+        and official_sidecar_summary.get("conflict_review_row_count") == 18
+        and official_sidecar_summary.get("suspected_plan_fee_misread_count") == 13
+        and official_sidecar_summary.get("final_available_count") == 0
+        and official_sidecar_summary.get("official_plan_replacement_allowed_count") == 0,
+        f"{len(official_sidecar_rows)} sidecar rows",
+    ))
+    checks.append(ok(
+        "第 19 期 B0/B1 官网证据旁挂表字段、主键和闭环主表来源正确",
+        official_sidecar_fields == expected_official_sidecar_fields
+        and official_fill_fields == expected_official_sidecar_fields
+        and official_conflict_fields == expected_official_sidecar_fields
+        and len(official_sidecar_rows) == 854
+        and len({row.get("官网证据旁挂ID") for row in official_sidecar_rows}) == 854
+        and len({row.get("专业行ID") for row in official_sidecar_rows}) == 854
+        and len(official_fill_rows) == 55
+        and all(row.get("官网证据强度") == "fill_candidate" for row in official_fill_rows)
+        and len(official_conflict_rows) == 18
+        and all(row.get("官网证据强度") == "conflict_review" for row in official_conflict_rows)
+        and official_sidecar_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 B0/B1 官网证据旁挂表公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(official_public_text) is None
+        and "final_allowed" not in official_public_text
+        and "ready_for_discussion" not in official_public_text
+        and "已确认" not in official_public_text
+        and "已核准" not in official_public_text
+        and "最终推荐" not in official_public_text
+        and "最终方案" not in official_public_text
+        and "可填报" not in official_public_text
+        and "可排序" not in official_public_text,
+    ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
         "final_allowed" not in page_manifest_public_text

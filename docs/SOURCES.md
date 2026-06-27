@@ -199,10 +199,16 @@
 - `data/working/issue19-p0-evidence-review-worklist-summary.json`：P0 逐专业复核工作清单摘要；记录 5310 条唯一招生专业明细、2282 个执行包、231 个 PDF 页、1056 所学校、6619/6619 上游回链命中，以及全部 `pending` 和不可升级门禁。
 - `data/working/issue19-p1-field-gap-evidence-repair-matrix.csv`：字段缺口逐专业修复矩阵，19065 行；一行对应一个招生专业明细和一个字段缺口，其中再选科目 11456、专业计划数 6347、学费 1262。用于逐字段补证，不把空值解释为不限、无计划或无学费。
 - `data/working/issue19-p1-field-gap-evidence-repair-matrix-summary.json`：字段缺口矩阵摘要；记录字段分布、12473 个唯一专业行、231 个 PDF 页和全部非最终门禁。
+- `data/working/issue19-field-gap-repair-candidates.csv`：字段缺口候选修复线索表，19065 行；一行对应一个字段缺口候选，记录同组 OCR、当前 OCR 单元格或高校官网辅证产生的候选值、置信等级和禁止自动写回原因。非空候选 7621 条，全部 `候选可自动写回主表=false`。
+- `data/working/issue19-field-gap-repair-candidates-summary.json`：字段缺口候选修复摘要；记录候选来源分布：组级 OCR 上下文 6782 条、OCR 单元格候选 817 条、高校官网辅证 22 条、无候选 11444 条。
 - `data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv`：湖北官方系统逐专业核验包，13736 行；一行对应一个招生专业明细和一个湖北官方系统/省招办计划核验任务，预留官方系统证据编号、字段差异和公开原始行 SHA。
 - `data/working/issue19-hubei-official-plan-major-crosscheck-packets-summary.json`：湖北官方系统核验包摘要；记录 13736 个唯一专业行和 13736 个官方核验任务，当前全部 `pending_hubei_official_plan_review`。
 - `data/working/issue19-b0-b1-public-official-diff-ledger.csv`：B0/B1 逐专业官网差异账，854 行；只覆盖已有高校官网/章程辅证线索的招生专业明细，记录官网匹配字段、计划数冲突、官网未匹配和仍需核验项。
 - `data/working/issue19-b0-b1-public-official-diff-ledger-summary.json`：B0/B1 逐专业官网差异账摘要；记录 18 条计划数冲突、28 条官网未匹配、153 条已有最佳官网来源文件，以及全部非最终门禁。
+- `data/working/issue19-b0-b1-official-evidence-by-major-line.csv`：B0/B1 官网证据逐专业旁挂表，854 行；一行一个 `专业行ID`，按官网证据强度分为 strong_support、fill_candidate、conflict_review、field_support、partial_source、needs_source、rules_only、unmatched。该表不替代湖北官方计划。
+- `data/working/issue19-b0-b1-official-plan-fill-candidates.csv`：B0/B1 官网计划数补缺候选表，55 行；只收 OCR 计划数缺失但官网有计划数的专业明细，必须回到 PDF 原页和湖北官方系统确认后才能使用。
+- `data/working/issue19-b0-b1-official-conflict-review.csv`：B0/B1 官网计划数冲突复核表，18 行；其中 13 行疑似 OCR 把学费读入计划数字段，优先回看原页计划数列和学费列。
+- `data/working/issue19-b0-b1-official-evidence-sidecar-summary.json`：B0/B1 官网证据旁挂摘要；记录 61 条强辅证、55 条计划数补缺候选、18 条冲突核页、13 条疑似计划数学费错读和全部非最终门禁。
 - `data/working/issue19-major-detail-foundation-release.csv`：第 19 期统一逐专业底座入口，13736 行；一行一个招生专业明细，以 `专业行ID` 为主键，聚合 P0 复核任务、P1 字段缺口、湖北官方系统核验包、B0/B1 官网差异、页级证据编号、家庭底线、调剂风险和三年投档线索。该表用于检索、复核、补证和后续筛选预处理，不是最终志愿表。
 - `data/working/issue19-major-detail-foundation-release-summary.json`：统一逐专业底座入口摘要；记录 13736 个唯一专业行、5310 条 P0 专业明细、12473 条字段缺口专业明细、13736 条湖北官方待核专业明细、854 条 B0/B1 官网差异专业明细和全部非最终门禁。
 - `data/working/issue19-foundation-closure-major-batches.csv`：底座闭环逐专业执行批次主表，13736 行；一行一个招生专业明细，把统一底座入口转成 C0-C4 执行批次、首要核验动作、PDF/湖北官方/官网/家庭/调剂动作集合和执行总序。
