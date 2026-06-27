@@ -125,6 +125,7 @@
    - 自动核验优先级：优先抓高校官网的 API/JSON/XLSX，其次 HTML 表格，再其次 PDF 或图片计划；所有自动结果只作为字段候选、冲突提示或抽检样本，不能直接生成最终字段事实。
    - 人工核验降载方式：家庭或人工只集中签认最终候选完整专业组、冲稳保边界、红色冲突项和抽检失败升级项；不把 41208 个字段全部摊给人工逐项核对。
    - 抽样门禁表：`data/working/issue19-official-unavailable-sampling-gates.csv`，用于在湖北官方结构化计划暂不可得时，把 78 条高校侧任务和 25 条 P3 低风险抽样明细变成可执行的 100% 核验、自动 diff、分层抽检和失败升级规则。
+   - 抽样执行明细表：`data/working/issue19-official-unavailable-sampling-execution-detail.csv`，把抽样门禁下沉到 153 条逐专业明细，作为高风险 100% 核验、C2 强辅证抽样和 P3 低风险抽样的逐行执行入口。
 
 7. 《湖北招生考试》第 16/19 期专项检索
    - 检索记录：`docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`
@@ -173,6 +174,8 @@
 - `data/working/issue19-official-public-entry-live-recheck.json`：第 19 期底座相关官方公开入口活体复查结果，记录当前公开入口 SHA 是否与留存一致、无登录接口是否仍返回 401，以及当前不能自动取得湖北官方结构化计划的边界。
 - `data/working/issue19-official-unavailable-sampling-gates.csv`：湖北官方结构化计划暂不可得时的高校侧 double check 和分层抽样门禁表；高风险 100% 人工核验，低风险抽检失败后升级同页列、同校或同组。
 - `data/working/issue19-official-unavailable-sampling-gates-summary.json`：上述抽样门禁摘要，记录 103 行门禁、C0/C1/C7 100% 核验明细数、C2 最低抽检明细数、P3 抽样数和全部非最终门禁。
+- `data/working/issue19-official-unavailable-sampling-execution-detail.csv`：官方不可得时的逐专业抽样执行明细，覆盖 104 条高风险 100% 核验明细、24 条 C2 强辅证抽样明细和 25 条 P3 低风险抽样明细。
+- `data/working/issue19-official-unavailable-sampling-execution-detail-summary.json`：上述执行明细摘要，记录 153 行逐专业明细、动作分布、风险分布、双人复核数和全部非最终门禁。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
 - `data/working/issue19-pdf-source.json`：第 19 期 PDF 元数据和私有留存边界。
 - `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。

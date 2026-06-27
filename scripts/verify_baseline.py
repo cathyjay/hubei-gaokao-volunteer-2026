@@ -10374,6 +10374,12 @@ def main():
     official_public_entry_live_recheck_path = ROOT / "data/working/issue19-official-public-entry-live-recheck.json"
     official_unavailable_sampling_gates_summary_path = ROOT / "data/working/issue19-official-unavailable-sampling-gates-summary.json"
     official_unavailable_sampling_gates_csv = ROOT / "data/working/issue19-official-unavailable-sampling-gates.csv"
+    official_unavailable_sampling_execution_detail_summary_path = (
+        ROOT / "data/working/issue19-official-unavailable-sampling-execution-detail-summary.json"
+    )
+    official_unavailable_sampling_execution_detail_csv = (
+        ROOT / "data/working/issue19-official-unavailable-sampling-execution-detail.csv"
+    )
     admission_plan_source_status_path = ROOT / "data/working/2026-admission-plan-source-status.json"
     stabilization_tasks_summary = json.loads(stabilization_tasks_summary_path.read_text())
     official_public_entry_status = json.loads(official_public_entry_status_path.read_text())
@@ -10382,6 +10388,9 @@ def main():
     )
     official_unavailable_sampling_gates_summary = json.loads(
         official_unavailable_sampling_gates_summary_path.read_text()
+    )
+    official_unavailable_sampling_execution_detail_summary = json.loads(
+        official_unavailable_sampling_execution_detail_summary_path.read_text()
     )
     admission_plan_source_status = json.loads(admission_plan_source_status_path.read_text())
     with stabilization_tasks_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -10394,12 +10403,24 @@ def main():
         official_unavailable_sampling_gates_fields = (
             official_unavailable_sampling_gates_reader.fieldnames or []
         )
+    with official_unavailable_sampling_execution_detail_csv.open(newline="", encoding="utf-8-sig") as f:
+        official_unavailable_sampling_execution_detail_reader = csv.DictReader(f)
+        official_unavailable_sampling_execution_detail_rows = list(
+            official_unavailable_sampling_execution_detail_reader
+        )
+        official_unavailable_sampling_execution_detail_fields = (
+            official_unavailable_sampling_execution_detail_reader.fieldnames or []
+        )
     expected_stabilization_tasks_fields = script_list_constant(
         ROOT / "scripts/build_issue19_foundation_stabilization_major_detail_tasks.py",
         "FIELDS",
     )
     expected_official_unavailable_sampling_gates_fields = script_list_constant(
         ROOT / "scripts/build_issue19_official_unavailable_sampling_gates.py",
+        "FIELDS",
+    )
+    expected_official_unavailable_sampling_execution_detail_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_official_unavailable_sampling_execution_detail.py",
         "FIELDS",
     )
     stability_dashboard_by_major_id = {row.get("专业行ID"): row for row in stability_dashboard_rows}
@@ -10463,6 +10484,8 @@ def main():
             official_public_entry_live_recheck_path,
             official_unavailable_sampling_gates_summary_path,
             official_unavailable_sampling_gates_csv,
+            official_unavailable_sampling_execution_detail_summary_path,
+            official_unavailable_sampling_execution_detail_csv,
             admission_plan_source_status_path,
         ]
     )
@@ -10719,6 +10742,88 @@ def main():
             and "抽检失败" in row.get("升级触发器", "")
             and "同页列100%" in row.get("升级范围", "")
             for row in official_unavailable_sampling_gates_rows
+        ),
+    ))
+    checks.append(ok(
+        "湖北官方不可得时的抽样执行明细行数、逐专业粒度和非最终门禁正确",
+        official_unavailable_sampling_execution_detail_summary.get("status")
+        == "issue19_official_unavailable_sampling_execution_detail_not_final"
+        and official_unavailable_sampling_execution_detail_summary.get("generated_by")
+        == "build_issue19_official_unavailable_sampling_execution_detail.py"
+        and official_unavailable_sampling_execution_detail_summary.get("source_sampling_gates")
+        == "data/working/issue19-official-unavailable-sampling-gates.csv"
+        and official_unavailable_sampling_execution_detail_summary.get("source_official_live_recheck")
+        == "data/working/issue19-official-public-entry-live-recheck.json"
+        and official_unavailable_sampling_execution_detail_summary.get("official_live_recheck_can_finalize") is False
+        and official_unavailable_sampling_execution_detail_summary.get(
+            "official_live_recheck_without_login_structured_plan_available"
+        ) is False
+        and official_unavailable_sampling_execution_detail_summary.get("row_count") == 153
+        and official_unavailable_sampling_execution_detail_summary.get("unique_execution_detail_id_count") == 153
+        and official_unavailable_sampling_execution_detail_summary.get("unique_major_line_count") == 153
+        and official_unavailable_sampling_execution_detail_summary.get("high_risk_100pct_detail_count") == 104
+        and official_unavailable_sampling_execution_detail_summary.get("c2_sample_detail_count") == 24
+        and official_unavailable_sampling_execution_detail_summary.get("p3_sample_detail_count") == 25
+        and official_unavailable_sampling_execution_detail_summary.get("double_review_required_count") == 49
+        and official_unavailable_sampling_execution_detail_summary.get("action_counts")
+        == {
+            "C0-冲突先核PDF原页和湖北官方系统": 18,
+            "C1-官网补缺候选但禁止自动写回": 55,
+            "C7-官网源未匹配专业需人工确认专业名": 31,
+            "C2-强辅证抽检并等待湖北官方闭环": 24,
+            "P3-低风险抽检但非最终": 25,
+        }
+        and official_unavailable_sampling_execution_detail_summary.get("execution_category_counts")
+        == {
+            "H0-高风险100%人工核验": 104,
+            "H1-C2强辅证抽样核验": 24,
+            "H2-P3低风险抽样验收": 25,
+        }
+        and official_unavailable_sampling_execution_detail_summary.get("risk_level_counts")
+        == {
+            "R4-blocker": 18,
+            "R3-high": 86,
+            "R1-low": 24,
+            "R0-observe": 25,
+        }
+        and official_unavailable_sampling_execution_detail_fields
+        == expected_official_unavailable_sampling_execution_detail_fields
+        and len(official_unavailable_sampling_execution_detail_rows) == 153
+        and len({
+            row.get("官方不可得抽样执行明细ID")
+            for row in official_unavailable_sampling_execution_detail_rows
+        }) == 153
+        and len({
+            row.get("专业行ID")
+            for row in official_unavailable_sampling_execution_detail_rows
+            if row.get("专业行ID")
+        }) == 153
+        and sum(
+            row.get("是否100%人工核验") == "true"
+            for row in official_unavailable_sampling_execution_detail_rows
+        ) == 104
+        and sum(
+            row.get("官网辅证自动动作") == "C2-强辅证抽检并等待湖北官方闭环"
+            and row.get("是否抽样核验") == "true"
+            for row in official_unavailable_sampling_execution_detail_rows
+        ) == 24
+        and sum(
+            row.get("官网辅证自动动作") == "P3-低风险抽检但非最终"
+            and row.get("是否低风险样本") == "true"
+            for row in official_unavailable_sampling_execution_detail_rows
+        ) == 25
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("是否允许自动写回主表") == "false"
+            and row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许写回字段事实") == "false"
+            and row.get("来源湖北官方活体复查")
+            == "data/working/issue19-official-public-entry-live-recheck.json"
+            and "不得作为志愿推荐" in row.get("当前用途边界", "")
+            for row in official_unavailable_sampling_execution_detail_rows
         ),
     ))
     checks.append(ok(

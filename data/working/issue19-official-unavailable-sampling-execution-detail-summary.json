@@ -1,0 +1,77 @@
+{
+  "status": "issue19_official_unavailable_sampling_execution_detail_not_final",
+  "generated_by": "build_issue19_official_unavailable_sampling_execution_detail.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_sampling_gates": "data/working/issue19-official-unavailable-sampling-gates.csv",
+  "source_auto_workbench": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
+  "source_evidence_routing": "data/working/issue19-major-evidence-level-routing.csv",
+  "source_admission_master": "data/working/issue19-admission-detail-master-workbench.csv",
+  "source_official_live_recheck": "data/working/issue19-official-public-entry-live-recheck.json",
+  "official_live_recheck_can_finalize": false,
+  "official_live_recheck_without_login_structured_plan_available": false,
+  "input_files": [
+    {
+      "path": "data/working/issue19-official-unavailable-sampling-gates.csv",
+      "sha256": "253480397b5ee95956ec97f6d3b5a9bc8ce2b4c3dc9d0af4b5fd64e7efd090b1",
+      "row_count": 103
+    },
+    {
+      "path": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
+      "sha256": "c72ce06fb3946d4806bc3d95a5bc857fb7381b7f7d5037faa0056daf83f5d426",
+      "row_count": 854
+    },
+    {
+      "path": "data/working/issue19-major-evidence-level-routing.csv",
+      "sha256": "0110ed8ce58b32b6fd1731615d7937b92015b39cc977419a724e754ade8d9795",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-admission-detail-master-workbench.csv",
+      "sha256": "de9d7801cf4eacbf7cc34dbd01d275a5f477fb3f9c5976463062093ff2087fea",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-official-public-entry-live-recheck.json",
+      "sha256": "f590c76a16281d27d99a33b465a6f7f83e2b331f6ca05f45935eb66d07568d27"
+    }
+  ],
+  "output_table": "data/working/issue19-official-unavailable-sampling-execution-detail.csv",
+  "row_grain": "逐专业招生明细",
+  "row_count": 153,
+  "unique_execution_detail_id_count": 153,
+  "unique_major_line_count": 153,
+  "high_risk_100pct_detail_count": 104,
+  "c2_sample_detail_count": 24,
+  "p3_sample_detail_count": 25,
+  "double_review_required_count": 49,
+  "action_counts": {
+    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C1-官网补缺候选但禁止自动写回": 55,
+    "C7-官网源未匹配专业需人工确认专业名": 31,
+    "C2-强辅证抽检并等待湖北官方闭环": 24,
+    "P3-低风险抽检但非最终": 25
+  },
+  "execution_category_counts": {
+    "H0-高风险100%人工核验": 104,
+    "H1-C2强辅证抽样核验": 24,
+    "H2-P3低风险抽样验收": 25
+  },
+  "risk_level_counts": {
+    "R4-blocker": 18,
+    "R3-high": 86,
+    "R1-low": 24,
+    "R0-observe": 25
+  },
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "policy": {
+    "high_risk": "C0/C1/C7 已展开到 104 条逐专业明细，全部必须回第19期原页并核湖北官方侧。",
+    "sampling": "C2 强辅证从 61 条池中抽 24 条逐专业明细，P3 低风险池抽 25 条逐专业明细。",
+    "boundary": "本表只把任务下沉到可执行明细，仍不确认字段、不写回、不生成学校专业建议或志愿推荐。"
+  }
+}

@@ -40,6 +40,8 @@
 - `data/working/issue19-official-public-entry-live-recheck.json`
 - `data/working/issue19-official-unavailable-sampling-gates.csv`
 - `data/working/issue19-official-unavailable-sampling-gates-summary.json`
+- `data/working/issue19-official-unavailable-sampling-execution-detail.csv`
+- `data/working/issue19-official-unavailable-sampling-execution-detail-summary.json`
 - `data/official/hubei-2026-volunteer-policy/143022-policy.html`
 - `data/external/school-plan-crosschecks/`
 
@@ -103,6 +105,7 @@
 - 已新增 `data/working/issue19-major-evidence-level-routing.csv` 作为官方不可得时的逐专业核验导航。它覆盖全部 13736 条招生专业明细，当前 L3 高校辅证 854 条、L4 OCR 或单源线索 12882 条；P0 100% 人工核验 5043 条、P1 页列集中核验 7952 条、P2 自动官网核验后人工确认 557 条、P3 低风险抽检 184 条。该表只安排证据等级、自动 double check 和人工核验顺序，不确认字段值。
 - 已新增 `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 作为高校官网自动核验和低人工量派单账本。它把 854 条 B0/B1 高校辅证聚合成 78 条学校级动作，按冲突、补缺、未匹配、补结构化、强辅证抽检、继续补源和章程规则分桶；自动脚本负责查找、复跑和结构化高校官网来源，人工只处理 C0/C1/C7、抽检失败升级项和最终候选完整专业组。
 - 已新增 `data/working/issue19-official-unavailable-sampling-gates.csv` 作为官方结构化计划暂不可得时的抽样和升级门禁。它保留 78 条高校侧任务，并从 184 条 P3 低风险池中抽出 25 条专业明细；C0/C1/C7 共 104 条明细必须 100% 回看第 19 期原页，C2 强辅证抽检最低覆盖 20 条以上，P3 低风险样本用于验证底座稳定性。抽检失败即升级同页列 100%，同校出现 2 个失败升级同校 100%，同专业组失败升级整组 100%。
+- 已新增 `data/working/issue19-official-unavailable-sampling-execution-detail.csv` 作为逐专业执行明细。它把 C0/C1/C7 直接展开到 104 条必核专业明细，把 C2 强辅证池抽出 24 条明细，把 P3 低风险池抽出 25 条明细，合计 153 条；人工执行时优先从这张表回看 PDF 原页、核湖北官方侧、核高校官网或章程辅证并记录三方一致性。
 - 第 19 期 PDF 原页或纸质原页仍作为省招办原件层，优先核最终候选、冲稳保边界、B0/B1 优先组、计划数冲突、官网未匹配、补源缺口和字段空缺但进入候选的专业。
 - 高校官网/API/XLSX/PDF/图片只用于自动 double check 专业名、计划数、学费、选科、校区、学制和章程限制；专业组边界、调剂范围和最终志愿系统代码仍必须回到湖北省招办渠道。
 - `strong_support`、计划数一致或官网字段齐全的行只能进入分层抽检，不能自动定稿。抽样出现结构错误、关键限定词丢失、计划数冲突、OCR 把学费读成计划数、物理/历史未拆分、官网来源不是 2026 湖北物理普通本科，或同组存在家庭不能接受专业时，同页列、同校或同组升级 100% 人工核验。
