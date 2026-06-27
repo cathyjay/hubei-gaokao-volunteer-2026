@@ -11703,6 +11703,288 @@ def main():
         and not any(token in field_fact_tasks_public_text for token in shared_forbidden_tokens),
     ))
 
+    field_p0_reread_summary_path = ROOT / "data/working/issue19-field-fact-p0-reread-worklist-summary.json"
+    field_p0_reread_csv = ROOT / "data/working/issue19-field-fact-p0-reread-worklist.csv"
+    field_p0_reread_summary = json.loads(field_p0_reread_summary_path.read_text())
+    with field_p0_reread_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_p0_reread_reader = csv.DictReader(f)
+        field_p0_reread_rows = list(field_p0_reread_reader)
+        field_p0_reread_fields = field_p0_reread_reader.fieldnames or []
+    expected_field_p0_reread_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_field_fact_p0_reread_worklist.py",
+        "FIELDS",
+    )
+    source_p0_field_tasks = [
+        row for row in field_fact_tasks_rows
+        if row.get("字段核验优先级") == "P0-字段无候选原页重读"
+        and row.get("字段事实状态", "").startswith("K0-")
+    ]
+    source_p0_field_task_by_id = {
+        row.get("字段事实核验任务ID"): row
+        for row in source_p0_field_tasks
+    }
+    field_p0_reread_page_counts = Counter(row.get("来源页码") for row in field_p0_reread_rows)
+    field_p0_reread_school_counts = Counter(
+        f"{row.get('院校代码', '')}|{row.get('院校名称OCR', '')}"
+        for row in field_p0_reread_rows
+    )
+    field_p0_reread_major_counts = Counter(row.get("专业行ID") for row in field_p0_reread_rows)
+    field_p0_reread_page_sequence = Counter()
+    field_p0_reread_join_ok = True
+    for index, row in enumerate(field_p0_reread_rows, start=1):
+        major_id = row.get("专业行ID", "")
+        field_name = row.get("字段名", "")
+        source_task_id = row.get("来源字段事实核验任务ID", "")
+        source_task = source_p0_field_task_by_id.get(source_task_id, {})
+        raw_source_row = raw_source_by_major_id.get(major_id, {})
+        anchor_row = anchor_by_major_id.get(major_id, {})
+        page_row = page_fidelity_by_page.get(as_int(row.get("来源页码")))
+        page_key = row.get("来源页码", "")
+        school_key = f"{row.get('院校代码', '')}|{row.get('院校名称OCR', '')}"
+        field_p0_reread_page_sequence[page_key] += 1
+        action_text = row.get("P0原页重读动作", "")
+        field_action_ok = (
+            (field_name == "专业计划数" and "计划数列" in action_text and "误读" in action_text)
+            or (field_name == "再选科目" and "再选科目列" in action_text and "不限选科" in action_text)
+            or (field_name == "学费" and "学费列" in action_text and "误读" in action_text)
+        )
+        field_p0_reread_join_ok = (
+            field_p0_reread_join_ok
+            and bool(source_task)
+            and bool(raw_source_row)
+            and bool(anchor_row)
+            and bool(page_row)
+            and field_name in {"再选科目", "专业计划数", "学费"}
+            and row.get("P0字段原页重读任务ID")
+            == stable_id("FIELDP0REREAD", [source_task_id, major_id, field_name, issue19_source["source"]["sha256"]])
+            and row.get("来源字段事实核验任务队列")
+            == "data/working/issue19-field-fact-verification-tasks.csv"
+            and row.get("来源原始逐专业明细源证据审计")
+            == "data/working/issue19-raw-major-source-evidence-audit.csv"
+            and row.get("来源专业行原页证据锚点表")
+            == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+            and row.get("来源页级保真复核队列")
+            == "data/working/issue19-page-fidelity-review-queue.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_field_fact_p0_reread_worklist"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("任务粒度") == "逐专业招生明细×K0字段原页重读"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("P0原页重读状态") == "pending_original_page_reread"
+            and as_int(row.get("P0原页重读优先序")) == index
+            and as_int(row.get("页内P0字段任务序")) == field_p0_reread_page_sequence[page_key]
+            and as_int(row.get("页内P0字段任务数")) == field_p0_reread_page_counts[page_key]
+            and as_int(row.get("学校P0字段任务数")) == field_p0_reread_school_counts[school_key]
+            and as_int(row.get("专业行P0字段任务数")) == field_p0_reread_major_counts[major_id]
+            and source_task.get("字段核验优先级") == "P0-字段无候选原页重读"
+            and source_task.get("字段事实状态", "").startswith("K0-")
+            and row.get("专业行ID") == source_task.get("专业行ID")
+            and row.get("字段事实闭环ID") == source_task.get("字段事实闭环ID")
+            and row.get("专业组出现ID") == source_task.get("专业组出现ID")
+            and row.get("院校代码") == source_task.get("院校代码")
+            and row.get("院校名称OCR") == source_task.get("院校名称OCR")
+            and row.get("院校专业组代码OCR规范化")
+            == source_task.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == source_task.get("来源页码")
+            and row.get("版面列") == source_task.get("版面列")
+            and row.get("专业组内专业序号") == source_task.get("专业组内专业序号")
+            and row.get("专业代号OCR") == source_task.get("专业代号OCR")
+            and row.get("专业名称及备注短摘") == source_task.get("专业名称及备注短摘")
+            and row.get("字段名") == source_task.get("字段名")
+            and row.get("字段OCR候选") == ""
+            and row.get("字段人工确认") == ""
+            and row.get("字段事实状态") == "K0-字段缺口无候选需原页重读"
+            and row.get("字段候选任务数") == source_task.get("字段候选任务数")
+            and row.get("字段非空候选数") == "0"
+            and row.get("字段候选值集合") == ""
+            and row.get("字段候选状态集合") == source_task.get("字段候选状态集合")
+            and row.get("字段PDF核验状态") == "has_page_hash_pending_manual_pdf_review"
+            and row.get("字段湖北官方核验状态") == "pending_hubei_official_plan_review"
+            and row.get("字段事实闭环等级") == source_task.get("字段事实闭环等级")
+            and row.get("字段事实阻断等级") == source_task.get("字段事实阻断等级")
+            and row.get("字段事实缺口类型") == source_task.get("字段事实缺口类型")
+            and row.get("字段缺口数") == source_task.get("字段缺口数")
+            and row.get("字段缺口字段") == source_task.get("字段缺口字段")
+            and row.get("三字段OCR完整状态") == source_task.get("三字段OCR完整状态")
+            and row.get("页级保真队列ID") == page_row.get("页级保真队列ID")
+            and row.get("页面复核优先级") == page_row.get("页面复核优先级")
+            and row.get("页面阻断等级") == page_row.get("页面阻断等级")
+            and row.get("私有页图证据编号") == page_row.get("私有页图证据编号")
+            and row.get("私有页图SHA256") == page_row.get("私有页图SHA256")
+            and row.get("私有OCR文本证据编号") == page_row.get("私有OCR文本证据编号")
+            and row.get("私有OCR文本SHA256") == page_row.get("私有OCR文本SHA256")
+            and row.get("OCR平均置信度") == page_row.get("OCR平均置信度")
+            and row.get("OCR_QC_P0数") == page_row.get("OCR_QC_P0数")
+            and row.get("OCR_QC_P1数") == page_row.get("OCR_QC_P1数")
+            and row.get("页面专业明细数") == page_row.get("页面专业明细数")
+            and row.get("页面结构异常数") == page_row.get("页面结构异常数")
+            and row.get("页面高严重结构异常数") == page_row.get("页面高严重结构异常数")
+            and row.get("原始专业行源证据审计ID") == raw_source_row.get("原始专业行源证据审计ID")
+            and row.get("私有OCR起始行匹配状态") == raw_source_row.get("私有OCR起始行匹配状态")
+            and row.get("专业起始行号") == raw_source_row.get("专业起始行号")
+            and row.get("专业起始y") == raw_source_row.get("专业起始y")
+            and row.get("起始行QC_P0数") == raw_source_row.get("起始行QC_P0数")
+            and row.get("起始行QC_P1数") == raw_source_row.get("起始行QC_P1数")
+            and row.get("起始行QC规则ID集合") == raw_source_row.get("起始行QC规则ID集合")
+            and row.get("私有OCR起始行文本SHA256") == raw_source_row.get("私有OCR起始行文本SHA256")
+            and row.get("源证据覆盖结论") == raw_source_row.get("源证据覆盖结论")
+            and row.get("源证据风险等级") == raw_source_row.get("源证据风险等级")
+            and row.get("源证据风险标签") == raw_source_row.get("源证据风险标签")
+            and row.get("专业行原页证据锚点ID") == anchor_row.get("专业行原页证据锚点ID")
+            and row.get("证据锚点状态") == anchor_row.get("证据锚点状态")
+            and row.get("专业组标题行号") == anchor_row.get("专业组标题行号")
+            and row.get("专业组标题y") == anchor_row.get("专业组标题y")
+            and row.get("OCR窗口y上界") == anchor_row.get("OCR窗口y上界")
+            and row.get("OCR窗口y下界") == anchor_row.get("OCR窗口y下界")
+            and row.get("专业窗口行号范围") == anchor_row.get("专业窗口行号范围")
+            and row.get("合并证据窗口行号范围") == anchor_row.get("合并证据窗口行号范围")
+            and row.get("专业窗口行数") == anchor_row.get("专业窗口行数")
+            and row.get("合并证据窗口行数") == anchor_row.get("合并证据窗口行数")
+            and row.get("窗口文本SHA256") == anchor_row.get("窗口文本SHA256")
+            and row.get("窗口平均置信度") == anchor_row.get("窗口平均置信度")
+            and row.get("窗口最低置信度") == anchor_row.get("窗口最低置信度")
+            and row.get("私有窗口证据编号") == anchor_row.get("私有窗口证据编号")
+            and field_action_ok
+            and "不得写回字段" in row.get("不得进入原因", "")
+            and "推荐学校专业" in row.get("不得进入原因", "")
+            and "志愿排序" in row.get("不得进入原因", "")
+            and "补出字段候选" in row.get("下一步", "")
+        )
+    field_p0_reread_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [field_p0_reread_summary_path, field_p0_reread_csv]
+    )
+    checks.append(ok(
+        "第 19 期 P0 字段原页重读工作清单摘要、行数和分布正确",
+        field_p0_reread_summary.get("status") == "issue19_field_fact_p0_reread_worklist_not_final"
+        and field_p0_reread_summary.get("generated_by")
+        == "build_issue19_field_fact_p0_reread_worklist.py"
+        and field_p0_reread_summary.get("output_table")
+        == "data/working/issue19-field-fact-p0-reread-worklist.csv"
+        and field_p0_reread_summary.get("row_grain") == "逐专业招生明细×K0字段原页重读"
+        and field_p0_reread_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and field_p0_reread_summary.get("row_count") == 11444
+        and field_p0_reread_summary.get("unique_task_id_count") == 11444
+        and field_p0_reread_summary.get("unique_source_field_task_id_count") == 11444
+        and field_p0_reread_summary.get("unique_major_line_id_count") == 8536
+        and field_p0_reread_summary.get("unique_pdf_page_count") == 231
+        and field_p0_reread_summary.get("unique_school_code_name_count") == 967
+        and field_p0_reread_summary.get("source_counts") == {
+            "field_fact_verification_task_row_count": 41208,
+            "raw_source_audit_row_count": 13736,
+            "pdf_evidence_anchor_row_count": 13736,
+            "page_fidelity_queue_row_count": 231,
+        }
+        and field_p0_reread_summary.get("field_counts") == {
+            "专业计划数": 5739,
+            "再选科目": 4674,
+            "学费": 1031,
+        }
+        and field_p0_reread_summary.get("field_status_counts") == {
+            "K0-字段缺口无候选需原页重读": 11444,
+        }
+        and field_p0_reread_summary.get("field_fact_closure_level_counts") == {
+            "L1-两字段缺口优先补证": 7438,
+            "L3-单字段缺口无候选需重读": 2771,
+            "L0-三字段缺口优先阻断": 1235,
+        }
+        and field_p0_reread_summary.get("source_risk_level_counts") == {
+            "R2-起始行P0_QC待人工核页": 5179,
+            "R3-源证据已回连但需优先复核": 5770,
+            "R4-源证据已回连且未触发起始行QC风险": 478,
+            "R2-锚点窗口阻断待人工核页": 17,
+        }
+        and field_p0_reread_summary.get("anchor_status_counts") == {
+            "P2-已生成专业行级OCR证据锚点": 9765,
+            "P1-缺少组标题上下文": 1662,
+            "P0-专业窗口为空": 17,
+        }
+        and field_p0_reread_summary.get("field_candidate_task_total_count") == 11444
+        and field_p0_reread_summary.get("field_candidate_non_empty_total_count") == 0
+        and field_p0_reread_summary.get("raw_source_hit_count") == 11444
+        and field_p0_reread_summary.get("pdf_anchor_hit_count") == 11444
+        and field_p0_reread_summary.get("page_fidelity_hit_count") == 11444
+        and field_p0_reread_summary.get("final_available_count") == 0
+        and field_p0_reread_summary.get("next_stage_available_count") == 0
+        and field_p0_reread_summary.get("auto_writeback_allowed_count") == 0
+        and field_p0_reread_summary.get("auto_candidate_fill_allowed_count") == 0
+        and field_p0_reread_summary.get("recommendation_basis_allowed_count") == 0
+        and field_p0_reread_summary.get("school_major_suggestion_allowed_count") == 0
+        and len(field_p0_reread_rows) == 11444
+        and len(source_p0_field_tasks) == 11444,
+        f"{len(field_p0_reread_rows)} p0 field reread rows",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段原页重读工作清单字段、主键和四路证据回连正确",
+        field_p0_reread_fields == expected_field_p0_reread_fields
+        and len({row.get("P0字段原页重读任务ID") for row in field_p0_reread_rows}) == 11444
+        and {row.get("来源字段事实核验任务ID") for row in field_p0_reread_rows}
+        == set(source_p0_field_task_by_id)
+        and Counter(row.get("字段名") for row in field_p0_reread_rows)
+        == Counter(field_p0_reread_summary.get("field_counts", {}))
+        and Counter(row.get("字段事实状态") for row in field_p0_reread_rows)
+        == Counter(field_p0_reread_summary.get("field_status_counts", {}))
+        and Counter(row.get("字段事实闭环等级") for row in field_p0_reread_rows)
+        == Counter(field_p0_reread_summary.get("field_fact_closure_level_counts", {}))
+        and Counter(row.get("源证据风险等级") for row in field_p0_reread_rows)
+        == Counter(field_p0_reread_summary.get("source_risk_level_counts", {}))
+        and Counter(row.get("证据锚点状态") for row in field_p0_reread_rows)
+        == Counter(field_p0_reread_summary.get("anchor_status_counts", {}))
+        and dict(field_p0_reread_page_counts.most_common(30))
+        == field_p0_reread_summary.get("page_task_count_top30")
+        and dict(field_p0_reread_school_counts.most_common(30))
+        == field_p0_reread_summary.get("school_task_count_top30")
+        and sum(as_int(row.get("字段候选任务数")) or 0 for row in field_p0_reread_rows) == 11444
+        and sum(as_int(row.get("字段非空候选数")) or 0 for row in field_p0_reread_rows) == 0
+        and sum(1 for row in field_p0_reread_rows if row.get("原始专业行源证据审计ID")) == 11444
+        and sum(1 for row in field_p0_reread_rows if row.get("专业行原页证据锚点ID")) == 11444
+        and sum(1 for row in field_p0_reread_rows if row.get("页级保真队列ID")) == 11444
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("机器是否允许自动写回主表") == "false"
+            and row.get("机器是否允许自动回填候选") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("P0原页重读状态") == "pending_original_page_reread"
+            and row.get("字段OCR候选") == ""
+            and row.get("字段人工确认") == ""
+            and row.get("字段候选值集合") == ""
+            and row.get("字段非空候选数") == "0"
+            for row in field_p0_reread_rows
+        )
+        and field_p0_reread_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期 P0 字段原页重读工作清单公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(field_p0_reread_public_text) is None
+        and "private/" not in field_p0_reread_public_text
+        and "private\\" not in field_p0_reread_public_text
+        and "/Users/" not in field_p0_reread_public_text
+        and "ocr-runs" not in field_p0_reread_public_text
+        and "rendered-pages" not in field_p0_reread_public_text
+        and ".png" not in field_p0_reread_public_text
+        and ".jpg" not in field_p0_reread_public_text
+        and ".jpeg" not in field_p0_reread_public_text
+        and "Authorization" not in field_p0_reread_public_text
+        and "Bearer " not in field_p0_reread_public_text
+        and "Cookie" not in field_p0_reread_public_text
+        and "final_allowed" not in field_p0_reread_public_text
+        and "ready_for_discussion" not in field_p0_reread_public_text
+        and "已确认" not in field_p0_reread_public_text
+        and "已核准" not in field_p0_reread_public_text
+        and "最终推荐" not in field_p0_reread_public_text
+        and "最终方案" not in field_p0_reread_public_text
+        and "可填报" not in field_p0_reread_public_text
+        and "可排序" not in field_p0_reread_public_text
+        and not any(token in field_p0_reread_public_text for token in shared_forbidden_tokens),
+    ))
+
     layout_risk_summary_path = ROOT / "data/working/issue19-major-line-layout-continuity-risk-summary.json"
     layout_risk_csv = ROOT / "data/working/issue19-major-line-layout-continuity-risk-ledger.csv"
     layout_risk_summary = json.loads(layout_risk_summary_path.read_text())
