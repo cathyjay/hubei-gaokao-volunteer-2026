@@ -327,6 +327,8 @@
 - `data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv`：稳定基座自动官网辅证交叉核验工作台，854 行；一行对应一条 B0/B1 高校官网辅证旁挂，把官网强辅证、补缺候选、冲突复核、章程规则、部分来源和待补源拆成可复跑动作。高校官网仍只能 double check 和定位冲突，不能替代湖北官方计划。
 - `data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv`：稳定基座最小人工闭环工作台，319 行；一行对应一个 P0 即时字段核验任务，把页列进度、裁图证据、官网辅证动作、双人复核和人工必做步骤接到同一张表。该表只安排 PDF 原页和湖北官方侧核验，不保存人工读数或最终字段事实。
 - `data/working/issue19-stable-foundation-next-closure-workbench-summary.json`：稳定基座下一步闭环摘要；记录自动工作台 854 行、人工工作台 319 行、官网辅证动作分布、P0 字段分布、官方公开入口仍不可定稿和所有最终门禁为 0。
+- `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv`：稳定基座高校侧辅证刷新公开账本，78 行；一行对应一个 `高校×高校侧辅证动作`，把 854 条 B0/B1 高校官网辅证压缩为可自动复跑、补结构化、继续补源、分层抽检和人工确认的学校级任务。公开表只保存动作、计数、集合 SHA、公开来源数量和非最终门禁，不保存复跑结果、人工核验结论或字段读数。
+- `data/working/issue19-stable-foundation-school-source-refresh-public-ledger-summary.json`：高校侧辅证刷新摘要；记录 78 条公开任务、36 所学校、S0/S1/S2/S3/S4/S5 分布 14/12/23/10/14/5，源头 854 条 B0/B1 高校辅证任务，以及字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数全部为 0。私有工作台 SHA 保存在摘要中，具体复跑和人工核验结果只在 Git 忽略目录。
 - `data/working/issue19-stable-foundation-first-closure-detail-packet.csv`：稳定基座第一闭环明细包，205 行；只纳入 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务，用于先核最高风险冲突、补缺、未匹配和高校辅证线索。
 - `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv`：稳定基座第一闭环页列包，36 行；把 205 条明细任务聚合到 36 个 `PDF页码×版面列`，用于集中人工核 PDF 原页、湖北官方侧和高校官网辅证。
 - `data/working/issue19-stable-foundation-first-closure-packet-summary.json`：第一闭环批次包摘要；记录 205 条明细、36 个页列、32 个 PDF 页、28 个计划数冲突或补缺页列、29 个双人复核页列，以及所有最终门禁为 0。
@@ -461,6 +463,7 @@
 - `scripts/build_issue19_major_evidence_level_routing.py`：读取单一逐专业招生明细总工作台、底座稳定性看板、决策闸门、字段事实闭环总账、B0/B1 高校官网差异账和三年投档旁挂表，生成 13736 行逐专业证据等级与核验路由表；用于在官方结构化计划不可得时自动分流高校官网 double check、P0/P1/P2/P3 人工核验和低风险抽检，不允许自动写回字段或生成志愿建议。
 - `scripts/build_issue19_stable_foundation_screening_views.py`：读取单一逐专业总工作台、候选筛选准备表、字段事实闭环、证据路由、教育部学校属性、三年投档旁挂和家庭专业组筛选表，生成稳定基座逐专业/专业组筛选视图；用于后续筛学校、专业和专业组时统一查看家庭底线、字段缺口、学校属性、历史线索和整组调剂风险，不打开最终门禁，不替代湖北官方系统或省招办计划。
 - `scripts/build_issue19_stable_foundation_next_closure_workbench.py`：读取稳定基座筛选视图、逐专业证据路由、B0/B1 高校官网证据旁挂、P0 字段确认账本、P0 页列进度和湖北官方公开入口状态，生成 854 行自动官网辅证交叉核验工作台、319 行最小人工闭环工作台和摘要；用于把官方公开结构化源暂不可得时的 double check 与人工核页路径落成可复跑任务表。
+- `scripts/build_issue19_stable_foundation_school_source_refresh_queue.py`：读取稳定基座自动官网辅证交叉核验工作台、B0/B1 高校官网补源种子表和湖北官方公开入口状态，生成 78 行高校侧辅证刷新公开账本，并在 Git 忽略目录生成私有复跑/人工核验工作台；用于把学校官网 double check 自动化、抽检和补源任务降到学校级，不确认字段事实。
 - `scripts/build_issue19_stable_foundation_first_closure_packet.py`：读取稳定基座下一步闭环工作台，把最高优先级 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成 205 条明细任务和 36 个页列执行包。
 - `scripts/build_issue19_first_closure_review_materials.py`：读取第一闭环明细包、页列包、页列底座公开进度账本、字段线索审计、人工复核 Overlay、官方入口状态和私有 OCR 证据，生成第一闭环公开复核账本，并在 Git 忽略的 `private/` 目录生成 36 份页列 HTML/CSV 核页材料。
 - `scripts/build_issue19_first_closure_task_review_ledger.py`：读取第一闭环明细包、页列包、第一闭环复核公开账本和官方入口状态，生成 205 行任务级公开复核账本；公共高校来源文件只公开相对路径和 SHA，字段读数、OCR 原文、页图路径和人工记录继续留在私有复核材料。

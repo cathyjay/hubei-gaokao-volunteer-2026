@@ -144,4 +144,5 @@
 - 生成第一闭环复核材料公开账本：`data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 覆盖第一闭环 36 个页列、32 个 PDF 页和 205 条任务，并在 Git 忽略的私有目录生成 36 份页列 HTML/CSV 核页材料和私有索引。公开层只保存任务数、材料 SHA、回链和门禁；当前全部为 `R0-Overlay已生成未填写`，字段写回、推荐依据、进入下一阶段和最终可用计数均为 0。
 - 生成第一闭环任务级复核公开账本：`data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv` 覆盖同一批 205 条明细任务，逐条接到页列材料、公共高校来源文件 SHA、PDF 原页待核、湖北官方侧待核、高校辅证待核、双人复核要求和人工最小动作。73 条公共高校来源可作为核页提示，90 条需要双人复核，205 条都仍必须核 PDF 原页和湖北官方侧；全部写回、推荐和最终可用门禁仍为 0。
 - 生成第一闭环私有预填公开审计：`data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv` 覆盖同一批 36 个页列、205 条任务，并把 73 条高校侧辅证候选线索只写入 Git 忽略的私有工作台。公开层只保存页列计数、私有 CSV SHA 和非最终门禁；该预填只减少人工查找成本，不替代第 19 期 PDF 原页、湖北官方侧核验或字段确认。
+- 生成高校侧辅证刷新公开账本：`data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 将 854 条 B0/B1 高校辅证聚合为 78 条 `高校×高校侧辅证动作`，覆盖 36 所学校；S0 PDF 原页与湖北官方优先闭环 14 条、S1 专业名匹配人工确认 12 条、S2 高校官网来源结构化刷新 23 条、S3 强辅证分层抽检 10 条、S4 继续补高校官网计划源 14 条、S5 章程规则核特殊限制 5 条。公开层只保存动作、计数、集合 SHA 和非最终门禁，私有工作台承接复跑和人工核验结果。
 - 收紧官方不可得时的表述和校验：若湖北官方系统不可得，状态必须记录为不可得，仍回到第 19 期 PDF 原页或纸质原页双人复核；删除“人工确认的应急项可进入最终方案”的宽口径，低风险抽检失败时必须升级同页列、同校或同专业组 100% 人工核验。

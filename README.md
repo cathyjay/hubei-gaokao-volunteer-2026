@@ -128,6 +128,7 @@ python3 scripts/build_issue19_p0_immediate_page_execution_progress_ledger.py
 python3 scripts/build_issue19_major_evidence_level_routing.py
 python3 scripts/build_issue19_stable_foundation_screening_views.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
+python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
 python3 scripts/build_issue19_stable_foundation_first_closure_packet.py
 python3 scripts/build_issue19_first_closure_review_materials.py
 python3 scripts/build_issue19_first_closure_task_review_ledger.py
@@ -188,6 +189,8 @@ python3 scripts/filter_toudang.py --year 2023 2024 2025 --keywords 武汉 湖北
 稳定基座筛选视图：`data/working/issue19-stable-foundation-major-screening-view.csv` 和 `data/working/issue19-stable-foundation-group-screening-view.csv` 是后续筛学校、专业和专业组的当前统一入口。逐专业视图覆盖 13736 条招生明细，专业组视图覆盖 3329 个院校专业组并保留完整组内专业索引；当前 678 条逐专业明细可作为机器初筛线索但不可定案，1666 个专业组进入机器初筛观察池，所有最终门禁仍为 0。它们只用于把家庭底线、教育部学校属性、字段缺口、证据路由、三年投档线索和整组调剂风险放到同一处看，不替代 PDF 原页、湖北官方系统或省招办计划。
 
 稳定基座下一步闭环工作台：`data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv` 和 `data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv` 把“官方公开结构化源暂不可得”的替代保真路线落成两张可执行表。前者覆盖 854 条 B0/B1 高校官网辅证，分成 18 条冲突先核、55 条官网补缺候选、61 条强辅证抽检、411 条部分来源补结构化、196 条继续补源等动作；后者覆盖 319 条 P0 即时字段任务，按 148 个页列集中人工核 PDF 原页和湖北官方侧。两张表全部保持 `最终可用=false`、`是否允许作为志愿推荐依据=false`、`是否允许官网证据替代湖北官方计划=false`。
+
+高校侧辅证刷新公开账本：`data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 把上述 854 条 B0/B1 高校辅证任务按 `高校×高校侧辅证动作` 聚合成 78 条公开刷新任务，覆盖 36 所学校。它用于自动复跑高校官网/API/XLSX/PDF/图片来源、补结构化、继续补源和分层抽检；公开层只保存任务桶、计数、集合 SHA、公开来源数量和非最终门禁，私有工作台才记录复跑结果和人工核验结论。当前 S0 PDF 原页与湖北官方优先闭环 14 条、S1 专业名匹配人工确认 12 条、S2 高校官网来源结构化刷新 23 条、S3 强辅证分层抽检 10 条、S4 继续补高校官网计划源 14 条、S5 章程规则核特殊限制 5 条；它能减少人工打开学校官网的工作量，但不能替代第 19 期 PDF 原页和湖北官方侧。
 
 第一闭环批次包：`data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 把最高优先级的 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成第一批可执行核验包。当前 205 条明细任务被压缩到 36 个 `PDF页码×版面列`、32 个 PDF 页；其中 28 个页列含计划数冲突或补缺，29 个页列需要双人复核。该包只决定“先核哪些页列、哪些字段和哪些官网线索”，仍不确认字段事实，不替代湖北官方计划，不生成学校专业建议。
 

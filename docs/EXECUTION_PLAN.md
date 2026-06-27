@@ -56,6 +56,8 @@
 
 新增稳定基座下一步闭环工作台：`data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv` 覆盖 854 条 B0/B1 高校官网辅证，把它们拆成冲突先核、官网补缺候选、强辅证抽检、字段辅证补结构化、章程规则核验和继续补源等动作；`data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv` 覆盖 319 条 P0 即时字段任务，把 148 个页列包、裁图证据、官网辅证动作和人工必做步骤接到同一张最小人工闭环表。两张表只解决“接下来自动核什么、人工核什么”，不确认字段事实，不替代湖北官方计划，不生成志愿建议。
 
+新增高校侧辅证刷新公开账本：`data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 覆盖 36 所学校、78 个 `高校×高校侧辅证动作` 任务，把 854 条 B0/B1 高校辅证压缩成可自动复跑、补结构化、继续补源、分层抽检和少量人工确认的工作队列。S0/S1 任务必须回 PDF 原页和湖北官方侧，S3 强辅证只允许抽检，抽检失败立即升级同页列、同校或同专业组 100% 核验；公开层不保存字段读数、登录态或最终结论。
+
 新增第一闭环批次包：`data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 覆盖 205 条最高优先级明细任务，`data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 把它们压缩为 36 个页列、32 个 PDF 页。这个包优先处理 C0 冲突、C1 官网补缺、C7 官网未匹配、EXEC-01 冲突异常、EXEC-02 计划数偏大和 EXEC-03 高校辅证线索，目的是先把最可能影响底座可信度的页列集中核准；全部门禁仍为 false。
 
 新增全量字段页列核验队列：`data/working/issue19-field-fact-page-side-verification-queue.csv` 把 41208 条字段事实核验任务聚合为 462 个 `PDF页码×版面列` 执行单元，覆盖 231 个招生计划明细页和全部 13736 条专业明细。它是全量底座保真的页列层入口，当前 450 个页列为 V0 无候选阻断页列先核、12 个为 V1 有候选待人工核验页列，全部仍需要 PDF 原页和湖北官方侧核验。
@@ -154,6 +156,7 @@
 - 全量逐专业字段保真总账仍是复核工作台，不是最终志愿表；`P6-暂未触发机器高风险` 也必须完成 PDF 原页、湖北官方系统、高校官网/章程、家庭接受度和调剂结论闭环后才能升级。
 - 页列底座人工复核 Overlay 已经建好空白记录和校验门禁，但还没有写入 PDF 原页人工读数、湖北官方字段值、高校官网或章程字段值、字段确认值和复核结论；因此它现在只是安全承接人工复核的容器，不是事实已核准的证明。
 - 稳定基座下一步闭环工作台已经把 854 条高校官网辅证和 319 条 P0 即时字段任务接到自动核验/人工核页动作，但官网辅证、裁图 OCR 候选和人工派单都不能越权替代第 19 期原页或湖北官方系统/省招办计划。
+- 高校侧辅证刷新公开账本已经把 854 条官网辅证聚合成 78 条学校级动作队列，后续可以并行补官网来源、补结构化和做分层抽检；但它仍只是学校侧 double check 任务表，不能把高校官网一致项直接写成招生计划事实。
 - 第一闭环批次包已经把最高优先级任务压缩到 36 个页列，后续可以按页列集中核 PDF 原页、湖北官方侧和高校官网辅证；但它仍只是执行包，不是字段事实表或志愿推荐表。
 - 第一闭环复核材料公开账本已经把这 36 个页列接到私有 HTML/CSV 核页材料和公开状态机；当前全部仍为 `R0-Overlay已生成未填写`，字段写回、推荐依据、进入下一阶段和最终可用计数仍为 0。
 - 第一闭环任务级复核公开账本已经把 205 条任务逐条接到 36 个页列材料、公共高校来源文件 SHA、PDF 原页待核、湖北官方侧待核、高校辅证待核和双人复核要求；它只用于执行和追踪，不确认字段值。
@@ -173,7 +176,7 @@
 
 当前第一个层级已经新增二十个结构化保障点：`issue19-raw-major-lineage-consistency-audit.csv` 要求 13736 条 raw 专业行全部能回到下游主表，且核心 OCR 字段传递漂移为 0；`issue19-raw-major-source-evidence-audit.csv` 要求 13736 条专业明细全部能回到源头 OCR 起始行、页级 manifest、私有窗口 JSONL 和公开锚点，且哈希和页级计数一致；`issue19-field-fact-closure-ledger.csv` 要求每条专业明细的再选科目、专业计划数、学费都以 K0/K1/K2 状态明确缺口、候选和待核来源；`issue19-field-fact-verification-tasks.csv` 要求每条专业明细刚好拆成三项字段核验任务，并回连字段总账和页级保真队列；`issue19-field-fact-page-side-verification-queue.csv` 要求 41208 条字段任务全部能聚合到 462 个页列执行单元，且每个页列只公开计数、任务集合 SHA 和证据索引；`issue19-page-side-foundation-risk-register.csv` 要求同一批 462 个页列继续叠加结构、源证据、官方消歧、官网差异、决策闸门等风险，形成全量页列核验入口；`issue19-page-side-foundation-verification-batches.csv` 再把 462 个页列按风险顺序切成 19 个批次，方便逐批核页和记录完成度；`issue19-page-side-foundation-batch-execution-packets.csv` 再把 19 批接到本地私有 HTML/CSV 核页材料，并用公开 SHA 证明材料可复验但不公开识别行内容或人工记录；`issue19-page-side-foundation-field-clue-public-audit.csv` 把 41208 个字段任务重新对账到 462 个页列，并只公开字段分布、线索缺失/冲突计数和私有模板 SHA；`issue19-page-side-foundation-human-review-overlay-public-ledger.csv` 在不可变字段线索模板之上建立私有人工复核 Overlay，确保未来人工读数、湖北官方字段值、学校辅证值和复核结论有独立承载层，不覆盖机器底稿、不误公开字段值；`issue19-field-fact-p0-reread-worklist.csv` 要求 11444 条 K0 无候选字段全部回连到字段任务、源证据审计、PDF 锚点和页级保真队列；`issue19-field-fact-p0-reread-machine-candidates.csv` 在这些 K0 字段中生成 4840 条机器坐标候选和 6604 条仍需重读或冲突核页任务，只作为人工核页入口，不允许自动写回；`issue19-field-fact-p0-closure-action-workbench.csv` 再把同一批任务拆成 PDF 原页、湖北官方系统或省招办计划、高校官网或章程三方闭环动作，所有人工和官方确认字段仍为空；`issue19-field-fact-p0-semantic-crosssource-audit.csv` 在同一任务集合上标出语义异常、计划数偏大、官网补缺线索和机器/高校辅证冲突，防止明显 OCR 噪声进入普通核页队列；`issue19-field-fact-p0-immediate-review-packet.csv` 从三方核验执行工作台中严格切出 319 条最高优先级字段任务，方便先核最可能影响字段事实的冲突和异常；`issue19-p0-immediate-page-review-packets.csv` 再把这 319 条任务按 148 个 `PDF页码×版面列` 包组织，方便人工回看原件并避免左右列串读；`issue19-p0-immediate-pdf-reading-candidate-public-audit.csv` 再把私有 OCR 候选降格为公开候选状态和人工审阅桶，253 条有候选、66 条无稳定候选、99 条需直接图像复核、290 条需双人复核，但自动写入人工读数和字段写回仍均为 0；`issue19-p0-immediate-page-execution-progress-public-ledger.csv` 再把 148 个页列包的私有核验完成度公开成计数和状态，当前全部 R0，防止误把排队完成当成字段核准；`issue19-major-evidence-level-routing.csv` 再把官方不可得时的证据等级、自动官网核验、人工核验强度和升级触发器下沉到全部 13736 条专业明细。第二个层级尚未完成，所以仍不能输出最终志愿方案。
 
-新增的两项是 `issue19-stable-foundation-auto-official-crosscheck-workbench.csv` 和 `issue19-stable-foundation-minimal-manual-closure-workbench.csv`：前者把 854 条高校官网辅证变成自动复跑、冲突、补缺、补结构化和补源动作；后者把 319 条 P0 即时字段任务变成最小人工闭环包。它们只压缩核验路线，不确认字段事实。
+新增的三项是 `issue19-stable-foundation-auto-official-crosscheck-workbench.csv`、`issue19-stable-foundation-minimal-manual-closure-workbench.csv` 和 `issue19-stable-foundation-school-source-refresh-public-ledger.csv`：前者把 854 条高校官网辅证变成自动复跑、冲突、补缺、补结构化和补源动作；第二张把 319 条 P0 即时字段任务变成最小人工闭环包；第三张再把 854 条高校辅证按学校聚合成 78 条可复跑和抽检任务。它们只压缩核验路线，不确认字段事实。
 
 配套的 `issue19-p0-immediate-page-execution-queue.csv` 不增加字段事实，只把 148 个页列包按 Q0/Q1/Q2/Q3 排成执行顺序，其中 Q0 候选冲突 11 个页列包、Q1 无稳定候选 34 个页列包、Q2 候选一致仍需官方闭环 11 个页列包、Q3 常规候选 92 个页列包；它覆盖同一批 319 条字段任务，继续保持字段写回、推荐依据和最终可用均为 0。
 
