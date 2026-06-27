@@ -8676,6 +8676,336 @@ def main():
         and "可填报" not in official_public_text
         and "可排序" not in official_public_text,
     ))
+
+    pdf_anchor_summary_path = ROOT / "data/working/issue19-major-line-pdf-evidence-anchors-summary.json"
+    pdf_anchor_csv = ROOT / "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+    pdf_anchor_summary = json.loads(pdf_anchor_summary_path.read_text())
+    with pdf_anchor_csv.open(newline="", encoding="utf-8-sig") as f:
+        pdf_anchor_reader = csv.DictReader(f)
+        pdf_anchor_rows = list(pdf_anchor_reader)
+        pdf_anchor_fields = pdf_anchor_reader.fieldnames or []
+    expected_pdf_anchor_fields = [
+        "专业行原页证据锚点ID",
+        "来源逐专业质量工作台",
+        "来源私有OCR行级CSV",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "主表粒度",
+        "最终可用",
+        "可进入下一阶段",
+        "证据锚点状态",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "版面列",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "专业组标题行号",
+        "专业组标题y",
+        "专业起始行号",
+        "专业起始y",
+        "OCR窗口y上界",
+        "OCR窗口y下界",
+        "组标题上下文行号范围",
+        "专业窗口行号范围",
+        "合并证据窗口行号范围",
+        "组标题上下文行数",
+        "专业窗口行数",
+        "合并证据窗口行数",
+        "窗口平均置信度",
+        "窗口最低置信度",
+        "窗口坐标摘要",
+        "窗口文本SHA256",
+        "起始行回连状态",
+        "起始行文本SHA256",
+        "起始行专业代号匹配",
+        "私有页图证据编号",
+        "私有页图SHA256",
+        "私有OCR文本证据编号",
+        "私有OCR文本SHA256",
+        "私有窗口证据编号",
+        "公开安全策略",
+        "下一步",
+    ]
+    anchor_join_ok = True
+    for row in pdf_anchor_rows:
+        closure_row = closure_by_major_id.get(row.get("专业行ID"), {})
+        anchor_join_ok = (
+            anchor_join_ok
+            and bool(closure_row)
+            and row.get("专业行原页证据锚点ID")
+            == stable_id("PDFANCHOR", [row.get("专业行ID", ""), row.get("专业起始行号", "")])
+            and row.get("来源逐专业质量工作台")
+            == "data/working/issue19-full-major-detail-quality-workbench.csv"
+            and row.get("来源私有OCR行级CSV") == "private_ocr_lines_not_public"
+            and row.get("数据阶段") == "issue19_major_line_pdf_evidence_anchors"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("专业组出现ID") == closure_row.get("专业组出现ID")
+            and row.get("院校代码") == closure_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化")
+            == closure_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == closure_row.get("来源页码")
+            and row.get("版面列") == closure_row.get("版面列")
+            and row.get("专业组内专业序号") == closure_row.get("专业组内专业序号")
+            and row.get("专业代号OCR") == closure_row.get("专业代号OCR")
+            and row.get("起始行回连状态") == "exact_start_line_hit"
+            and row.get("起始行专业代号匹配") == "true"
+            and bool(row.get("窗口文本SHA256"))
+            and "确认前不得作为最终志愿事实" in row.get("下一步", "")
+        )
+    pdf_anchor_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [pdf_anchor_summary_path, pdf_anchor_csv]
+    )
+    checks.append(ok(
+        "第 19 期专业行原页证据锚点表摘要、行数和锚点分层正确",
+        pdf_anchor_summary.get("status") == "issue19_major_line_pdf_evidence_anchors_not_final"
+        and pdf_anchor_summary.get("generated_by")
+        == "build_issue19_major_line_pdf_evidence_anchors.py"
+        and pdf_anchor_summary.get("source_major_quality_workbench")
+        == "data/working/issue19-full-major-detail-quality-workbench.csv"
+        and pdf_anchor_summary.get("source_private_ocr_lines") == "private_ocr_lines_not_public"
+        and pdf_anchor_summary.get("output_table")
+        == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+        and pdf_anchor_summary.get("row_count") == 13736
+        and pdf_anchor_summary.get("unique_anchor_id_count") == 13736
+        and pdf_anchor_summary.get("unique_major_line_id_count") == 13736
+        and pdf_anchor_summary.get("status_counts") == {
+            "P2-已生成专业行级OCR证据锚点": 12596,
+            "P1-缺少组标题上下文": 1127,
+            "P0-专业窗口为空": 13,
+        }
+        and pdf_anchor_summary.get("exact_start_line_hit_count") == 13736
+        and pdf_anchor_summary.get("start_line_major_code_match_count") == 13736
+        and pdf_anchor_summary.get("non_empty_window_count") == 13736
+        and pdf_anchor_summary.get("window_sha_non_empty_count") == 13736
+        and pdf_anchor_summary.get("final_available_count") == 0
+        and pdf_anchor_summary.get("next_stage_available_count") == 0,
+        f"{len(pdf_anchor_rows)} anchor rows",
+    ))
+    checks.append(ok(
+        "第 19 期专业行原页证据锚点表字段、主键和闭环主表来源正确",
+        pdf_anchor_fields == expected_pdf_anchor_fields
+        and len(pdf_anchor_rows) == 13736
+        and len({row.get("专业行原页证据锚点ID") for row in pdf_anchor_rows}) == 13736
+        and {row.get("专业行ID") for row in pdf_anchor_rows}
+        == {row.get("专业行ID") for row in closure_major_rows}
+        and anchor_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期专业行原页证据锚点表公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(pdf_anchor_public_text) is None
+        and "private/" not in pdf_anchor_public_text
+        and "final_allowed" not in pdf_anchor_public_text
+        and "ready_for_discussion" not in pdf_anchor_public_text
+        and "已确认" not in pdf_anchor_public_text
+        and "已核准" not in pdf_anchor_public_text
+        and "最终推荐" not in pdf_anchor_public_text
+        and "最终方案" not in pdf_anchor_public_text
+        and "可填报" not in pdf_anchor_public_text
+        and "可排序" not in pdf_anchor_public_text,
+    ))
+
+    gap_scorecard_summary_path = ROOT / "data/working/issue19-foundation-closure-gap-scorecard-summary.json"
+    gap_scorecard_csv = ROOT / "data/working/issue19-foundation-closure-gap-scorecard.csv"
+    gap_scorecard_summary = json.loads(gap_scorecard_summary_path.read_text())
+    with gap_scorecard_csv.open(newline="", encoding="utf-8-sig") as f:
+        gap_scorecard_reader = csv.DictReader(f)
+        gap_scorecard_rows = list(gap_scorecard_reader)
+        gap_scorecard_fields = gap_scorecard_reader.fieldnames or []
+    expected_gap_scorecard_fields = [
+        "闭环缺口看板ID",
+        "来源逐专业闭环主表",
+        "来源统一逐专业底座入口",
+        "来源字段候选表",
+        "来源B0B1官网旁挂表",
+        "来源专业行原页证据锚点表",
+        "来源期号",
+        "来源PDF_SHA256",
+        "数据阶段",
+        "主表粒度",
+        "最终可用",
+        "可进入下一阶段",
+        "最终志愿排序门禁",
+        "专业行ID",
+        "专业组出现ID",
+        "院校代码",
+        "院校名称OCR",
+        "院校专业组代码OCR规范化",
+        "来源页码",
+        "版面列",
+        "专业组内专业序号",
+        "专业代号OCR",
+        "专业名称及备注OCR短摘",
+        "闭环执行总序",
+        "看板执行总序",
+        "闭环执行批次",
+        "首要核验动作",
+        "闭环执行动作集合",
+        "看板动作桶",
+        "看板排序分",
+        "机器可辅助线索",
+        "必须人工核PDF原页",
+        "必须湖北官方系统或省招办计划核验",
+        "必须家庭接受度确认",
+        "必须同组调剂结论确认",
+        "字段缺口字段",
+        "字段缺口数",
+        "字段候选任务数",
+        "非空字段候选数",
+        "中置信字段候选数",
+        "低置信字段候选数",
+        "有候选字段",
+        "字段候选状态分布",
+        "字段候选来源分布",
+        "B0B1官网证据任务数",
+        "B0B1官网证据强度",
+        "B0B1计划数状态",
+        "B0B1官网建议动作",
+        "官网证据能否替代湖北官方计划",
+        "专业行原页证据锚点ID",
+        "原页证据锚点状态",
+        "专业窗口行号范围",
+        "合并证据窗口行数",
+        "窗口文本SHA256",
+        "起始行专业代号匹配",
+        "页级复核优先级",
+        "页级阻断等级",
+        "P0复核任务数",
+        "P0证据项",
+        "湖北官方平台字段核验状态",
+        "家庭接受度结论",
+        "同组调剂结论",
+        "机器专业接受度初判",
+        "调剂影响等级",
+        "专业偏好方向",
+        "风险阻断等级",
+        "三年投档稳定性状态",
+        "不得进入原因",
+        "下一步",
+    ]
+    field_candidate_major_counts = Counter(row.get("专业行ID") for row in field_gap_candidate_rows if row.get("候选值"))
+    sidecar_major_counts = Counter(row.get("专业行ID") for row in official_sidecar_rows)
+    anchor_by_major_id = {row.get("专业行ID"): row for row in pdf_anchor_rows}
+    gap_scorecard_join_ok = True
+    for row in gap_scorecard_rows:
+        closure_row = closure_by_major_id.get(row.get("专业行ID"), {})
+        anchor_row = anchor_by_major_id.get(row.get("专业行ID"), {})
+        gap_scorecard_join_ok = (
+            gap_scorecard_join_ok
+            and bool(closure_row)
+            and bool(anchor_row)
+            and row.get("闭环缺口看板ID") == stable_id("GAPSCORE", [row.get("专业行ID", "")])
+            and row.get("来源逐专业闭环主表")
+            == "data/working/issue19-foundation-closure-major-batches.csv"
+            and row.get("来源统一逐专业底座入口")
+            == "data/working/issue19-major-detail-foundation-release.csv"
+            and row.get("来源字段候选表")
+            == "data/working/issue19-field-gap-repair-candidates.csv"
+            and row.get("来源B0B1官网旁挂表")
+            == "data/working/issue19-b0-b1-official-evidence-by-major-line.csv"
+            and row.get("来源专业行原页证据锚点表")
+            == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+            and row.get("数据阶段") == "issue19_foundation_closure_gap_scorecard"
+            and row.get("主表粒度") == "逐专业招生明细"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("最终志愿排序门禁") == "阻断-待证据闭环"
+            and row.get("专业组出现ID") == closure_row.get("专业组出现ID")
+            and row.get("院校代码") == closure_row.get("院校代码")
+            and row.get("院校专业组代码OCR规范化")
+            == closure_row.get("院校专业组代码OCR规范化")
+            and row.get("来源页码") == closure_row.get("来源页码")
+            and row.get("版面列") == closure_row.get("版面列")
+            and row.get("专业组内专业序号") == closure_row.get("专业组内专业序号")
+            and row.get("闭环执行总序") == closure_row.get("闭环执行总序")
+            and row.get("闭环执行批次") == closure_row.get("闭环执行批次")
+            and row.get("必须人工核PDF原页") == "true"
+            and row.get("必须湖北官方系统或省招办计划核验") == "true"
+            and row.get("必须家庭接受度确认") == "true"
+            and row.get("必须同组调剂结论确认") == "true"
+            and row.get("官网证据能否替代湖北官方计划") == "false"
+            and as_int(row.get("非空字段候选数")) == field_candidate_major_counts.get(row.get("专业行ID"), 0)
+            and as_int(row.get("B0B1官网证据任务数")) == sidecar_major_counts.get(row.get("专业行ID"), 0)
+            and row.get("专业行原页证据锚点ID") == anchor_row.get("专业行原页证据锚点ID")
+            and row.get("窗口文本SHA256") == anchor_row.get("窗口文本SHA256")
+            and "确认前不得进入最终志愿排序" in row.get("下一步", "")
+        )
+    gap_scorecard_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [gap_scorecard_summary_path, gap_scorecard_csv]
+    )
+    checks.append(ok(
+        "第 19 期逐专业闭环缺口看板摘要、行数和动作桶正确",
+        gap_scorecard_summary.get("status") == "issue19_foundation_closure_gap_scorecard_not_final"
+        and gap_scorecard_summary.get("generated_by")
+        == "build_issue19_foundation_closure_gap_scorecard.py"
+        and gap_scorecard_summary.get("output_table")
+        == "data/working/issue19-foundation-closure-gap-scorecard.csv"
+        and gap_scorecard_summary.get("source_foundation_closure")
+        == "data/working/issue19-foundation-closure-major-batches.csv"
+        and gap_scorecard_summary.get("source_field_candidates")
+        == "data/working/issue19-field-gap-repair-candidates.csv"
+        and gap_scorecard_summary.get("source_b0_b1_sidecar")
+        == "data/working/issue19-b0-b1-official-evidence-by-major-line.csv"
+        and gap_scorecard_summary.get("source_pdf_anchors")
+        == "data/working/issue19-major-line-pdf-evidence-anchors.csv"
+        and gap_scorecard_summary.get("row_count") == 13736
+        and gap_scorecard_summary.get("unique_scorecard_id_count") == 13736
+        and gap_scorecard_summary.get("unique_major_line_id_count") == 13736
+        and gap_scorecard_summary.get("batch_counts") == {
+            "C0-P0证据闭环先核": 5310,
+            "C1-字段缺口先补": 7608,
+            "C3-常规三方证据闭环": 609,
+            "C4-低风险抽检但非最终": 209,
+        }
+        and gap_scorecard_summary.get("action_bucket_counts") == {
+            "S0-B0B1冲突+P0原页优先": 18,
+            "S1-P0原页+官网辅证同步核": 116,
+            "S2-P0原页结构和字段先核": 5176,
+            "S3-字段缺口有候选先核": 4248,
+            "S4-字段缺口无候选需原页重读": 3360,
+            "S6-常规三方闭环": 609,
+            "S7-低风险但证据锚点异常抽检": 2,
+            "S8-低风险抽检": 207,
+        }
+        and gap_scorecard_summary.get("non_empty_field_candidate_major_count") == 7202
+        and gap_scorecard_summary.get("b0_b1_sidecar_major_count") == 854
+        and gap_scorecard_summary.get("pdf_anchor_major_count") == 13736
+        and gap_scorecard_summary.get("official_replace_allowed_count") == 0
+        and gap_scorecard_summary.get("final_available_count") == 0
+        and gap_scorecard_summary.get("next_stage_available_count") == 0,
+        f"{len(gap_scorecard_rows)} scorecard rows",
+    ))
+    checks.append(ok(
+        "第 19 期逐专业闭环缺口看板字段、主键和三类证据来源闭环正确",
+        gap_scorecard_fields == expected_gap_scorecard_fields
+        and len(gap_scorecard_rows) == 13736
+        and len({row.get("闭环缺口看板ID") for row in gap_scorecard_rows}) == 13736
+        and {row.get("专业行ID") for row in gap_scorecard_rows}
+        == {row.get("专业行ID") for row in closure_major_rows}
+        and gap_scorecard_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期逐专业闭环缺口看板公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        foundation_release_sensitive_re.search(gap_scorecard_public_text) is None
+        and "private/" not in gap_scorecard_public_text
+        and "final_allowed" not in gap_scorecard_public_text
+        and "ready_for_discussion" not in gap_scorecard_public_text
+        and "已确认" not in gap_scorecard_public_text
+        and "已核准" not in gap_scorecard_public_text
+        and "最终推荐" not in gap_scorecard_public_text
+        and "最终方案" not in gap_scorecard_public_text
+        and "可填报" not in gap_scorecard_public_text
+        and "可排序" not in gap_scorecard_public_text,
+    ))
     checks.append(ok(
         "第 19 期公开页级 manifest 不含本地路径、私有文件路径、图片扩展名和最终可用结论",
         "final_allowed" not in page_manifest_public_text

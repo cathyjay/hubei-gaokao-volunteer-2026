@@ -45,7 +45,7 @@
 当前处于：
 
 ```text
-2026 招生计划全量 OCR 明细底座已生成，候选V2逐专业明细复核种子、全量质量分层队列、逐专业明细质量工作台、全量逐专业字段保真总账、全量逐专业核验批次表、优先整组逐专业核验包、优先逐专业证据执行工作台、全量逐专业证据执行工作台、全量逐专业证据闭环任务队列、P0 证据执行包、P0 逐专业复核工作清单、字段缺口逐专业修复矩阵、湖北官方系统逐专业核验包、B0/B1 逐专业官网差异账、统一逐专业底座发布表、底座闭环逐专业明细执行主表、底座机器审计表、候选V2证据总账、240 页公开页级 manifest、按页保真复核队列、家庭底线筛选表、候选V3复核入口索引、候选V3全量逐专业招生明细主表、候选V3全量逐专业复核队列、D0 原页核验工作台、D0 原页 OCR 证据表、B0/B1 原页核验包、B0/B1 逐专业招生明细主表/官方交叉校验工作台和候选V3全量逐专业字段保真总账已生成
+2026 招生计划全量 OCR 明细底座已生成，候选V2逐专业明细复核种子、全量质量分层队列、逐专业明细质量工作台、全量逐专业字段保真总账、全量逐专业核验批次表、优先整组逐专业核验包、优先逐专业证据执行工作台、全量逐专业证据执行工作台、全量逐专业证据闭环任务队列、P0 证据执行包、P0 逐专业复核工作清单、字段缺口逐专业修复矩阵、湖北官方系统逐专业核验包、B0/B1 逐专业官网差异账、统一逐专业底座发布表、底座闭环逐专业明细执行主表、专业行原页证据锚点表、逐专业闭环缺口看板、底座机器审计表、候选V2证据总账、240 页公开页级 manifest、按页保真复核队列、家庭底线筛选表、候选V3复核入口索引、候选V3全量逐专业招生明细主表、候选V3全量逐专业复核队列、D0 原页核验工作台、D0 原页 OCR 证据表、B0/B1 原页核验包、B0/B1 逐专业招生明细主表/官方交叉校验工作台和候选V3全量逐专业字段保真总账已生成
 ```
 
 已经完成：
@@ -101,6 +101,8 @@
 - 已生成底座闭环逐专业明细执行主表：`data/working/issue19-foundation-closure-major-batches.csv` 覆盖第 19 期全部 13736 条招生专业明细，一行一个专业；C0-P0证据闭环先核 5310 行、C1-字段缺口先补 7608 行、C2 官网辅证主批次 0 行、C3-常规三方证据闭环 609 行、C4-低风险抽检但非最终 209 行，`最终可用=0`。C2 主批次为 0 是因为 854 条含官网辅证任务的专业明细已被 C0/C1 更高优先级覆盖，B0/B1 官网差异任务仍为 854 条。配套页级索引 231 行、学校索引 1100 行只用于核页顺序和补源入口，不替代逐专业主表。
 - 已生成字段缺口候选修复线索表：`data/working/issue19-field-gap-repair-candidates.csv` 覆盖 19065 个字段缺口任务，其中 7621 条有非空候选线索；候选来源包括组级 OCR 上下文 6782 条、当前 OCR 单元格 817 条、高校官网辅证 22 条。所有候选均 `候选可自动写回主表=false`，只能安排原页和官方系统核验。
 - 已生成 B0/B1 官网证据逐专业旁挂表：`data/working/issue19-b0-b1-official-evidence-by-major-line.csv` 覆盖 854 条已有官网线索的专业明细，其中 61 条 strong_support、55 条 fill_candidate、18 条 conflict_review；另有 `issue19-b0-b1-official-plan-fill-candidates.csv` 和 `issue19-b0-b1-official-conflict-review.csv` 用于直接下钻计划数补缺候选和冲突核页。所有行 `能否替代湖北官方计划=false`。
+- 已生成专业行原页证据锚点表：`data/working/issue19-major-line-pdf-evidence-anchors.csv` 覆盖全部 13736 条专业明细，全部精确回连专业起始 OCR 行；12596 条已生成专业行级 OCR 锚点，1127 条缺少组标题上下文，13 条专业窗口需重点回看。公开表只保存行号范围、坐标摘要和哈希，OCR 窗口原文仅留在 `private/`。
+- 已生成逐专业闭环缺口看板：`data/working/issue19-foundation-closure-gap-scorecard.csv` 覆盖全部 13736 条专业明细，把 C0-C4、字段候选、B0/B1 官网旁证、原页锚点、家庭/调剂/湖北官方门禁合并成 S0-S8 执行动作桶；其中 S0 冲突优先 18 条、S1 P0+官网辅证 116 条、S2 P0 原页 5176 条、S3 字段有候选 4248 条、S4 字段无候选 3360 条。
 - 优先专业队列已经合并本专业行风险和所在专业组风险；`机器初判`、`综合风险等级` 只用于安排复核，不是最终报考建议。
 
 尚未完成：
@@ -134,8 +136,8 @@
 ## 五、下一步具体做什么
 
 下一步不再停留在首批试跑，而是在全量 OCR 初稿上做分层复核：先处理候选池命中项、未命中候选项和高风险标签项，再扩展保底样本。
-实际操作时，新增城市、学校或专业方向先从 `data/working/issue19-major-detail-foundation-release.csv` 这个统一逐专业底座查；安排核验顺序时，以 `data/working/issue19-foundation-closure-major-batches.csv` 作为当前底座闭环逐专业明细执行主表，再下钻到 P0/P1、官方平台和官网辅证分表。
-执行上先按 `data/working/issue19-foundation-closure-major-batches.csv` 的 C0/C1/C2/C3/C4 逐专业主批次推进，同时看动作维度的 `含官网辅证任务专业明细数` 和 `B0B1官网差异专业明细数`：C0 下钻 `data/working/issue19-p0-evidence-review-worklist.csv` 回看 PDF 原页、专业组边界、湖北官方系统/省招办计划和高校官网/章程；C1 先看 `data/working/issue19-field-gap-repair-candidates.csv` 的候选来源和置信等级，再回到 `data/working/issue19-p1-field-gap-evidence-repair-matrix.csv` 补再选科目、专业计划数和学费；官方平台核验看 `data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv`，官网辅证差异优先看 `data/working/issue19-b0-b1-official-evidence-by-major-line.csv`、`data/working/issue19-b0-b1-official-plan-fill-candidates.csv` 和 `data/working/issue19-b0-b1-official-conflict-review.csv`。每一步都必须回链到 `专业行ID`、全量证据工作台和页级证据哈希，不能只按页级、学校级或执行包 ID 得出结论。
+实际操作时，新增城市、学校或专业方向先从 `data/working/issue19-major-detail-foundation-release.csv` 这个统一逐专业底座查；安排核验顺序时，以 `data/working/issue19-foundation-closure-gap-scorecard.csv` 作为当前逐专业闭环缺口看板，再下钻到 P0/P1、官方平台、官网辅证和专业行原页证据锚点。
+执行上先按 `data/working/issue19-foundation-closure-gap-scorecard.csv` 的 S0-S8 动作桶推进：S0 优先解决 B0/B1 冲突和 P0 原页，S1 同步核 P0 原页与官网辅证，S2 集中回看 P0 原页结构和字段，S3 利用字段候选回看原页，S4 对无候选字段重读原页，S6 做常规三方闭环，S7/S8 做低风险抽检。下钻时仍保留 C0/C1/C3/C4 主批次：C0 下钻 `data/working/issue19-p0-evidence-review-worklist.csv`，C1 下钻 `data/working/issue19-field-gap-repair-candidates.csv` 和 `data/working/issue19-p1-field-gap-evidence-repair-matrix.csv`，官方平台核验看 `data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv`，官网辅证差异看 `data/working/issue19-b0-b1-official-evidence-by-major-line.csv`、`data/working/issue19-b0-b1-official-plan-fill-candidates.csv` 和 `data/working/issue19-b0-b1-official-conflict-review.csv`，原页定位看 `data/working/issue19-major-line-pdf-evidence-anchors.csv`。每一步都必须回链到 `专业行ID`、全量证据工作台和页级证据哈希，不能只按页级、学校级或执行包 ID 得出结论。
 
 注意：
 

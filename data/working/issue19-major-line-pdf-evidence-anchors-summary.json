@@ -1,0 +1,28 @@
+{
+  "status": "issue19_major_line_pdf_evidence_anchors_not_final",
+  "generated_by": "build_issue19_major_line_pdf_evidence_anchors.py",
+  "source_major_quality_workbench": "data/working/issue19-full-major-detail-quality-workbench.csv",
+  "source_page_manifest": "data/working/issue19-page-manifest.csv",
+  "source_private_ocr_lines": "private_ocr_lines_not_public",
+  "output_table": "data/working/issue19-major-line-pdf-evidence-anchors.csv",
+  "private_output_policy": "private_jsonl_not_committed_public_repository",
+  "row_count": 13736,
+  "unique_anchor_id_count": 13736,
+  "unique_major_line_id_count": 13736,
+  "status_counts": {
+    "P2-已生成专业行级OCR证据锚点": 12596,
+    "P1-缺少组标题上下文": 1127,
+    "P0-专业窗口为空": 13
+  },
+  "exact_start_line_hit_count": 13736,
+  "start_line_major_code_match_count": 13736,
+  "non_empty_window_count": 13736,
+  "window_sha_non_empty_count": 13736,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "notes": [
+    "本表只把每条招生专业明细锚定到私有 OCR 行级窗口，不能替代 PDF 原页人工核验。",
+    "公开表不保存 OCR 窗口原文和本机绝对路径，只保存坐标摘要、行号范围和哈希。",
+    "私有 JSONL 可用于人工回看，但不提交 public GitHub。"
+  ]
+}

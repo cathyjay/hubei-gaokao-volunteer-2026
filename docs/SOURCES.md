@@ -209,12 +209,16 @@
 - `data/working/issue19-b0-b1-official-plan-fill-candidates.csv`：B0/B1 官网计划数补缺候选表，55 行；只收 OCR 计划数缺失但官网有计划数的专业明细，必须回到 PDF 原页和湖北官方系统确认后才能使用。
 - `data/working/issue19-b0-b1-official-conflict-review.csv`：B0/B1 官网计划数冲突复核表，18 行；其中 13 行疑似 OCR 把学费读入计划数字段，优先回看原页计划数列和学费列。
 - `data/working/issue19-b0-b1-official-evidence-sidecar-summary.json`：B0/B1 官网证据旁挂摘要；记录 61 条强辅证、55 条计划数补缺候选、18 条冲突核页、13 条疑似计划数学费错读和全部非最终门禁。
+- `data/working/issue19-major-line-pdf-evidence-anchors.csv`：专业行原页证据锚点表，13736 行；一行一个招生专业明细，记录专业起始 OCR 行、专业窗口行号范围、坐标摘要、窗口文本 SHA256、页图/OCR 文本证据编号。公开表不保存 OCR 窗口原文，窗口原文只在 `private/`。
+- `data/working/issue19-major-line-pdf-evidence-anchors-summary.json`：专业行原页证据锚点摘要；记录 13736 条专业行全部精确回连起始 OCR 行，其中 12596 条已生成专业行级 OCR 锚点，1127 条缺少组标题上下文，13 条专业窗口需重点回看。
 - `data/working/issue19-major-detail-foundation-release.csv`：第 19 期统一逐专业底座入口，13736 行；一行一个招生专业明细，以 `专业行ID` 为主键，聚合 P0 复核任务、P1 字段缺口、湖北官方系统核验包、B0/B1 官网差异、页级证据编号、家庭底线、调剂风险和三年投档线索。该表用于检索、复核、补证和后续筛选预处理，不是最终志愿表。
 - `data/working/issue19-major-detail-foundation-release-summary.json`：统一逐专业底座入口摘要；记录 13736 个唯一专业行、5310 条 P0 专业明细、12473 条字段缺口专业明细、13736 条湖北官方待核专业明细、854 条 B0/B1 官网差异专业明细和全部非最终门禁。
 - `data/working/issue19-foundation-closure-major-batches.csv`：底座闭环逐专业执行批次主表，13736 行；一行一个招生专业明细，把统一底座入口转成 C0-C4 执行批次、首要核验动作、PDF/湖北官方/官网/家庭/调剂动作集合和执行总序。
 - `data/working/issue19-foundation-closure-page-index.csv`：底座闭环页级执行索引，231 行；由逐专业执行批次主表按 PDF 页码重算，只用于安排核页顺序，不替代逐专业明细。
 - `data/working/issue19-foundation-closure-school-index.csv`：底座闭环学校执行索引，1100 行；由逐专业执行批次主表按院校重算，只用于安排补源和学校级核验顺序，不替代逐专业明细。
 - `data/working/issue19-foundation-closure-batches-summary.json`：底座闭环批次摘要；记录 C0 P0 先核 5310 条、C1 字段缺口先补 7608 条、C2 官网辅证主批次 0 条、C3 常规三方闭环 609 条、C4 低风险抽检 209 条、含官网辅证任务 854 条、B0/B1 官网差异任务 854 条和全部非最终门禁。
+- `data/working/issue19-foundation-closure-gap-scorecard.csv`：逐专业闭环缺口看板，13736 行；一行一个招生专业明细，把闭环批次、字段候选、B0/B1 官网旁证、专业行原页证据锚点、家庭/调剂/湖北官方门禁合并成执行优先级。该表是当前核验顺序入口，不是最终报考方案。
+- `data/working/issue19-foundation-closure-gap-scorecard-summary.json`：逐专业闭环缺口看板摘要；记录 S0 B0/B1 冲突 18 条、S1 P0+官网辅证 116 条、S2 P0 原页 5176 条、S3 字段缺口有候选 4248 条、S4 字段缺口无候选 3360 条、S6 常规三方 609 条、S7/S8 低风险抽检 209 条。
 - `data/working/issue19-foundation-audit-summary.json`：第 19 期招生计划底座审计摘要，记录机器阻断项、人工复核项、页码覆盖、回退归属、重复专业代号和候选覆盖状态。
 - `data/working/issue19-foundation-audit-findings.csv`：第 19 期招生计划底座审计发现表，区分“阻断检查通过”和“需人工复核”的 OCR、选科、学费、调剂、候选池和专业组归属风险。
 - `data/working/issue19-foundation-page-audit.csv`：第 19 期按页审计表，覆盖 PDF 第 10-240 页，记录每页专业组数、专业明细数、结构异常、候选命中和页级复核优先级。

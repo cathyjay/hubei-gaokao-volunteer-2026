@@ -65,9 +65,11 @@
 | `data/working/issue19-b0-b1-official-evidence-by-major-line.csv` | B0/B1 官网证据逐专业旁挂表 | 覆盖 854 条已有官网线索的专业明细；按 `专业行ID` 标注强辅证、补缺候选、冲突核页、未匹配和待补源 |
 | `data/working/issue19-b0-b1-official-plan-fill-candidates.csv` | B0/B1 官网计划数补缺候选 | 55 条 OCR 计划数缺失但官网有计划数的候选；不能替代湖北官方系统 |
 | `data/working/issue19-b0-b1-official-conflict-review.csv` | B0/B1 官网计划数冲突核页表 | 18 条计划数冲突，优先核 PDF 原页计划数列、学费列和湖北官方系统 |
+| `data/working/issue19-major-line-pdf-evidence-anchors.csv` | 专业行原页证据锚点表 | 覆盖全部 13736 条专业明细；公开表保存行号范围、坐标摘要和哈希，私有 JSONL 保存 OCR 窗口原文 |
 | `data/working/issue19-major-detail-foundation-release.csv` | 统一逐专业底座入口 | 覆盖全部 13736 条招生专业明细；一行一个专业，聚合 P0/P1、湖北官方待核、官网差异、页级证据、家庭底线、调剂风险和三年投档线索；只用于检索、复核、补证和筛选预处理 |
 | `data/working/issue19-major-detail-foundation-release-summary.json` | 统一逐专业底座摘要 | 看 G0-G4 底座保真门禁、字段缺口、P0 专业明细、湖北官方待核、B0/B1 差异和全部非最终边界 |
 | `data/working/issue19-foundation-closure-major-batches.csv` | 底座闭环逐专业执行批次 | 覆盖全部 13736 条招生专业明细；一行一个专业，把统一底座入口转成 C0-C4 执行批次和首要核验动作 |
+| `data/working/issue19-foundation-closure-gap-scorecard.csv` | 逐专业闭环缺口看板 | 覆盖全部 13736 条专业明细；把 C0-C4、字段候选、官网旁证、原页锚点、家庭/调剂/官方门禁合并成核验顺序入口 |
 | `data/working/issue19-foundation-closure-page-index.csv` | 底座闭环页级执行索引 | 覆盖 231 个招生计划 PDF 明细页；只用于安排核页顺序，不能替代逐专业明细 |
 | `data/working/issue19-foundation-closure-school-index.csv` | 底座闭环学校执行索引 | 覆盖 1100 所院校；只用于安排补源和学校级核验顺序，不能替代逐专业明细 |
 | `data/working/issue19-foundation-audit-summary.json` | 底座审计摘要 | 看机器阻断项是否通过、人工复核风险、页码覆盖、回退归属和重复专业代号 |
@@ -221,6 +223,16 @@
 | B0/B1 官网计划数补缺候选 | 55 |
 | B0/B1 官网计划数冲突核页 | 18 |
 | B0/B1 疑似 OCR 把学费读入计划数 | 13 |
+| 专业行原页证据锚点 | 13736 |
+| 已生成专业行级 OCR 锚点 | 12596 |
+| 原页锚点缺少组标题上下文 | 1127 |
+| 原页锚点需重点回看专业窗口 | 13 |
+| 逐专业闭环缺口看板 | 13736 |
+| 看板 S0：B0/B1 冲突+P0原页优先 | 18 |
+| 看板 S1：P0原页+官网辅证同步核 | 116 |
+| 看板 S2：P0原页结构和字段先核 | 5176 |
+| 看板 S3：字段缺口有候选先核 | 4248 |
+| 看板 S4：字段缺口无候选需原页重读 | 3360 |
 | 底座闭环逐专业明细执行主表 | 13736 |
 | 底座闭环页级索引 | 231 |
 | 底座闭环学校索引 | 1100 |
@@ -395,9 +407,11 @@ OCR 字段不等于最终事实。
 28. **P0 逐专业复核工作清单**：`data/working/issue19-p0-evidence-review-worklist.csv` 把 P0 执行包、全量证据工作台、页级 manifest 和按页保真复核队列合并到一行一专业的复核视图；公开仓库只保存证据编号、SHA、字段候选和 pending 闸口，不保存私有页图、整页 OCR 文本、登录态或最终结论。
 29. **逐专业补证表**：新增字段缺口矩阵、湖北官方系统核验包和 B0/B1 官网差异账；三张表均保持一行一个招生专业明细或一行一个招生专业明细×证据项，全部 `最终可用=false`，只用于补证和核验顺序。
 30. **统一逐专业底座入口**：`data/working/issue19-major-detail-foundation-release.csv` 是后续新增城市、学校或专业方向时的默认检索入口；它不拆成学校/专业组两层，而是把每个招生专业明细的字段缺口、P0/P1、湖北官方待核、官网差异、家庭底线、调剂风险和下一步动作放在同一行。
-31. **底座闭环执行批次**：`data/working/issue19-foundation-closure-major-batches.csv` 是今晚核验顺序入口；C0/C1 优先处理，但仍是一行一个招生专业明细。C2 主批次当前为 0，是因为官网辅证任务被 C0/C1 更高优先级覆盖；执行时仍要看动作维度的 854 条含官网辅证任务和 854 条 B0/B1 官网差异任务。页级和学校级索引只服务核页与补源，不产生可报结论。
-30. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
-31. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
+31. **底座闭环执行批次**：`data/working/issue19-foundation-closure-major-batches.csv` 保留 C0/C1/C3/C4 主批次；C2 主批次当前为 0，是因为官网辅证任务被 C0/C1 更高优先级覆盖。页级和学校级索引只服务核页与补源，不产生可报结论。
+32. **专业行原页证据锚点**：`data/working/issue19-major-line-pdf-evidence-anchors.csv` 给每条招生专业明细生成原页 OCR 行号范围、坐标摘要和窗口哈希；公开表不保存 OCR 窗口原文，私有 JSONL 仅用于人工回看。
+33. **逐专业闭环缺口看板**：`data/working/issue19-foundation-closure-gap-scorecard.csv` 是今晚实际推进入口；它仍是一行一个招生专业明细，把字段候选、B0/B1 官网旁证、原页锚点和官方/家庭/调剂门禁合并到同一行，方便按 S0-S8 动作桶推进。
+34. **规则克制**：偏好专业标签只做关键词召回，不做最终专业分类；例如“师范相关”必须回看原 PDF 和专业目录确认。
+35. **人工闸门**：进入最终志愿表前，必须回看第 19 期原 PDF 页，并与湖北官方平台或志愿系统、高校官网/招生章程交叉核验。
 
 ## 五、下一步复核优先级
 
