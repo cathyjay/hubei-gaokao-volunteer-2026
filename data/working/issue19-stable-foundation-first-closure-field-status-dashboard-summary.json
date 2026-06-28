@@ -1,0 +1,76 @@
+{
+  "status": "issue19_stable_foundation_first_closure_field_status_dashboard_not_final",
+  "generated_by": "build_issue19_first_closure_field_status_dashboard.py",
+  "source_first_closure_field_confirmation_public_ledger": "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv",
+  "source_first_closure_page_side_candidate_dashboard": "data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv",
+  "source_first_closure_execution_queue": "data/working/issue19-stable-foundation-first-closure-execution-queue.csv",
+  "source_official_public_status": "data/working/issue19-official-public-entry-status.json",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_table": "data/working/issue19-stable-foundation-first-closure-field-status-dashboard.csv",
+  "row_grain": "PDF页码×版面列×第一闭环字段状态压缩",
+  "row_count": 37,
+  "source_field_task_count": 206,
+  "unique_page_side_count": 37,
+  "unique_pdf_page_count": 32,
+  "field_task_counts_split": {
+    "专业计划数": 170,
+    "学费": 105,
+    "再选科目": 77,
+    "待人工判定字段": 2
+  },
+  "field_scope_counts": {
+    "专业计划数；学费": 36,
+    "专业计划数；学费；再选科目": 55,
+    "学费": 12,
+    "专业计划数": 79,
+    "再选科目": 20,
+    "学费；再选科目": 2,
+    "待人工判定字段": 2
+  },
+  "execution_lane_counts": {
+    "E0-冲突异常双人优先核验": 18,
+    "E1-计划数补缺或偏大优先核验": 11,
+    "E2-官网未匹配专业名归属核验": 8
+  },
+  "page_priority_counts": {
+    "Q0-冲突页列第一批先核": 18,
+    "Q1-补缺或计划数偏大页列先核": 11,
+    "Q2-官网未匹配或高校辅证页列先核": 8
+  },
+  "main_blocker_counts": {
+    "B0-PDFOCR与高校辅证冲突": 10,
+    "B2-机器坐标候选辅助核页": 17,
+    "B1-缺PDFOCR候选需人工看图": 4,
+    "B3-仅PDFOCR候选待人工确认": 6
+  },
+  "task_main_blocker_counts": {
+    "B0-PDFOCR与高校辅证冲突": 132,
+    "B1-缺PDFOCR候选需人工看图": 31,
+    "B2-机器坐标候选辅助核页": 26,
+    "B3-仅PDFOCR候选待人工确认": 17
+  },
+  "pdf_ocr_hint_task_count": 103,
+  "machine_coordinate_hint_task_count": 49,
+  "school_support_hint_task_count": 74,
+  "pdf_school_conflict_task_count": 26,
+  "missing_pdf_with_school_task_count": 35,
+  "pdf_only_candidate_task_count": 29,
+  "consistent_but_official_pending_task_count": 13,
+  "no_candidate_manual_image_task_count": 54,
+  "direct_image_review_required_count": 80,
+  "double_review_required_count": 91,
+  "pdf_pending_task_count": 206,
+  "hubei_official_pending_task_count": 206,
+  "school_support_pending_task_count": 180,
+  "three_way_pending_task_count": 206,
+  "field_writeback_ready_count": 0,
+  "field_writeback_blocked_task_count": 206,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "public_boundary": "公开表只保存页列级字段状态、计数、集合SHA、阻断桶和门禁；不保存字段明细、候选明细、院校专业明细、OCR原文或私有路径。",
+  "next_use": "用于把37个页列按字段闭环阻断重新排队，辅助人工核页和高校辅证double check；不得作为字段最终事实或志愿推荐依据。"
+}

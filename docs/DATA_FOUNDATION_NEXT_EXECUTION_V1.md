@@ -91,6 +91,18 @@
 
 注意：同一页列里可能还有其他任务，所以这批 top3 不是按页列从全量公开账本直接抓取，而是以 `data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-tasks.csv` 的 `第一闭环任务ID` 为准，再回连私有工作台。
 
+## 第一闭环字段状态看板
+
+新增页列级执行视图：
+
+- 生成脚本：`scripts/build_issue19_first_closure_field_status_dashboard.py`
+- 公开看板：`data/working/issue19-stable-foundation-first-closure-field-status-dashboard.csv`
+- 公开摘要：`data/working/issue19-stable-foundation-first-closure-field-status-dashboard-summary.json`
+
+这张表不是新增事实源，而是把第一闭环 206 条字段确认任务重新压缩到 37 个 `PDF页码×版面列`，方便下一步按页列核 PDF 原页。当前主阻断为：10 个页列先核 PDFOCR 与高校辅证冲突，4 个页列缺候选需人工看图，17 个页列可用机器坐标辅助核页，6 个页列按 PDFOCR 候选人工确认。
+
+它只公开页列状态、计数、集合 SHA 和门禁，不保存字段明细、候选明细、院校专业明细或私有路径。字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

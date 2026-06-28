@@ -78,6 +78,13 @@ def sha_list(values):
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
+def sha256_values(values):
+    normalized = sorted({str(value).strip() for value in values if str(value).strip()})
+    if not normalized:
+        return ""
+    return hashlib.sha256("\n".join(normalized).encode("utf-8")).hexdigest()
+
+
 def count_value(rows, field, value):
     return sum(row.get(field, "") == value for row in rows)
 
@@ -25481,6 +25488,213 @@ def main():
         and "可填报" not in first_field_confirm_public_text
         and "可排序" not in first_field_confirm_public_text
         and not any(token in first_field_confirm_public_text for token in shared_forbidden_tokens),
+    ))
+
+    first_field_status_summary_path = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-field-status-dashboard-summary.json"
+    )
+    first_field_status_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-field-status-dashboard.csv"
+    )
+    first_field_status_summary = json.loads(first_field_status_summary_path.read_text())
+    with first_field_status_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_field_status_reader = csv.DictReader(f)
+        first_field_status_rows = list(first_field_status_reader)
+        first_field_status_fields = first_field_status_reader.fieldnames or []
+    expected_first_field_status_fields = script_runtime_constant(
+        ROOT / "scripts/build_issue19_first_closure_field_status_dashboard.py",
+        "FIELDS",
+    )
+    first_field_status_by_key = {
+        row.get("页码版面键", ""): row for row in first_field_status_rows
+    }
+    first_field_rows_by_page_key = defaultdict(list)
+    for row in first_field_confirm_rows:
+        first_field_rows_by_page_key[row.get("页码版面键", "")].append(row)
+    first_field_status_join_ok = True
+    for row in first_field_status_rows:
+        page_key = row.get("页码版面键", "")
+        source_rows = first_field_rows_by_page_key.get(page_key, [])
+        page_row = first_page_candidate_by_key.get(page_key, {})
+        execution_row = first_execution_by_key.get(page_key, {})
+        source_task_ids = [source.get("稳定基座第一闭环明细任务ID", "") for source in source_rows]
+        first_field_status_join_ok = (
+            first_field_status_join_ok
+            and bool(source_rows)
+            and bool(page_row)
+            and bool(execution_row)
+            and row.get("第一闭环字段状态看板ID") == stable_id("FIRSTFSTATUS", [page_key])
+            and row.get("来源第一闭环字段确认公开账本")
+            == "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv"
+            and row.get("来源第一闭环页列候选看板")
+            == "data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv"
+            and row.get("来源第一闭环执行队列")
+            == "data/working/issue19-stable-foundation-first-closure-execution-queue.csv"
+            and row.get("来源湖北官方公开入口状态快照")
+            == "data/working/issue19-official-public-entry-status.json"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_field_status_dashboard"
+            and row.get("主表粒度") == "PDF页码×版面列"
+            and row.get("任务粒度") == "页列×第一闭环字段状态压缩"
+            and row.get("页列任务数") == str(len(source_rows))
+            and row.get("涉及专业行数")
+            == str(len({source.get("专业行ID", "") for source in source_rows if source.get("专业行ID", "")}))
+            and row.get("涉及院校代码数")
+            == str(len({source.get("院校代码", "") for source in source_rows if source.get("院校代码", "")}))
+            and row.get("第一闭环页列候选看板ID")
+            == page_row.get("第一闭环页列候选看板ID")
+            and row.get("稳定基座第一闭环页列包ID")
+            == source_rows[0].get("稳定基座第一闭环页列包ID")
+            and row.get("执行泳道") == source_rows[0].get("执行泳道")
+            and row.get("第一闭环页列优先级") == source_rows[0].get("第一闭环页列优先级")
+            and row.get("第一闭环任务ID集合SHA256") == sha256_values(source_task_ids)
+            and row.get("PDF原页待记录任务数") == row.get("页列任务数")
+            and row.get("湖北官方侧待记录任务数") == row.get("页列任务数")
+            and row.get("三方待确认任务数") == row.get("页列任务数")
+            and row.get("字段事实写回可进入任务数") == "0"
+            and row.get("字段事实写回阻断任务数") == row.get("页列任务数")
+        )
+    first_field_status_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_field_status_summary_path, first_field_status_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环字段状态看板摘要、规模和阻断分布正确",
+        first_field_status_summary.get("status")
+        == "issue19_stable_foundation_first_closure_field_status_dashboard_not_final"
+        and first_field_status_summary.get("generated_by")
+        == "build_issue19_first_closure_field_status_dashboard.py"
+        and first_field_status_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and first_field_status_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-field-status-dashboard.csv"
+        and first_field_status_summary.get("row_count") == len(first_field_status_rows) == 37
+        and first_field_status_summary.get("source_field_task_count")
+        == len(first_field_confirm_rows) == 206
+        and first_field_status_summary.get("unique_page_side_count") == 37
+        and first_field_status_summary.get("unique_pdf_page_count") == 32
+        and first_field_status_summary.get("field_task_counts_split")
+        == {"专业计划数": 170, "学费": 105, "再选科目": 77, "待人工判定字段": 2}
+        and first_field_status_summary.get("execution_lane_counts")
+        == {
+            "E0-冲突异常双人优先核验": 18,
+            "E1-计划数补缺或偏大优先核验": 11,
+            "E2-官网未匹配专业名归属核验": 8,
+        }
+        and first_field_status_summary.get("page_priority_counts")
+        == {
+            "Q0-冲突页列第一批先核": 18,
+            "Q1-补缺或计划数偏大页列先核": 11,
+            "Q2-官网未匹配或高校辅证页列先核": 8,
+        }
+        and first_field_status_summary.get("main_blocker_counts")
+        == {
+            "B0-PDFOCR与高校辅证冲突": 10,
+            "B1-缺PDFOCR候选需人工看图": 4,
+            "B2-机器坐标候选辅助核页": 17,
+            "B3-仅PDFOCR候选待人工确认": 6,
+        }
+        and first_field_status_summary.get("task_main_blocker_counts")
+        == {
+            "B0-PDFOCR与高校辅证冲突": 132,
+            "B1-缺PDFOCR候选需人工看图": 31,
+            "B2-机器坐标候选辅助核页": 26,
+            "B3-仅PDFOCR候选待人工确认": 17,
+        }
+        and first_field_status_summary.get("pdf_ocr_hint_task_count") == 103
+        and first_field_status_summary.get("machine_coordinate_hint_task_count") == 49
+        and first_field_status_summary.get("school_support_hint_task_count") == 74
+        and first_field_status_summary.get("pdf_school_conflict_task_count") == 26
+        and first_field_status_summary.get("missing_pdf_with_school_task_count") == 35
+        and first_field_status_summary.get("pdf_only_candidate_task_count") == 29
+        and first_field_status_summary.get("consistent_but_official_pending_task_count") == 13
+        and first_field_status_summary.get("no_candidate_manual_image_task_count") == 54
+        and first_field_status_summary.get("direct_image_review_required_count") == 80
+        and first_field_status_summary.get("double_review_required_count") == 91
+        and first_field_status_summary.get("pdf_pending_task_count") == 206
+        and first_field_status_summary.get("hubei_official_pending_task_count") == 206
+        and first_field_status_summary.get("school_support_pending_task_count") == 180
+        and first_field_status_summary.get("three_way_pending_task_count") == 206
+        and first_field_status_summary.get("field_writeback_ready_count") == 0
+        and first_field_status_summary.get("field_writeback_blocked_task_count") == 206
+        and first_field_status_summary.get("final_available_count") == 0
+        and first_field_status_summary.get("next_stage_available_count") == 0
+        and first_field_status_summary.get("recommendation_basis_allowed_count") == 0
+        and first_field_status_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_field_status_summary.get("official_plan_replacement_allowed_count") == 0,
+        f"{len(first_field_status_rows)} first-closure field status rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环字段状态看板字段、回链和门禁正确",
+        first_field_status_fields == expected_first_field_status_fields
+        and len(first_field_status_by_key) == 37
+        and set(first_field_status_by_key) == set(first_field_rows_by_page_key)
+        and set(first_field_status_by_key) == set(first_page_candidate_by_key)
+        and set(first_field_status_by_key) == set(first_execution_by_key)
+        and sum(as_int(row.get("页列任务数")) for row in first_field_status_rows) == 206
+        and sum(as_int(row.get("专业计划数字段任务数")) for row in first_field_status_rows) == 170
+        and sum(as_int(row.get("学费字段任务数")) for row in first_field_status_rows) == 105
+        and sum(as_int(row.get("再选科目字段任务数")) for row in first_field_status_rows) == 77
+        and sum(as_int(row.get("PDFOCR提示任务数")) for row in first_field_status_rows) == 103
+        and sum(as_int(row.get("机器坐标提示任务数")) for row in first_field_status_rows) == 49
+        and sum(as_int(row.get("高校辅证线索任务数")) for row in first_field_status_rows) == 74
+        and sum(as_int(row.get("PDFOCR与高校辅证冲突任务数")) for row in first_field_status_rows) == 26
+        and sum(as_int(row.get("需要双人复核任务数")) for row in first_field_status_rows) == 91
+        and all(row.get(field) == "false" for row in first_field_status_rows for field in first_false_fields)
+        and first_field_status_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环字段状态看板公开文件不含字段明细、候选明细、私有路径、登录态、身份信息和最终误导结论",
+        "/Users/" not in first_field_status_public_text
+        and "/home/" not in first_field_status_public_text
+        and "/var/folders/" not in first_field_status_public_text
+        and "/private/" not in first_field_status_public_text
+        and "private/" not in first_field_status_public_text
+        and "private\\" not in first_field_status_public_text
+        and "ocr-runs" not in first_field_status_public_text
+        and "rendered-pages" not in first_field_status_public_text
+        and "file://" not in first_field_status_public_text
+        and ".png" not in first_field_status_public_text
+        and ".jpg" not in first_field_status_public_text
+        and ".jpeg" not in first_field_status_public_text
+        and ".webp" not in first_field_status_public_text
+        and ".tif" not in first_field_status_public_text
+        and ".tiff" not in first_field_status_public_text
+        and ".heic" not in first_field_status_public_text
+        and "Authorization" not in first_field_status_public_text
+        and "Bearer " not in first_field_status_public_text
+        and "Cookie" not in first_field_status_public_text
+        and "Set-Cookie" not in first_field_status_public_text
+        and "access_token" not in first_field_status_public_text
+        and "refresh_token" not in first_field_status_public_text
+        and "password" not in first_field_status_public_text
+        and "secret" not in first_field_status_public_text
+        and "api_key" not in first_field_status_public_text
+        and "身份证" not in first_field_status_public_text
+        and "准考证" not in first_field_status_public_text
+        and "报名号" not in first_field_status_public_text
+        and "序列号" not in first_field_status_public_text
+        and "手机号" not in first_field_status_public_text
+        and "院校名称" not in first_field_status_public_text
+        and "专业名称" not in first_field_status_public_text
+        and "专业代号" not in first_field_status_public_text
+        and "院校专业组" not in first_field_status_public_text
+        and "候选值" not in first_field_status_public_text
+        and "PDF原页人工读数" not in first_field_status_public_text
+        and "湖北官方字段值" not in first_field_status_public_text
+        and "高校官网或招生章程字段值" not in first_field_status_public_text
+        and "字段确认值" not in first_field_status_public_text
+        and "OCR行文本" not in first_field_status_public_text
+        and "人工读数" not in first_field_status_public_text
+        and "已确认" not in first_field_status_public_text
+        and "已核准" not in first_field_status_public_text
+        and "最终推荐" not in first_field_status_public_text
+        and "最终方案" not in first_field_status_public_text
+        and "可填报" not in first_field_status_public_text
+        and "可排序" not in first_field_status_public_text
+        and not any(token in first_field_status_public_text for token in shared_forbidden_tokens),
     ))
 
     stable_foundation_v0_summary_path = (
