@@ -1,0 +1,117 @@
+{
+  "status": "issue19_school_source_opportunity_queue_not_final",
+  "generated_by": "build_issue19_school_source_opportunity_queue.py",
+  "output_table": "data/working/issue19-school-source-opportunity-queue.csv",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "official_live_recheck_source": "data/working/issue19-official-public-entry-live-recheck.json",
+  "official_public_plan_can_finalize": false,
+  "zspt_platform_can_finalize": false,
+  "input_files": [
+    {
+      "path": "data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv",
+      "sha256": "773a25595d06224d708da6dcd929f1d06e981b7365d7d77f27703366c6541771",
+      "row_count": 80
+    },
+    {
+      "path": "data/working/issue19-b0-b1-official-source-gap-priority.csv",
+      "sha256": "adda01ba6809318cfef917355cfcc8002cc57b8ef1e576df897783b8fbfd6951",
+      "row_count": 18
+    },
+    {
+      "path": "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv",
+      "sha256": "518e7b25e6dc8e9d2ac48c6a92aeaa6d045506e34a28904e27d31e4ffa9f5743",
+      "row_count": 36
+    },
+    {
+      "path": "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv",
+      "sha256": "9ff62f578f5a64b2b7e19b09c9ec48e573f0fd5d0fd10b3a187fd1059a9930c5",
+      "row_count": 36
+    },
+    {
+      "path": "data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv",
+      "sha256": "fd96e22a400c6f550ca7950085f2959709f3c4ff5c54e210407089a2aee27378",
+      "row_count": 12
+    },
+    {
+      "path": "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv",
+      "sha256": "87f9b3e5bee81794252d06933c253eebb49aa3cc2e5ae4327bd03f76f507e395",
+      "row_count": 25
+    },
+    {
+      "path": "data/working/issue19-official-public-entry-live-recheck.json",
+      "sha256": "7ced3a7014de66bc635a98845caefdb1c470246d9153b19bd2552c3d2022ca75"
+    }
+  ],
+  "row_count": 80,
+  "unique_school_count": 36,
+  "priority_counts": {
+    "P0-立即处理": 44,
+    "P1-高收益自动补源": 18,
+    "P2-常规自动补源或抽检": 13,
+    "P3-低收益留存": 5
+  },
+  "opportunity_type_counts": {
+    "O3-高收益缺源学校优先补源": 7,
+    "O0-冲突优先回页核验": 17,
+    "O1-官网补缺候选回页核验": 8,
+    "O2-官网专业名未匹配先补规则": 12,
+    "O5-已有来源补结构化": 10,
+    "O4-有入口但缺结构化源": 8,
+    "O7-强辅证抽检": 11,
+    "O6-继续搜索高校官网计划源": 2,
+    "O8-章程规则源只核限制": 5
+  },
+  "source_quality_counts": {
+    "Q3-已有自动探针边界记录": 10,
+    "Q0-有结构化源但存在计划数冲突": 10,
+    "Q6-来源质量待补充": 39,
+    "Q2-有入口或本地种子可复跑": 12,
+    "Q1-有结构化源且存在计划数一致候选": 4,
+    "Q4-缺源待搜索": 5
+  },
+  "top_10_school_codes_by_execution_order": [
+    "C125",
+    "F582",
+    "C133",
+    "C108",
+    "H026",
+    "A197",
+    "K486",
+    "H945",
+    "K465",
+    "K753"
+  ],
+  "top_10_school_names_by_execution_order": [
+    "武汉轻工大学",
+    "长春工业大学",
+    "湖北师范大学",
+    "江汉大学",
+    "浙江传媒学院",
+    "西北民族大学",
+    "西安邮电大学",
+    "南宁学院",
+    "西安建筑科技大学",
+    "喀什大学"
+  ],
+  "total_involved_major_detail_count": 854,
+  "total_c4c6_no_structured_source_detail_count": 311,
+  "total_c4c6_candidate_diff_detail_count": 235,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "policy": {
+    "usage": "本表用于安排高校官网/API/PDF/XLSX/章程辅证自动化顺序，优先吃掉高收益且可公开复现的来源。",
+    "non_final_gate": "所有行均不得作为推荐依据、不得生成学校专业建议、不得替代湖北官方计划、不得自动写回字段事实。",
+    "official_boundary": "高校侧来源只能double-check、补缺候选和发现冲突；字段事实仍需第19期原页、湖北官方系统或省招办计划闭环。",
+    "automation_boundary": "自动探针只使用公开入口、公开附件和正常浏览器/API行为；不绕过登录、验证码、403、412、TLS或访问限制。"
+  },
+  "next_steps": [
+    "按执行建议序号优先处理P0：冲突、补缺、未匹配和高收益缺源学校。",
+    "P1/P2优先复跑已有入口和已留存来源，生成结构化diff，不直接写回主表。",
+    "补源失败时只记录公开边界，转入第一闭环人工页列核验。"
+  ]
+}

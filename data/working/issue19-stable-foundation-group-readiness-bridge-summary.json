@@ -1,0 +1,92 @@
+{
+  "status": "issue19_stable_foundation_group_readiness_bridge_not_final",
+  "generated_by": "build_issue19_stable_foundation_group_readiness_bridge.py",
+  "output_table": "data/working/issue19-stable-foundation-group-readiness-bridge.csv",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "official_public_status_source": "data/working/issue19-official-public-entry-status.json",
+  "official_public_plan_page_can_finalize": false,
+  "zspt_platform_can_finalize": false,
+  "input_files": [
+    {
+      "path": "data/working/issue19-stable-foundation-group-screening-view.csv",
+      "sha256": "42091721fcc2d155307628bc8593b98bae54b3a442a57d7d3cbad925a9282782",
+      "row_count": 3329
+    },
+    {
+      "path": "data/working/issue19-stable-foundation-major-screening-view.csv",
+      "sha256": "b882538b5ffc1eec289714c7864d40bd5035361e11b32184cc5181425705c9fb",
+      "row_count": 13736
+    },
+    {
+      "path": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
+      "sha256": "e315a73c436a6744d2317fa44919aa08d3e4e8b19b97ff41d42a62f3530c33bf",
+      "row_count": 854
+    },
+    {
+      "path": "data/working/issue19-stable-foundation-first-closure-detail-packet.csv",
+      "sha256": "94a99e2b8a4f31a47285ad2655368dbf8d82e581792cccf1330e466346822ba9",
+      "row_count": 206
+    },
+    {
+      "path": "data/working/issue19-stable-foundation-first-closure-page-side-packet.csv",
+      "sha256": "ad01eacd289c4f0bc12e496bb6438546d885219fba586209962bae69f75c4f25",
+      "row_count": 37
+    },
+    {
+      "path": "data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv",
+      "sha256": "773a25595d06224d708da6dcd929f1d06e981b7365d7d77f27703366c6541771",
+      "row_count": 80
+    },
+    {
+      "path": "data/working/issue19-official-public-entry-status.json",
+      "sha256": "dec81d791f223ca0b757dcf4ec6646afaf7ac15c1d08c94ed0b744e9cac02dd5"
+    }
+  ],
+  "row_count": 3329,
+  "unique_group_occurrence_id_count": 3329,
+  "unique_school_count": 1103,
+  "readiness_level_counts": {
+    "B2-第一闭环已排队待核": 41,
+    "B3-字段事实缺口待补": 1287,
+    "B5-高校源待结构化或继续补源": 26,
+    "B6-PDF页列核验待完成": 62,
+    "B7-官网后人工确认或低风险抽检": 208,
+    "B0-无逐专业明细先补结构": 40,
+    "B1-结构或归属未闭环": 1665
+  },
+  "discussion_layer_counts": {
+    "D2-完成第一闭环后再讨论": 23,
+    "D3-偏好线索待核后优先讨论": 320,
+    "D4-普通观察池待抽检": 631,
+    "D1-家庭底线默认不进主方案": 650,
+    "D0-暂不可进入候选讨论": 1705
+  },
+  "first_closure_coverage_counts": {
+    "Y-已进入第一闭环批次": 41,
+    "N-未进入第一闭环批次": 3288
+  },
+  "first_closure_group_count": 41,
+  "first_closure_detail_task_count": 206,
+  "first_closure_page_side_count": 37,
+  "school_source_refresh_school_count": 36,
+  "school_source_refresh_task_count": 80,
+  "auto_official_crosscheck_task_count": 854,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "policy": {
+    "usage": "本表把稳定筛选视图、第一闭环批次、高校侧辅证刷新任务接到同一院校专业组粒度，用于判断下一步复核和候选讨论准备度。",
+    "non_final_gate": "所有行最终可用、可进入下一阶段、推荐依据、学校专业建议、官网替代湖北官方计划和字段写回均为false。",
+    "official_boundary": "湖北官方系统/省招办计划和第19期PDF原页仍是字段事实闭环条件；高校侧来源只作辅证和差异发现。",
+    "group_boundary": "服从调剂判断必须看完整专业组，本表只压缩工作量和排序核验任务。"
+  },
+  "next_steps": [
+    "优先处理D2/B2：完成第一闭环页列核验后，才能把相关专业组带入候选讨论。",
+    "D3偏好线索必须继续核完整专业组，不得只看拟填6个专业。",
+    "D1家庭底线风险默认不进主方案，除非家庭明确接受相关费用、属性或调剂风险。"
+  ]
+}

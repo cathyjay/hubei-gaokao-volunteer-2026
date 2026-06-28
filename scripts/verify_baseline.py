@@ -20362,6 +20362,143 @@ def main():
         and not any(token in stable_public_text for token in shared_forbidden_tokens),
     ))
 
+    group_readiness_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-group-readiness-bridge-summary.json"
+    )
+    group_readiness_csv = (
+        ROOT / "data/working/issue19-stable-foundation-group-readiness-bridge.csv"
+    )
+    group_readiness_summary = json.loads(group_readiness_summary_path.read_text())
+    with group_readiness_csv.open(newline="", encoding="utf-8-sig") as f:
+        group_readiness_reader = csv.DictReader(f)
+        group_readiness_rows = list(group_readiness_reader)
+        group_readiness_fields = group_readiness_reader.fieldnames or []
+    expected_group_readiness_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_stable_foundation_group_readiness_bridge.py",
+        "FIELDS",
+    )
+    group_readiness_level_counts = Counter(
+        row.get("数据底座就绪等级") for row in group_readiness_rows
+    )
+    group_readiness_discussion_counts = Counter(
+        row.get("候选讨论就绪层级") for row in group_readiness_rows
+    )
+    group_readiness_first_closure_counts = Counter(
+        row.get("第一闭环覆盖状态") for row in group_readiness_rows
+    )
+    group_readiness_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [group_readiness_summary_path, group_readiness_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座专业组就绪桥接表摘要、规模和门禁正确",
+        group_readiness_summary.get("status")
+        == "issue19_stable_foundation_group_readiness_bridge_not_final"
+        and group_readiness_summary.get("generated_by")
+        == "build_issue19_stable_foundation_group_readiness_bridge.py"
+        and group_readiness_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-group-readiness-bridge.csv"
+        and group_readiness_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and group_readiness_summary.get("official_public_plan_page_can_finalize") is False
+        and group_readiness_summary.get("zspt_platform_can_finalize") is False
+        and group_readiness_summary.get("row_count") == len(group_readiness_rows) == 3329
+        and group_readiness_summary.get("unique_group_occurrence_id_count") == 3329
+        and group_readiness_summary.get("unique_school_count") == 1103
+        and group_readiness_summary.get("first_closure_group_count") == 41
+        and group_readiness_summary.get("first_closure_detail_task_count") == 206
+        and group_readiness_summary.get("first_closure_page_side_count") == 37
+        and group_readiness_summary.get("school_source_refresh_school_count") == 36
+        and group_readiness_summary.get("school_source_refresh_task_count") == 80
+        and group_readiness_summary.get("auto_official_crosscheck_task_count") == 854
+        and group_readiness_summary.get("final_available_count") == 0
+        and group_readiness_summary.get("next_stage_available_count") == 0
+        and group_readiness_summary.get("recommendation_basis_allowed_count") == 0
+        and group_readiness_summary.get("school_major_suggestion_allowed_count") == 0
+        and group_readiness_summary.get("official_plan_replacement_allowed_count") == 0
+        and group_readiness_summary.get("field_writeback_allowed_count") == 0,
+        f"{len(group_readiness_rows)} group readiness rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座专业组就绪桥接表分布、主键和回链正确",
+        group_readiness_fields == expected_group_readiness_fields
+        and len({row.get("稳定基座专业组就绪桥接ID") for row in group_readiness_rows}) == 3329
+        and {row.get("专业组出现ID") for row in group_readiness_rows}
+        == set(stable_group_by_id)
+        and group_readiness_level_counts == Counter({
+            "B2-第一闭环已排队待核": 41,
+            "B3-字段事实缺口待补": 1287,
+            "B5-高校源待结构化或继续补源": 26,
+            "B6-PDF页列核验待完成": 62,
+            "B7-官网后人工确认或低风险抽检": 208,
+            "B0-无逐专业明细先补结构": 40,
+            "B1-结构或归属未闭环": 1665,
+        })
+        and group_readiness_discussion_counts == Counter({
+            "D2-完成第一闭环后再讨论": 23,
+            "D3-偏好线索待核后优先讨论": 320,
+            "D4-普通观察池待抽检": 631,
+            "D1-家庭底线默认不进主方案": 650,
+            "D0-暂不可进入候选讨论": 1705,
+        })
+        and group_readiness_first_closure_counts == Counter({
+            "Y-已进入第一闭环批次": 41,
+            "N-未进入第一闭环批次": 3288,
+        })
+        and group_readiness_summary.get("readiness_level_counts")
+        == dict(group_readiness_level_counts)
+        and group_readiness_summary.get("discussion_layer_counts")
+        == dict(group_readiness_discussion_counts)
+        and group_readiness_summary.get("first_closure_coverage_counts")
+        == dict(group_readiness_first_closure_counts)
+        and sum(as_int(row.get("专业明细行数")) or 0 for row in group_readiness_rows) == 13736
+        and sum(as_int(row.get("第一闭环明细任务数")) or 0 for row in group_readiness_rows) == 206
+        and sum(as_int(row.get("自动官网辅证任务数")) or 0 for row in group_readiness_rows) == 854
+        and all(
+            row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            and row.get("可否进入最终志愿方案") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许自动写回主表") == "false"
+            and row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("是否允许写回字段事实") == "false"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("桥接表使用边界").startswith("只用于稳定基座完成度")
+            for row in group_readiness_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座专业组就绪桥接公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in group_readiness_public_text
+        and "/home/" not in group_readiness_public_text
+        and "/var/folders/" not in group_readiness_public_text
+        and "/private/" not in group_readiness_public_text
+        and "private/" not in group_readiness_public_text
+        and "private\\" not in group_readiness_public_text
+        and "ocr-runs" not in group_readiness_public_text
+        and "rendered-pages" not in group_readiness_public_text
+        and ".png" not in group_readiness_public_text
+        and ".jpg" not in group_readiness_public_text
+        and ".jpeg" not in group_readiness_public_text
+        and ".webp" not in group_readiness_public_text
+        and ".tif" not in group_readiness_public_text
+        and ".tiff" not in group_readiness_public_text
+        and ".heic" not in group_readiness_public_text
+        and "Authorization" not in group_readiness_public_text
+        and "Bearer " not in group_readiness_public_text
+        and "Cookie" not in group_readiness_public_text
+        and "身份证" not in group_readiness_public_text
+        and "准考证" not in group_readiness_public_text
+        and "报名号" not in group_readiness_public_text
+        and "序列号" not in group_readiness_public_text
+        and "已确认" not in group_readiness_public_text
+        and "已核准" not in group_readiness_public_text
+        and "可填报" not in group_readiness_public_text
+        and "可排序" not in group_readiness_public_text
+        and not any(token in group_readiness_public_text for token in shared_forbidden_tokens),
+    ))
+
     next_closure_summary_path = (
         ROOT / "data/working/issue19-stable-foundation-next-closure-workbench-summary.json"
     )
@@ -20950,6 +21087,180 @@ def main():
         and "可填报" not in school_refresh_public_text
         and "可排序" not in school_refresh_public_text
         and not any(token in school_refresh_public_text for token in shared_forbidden_tokens),
+    ))
+
+    school_source_opportunity_summary_path = (
+        ROOT / "data/working/issue19-school-source-opportunity-queue-summary.json"
+    )
+    school_source_opportunity_csv = (
+        ROOT / "data/working/issue19-school-source-opportunity-queue.csv"
+    )
+    school_source_opportunity_summary = json.loads(
+        school_source_opportunity_summary_path.read_text()
+    )
+    with school_source_opportunity_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_source_opportunity_reader = csv.DictReader(f)
+        school_source_opportunity_rows = list(school_source_opportunity_reader)
+        school_source_opportunity_fields = school_source_opportunity_reader.fieldnames or []
+    expected_school_source_opportunity_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_school_source_opportunity_queue.py",
+        "FIELDS",
+    )
+    school_source_opportunity_priority_counts = Counter(
+        row.get("机会优先级") for row in school_source_opportunity_rows
+    )
+    school_source_opportunity_type_counts = Counter(
+        row.get("机会类型") for row in school_source_opportunity_rows
+    )
+    school_source_opportunity_quality_counts = Counter(
+        row.get("来源质量判断") for row in school_source_opportunity_rows
+    )
+    school_source_opportunity_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_source_opportunity_summary_path, school_source_opportunity_csv]
+    )
+    checks.append(ok(
+        "第 19 期高校官网自动辅证机会队列摘要、规模和优先级正确",
+        school_source_opportunity_summary.get("status")
+        == "issue19_school_source_opportunity_queue_not_final"
+        and school_source_opportunity_summary.get("generated_by")
+        == "build_issue19_school_source_opportunity_queue.py"
+        and school_source_opportunity_summary.get("output_table")
+        == "data/working/issue19-school-source-opportunity-queue.csv"
+        and school_source_opportunity_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and school_source_opportunity_summary.get("official_public_plan_can_finalize") is False
+        and school_source_opportunity_summary.get("zspt_platform_can_finalize") is False
+        and school_source_opportunity_summary.get("row_count")
+        == len(school_source_opportunity_rows)
+        == 80
+        and school_source_opportunity_summary.get("unique_school_count") == 36
+        and school_source_opportunity_summary.get("priority_counts")
+        == dict(school_source_opportunity_priority_counts)
+        and school_source_opportunity_priority_counts == Counter({
+            "P0-立即处理": 44,
+            "P1-高收益自动补源": 18,
+            "P2-常规自动补源或抽检": 13,
+            "P3-低收益留存": 5,
+        })
+        and school_source_opportunity_type_counts == Counter({
+            "O3-高收益缺源学校优先补源": 7,
+            "O0-冲突优先回页核验": 17,
+            "O1-官网补缺候选回页核验": 8,
+            "O2-官网专业名未匹配先补规则": 12,
+            "O5-已有来源补结构化": 10,
+            "O4-有入口但缺结构化源": 8,
+            "O7-强辅证抽检": 11,
+            "O6-继续搜索高校官网计划源": 2,
+            "O8-章程规则源只核限制": 5,
+        })
+        and school_source_opportunity_summary.get("opportunity_type_counts")
+        == dict(school_source_opportunity_type_counts)
+        and school_source_opportunity_summary.get("source_quality_counts")
+        == dict(school_source_opportunity_quality_counts)
+        and school_source_opportunity_summary.get("top_10_school_codes_by_execution_order")
+        == ["C125", "F582", "C133", "C108", "H026", "A197", "K486", "H945", "K465", "K753"]
+        and school_source_opportunity_summary.get("total_involved_major_detail_count") == 854
+        and school_source_opportunity_summary.get("total_c4c6_no_structured_source_detail_count") == 311
+        and school_source_opportunity_summary.get("total_c4c6_candidate_diff_detail_count") == 235
+        and school_source_opportunity_summary.get("final_available_count") == 0
+        and school_source_opportunity_summary.get("next_stage_available_count") == 0
+        and school_source_opportunity_summary.get("recommendation_basis_allowed_count") == 0
+        and school_source_opportunity_summary.get("school_major_suggestion_allowed_count") == 0
+        and school_source_opportunity_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_source_opportunity_summary.get("field_writeback_allowed_count") == 0,
+        f"{len(school_source_opportunity_rows)} school source opportunity rows",
+    ))
+    school_source_opportunity_false_fields = [
+        "最终可用",
+        "可进入下一阶段",
+        "可否进入最终志愿方案",
+        "是否允许作为志愿推荐依据",
+        "是否允许自动写回主表",
+        "是否允许官网证据替代湖北官方计划",
+        "是否允许生成学校专业建议",
+        "是否允许写回字段事实",
+    ]
+    checks.append(ok(
+        "第 19 期高校官网自动辅证机会队列字段、主键和保真门禁正确",
+        school_source_opportunity_fields == expected_school_source_opportunity_fields
+        and len({row.get("高校官网辅证机会ID") for row in school_source_opportunity_rows}) == 80
+        and [as_int(row.get("执行建议序号")) for row in school_source_opportunity_rows]
+        == list(range(1, 81))
+        and {
+            (
+                row.get("院校代码", ""),
+                row.get("院校名称OCR", ""),
+                row.get("官网辅证自动动作", ""),
+            )
+            for row in school_source_opportunity_rows
+        }
+        == {
+            (
+                row.get("院校代码", ""),
+                row.get("院校名称OCR", ""),
+                row.get("官网辅证自动动作", ""),
+            )
+            for row in school_refresh_rows
+        }
+        and all(
+            row.get(field) == "false"
+            for row in school_source_opportunity_rows
+            for field in school_source_opportunity_false_fields
+        )
+        and all(
+            row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_school_source_opportunity_queue"
+            and row.get("主表粒度") == "高校×高校侧辅证动作"
+            and row.get("任务粒度") == "自动辅证机会"
+            and "不能替代" in row.get("保真边界", "")
+            and "不保存逐专业字段读数" in row.get("公开安全策略", "")
+            for row in school_source_opportunity_rows
+        )
+        and as_int(school_source_opportunity_rows[0].get("自动收益分")) >= as_int(school_source_opportunity_rows[-1].get("自动收益分"))
+        and school_source_opportunity_rows[0].get("院校代码") == "C125"
+        and school_source_opportunity_rows[0].get("机会类型") == "O3-高收益缺源学校优先补源",
+    ))
+    checks.append(ok(
+        "第 19 期高校官网自动辅证机会队列公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        "/Users/" not in school_source_opportunity_public_text
+        and "/home/" not in school_source_opportunity_public_text
+        and "/var/folders/" not in school_source_opportunity_public_text
+        and "/private/" not in school_source_opportunity_public_text
+        and "private/" not in school_source_opportunity_public_text
+        and "private\\" not in school_source_opportunity_public_text
+        and "ocr-runs" not in school_source_opportunity_public_text
+        and "rendered-pages" not in school_source_opportunity_public_text
+        and "file://" not in school_source_opportunity_public_text
+        and ".png" not in school_source_opportunity_public_text
+        and ".jpg" not in school_source_opportunity_public_text
+        and ".jpeg" not in school_source_opportunity_public_text
+        and ".webp" not in school_source_opportunity_public_text
+        and ".tif" not in school_source_opportunity_public_text
+        and ".tiff" not in school_source_opportunity_public_text
+        and ".heic" not in school_source_opportunity_public_text
+        and "Authorization" not in school_source_opportunity_public_text
+        and "Bearer " not in school_source_opportunity_public_text
+        and "Cookie" not in school_source_opportunity_public_text
+        and "Set-Cookie" not in school_source_opportunity_public_text
+        and "access_token" not in school_source_opportunity_public_text
+        and "refresh_token" not in school_source_opportunity_public_text
+        and "password" not in school_source_opportunity_public_text
+        and "secret" not in school_source_opportunity_public_text
+        and "api_key" not in school_source_opportunity_public_text
+        and "身份证" not in school_source_opportunity_public_text
+        and "准考证" not in school_source_opportunity_public_text
+        and "报名号" not in school_source_opportunity_public_text
+        and "序列号" not in school_source_opportunity_public_text
+        and "手机号" not in school_source_opportunity_public_text
+        and "人工读数" not in school_source_opportunity_public_text
+        and "已确认" not in school_source_opportunity_public_text
+        and "已核准" not in school_source_opportunity_public_text
+        and "最终推荐" not in school_source_opportunity_public_text
+        and "最终方案" not in school_source_opportunity_public_text
+        and "可填报" not in school_source_opportunity_public_text
+        and "可排序" not in school_source_opportunity_public_text
+        and not any(token in school_source_opportunity_public_text for token in shared_forbidden_tokens),
     ))
 
     c4_c6_packets_summary_path = (
