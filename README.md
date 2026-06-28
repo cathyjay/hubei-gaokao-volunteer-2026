@@ -89,6 +89,7 @@
 - 下一轮闭环与家庭讨论 V1：`data/exports/issue19-next-closure-family-review-v1.xlsx`。当前推进数据基座的优先执行入口，把 37 个页列继续拆成 64 个小核验包，并把 55 个重点专业组按家庭讨论、先核页、先核限制、先核费用分层；全部仍为 `not_final`，字段写回、推荐依据和最终可用计数均为 0。
 - 数据基座下一批执行 V1：`data/exports/issue19-data-foundation-next-execution-v1.xlsx`。当前新增执行入口，聚焦 P0 冲突 10 包/26 任务、高校官网辅证 next20 和 55 组调剂风险；用于继续推进字段事实闭环，不确认字段事实，不作为最终志愿方案。
 - P0 top3 私有复核包公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`、`data/working/issue19-p0-top3-field-review-public-ledger.csv` 和 `data/working/issue19-p0-top3-review-packet-summary.json`。把 `135-left`、`199-left`、`209-right` 这 3 个最高优先 P0 冲突包落成 15 条本地私有核验任务，并拆成 36 个逐字段核验单元；公开层只保存计数、状态、关系桶和 SHA，原页图、OCR 文本、候选值和人工读数留在 Git 忽略目录。
+- 第一闭环 B0 冲突页列核验状态：`data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-b0-conflict-status-summary.json`。把 10 个 B0 页列、132 条同页任务和 26 条明确 PDFOCR 与高校辅证冲突任务单独抽出，标记 P0/P1/P3 核验优先级、字段类型、同页 B0/B1 计划数冲突专项口径和三方待核门禁；全部仍为 `not_final`，不得作为字段事实或志愿推荐依据。
 - 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 本科普通批志愿草表 V1：`data/exports/issue19-volunteer-table-v1-draft.xlsx`。基于第二轮更新偏好候选生成，用于把 45 个院校专业组、460 条专业选择明细拆成冲刺、稳冲、稳妥和保底、高费专项批次，逐组讨论 6 个专业草案、完整组内调剂、原页核验和章程核验；全部行仍为讨论草案，不作为定稿依据。
 
@@ -199,6 +200,7 @@ python3 scripts/build_issue19_first_closure_page_side_candidate_dashboard.py
 python3 scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py
 python3 scripts/build_issue19_first_closure_field_confirmation_workbench.py
 python3 scripts/build_issue19_first_closure_field_status_dashboard.py
+python3 scripts/build_issue19_first_closure_b0_conflict_status.py
 python3 scripts/build_issue19_next_closure_family_review_v1.py
 python3 scripts/build_issue19_p0_top3_review_packet.py
 python3 scripts/build_issue19_data_foundation_next_execution_v1.py
@@ -305,6 +307,8 @@ C4/C6 结构化候选 diff：`data/working/issue19-c4-c6-structured-candidate-di
 第一闭环字段确认公开账本：`data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger-summary.json` 把同一批 206 条任务从“候选提示层”推进到“私有人工记录状态机”。公开层只保存 PDF OCR、机器坐标、高校辅证三类提示是否存在、人工核验泳道、PDF 原页/湖北官方/高校辅证私有记录状态、双人复核状态和门禁；候选值、人工读数、湖北官方字段值、学校辅证字段值和复核备注只写入 Git 忽略的私有工作台。当前 26 条任务为 PDFOCR 与高校辅证冲突双人核页、49 条为机器坐标候选辅助核页、77 条为 PDFOCR 候选人工确认、54 条为无候选人工看图；206 条 PDF 原页和湖北官方侧记录均待完成，91 条需要双人复核，字段写回、推荐依据、学校专业建议和最终可用计数仍全部为 0。
 
 第一闭环字段状态看板：`data/working/issue19-stable-foundation-first-closure-field-status-dashboard.csv` 和 `data/working/issue19-stable-foundation-first-closure-field-status-dashboard-summary.json` 把上述 206 条字段确认任务重新压缩到 37 个 `PDF页码×版面列`。当前主阻断为：10 个页列先核 PDFOCR 与高校辅证冲突，4 个页列缺 PDFOCR 候选需人工看图，17 个页列可用机器坐标辅助核页，6 个页列按 PDFOCR 候选人工确认；拆字段计数为专业计划数 170、学费 105、再选科目 77、待人工判定字段 2。该看板只公开页列级状态、计数、集合 SHA 和门禁，不保存字段明细、候选明细、院校专业明细或私有路径；字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
+
+第一闭环 B0 冲突页列核验状态：`data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-b0-conflict-status-summary.json` 把字段状态看板中的 10 个 B0 页列进一步单独抽出。当前 10 个页列覆盖 132 条同页任务，其中 26 条是明确 PDFOCR 与高校辅证冲突，106 条是同页伴生待闭环任务；B0 冲突字段类型为计划数 26、学费 26、再选科目 16。该表同时区分全局 B0/B1 计划数冲突专项 19 条和落在 B0 页列内的 18 条，防止把统计口径混用。公开层只保存页列级计数、字段类型、证据编号、状态桶和集合 SHA，不保存学校专业明细、字段候选值、OCR 原文、人工读数或私有路径；字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
 
 P0 字段原页重读工作清单：`data/working/issue19-field-fact-p0-reread-worklist.csv` 从字段事实核验任务队列中严格抽取 11444 条 K0 无候选字段任务，覆盖 8536 条招生专业明细、231 个 PDF 明细页和 967 所学校。它把每个 `专业行ID × 字段名` 回连到字段任务、原始源证据审计、PDF 原页锚点和页级保真队列，用于优先回看专业计划数、再选科目、学费三项原始字段；全部 `最终可用=false`、`可进入下一阶段=false`，不得自动写回主表，也不得生成学校或专业建议。
 
