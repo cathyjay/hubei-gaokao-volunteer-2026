@@ -1,0 +1,50 @@
+{
+  "status": "issue19_data_foundation_next_execution_v1_ready_not_final",
+  "generated_by": "build_issue19_data_foundation_next_execution_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "usage_boundary": "用于推进第一闭环P0冲突包、高校官网辅证next20和55组调剂风险复核；不确认字段事实，不作为最终志愿方案。",
+  "outputs": {
+    "workbook": "data/exports/issue19-data-foundation-next-execution-v1.xlsx",
+    "p0_conflict_packages": "data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-packages.csv",
+    "p0_conflict_tasks": "data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-tasks.csv",
+    "school_source_next20": "data/exports/issue19-data-foundation-next-execution-v1-school-source-next20.csv",
+    "priority55_transfer_risk": "data/exports/issue19-data-foundation-next-execution-v1-priority55-transfer-risk.csv"
+  },
+  "p0_conflict": {
+    "package_count": 10,
+    "task_count": 26,
+    "double_review_task_count": 19,
+    "school_evidence_task_count": 26,
+    "pdf_reading_completed_count": 0,
+    "hubei_official_completed_count": 0,
+    "field_writeback_ready_count": 0
+  },
+  "school_source_next20": {
+    "row_count": 20,
+    "unique_school_count": 18,
+    "opportunity_type_counts": {
+      "O3-高收益缺源学校优先补源": 7,
+      "O0-冲突优先回页核验": 9,
+      "O1-官网补缺候选回页核验": 3,
+      "O2-官网专业名未匹配先补规则": 1
+    },
+    "live_structured_output_count": 1,
+    "recommendation_basis_allowed_count": 0
+  },
+  "priority55_transfer_risk": {
+    "group_count": 55,
+    "enter_next_review_count": 29,
+    "risk_counts": {
+      "T2-字段或限制待核较多": 43,
+      "T2-先核限制费用再谈调剂": 12
+    },
+    "final_basis_allowed_count": 0
+  },
+  "hashes": {
+    "p0_packages_sha16": "c91267d2ea4f3084",
+    "p0_tasks_sha16": "d6c5ef64db09b1f8",
+    "school_next20_sha16": "1845807d57a68ff9",
+    "group_risk_sha16": "3c1d9c9a916fdca9"
+  }
+}

@@ -20819,6 +20819,166 @@ def main():
         and not any(token in next_closure_public_text for token in shared_forbidden_tokens),
     ))
 
+    next_execution_script = ROOT / "scripts/build_issue19_data_foundation_next_execution_v1.py"
+    next_execution_summary_path = ROOT / "data/exports/issue19-data-foundation-next-execution-v1-summary.json"
+    next_execution_workbook_path = ROOT / "data/exports/issue19-data-foundation-next-execution-v1.xlsx"
+    next_execution_p0_packages_csv = (
+        ROOT / "data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-packages.csv"
+    )
+    next_execution_p0_tasks_csv = (
+        ROOT / "data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-tasks.csv"
+    )
+    next_execution_school_csv = (
+        ROOT / "data/exports/issue19-data-foundation-next-execution-v1-school-source-next20.csv"
+    )
+    next_execution_group_risk_csv = (
+        ROOT / "data/exports/issue19-data-foundation-next-execution-v1-priority55-transfer-risk.csv"
+    )
+    next_execution_summary = json.loads(next_execution_summary_path.read_text())
+    with next_execution_p0_packages_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_execution_p0_packages_reader = csv.DictReader(f)
+        next_execution_p0_packages_rows = list(next_execution_p0_packages_reader)
+        next_execution_p0_packages_fields = next_execution_p0_packages_reader.fieldnames or []
+    with next_execution_p0_tasks_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_execution_p0_tasks_reader = csv.DictReader(f)
+        next_execution_p0_tasks_rows = list(next_execution_p0_tasks_reader)
+        next_execution_p0_tasks_fields = next_execution_p0_tasks_reader.fieldnames or []
+    with next_execution_school_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_execution_school_reader = csv.DictReader(f)
+        next_execution_school_rows = list(next_execution_school_reader)
+        next_execution_school_fields = next_execution_school_reader.fieldnames or []
+    with next_execution_group_risk_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_execution_group_risk_reader = csv.DictReader(f)
+        next_execution_group_risk_rows = list(next_execution_group_risk_reader)
+        next_execution_group_risk_fields = next_execution_group_risk_reader.fieldnames or []
+    expected_next_execution_p0_package_fields = script_list_constant(
+        next_execution_script, "P0_PACKAGE_FIELDS"
+    )
+    expected_next_execution_p0_task_fields = script_list_constant(
+        next_execution_script, "P0_TASK_FIELDS"
+    )
+    expected_next_execution_school_fields = script_list_constant(
+        next_execution_script, "SCHOOL_NEXT20_FIELDS"
+    )
+    expected_next_execution_group_fields = script_list_constant(
+        next_execution_script, "GROUP_RISK_FIELDS"
+    )
+    next_execution_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            next_execution_summary_path,
+            next_execution_p0_packages_csv,
+            next_execution_p0_tasks_csv,
+            next_execution_school_csv,
+            next_execution_group_risk_csv,
+        ]
+    )
+    next_execution_p0_task_ids = {
+        row.get("第一闭环任务ID", "") for row in next_execution_p0_tasks_rows
+    }
+    next_execution_p0_package_ids = {
+        row.get("核验包编号", "") for row in next_execution_p0_packages_rows
+    }
+    next_execution_p0_task_package_ids = {
+        row.get("核验包编号", "") for row in next_execution_p0_tasks_rows
+    }
+    checks.append(ok(
+        "第 19 期数据基座下一批执行工作簿摘要、规模和门禁正确",
+        next_execution_summary.get("status") == "issue19_data_foundation_next_execution_v1_ready_not_final"
+        and next_execution_summary.get("generated_by") == "build_issue19_data_foundation_next_execution_v1.py"
+        and next_execution_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and "不确认字段事实" in next_execution_summary.get("usage_boundary", "")
+        and next_execution_summary.get("outputs", {}).get("workbook") == "data/exports/issue19-data-foundation-next-execution-v1.xlsx"
+        and next_execution_workbook_path.exists()
+        and next_execution_workbook_path.stat().st_size > 20_000
+        and next_execution_summary.get("p0_conflict", {}).get("package_count") == len(next_execution_p0_packages_rows) == 10
+        and next_execution_summary.get("p0_conflict", {}).get("task_count") == len(next_execution_p0_tasks_rows) == 26
+        and next_execution_summary.get("p0_conflict", {}).get("double_review_task_count") == 19
+        and next_execution_summary.get("p0_conflict", {}).get("school_evidence_task_count") == 26
+        and next_execution_summary.get("p0_conflict", {}).get("pdf_reading_completed_count") == 0
+        and next_execution_summary.get("p0_conflict", {}).get("hubei_official_completed_count") == 0
+        and next_execution_summary.get("p0_conflict", {}).get("field_writeback_ready_count") == 0
+        and next_execution_summary.get("school_source_next20", {}).get("row_count") == len(next_execution_school_rows) == 20
+        and next_execution_summary.get("school_source_next20", {}).get("unique_school_count") == 18
+        and next_execution_summary.get("school_source_next20", {}).get("live_structured_output_count") == 1
+        and next_execution_summary.get("school_source_next20", {}).get("recommendation_basis_allowed_count") == 0
+        and next_execution_summary.get("priority55_transfer_risk", {}).get("group_count") == len(next_execution_group_risk_rows) == 55
+        and next_execution_summary.get("priority55_transfer_risk", {}).get("enter_next_review_count") == 29
+        and next_execution_summary.get("priority55_transfer_risk", {}).get("final_basis_allowed_count") == 0,
+        f"{len(next_execution_p0_packages_rows)} P0 packages, {len(next_execution_school_rows)} school next20",
+    ))
+    checks.append(ok(
+        "第 19 期数据基座下一批执行工作簿字段、聚合和来源回链正确",
+        next_execution_p0_packages_fields == expected_next_execution_p0_package_fields
+        and next_execution_p0_tasks_fields == expected_next_execution_p0_task_fields
+        and next_execution_school_fields == expected_next_execution_school_fields
+        and next_execution_group_risk_fields == expected_next_execution_group_fields
+        and len(next_execution_p0_package_ids) == 10
+        and len(next_execution_p0_task_ids) == 26
+        and next_execution_p0_task_package_ids == next_execution_p0_package_ids
+        and Counter(row.get("页码版面", "") for row in next_execution_p0_packages_rows) == Counter({
+            "135-left": 1,
+            "199-left": 1,
+            "209-right": 1,
+            "169-right": 1,
+            "018-left": 1,
+            "037-left": 1,
+            "137-right": 1,
+            "056-left": 1,
+            "226-left": 1,
+            "226-right": 1,
+        })
+        and sum(as_int(row.get("包内任务数")) for row in next_execution_p0_packages_rows) == 26
+        and sum(as_int(row.get("双人复核任务数")) for row in next_execution_p0_packages_rows) == 19
+        and sum(as_int(row.get("高校辅证任务数")) for row in next_execution_p0_packages_rows) == 26
+        and {row.get("字段写回状态") for row in next_execution_p0_tasks_rows} == {
+            "blocked_until_required_private_readings_complete"
+        }
+        and {row.get("是否可作为定稿依据") for row in next_execution_school_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in next_execution_group_risk_rows} == {"false"}
+        and Counter(row.get("机会类型") for row in next_execution_school_rows) == Counter({
+            "O3-高收益缺源学校优先补源": 7,
+            "O0-冲突优先回页核验": 9,
+            "O1-官网补缺候选回页核验": 3,
+            "O2-官网专业名未匹配先补规则": 1,
+        })
+        and Counter(row.get("调剂风险等级") for row in next_execution_group_risk_rows) == Counter({
+            "T2-字段或限制待核较多": 43,
+            "T2-先核限制费用再谈调剂": 12,
+        }),
+    ))
+    checks.append(ok(
+        "第 19 期数据基座下一批执行工作簿公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in next_execution_public_text
+        and "/home/" not in next_execution_public_text
+        and "/var/folders/" not in next_execution_public_text
+        and "/private/" not in next_execution_public_text
+        and "private/" not in next_execution_public_text
+        and "private\\" not in next_execution_public_text
+        and "ocr-runs" not in next_execution_public_text
+        and "rendered-pages" not in next_execution_public_text
+        and ".png" not in next_execution_public_text
+        and ".jpg" not in next_execution_public_text
+        and ".jpeg" not in next_execution_public_text
+        and ".webp" not in next_execution_public_text
+        and ".heic" not in next_execution_public_text
+        and "Authorization" not in next_execution_public_text
+        and "Bearer " not in next_execution_public_text
+        and "Cookie" not in next_execution_public_text
+        and "身份证" not in next_execution_public_text
+        and "准考证" not in next_execution_public_text
+        and "报名号" not in next_execution_public_text
+        and "序列号" not in next_execution_public_text
+        and "手机号" not in next_execution_public_text
+        and "已确认" not in next_execution_public_text
+        and "已核准" not in next_execution_public_text
+        and "最终推荐" not in next_execution_public_text
+        and "最终方案" not in next_execution_public_text
+        and "可填报" not in next_execution_public_text
+        and "可排序" not in next_execution_public_text
+        and not any(token in next_execution_public_text for token in shared_forbidden_tokens),
+    ))
+
     school_refresh_summary_path = (
         ROOT
         / "data/working/issue19-stable-foundation-school-source-refresh-public-ledger-summary.json"

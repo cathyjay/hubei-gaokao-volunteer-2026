@@ -54,6 +54,7 @@
 - `docs/DATA_BROWSER_AND_VERIFICATION.md`：结构化数据浏览入口、Excel 工作簿、快速核验抽样和升级规则。
 - `docs/CLOSURE_AND_SHORTLIST_V1.md`：字段闭环与重点核验 V1，把第一闭环 37 个页列、206 条任务、80 个高校官网辅证动作、Round4 55 个重点核验组和完整组内专业合到一个入口。
 - `docs/NEXT_CLOSURE_AND_FAMILY_REVIEW_V1.md`：下一轮闭环与家庭讨论入口，把第一闭环拆成 64 个小核验包，并把 55 个重点组展开成 458 条完整组内专业明细。
+- `docs/DATA_FOUNDATION_NEXT_EXECUTION_V1.md`：数据基座下一批执行工作台，聚焦 P0 冲突 10 包、官网辅证 next20 和 55 组调剂风险。
 - `docs/ROUND1_CANDIDATE_SELECTION.md`：第一轮历史候选专业组选择、精选 80、历史优先城市观察和家庭讨论动作。
 - `docs/PERSONAL_FIT_CANDIDATES_V1.md`：结合 515 分、91723 位次、家庭偏好和 7 万专项口径生成的个人适配候选讨论池。
 - `docs/ROUND2_UPDATED_PREFERENCES.md`：纳入最新体检摘要、护理/动物医学/兽医暂不纳入、医技/康复低优先级专项了解和新增专业方向后的第二轮候选池。
@@ -86,6 +87,7 @@
 - 第四轮 5 万内中外合作/高收费专项：`data/exports/issue19-round4-50k-coop-city-gradient.xlsx`。Round4 平行专项入口，允许公办中外合作/国际合作/高收费项目单独讨论；主表 21 个 H1-H4 专业组，H0 38 组、H5 51 组、费用待核或超 5 万 165 组均单列附录。
 - 字段闭环与重点核验 V1：`data/exports/issue19-closure-and-shortlist-v1.xlsx`。当前新增推进入口，把第一闭环 37 个页列、206 条逐任务、36 所学校 80 个高校官网辅证动作、2026-06-29 live 补源尝试、Round4 55 个重点核验组和 458 条完整组内专业明细放在同一工作簿；全部仍为核验入口，不作为定稿依据。
 - 下一轮闭环与家庭讨论 V1：`data/exports/issue19-next-closure-family-review-v1.xlsx`。当前推进数据基座的优先执行入口，把 37 个页列继续拆成 64 个小核验包，并把 55 个重点专业组按家庭讨论、先核页、先核限制、先核费用分层；全部仍为 `not_final`，字段写回、推荐依据和最终可用计数均为 0。
+- 数据基座下一批执行 V1：`data/exports/issue19-data-foundation-next-execution-v1.xlsx`。当前新增执行入口，聚焦 P0 冲突 10 包/26 任务、高校官网辅证 next20 和 55 组调剂风险；用于继续推进字段事实闭环，不确认字段事实，不作为最终志愿方案。
 - 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 本科普通批志愿草表 V1：`data/exports/issue19-volunteer-table-v1-draft.xlsx`。基于第二轮更新偏好候选生成，用于把 45 个院校专业组、460 条专业选择明细拆成冲刺、稳冲、稳妥和保底、高费专项批次，逐组讨论 6 个专业草案、完整组内调剂、原页核验和章程核验；全部行仍为讨论草案，不作为定稿依据。
 
@@ -196,6 +198,7 @@ python3 scripts/build_issue19_first_closure_page_side_candidate_dashboard.py
 python3 scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py
 python3 scripts/build_issue19_first_closure_field_confirmation_workbench.py
 python3 scripts/build_issue19_next_closure_family_review_v1.py
+python3 scripts/build_issue19_data_foundation_next_execution_v1.py
 python3 scripts/build_issue19_major_line_layout_continuity_risk_ledger.py
 python3 scripts/build_issue19_major_code_order_risk_ledger.py
 python3 scripts/build_issue19_foundation_audit.py

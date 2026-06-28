@@ -17,6 +17,12 @@
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx`
 
+继续执行时优先打开：
+
+- `data/exports/issue19-data-foundation-next-execution-v1.xlsx`
+
+说明：`issue19-next-closure-family-review-v1.xlsx` 是 64 个小包和 55 组讨论的总入口；`issue19-data-foundation-next-execution-v1.xlsx` 是下一批执行入口，专门聚焦 P0 冲突包、官网辅证 next20 和 55 组调剂风险。
+
 对应 CSV：
 
 - `data/exports/issue19-next-closure-family-review-v1-first-closure-page-pack.csv`

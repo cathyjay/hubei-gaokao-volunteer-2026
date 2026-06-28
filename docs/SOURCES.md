@@ -202,6 +202,18 @@
    - 当前结论：37 个第一闭环页列被拆成 64 个小核验包；55 个重点专业组被分成优先家庭讨论、先核限制、先核页、先看调剂和先核费用；458 条专业明细只作家庭接受度和调剂风险讨论入口。
    - 限制：该入口不新增官方事实，不保存私有读数，不确认计划数、学费、选科或组边界；所有字段写回、推荐依据和最终可用计数仍为 0。
 
+13. 数据基座下一批执行工作台 V1
+   - 生成脚本：`scripts/build_issue19_data_foundation_next_execution_v1.py`
+   - 工作簿：`data/exports/issue19-data-foundation-next-execution-v1.xlsx`
+   - 摘要：`data/exports/issue19-data-foundation-next-execution-v1-summary.json`
+   - P0 冲突包：`data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-packages.csv`
+   - P0 冲突逐任务：`data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-tasks.csv`
+   - 官网辅证 next20：`data/exports/issue19-data-foundation-next-execution-v1-school-source-next20.csv`
+   - 55 组调剂风险：`data/exports/issue19-data-foundation-next-execution-v1-priority55-transfer-risk.csv`
+   - 输入来源：下一轮闭环与家庭讨论 V1、第一闭环字段确认公开账本、高校官网辅证机会队列、2026-06-29 live 补源账本、55 组讨论入口和完整组内专业明细。
+   - 当前结论：P0 冲突包 10 个、26 条任务，其中 19 条需双人复核、26 条均有高校辅证线索；官网辅证 next20 覆盖 18 所学校；55 个重点组中 29 组建议进入下一轮重点核验。
+   - 限制：该入口只安排下一批核验和补源，不确认字段事实，不允许字段写回，不作为最终志愿方案。
+
 ## 派生数据说明
 
 - `data/derived/hubei-2025-physics-toudang-ocr.txt`：由 2025 官方图片 OCR 生成。
