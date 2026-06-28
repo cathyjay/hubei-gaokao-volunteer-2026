@@ -1,0 +1,73 @@
+{
+  "status": "issue19_personal_fit_v1_discussion_pool_ready",
+  "generated_by": "build_issue19_personal_fit_v1.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "usage_boundary": "结合个人与家庭偏好的候选讨论池，不作定稿依据。",
+  "fixed_inputs": {
+    "省份": "湖北",
+    "年份": 2026,
+    "类别": "普通类首选物理",
+    "再选科目": "化学、地理",
+    "总分": 515,
+    "累计位次": 91723,
+    "等位分": {
+      "2025": 494,
+      "2024": 497,
+      "2023": 481
+    },
+    "普通主线": "优先公办普通学费",
+    "专项预算上限": 70000,
+    "明确不接受": [
+      "医学/护理默认不进主线"
+    ]
+  },
+  "group_output": "data/exports/issue19-personal-fit-v1-groups.csv",
+  "major_output": "data/exports/issue19-personal-fit-v1-major-details.csv",
+  "workbook": "data/exports/issue19-personal-fit-v1.xlsx",
+  "group_count": 45,
+  "major_detail_count": 267,
+  "discussion_group_count": 34,
+  "not_enter_discussion_group_count": 11,
+  "track_counts": {
+    "普通公办低费用主线": 23,
+    "7万内中外合作/高收费专项": 22
+  },
+  "tier_counts": {
+    "A-主线优先讨论": 8,
+    "B-保底备选讨论": 5,
+    "C-冲刺观察讨论": 2,
+    "C-城市专业观察": 3,
+    "D-谨慎核验后再讨论": 5,
+    "A-专项优先核验": 5,
+    "B-高价值高冲观察": 2,
+    "B-专项可研究": 4,
+    "C-专项保守观察": 5,
+    "D-专项暂缓": 2,
+    "E-排除或仅留风险记录": 4
+  },
+  "action_counts": {
+    "进入家庭讨论": 17,
+    "谨慎进入家庭讨论": 1,
+    "暂缓进入家庭讨论": 5,
+    "进入专项讨论": 9,
+    "谨慎进入专项讨论": 7,
+    "暂缓进入专项讨论": 2,
+    "不进入家庭讨论": 4
+  },
+  "all_rows_gate": {
+    "是否可作为定稿依据": "false",
+    "must_verify": [
+      "第19期原页或纸质原页",
+      "湖北官方系统或省招办计划",
+      "高校招生章程",
+      "完整专业组和调剂范围",
+      "学费、计划数、选科、校区、语种/单科/体检限制"
+    ]
+  },
+  "source_tables": [
+    "data/exports/issue19-stable-foundation-group-browser.csv",
+    "data/exports/issue19-stable-foundation-major-browser.csv",
+    "data/exports/issue19-round1-candidate-groups.csv",
+    "data/exports/issue19-expanded-budget-coop-groups.csv"
+  ]
+}

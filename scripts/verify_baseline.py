@@ -25540,6 +25540,109 @@ def main():
         and not any(token in round1_public_text for token in shared_forbidden_tokens),
     ))
 
+    personal_fit_script = ROOT / "scripts/build_issue19_personal_fit_v1.py"
+    personal_fit_summary_path = ROOT / "data/exports/issue19-personal-fit-v1-summary.json"
+    personal_fit_workbook_path = ROOT / "data/exports/issue19-personal-fit-v1.xlsx"
+    personal_fit_groups_csv = ROOT / "data/exports/issue19-personal-fit-v1-groups.csv"
+    personal_fit_majors_csv = ROOT / "data/exports/issue19-personal-fit-v1-major-details.csv"
+    personal_fit_summary = json.loads(personal_fit_summary_path.read_text())
+    with personal_fit_groups_csv.open(newline="", encoding="utf-8-sig") as f:
+        personal_fit_group_reader = csv.DictReader(f)
+        personal_fit_group_rows = list(personal_fit_group_reader)
+        personal_fit_group_fields = personal_fit_group_reader.fieldnames or []
+    with personal_fit_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        personal_fit_major_reader = csv.DictReader(f)
+        personal_fit_major_rows = list(personal_fit_major_reader)
+        personal_fit_major_fields = personal_fit_major_reader.fieldnames or []
+    expected_personal_fit_group_fields = script_list_constant(
+        personal_fit_script,
+        "GROUP_FIELDS",
+    )
+    expected_personal_fit_major_fields = script_list_constant(
+        personal_fit_script,
+        "MAJOR_FIELDS",
+    )
+    personal_fit_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            personal_fit_summary_path,
+            personal_fit_groups_csv,
+            personal_fit_majors_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期个人适配候选 V1 摘要、规模和工作簿正确",
+        personal_fit_summary.get("status") == "issue19_personal_fit_v1_discussion_pool_ready"
+        and personal_fit_summary.get("generated_by") == "build_issue19_personal_fit_v1.py"
+        and personal_fit_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and personal_fit_summary.get("fixed_inputs", {}).get("总分") == 515
+        and personal_fit_summary.get("fixed_inputs", {}).get("累计位次") == 91723
+        and personal_fit_summary.get("fixed_inputs", {}).get("专项预算上限") == 70000
+        and personal_fit_summary.get("group_count") == len(personal_fit_group_rows) == 45
+        and personal_fit_summary.get("major_detail_count") == len(personal_fit_major_rows) == 267
+        and personal_fit_summary.get("discussion_group_count") == 34
+        and personal_fit_summary.get("not_enter_discussion_group_count") == 11
+        and personal_fit_summary.get("workbook") == "data/exports/issue19-personal-fit-v1.xlsx"
+        and personal_fit_workbook_path.exists()
+        and personal_fit_workbook_path.stat().st_size > 50_000,
+        f"{len(personal_fit_group_rows)} groups, {len(personal_fit_major_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期个人适配候选 V1 字段、候选门禁和关键候选正确",
+        personal_fit_group_fields == expected_personal_fit_group_fields
+        and personal_fit_major_fields == expected_personal_fit_major_fields
+        and {row.get("是否可作为定稿依据") for row in personal_fit_group_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in personal_fit_major_rows} == {"false"}
+        and {
+            row.get("院校专业组代码OCR规范化")
+            for row in personal_fit_group_rows
+            if row.get("是否进入本轮家庭讨论") == "true"
+        }.issuperset({"C13107", "C13908", "C13810", "C12706", "K15306", "K46904", "K48703", "K15308", "C13909", "A36603"})
+        and {
+            row.get("院校专业组代码OCR规范化")
+            for row in personal_fit_group_rows
+            if row.get("是否进入本轮家庭讨论") == "false"
+        }.issuperset({"F31303", "K58501", "A14509", "H31011", "A03208", "A03209"})
+        and {
+            row.get("专业组出现ID", "")
+            for row in personal_fit_major_rows
+        }.issubset({row.get("专业组出现ID", "") for row in personal_fit_group_rows}),
+    ))
+    checks.append(ok(
+        "第 19 期个人适配候选 V1 公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in personal_fit_public_text
+        and "/home/" not in personal_fit_public_text
+        and "/var/folders/" not in personal_fit_public_text
+        and "/private/" not in personal_fit_public_text
+        and "private/" not in personal_fit_public_text
+        and "private\\" not in personal_fit_public_text
+        and "ocr-runs" not in personal_fit_public_text
+        and "rendered-pages" not in personal_fit_public_text
+        and "file://" not in personal_fit_public_text
+        and "Authorization" not in personal_fit_public_text
+        and "Bearer " not in personal_fit_public_text
+        and "Cookie" not in personal_fit_public_text
+        and "Set-Cookie" not in personal_fit_public_text
+        and "access_token" not in personal_fit_public_text
+        and "refresh_token" not in personal_fit_public_text
+        and "password" not in personal_fit_public_text
+        and "secret" not in personal_fit_public_text
+        and "api_key" not in personal_fit_public_text
+        and "身份证" not in personal_fit_public_text
+        and "准考证" not in personal_fit_public_text
+        and "报名号" not in personal_fit_public_text
+        and "序列号" not in personal_fit_public_text
+        and "手机号" not in personal_fit_public_text
+        and "人工读数" not in personal_fit_public_text
+        and "已确认" not in personal_fit_public_text
+        and "已核准" not in personal_fit_public_text
+        and "最终推荐" not in personal_fit_public_text
+        and "最终方案" not in personal_fit_public_text
+        and "可填报" not in personal_fit_public_text
+        and "可排序" not in personal_fit_public_text
+        and not any(token in personal_fit_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

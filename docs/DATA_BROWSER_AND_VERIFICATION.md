@@ -6,9 +6,12 @@
 
 最方便的入口是：
 
+- `data/exports/issue19-personal-fit-v1.xlsx`
 - `data/exports/issue19-stable-foundation-browser.xlsx`
 
-这个 Excel 工作簿是从稳定数据基座 V0 生成的浏览版，不改动原始 CSV。它适合家庭一起看、筛选和做第一轮讨论。
+`issue19-personal-fit-v1.xlsx` 是当前最适合家庭先看的入口：它把 515 分、91723 位次、家庭偏好、公办普通主线和 7 万中外合作专项口径合在一起，先压缩成 45 个院校专业组、267 条完整组内专业明细。其中 34 个进入或谨慎进入讨论，11 个暂缓或不进入讨论。详细说明见 `docs/PERSONAL_FIT_CANDIDATES_V1.md`。
+
+`issue19-stable-foundation-browser.xlsx` 是从稳定数据基座 V0 生成的全量浏览版，不改动原始 CSV。它适合追溯全量底座、筛选新城市/新专业、检查某个专业组为什么进入或没有进入讨论池。
 
 如果这次专门看“年学费 70000 元以内、中外合作或高收费是否值得讨论”，打开：
 
@@ -41,6 +44,12 @@
 - `data/exports/issue19-expanded-budget-coop-groups.csv`
 - `data/exports/issue19-expanded-budget-coop-majors.csv`
 - `data/exports/issue19-expanded-budget-coop-scenario-summary.json`
+
+个人适配候选 V1：
+
+- `data/exports/issue19-personal-fit-v1-groups.csv`
+- `data/exports/issue19-personal-fit-v1-major-details.csv`
+- `data/exports/issue19-personal-fit-v1-summary.json`
 
 ## 原始结构化数据在哪
 
@@ -113,6 +122,7 @@
 ```bash
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_stable_foundation_browser.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_expanded_budget_coop_scenario.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_personal_fit_v1.py
 python3 scripts/update_checksums.py
 python3 scripts/verify_baseline.py
 ```

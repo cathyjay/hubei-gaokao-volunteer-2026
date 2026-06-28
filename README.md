@@ -52,6 +52,7 @@
 - `docs/STABLE_FOUNDATION_V0_STATUS.md`：稳定数据基座 V0 状态，明确“可用于候选发现、不可用于定稿依据”的收口口径。
 - `docs/DATA_BROWSER_AND_VERIFICATION.md`：结构化数据浏览入口、Excel 工作簿、快速核验抽样和升级规则。
 - `docs/ROUND1_CANDIDATE_SELECTION.md`：第一轮候选专业组选择、精选 80、优先城市观察和家庭讨论动作。
+- `docs/PERSONAL_FIT_CANDIDATES_V1.md`：结合 515 分、91723 位次、家庭偏好和 7 万专项口径生成的个人适配候选讨论池。
 - `docs/CANDIDATE_POOL_V1.md`：第一版可讨论候选池，全部待 2026 计划核验。
 - `docs/SCHOOL_CROSSCHECK_SOURCES.md`：高校官网招生计划交叉校验来源。
 - `docs/DECISIONS.md`：每天的决策日志。
@@ -70,8 +71,9 @@
 
 - 稳定数据基座浏览：`data/exports/issue19-stable-foundation-browser.xlsx`。用于看第 19 期全量结构化底座、专业组、逐专业明细、观察池和快速核验抽样。
 - 7 万预算中外合作专项：`data/exports/issue19-expanded-budget-coop-scenario.xlsx`。用于讨论中外合作/高收费项目是否值得作为花钱换机会的专项线；当前覆盖 853 个专业组、2330 条专业明细，其中预算内中外合作/高收费可讨论 1706 条、预算内高学费可讨论 259 条、费用待核 234 条、超过 70000 元预算 131 条。
+- 个人适配候选 V1：`data/exports/issue19-personal-fit-v1.xlsx`。用于结合考生分数、位次、家庭偏好、普通主线和 7 万专项口径看本轮适合继续讨论的院校专业组；当前 45 个专业组、267 条完整组内专业明细，其中 34 个进入或谨慎进入讨论。
 
-两份工作簿都不是最终志愿方案。进入家庭讨论或最终排序前，仍必须核第 19 期原页、湖北官方系统或省招办计划、高校官网/章程、完整专业组和调剂风险。
+这些工作簿都不是最终志愿方案。进入家庭讨论或最终排序前，仍必须核第 19 期原页、湖北官方系统或省招办计划、高校官网/章程、完整专业组和调剂风险。
 
 ## 快速命令
 
@@ -151,6 +153,7 @@ python3 scripts/build_issue19_stable_foundation_v0_status.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_stable_foundation_browser.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_expanded_budget_coop_scenario.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round1_candidate_selection.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_personal_fit_v1.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
 python3 scripts/build_issue19_school_source_opportunity_queue.py
