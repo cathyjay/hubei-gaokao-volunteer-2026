@@ -65,6 +65,8 @@
 
 新增的 `data/working/issue19-stable-foundation-first-closure-field-status-dashboard.csv` 把这 206 条字段确认任务再压缩到 37 个页列，直接给出每个页列的主阻断和下一步动作：10 个页列先核 PDFOCR 与高校辅证冲突，4 个页列缺候选需人工看图，17 个页列可用机器坐标辅助核页，6 个页列按 PDFOCR 候选人工确认。它让后续核页可以按页列执行，但仍只保存状态、计数、集合 SHA 和门禁，不确认字段事实。
 
+新增的 `data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv` 是第一闭环证据状态报告：把 206 条任务的 PDF 原页待核、OCR 提示、机器坐标提示、高校辅证、冲突状态、湖北官方侧待核和写回门禁并排放到一个公开状态层。它解决的是“哪些任务下一步怎么核、哪些只是提示、哪些必须双人复核”的可读性问题，不新增字段事实；当前字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv` 则把上述 10 个 B0 冲突页列单独抽出，形成更小的优先核验入口：10 个页列覆盖 132 条同页任务，其中 26 条为明确 PDFOCR 与高校辅证冲突，106 条为同页伴生待闭环任务。它同时记录全局 B0/B1 计划数冲突专项 19 条和 B0 页列内 18 条两个口径，防止后续把专项统计和页列统计混用。该表仍只安排 PDF 原页、湖北官方侧、高校辅证和双人复核顺序，不确认字段事实。
 
 ## 三、学校分析维度

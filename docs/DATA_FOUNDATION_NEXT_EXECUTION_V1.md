@@ -103,6 +103,19 @@
 
 它只公开页列状态、计数、集合 SHA 和门禁，不保存字段明细、候选明细、院校专业明细或私有路径。字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
 
+## 第一闭环证据状态报告
+
+新增第一闭环证据状态公开报告：
+
+- 生成脚本：`scripts/build_issue19_first_closure_evidence_status_report.py`
+- 任务级公开账本：`data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv`
+- 页列级公开汇总：`data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv`
+- 公开摘要：`data/working/issue19-stable-foundation-first-closure-evidence-status-summary.json`
+
+这张报告把 206 条第一闭环任务按 `PDF原页证据状态 / OCR提示状态 / 机器坐标提示状态 / 高校辅证证据状态 / 湖北官方侧状态 / 冲突状态 / 三方闭环状态 / 字段写回门禁` 并排展示。当前 PDFOCR 提示 103 条、机器坐标提示 49 条、高校辅证线索 74 条、PDFOCR 与高校辅证冲突 26 条、PDFOCR 无候选 103 条，其中真正无候选需人工看图 54 条；直接看图 80 条、双人复核 91 条。
+
+它是“下一步怎么核”的状态报告，不是“字段已经核准”的结果表。公开层只保存状态桶、计数、ID、SHA 和下一步动作，不保存字段值、OCR 原文、学校专业明细、人工记录或私有路径；字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
+
 ## 第一闭环 B0 冲突页列核验状态
 
 新增 B0 冲突页列公开账本：

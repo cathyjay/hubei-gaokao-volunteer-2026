@@ -1,0 +1,92 @@
+{
+  "status": "issue19_stable_foundation_first_closure_evidence_status_report_not_final",
+  "generated_by": "build_issue19_first_closure_evidence_status_report.py",
+  "source_first_closure_field_confirmation_public_ledger": "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv",
+  "source_first_closure_task_review_public_ledger": "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv",
+  "source_first_closure_pdf_ocr_candidate_public_audit": "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv",
+  "source_first_closure_field_status_dashboard": "data/working/issue19-stable-foundation-first-closure-field-status-dashboard.csv",
+  "source_official_public_entry_status": "data/working/issue19-official-public-entry-status.json",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_task_table": "data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv",
+  "output_page_side_table": "data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv",
+  "task_row_grain": "第一闭环明细任务×公开证据状态",
+  "page_row_grain": "PDF页码×版面列×公开证据状态汇总",
+  "task_row_count": 206,
+  "page_side_row_count": 37,
+  "unique_pdf_page_count": 32,
+  "task_source_type_counts": {
+    "自动官网辅证任务": 105,
+    "P0人工字段任务": 101
+  },
+  "field_task_counts_split": {
+    "专业计划数": 170,
+    "学费": 105,
+    "再选科目": 77,
+    "待人工判定字段": 2
+  },
+  "pdf_source_status_counts": {
+    "P0-有冲突线索，PDF原页优先人工核验": 26,
+    "P1-有机器坐标提示，仍待PDF原页人工核验": 49,
+    "P2-有PDFOCR提示，仍待PDF原页人工确认": 77,
+    "P3-无稳定OCR提示，需人工看PDF原页": 54
+  },
+  "ocr_status_counts": {
+    "O0-PDFOCR与高校辅证冲突": 26,
+    "O4-无PDFOCR但有机器坐标提示": 49,
+    "O3-仅PDFOCR候选待人工核页": 29,
+    "O1-PDFOCR与高校辅证有一致字段但仍待官方闭环": 13,
+    "O5-无公开OCR候选提示": 54,
+    "O2-高校有线索但PDFOCR缺候选": 35
+  },
+  "machine_status_counts": {
+    "M0-无机器坐标提示": 157,
+    "M1-有机器坐标提示可辅助定位": 49
+  },
+  "school_support_status_counts": {
+    "S1-有高校辅证线索或自动官网任务，待私有辅证记录": 180,
+    "S0-无高校字段线索，本任务高校辅证不适用": 26
+  },
+  "conflict_status_counts": {
+    "C0-PDFOCR与高校辅证冲突，必须回PDF原页和湖北官方侧": 26,
+    "C4-无可比候选，需人工看图或随页列闭环": 103,
+    "C3-仅PDFOCR候选，需人工核页": 29,
+    "C2-多源有一致线索，仍待湖北官方侧闭环": 13,
+    "C1-高校补缺线索，PDF原页缺候选需人工看图": 35
+  },
+  "page_main_blocker_counts": {
+    "B2-机器坐标候选辅助核页": 17,
+    "B0-PDFOCR与高校辅证冲突": 10,
+    "B3-仅PDFOCR候选待人工确认": 6,
+    "B1-缺PDFOCR候选需人工看图": 4
+  },
+  "execution_lane_counts": {
+    "E1-计划数补缺或偏大优先核验": 11,
+    "E0-冲突异常双人优先核验": 18,
+    "E2-官网未匹配专业名归属核验": 8
+  },
+  "pdf_ocr_hint_task_count": 103,
+  "machine_coordinate_hint_task_count": 49,
+  "school_support_hint_task_count": 74,
+  "pdf_school_conflict_task_count": 26,
+  "missing_pdf_with_school_task_count": 35,
+  "pdf_only_candidate_task_count": 29,
+  "consistent_but_official_pending_task_count": 13,
+  "pdf_ocr_no_candidate_task_count": 103,
+  "no_candidate_manual_image_task_count": 54,
+  "direct_image_review_required_count": 80,
+  "double_review_required_count": 91,
+  "pdf_pending_task_count": 206,
+  "hubei_official_pending_task_count": 206,
+  "school_support_pending_task_count": 180,
+  "three_way_pending_task_count": 206,
+  "field_writeback_ready_count": 0,
+  "field_writeback_blocked_task_count": 206,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "public_boundary": "公开表只保存状态桶、计数、ID、SHA和门禁；不保存字段值、OCR原文、学校专业明细、人工记录或私有路径。",
+  "next_use": "用于把第一闭环206条任务和37个页列按PDF原页、OCR提示、高校辅证、冲突状态和下一步动作排队；不得作为字段最终事实或志愿推荐依据。"
+}
