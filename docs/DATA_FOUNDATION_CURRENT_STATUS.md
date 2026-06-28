@@ -91,6 +91,8 @@
 
 新增的 `data/working/issue19-stable-foundation-first-closure-fact-scope-gap-public-ledger.csv` 是第一闭环事实范围缺口账本。它把第一闭环从字段原子继续扩到 439 个待闭环事实范围：字段事实 354、专业名归属 48、专业组边界 37；当前 439 个事实范围全部仍为 `F0-待原页与湖北官方侧闭环`，PDF 原页待核 439、湖北官方侧待核 439、需要双人复核 146、需要人工看图 152。它的作用是回答“底座还差哪些事实没有坐稳”，不是字段值表，也不是可排序候选表。
 
+新增的 `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv` 是第一闭环事实核验包。它把 439 个事实范围继续压缩成 37 个页列包，并生成 `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv` 作为 439 个包内事实项。当前波次为 B0 冲突优先 10 包、专业名归属优先 9 包、缺候选人工看图 2 包、机器坐标辅助 16 包；37 包全部仍待 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用仍为 0。它是后续人工抽样、双人复核和并行处理的执行入口，不是字段事实表。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。

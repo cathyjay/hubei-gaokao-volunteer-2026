@@ -500,6 +500,9 @@
 - `data/working/issue19-stable-foundation-first-closure-field-fact-summary.json`：第一闭环字段事实摘要；记录 354 个字段原子全部为 `F0-字段记录未填写`，P0 top3 重点字段 36 个、B0 冲突页列字段 256 个、双人复核字段 119 个、人工看图字段 122 个；字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
 - `data/working/issue19-stable-foundation-first-closure-fact-scope-gap-public-ledger.csv`：第一闭环事实范围缺口账本，439 行；一行对应一个待闭环事实范围，把字段事实 354、专业名归属 48、专业组边界 37 放在同一公开状态层。公开层只保存 ID、页列、状态桶、计数和 SHA，不保存学校专业明细、字段明细值、识别正文或私有材料。
 - `data/working/issue19-stable-foundation-first-closure-fact-scope-gap-summary.json`：第一闭环事实范围缺口摘要；记录 439 个事实范围全部为 `F0-待原页与湖北官方侧闭环`，PDF 原页待核 439、湖北官方侧待核 439、双人复核事实 146、人工看图事实 152；字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
+- `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv`：第一闭环事实核验包，37 行；一行对应一个 `PDF页码×版面列` 核验包，把 439 个事实缺口压缩为 B0 冲突优先、专业名归属优先、缺候选人工看图、机器坐标辅助四类波次。
+- `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv`：第一闭环事实核验包明细，439 行；一行对应一个包内事实范围，逐项回链到事实范围缺口账本，并继承包序号、波次、页列主阻断和非最终门禁。
+- `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-summary.json`：第一闭环事实核验包摘要；记录 37 个核验包、439 个包内事实，波次分布为 B0 冲突优先 10、专业名归属优先 9、缺候选人工看图 2、机器坐标辅助 16；字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -641,6 +644,7 @@
 - `scripts/build_issue19_first_closure_next_action_matrix.py`：读取第一闭环证据状态报告、页列汇总、高校源最新证据对齐账本和 64 个小核验包，生成 206 行下一步动作矩阵和 37 行页列摘要；用于把字段核验动作排成 N0-N5，不确认字段事实。
 - `scripts/build_issue19_first_closure_field_fact_public_ledger.py`：读取第一闭环字段确认公开账本、证据状态、下一步动作矩阵、P0 top3 字段账本、B0 冲突页列账本和 Git 忽略的私有字段工作台，生成 354 行字段原子公开账本；公开层只同步状态和 SHA，不公开字段明细值。
 - `scripts/build_issue19_first_closure_fact_scope_gap_ledger.py`：读取第一闭环字段事实账本、下一步动作矩阵、页列动作汇总和证据状态报告，生成 439 行事实范围缺口账本；用于把字段事实、专业名归属和专业组边界三类待闭环事实放到同一个公开状态层，不确认字段事实。
+- `scripts/build_issue19_first_closure_fact_verification_packets.py`：读取事实范围缺口账本、下一步动作矩阵、页列动作汇总、公开证据地图和页列证据汇总，生成 37 个页列核验包和 439 个包内事实项；用于安排人工核页、双人复核和并行处理顺序，不确认字段事实。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。
