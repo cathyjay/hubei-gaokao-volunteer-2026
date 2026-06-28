@@ -20,6 +20,7 @@ PUBLIC_HASH_EXCLUDED_DIRS = {
     "user-provided",
 }
 PUBLIC_HASH_EXCLUDED_SUFFIXES = {".pyc"}
+PUBLIC_HASH_EXCLUDED_FILENAMES = {".DS_Store"}
 
 
 def ok(label, condition, detail=""):
@@ -200,6 +201,8 @@ def manifest_files():
         if path.suffix in PUBLIC_HASH_EXCLUDED_SUFFIXES:
             continue
         if path in ignored:
+            continue
+        if path.name in PUBLIC_HASH_EXCLUDED_FILENAMES:
             continue
         files.append(path.relative_to(ROOT).as_posix())
     return set(files)
@@ -25853,6 +25856,131 @@ def main():
         and "priority_city" not in round3_public_text
         and "city_bonus" not in round3_public_text
         and not any(token in round3_public_text for token in shared_forbidden_tokens),
+    ))
+
+    round4_script = ROOT / "scripts/build_issue19_round4_city_gradient_candidates.py"
+    round4_summary_path = ROOT / "data/exports/issue19-round4-city-gradient-summary.json"
+    round4_workbook_path = ROOT / "data/exports/issue19-round4-city-gradient.xlsx"
+    round4_groups_csv = ROOT / "data/exports/issue19-round4-city-gradient-candidate-groups.csv"
+    round4_priority_csv = ROOT / "data/exports/issue19-round4-city-gradient-priority120-groups.csv"
+    round4_majors_csv = ROOT / "data/exports/issue19-round4-city-gradient-major-details.csv"
+    round4_city_csv = ROOT / "data/exports/issue19-round4-city-gradient-city-summary.csv"
+    round4_history_missing_csv = ROOT / "data/exports/issue19-round4-city-gradient-history-missing-groups.csv"
+    round4_high_rush_csv = ROOT / "data/exports/issue19-round4-city-gradient-high-rush-paused-groups.csv"
+    round4_summary = json.loads(round4_summary_path.read_text())
+    with round4_groups_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_group_reader = csv.DictReader(f)
+        round4_group_rows = list(round4_group_reader)
+        round4_group_fields = round4_group_reader.fieldnames or []
+    with round4_priority_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_priority_rows = list(csv.DictReader(f))
+    with round4_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_major_reader = csv.DictReader(f)
+        round4_major_rows = list(round4_major_reader)
+        round4_major_fields = round4_major_reader.fieldnames or []
+    with round4_city_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_city_rows = list(csv.DictReader(f))
+    with round4_history_missing_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_history_missing_rows = list(csv.DictReader(f))
+    with round4_high_rush_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_high_rush_rows = list(csv.DictReader(f))
+    expected_round4_group_fields = script_list_constant(round4_script, "GROUP_FIELDS")
+    expected_round4_major_fields = script_list_constant(round4_script, "MAJOR_FIELDS")
+    round4_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            round4_summary_path,
+            round4_groups_csv,
+            round4_priority_csv,
+            round4_majors_csv,
+            round4_city_csv,
+            round4_history_missing_csv,
+            round4_high_rush_csv,
+        ]
+    )
+    round4_group_ids = {row.get("专业组出现ID", "") for row in round4_group_rows}
+    round4_priority_ids = {row.get("专业组出现ID", "") for row in round4_priority_rows}
+    checks.append(ok(
+        "第 19 期第四轮城市冲稳保候选表摘要、规模和工作簿正确",
+        round4_summary.get("status") == "issue19_round4_city_gradient_ready"
+        and round4_summary.get("generated_by") == "build_issue19_round4_city_gradient_candidates.py"
+        and round4_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and "不引用 Round3 输出" in round4_summary.get("source_policy", "")
+        and round4_summary.get("main_pool_rows_before_reachable_filter") == 1212
+        and round4_summary.get("candidate_group_rows") == len(round4_group_rows) == 328
+        and round4_summary.get("priority_group_rows") == len(round4_priority_rows) == 120
+        and round4_summary.get("major_detail_rows") == len(round4_major_rows) == 1693
+        and round4_summary.get("city_summary_rows") == len(round4_city_rows) == 149
+        and round4_summary.get("history_missing_group_rows") == len(round4_history_missing_rows) == 208
+        and round4_summary.get("high_rush_paused_group_rows") == len(round4_high_rush_rows) == 676
+        and round4_summary.get("candidate_score") == "515"
+        and round4_summary.get("candidate_rank") == "91723"
+        and round4_summary.get("equivalent_scores") == {"2025": "494", "2024": "497", "2023": "481"}
+        and round4_workbook_path.exists()
+        and round4_workbook_path.stat().st_size > 1_000_000,
+        f"{len(round4_group_rows)} main, {len(round4_priority_rows)} priority",
+    ))
+    checks.append(ok(
+        "第 19 期第四轮字段、H0/H5分离和主线门禁正确",
+        round4_group_fields == expected_round4_group_fields
+        and round4_major_fields == expected_round4_major_fields
+        and round4_priority_ids.issubset(round4_group_ids)
+        and {row.get("是否可作为定稿依据") for row in round4_group_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round4_priority_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round4_history_missing_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round4_high_rush_rows} == {"false"}
+        and all(row.get("历史线索分层", "").startswith(("H1", "H2", "H3", "H4")) for row in round4_group_rows)
+        and all(row.get("历史线索分层", "").startswith("H0") for row in round4_history_missing_rows)
+        and all(row.get("历史线索分层", "").startswith("H5") for row in round4_high_rush_rows)
+        and all(row.get("高收费或超预算专业数") == "0" for row in round4_group_rows)
+        and all(row.get("护理助产专业数") == "0" for row in round4_group_rows)
+        and all(row.get("动物医学兽医专业数") == "0" for row in round4_group_rows)
+        and all(row.get("临床口腔中医暂缓专业数") == "0" for row in round4_group_rows)
+        and all(row.get("医技护理康复专业数") == "0" for row in round4_group_rows)
+        and not any((row.get("城市") or "未识别") == "未识别" for row in round4_group_rows),
+    ))
+    checks.append(ok(
+        "第 19 期第四轮冲稳保分布正确",
+        round4_summary.get("gradient_distribution", {}).get("保底观察") == 5
+        and round4_summary.get("gradient_distribution", {}).get("稳妥观察") == 131
+        and round4_summary.get("gradient_distribution", {}).get("稳冲观察") == 93
+        and round4_summary.get("gradient_distribution", {}).get("冲刺观察") == 99
+        and round4_summary.get("priority_gradient_distribution", {}).get("稳妥观察") == 49
+        and round4_summary.get("priority_gradient_distribution", {}).get("稳冲观察") == 35
+        and round4_summary.get("priority_gradient_distribution", {}).get("冲刺观察") == 35,
+    ))
+    checks.append(ok(
+        "第 19 期第四轮公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in round4_public_text
+        and "/home/" not in round4_public_text
+        and "/var/folders/" not in round4_public_text
+        and "/private/" not in round4_public_text
+        and "private/" not in round4_public_text
+        and "private\\" not in round4_public_text
+        and "ocr-runs" not in round4_public_text
+        and "rendered-pages" not in round4_public_text
+        and "file://" not in round4_public_text
+        and "Authorization" not in round4_public_text
+        and "Bearer " not in round4_public_text
+        and "Cookie" not in round4_public_text
+        and "Set-Cookie" not in round4_public_text
+        and "access_token" not in round4_public_text
+        and "refresh_token" not in round4_public_text
+        and "password" not in round4_public_text
+        and "secret" not in round4_public_text
+        and "api_key" not in round4_public_text
+        and "身份证" not in round4_public_text
+        and "准考证" not in round4_public_text
+        and "报名号" not in round4_public_text
+        and "序列号" not in round4_public_text
+        and "手机号" not in round4_public_text
+        and "已确认" not in round4_public_text
+        and "已核准" not in round4_public_text
+        and "最终推荐" not in round4_public_text
+        and "最终方案" not in round4_public_text
+        and "可填报" not in round4_public_text
+        and "可排序" not in round4_public_text
+        and not any(token in round4_public_text for token in shared_forbidden_tokens),
     ))
 
     personal_fit_script = ROOT / "scripts/build_issue19_personal_fit_v1.py"

@@ -6,12 +6,15 @@
 
 最方便的入口是：
 
+- `data/exports/issue19-round4-city-gradient.xlsx`
 - `data/exports/issue19-round2-updated-preferences.xlsx`
 - `data/exports/issue19-round3-unrestricted-region.xlsx`
 - `data/exports/issue19-personal-fit-v1.xlsx`
 - `data/exports/issue19-stable-foundation-browser.xlsx`
 
-`issue19-round3-unrestricted-region.xlsx` 是当前“不限地区”入口：它在最新家庭偏好基础上取消城市和地区筛选、加分和名额分配，优先看 `02_优先讨论60组`，再看主线 120 组和完整组内专业明细。详细说明见 `docs/ROUND3_UNRESTRICTED_REGION_CANDIDATES.md`。
+`issue19-round4-city-gradient.xlsx` 是当前优先入口：它不引用 Round3 输出，直接从稳定底座、教育部学校属性表和三年投档线旁挂表重建候选，主表保留 H1-H4 共 328 个“主要可能够得着”的院校专业组，按城市和冲稳保展示；H0 历史待补、H5 高冲暂缓均单列附录。详细说明见 `docs/ROUND4_CITY_GRADIENT_CANDIDATES.md`。
+
+`issue19-round3-unrestricted-region.xlsx` 是第三轮历史入口：它在最新家庭偏好基础上取消城市和地区筛选、加分和名额分配，保留优先讨论 60 组和主线 120 组，用于回溯旧口径。详细说明见 `docs/ROUND3_UNRESTRICTED_REGION_CANDIDATES.md`。
 
 `issue19-round2-updated-preferences.xlsx` 是第二轮历史入口：它吸收了最新体检摘要和家庭偏好，把护理、动物医学/兽医设为本轮暂不纳入，把医技/康复保留为专项了解，同时新增机械自动化、电子信息/网络、计算机/AI/软件、环境、农业、工商旅游管理等研究方向。该批次保留了优先城市观察表，用于复现旧口径，不作为 Round3 城市限制。详细说明见 `docs/ROUND2_UPDATED_PREFERENCES.md`。
 
@@ -77,6 +80,16 @@
 - `data/exports/issue19-round3-unrestricted-region-city-distribution.csv`
 - `data/exports/issue19-round3-unrestricted-region-summary.json`
 
+第四轮按城市和冲稳保候选：
+
+- `data/exports/issue19-round4-city-gradient-candidate-groups.csv`
+- `data/exports/issue19-round4-city-gradient-priority120-groups.csv`
+- `data/exports/issue19-round4-city-gradient-major-details.csv`
+- `data/exports/issue19-round4-city-gradient-city-summary.csv`
+- `data/exports/issue19-round4-city-gradient-history-missing-groups.csv`
+- `data/exports/issue19-round4-city-gradient-high-rush-paused-groups.csv`
+- `data/exports/issue19-round4-city-gradient-summary.json`
+
 ## 原始结构化数据在哪
 
 原始 OCR 结构化底稿仍然保留在 `data/working`：
@@ -98,7 +111,7 @@
 建议筛选顺序：
 
 1. `公办民办机器线索` 和 `家庭底线属性动作`：先排除明显不符合“公办、正常学费”的组。
-2. `城市候选`：只作为展示字段；Round3 不按城市筛选、加分或分配名额，城市后续用于生活成本、交通、就业资源和家庭接受度讨论。
+2. `城市` / `教育部所在地`：只作为展示字段；Round4 不按城市筛选、加分或分配名额，城市后续用于生活成本、交通、就业资源和家庭接受度讨论，实际校区仍需看第 19 期原页和招生章程。
 3. `偏好专业数`、`数字媒体技术专业数`、`计算机类相关专业数`、`师范类相关专业数`：找偏好专业组。
 4. `调剂初判`：重点看完整专业组里有没有医学护理、高收费、特殊限制等不能接受项。
 5. `历史线索分层`、`历史最高等位分差`、`历史最低等位分差`：粗看冲稳保线索。

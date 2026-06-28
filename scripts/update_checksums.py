@@ -14,6 +14,7 @@ EXCLUDED_DIRS = {
     "user-provided",
 }
 EXCLUDED_SUFFIXES = {".pyc"}
+EXCLUDED_FILENAMES = {".DS_Store"}
 
 
 def sha256(path):
@@ -30,6 +31,8 @@ def public_files():
             continue
         rel = path.relative_to(ROOT)
         if rel.as_posix() == "CHECKSUMS.sha256":
+            continue
+        if path.name in EXCLUDED_FILENAMES:
             continue
         if any(part in EXCLUDED_DIRS for part in rel.parts):
             continue

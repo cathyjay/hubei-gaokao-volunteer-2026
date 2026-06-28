@@ -1,0 +1,177 @@
+{
+  "status": "issue19_round4_city_gradient_ready",
+  "generated_by": "build_issue19_round4_city_gradient_candidates.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_policy": "直接来源于稳定底座、教育部学校属性表和三年投档线旁挂表；不引用 Round3 输出。",
+  "city_policy": "城市按教育部学校所在地展示，仅作讨论维度；实际校区和办学地点必须再核第19期原页、湖北官方侧和招生章程。",
+  "reachable_policy": "主表纳入 H1/H2/H3/H4；H0 历史待补和 H5 高冲暂缓均单列索引，不混入可能够得着主表。",
+  "family_policy": "优先公办本科、普通学费，普通主线年学费上限15000；护理/助产、动物医学/兽医/动物科学、临床/口腔/中医、医技/康复不进入普通主线。",
+  "candidate_score": "515",
+  "candidate_rank": "91723",
+  "equivalent_scores": {
+    "2025": "494",
+    "2024": "497",
+    "2023": "481"
+  },
+  "main_pool_rows_before_reachable_filter": 1212,
+  "candidate_group_rows": 328,
+  "priority_group_rows": 120,
+  "major_detail_rows": 1693,
+  "city_summary_rows": 149,
+  "history_missing_group_rows": 208,
+  "high_rush_paused_group_rows": 676,
+  "gradient_distribution": {
+    "冲刺观察": 99,
+    "稳冲观察": 93,
+    "稳妥观察": 131,
+    "保底观察": 5
+  },
+  "priority_gradient_distribution": {
+    "冲刺观察": 35,
+    "稳冲观察": 35,
+    "稳妥观察": 49,
+    "保底观察": 1
+  },
+  "top_city_counts": [
+    [
+      "长春市",
+      12
+    ],
+    [
+      "乌鲁木齐市",
+      8
+    ],
+    [
+      "哈尔滨市",
+      8
+    ],
+    [
+      "黄石市",
+      8
+    ],
+    [
+      "兰州市",
+      7
+    ],
+    [
+      "十堰市",
+      7
+    ],
+    [
+      "武汉市",
+      6
+    ],
+    [
+      "黄冈市",
+      6
+    ],
+    [
+      "呼和浩特市",
+      5
+    ],
+    [
+      "咸阳市",
+      5
+    ],
+    [
+      "孝感市",
+      5
+    ],
+    [
+      "石家庄市",
+      5
+    ],
+    [
+      "南宁市",
+      4
+    ],
+    [
+      "南阳市",
+      4
+    ],
+    [
+      "吉林市",
+      4
+    ],
+    [
+      "唐山市",
+      4
+    ],
+    [
+      "恩施土家族苗族自治州",
+      4
+    ],
+    [
+      "昆明市",
+      4
+    ],
+    [
+      "桂林市",
+      4
+    ],
+    [
+      "楚雄彝族自治州",
+      4
+    ],
+    [
+      "河池市",
+      4
+    ],
+    [
+      "荆门市",
+      4
+    ],
+    [
+      "西安市",
+      4
+    ],
+    [
+      "郑州市",
+      4
+    ],
+    [
+      "银川市",
+      4
+    ],
+    [
+      "咸宁市",
+      3
+    ],
+    [
+      "大庆市",
+      3
+    ],
+    [
+      "天津市",
+      3
+    ],
+    [
+      "太原市",
+      3
+    ],
+    [
+      "廊坊市",
+      3
+    ]
+  ],
+  "outputs": {
+    "workbook": "data/exports/issue19-round4-city-gradient.xlsx",
+    "groups_csv": "data/exports/issue19-round4-city-gradient-candidate-groups.csv",
+    "priority_csv": "data/exports/issue19-round4-city-gradient-priority120-groups.csv",
+    "majors_csv": "data/exports/issue19-round4-city-gradient-major-details.csv",
+    "city_summary_csv": "data/exports/issue19-round4-city-gradient-city-summary.csv",
+    "history_missing_csv": "data/exports/issue19-round4-city-gradient-history-missing-groups.csv",
+    "high_rush_paused_csv": "data/exports/issue19-round4-city-gradient-high-rush-paused-groups.csv"
+  },
+  "hard_filters_main": [
+    "公办/普通学费机器线索",
+    "组内高收费或超预算专业数为0",
+    "必须有逐专业明细",
+    "必须命中至少一个当前可讨论方向",
+    "临床/口腔/中医等暂缓方向不进普通主线",
+    "护理/助产、动物医学/兽医/动物科学不进普通主线",
+    "医技/康复不进普通主线",
+    "H0 历史待补不进主表",
+    "H5 高冲暂缓不进主表"
+  ]
+}

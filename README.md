@@ -55,6 +55,7 @@
 - `docs/PERSONAL_FIT_CANDIDATES_V1.md`：结合 515 分、91723 位次、家庭偏好和 7 万专项口径生成的个人适配候选讨论池。
 - `docs/ROUND2_UPDATED_PREFERENCES.md`：纳入最新体检摘要、护理/动物医学/兽医暂不纳入、医技/康复低优先级专项了解和新增专业方向后的第二轮候选池。
 - `docs/ROUND3_UNRESTRICTED_REGION_CANDIDATES.md`：城市和地区不参与筛选、加分或名额分配后的第三轮不限地区候选池。
+- `docs/ROUND4_CITY_GRADIENT_CANDIDATES.md`：直接从稳定底座重建、按城市和冲稳保展示的第四轮主讨论候选池。
 - `docs/VOLUNTEER_TABLE_V1_REVIEW_PLAN.md`：本科普通批 45 个院校专业组草表 V1 的分批讨论和二次核验计划。
 - `docs/CANDIDATE_POOL_V1.md`：第一版可讨论候选池，全部待 2026 计划核验。
 - `docs/SCHOOL_CROSSCHECK_SOURCES.md`：高校官网招生计划交叉校验来源。
@@ -77,6 +78,7 @@
 - 个人适配候选 V1：`data/exports/issue19-personal-fit-v1.xlsx`。用于结合考生分数、位次、家庭偏好、普通主线和 7 万专项口径看本轮适合继续讨论的院校专业组；当前 45 个专业组、267 条完整组内专业明细，其中 34 个进入或谨慎进入讨论。
 - 第二轮更新偏好候选：`data/exports/issue19-round2-updated-preferences.xlsx`。用于纳入最新体检摘要、护理/动物医学/兽医暂不纳入、医技/康复低优先级专项了解和新增专业方向；当前主线精选 100 个专业组、专项精选 80 个专业组、点名观察 15 条记录，全部仍为讨论池。
 - 第三轮不限地区候选：`data/exports/issue19-round3-unrestricted-region.xlsx`。用于在不设置城市/地区限制、不按武汉/成都/西安/北京加分、不分配优先城市名额的口径下重新筛选；当前主线精选 120 个专业组、优先讨论 60 个专业组、低优先级专项 25 个专业组，全部仍为讨论池。
+- 第四轮城市冲稳保候选：`data/exports/issue19-round4-city-gradient.xlsx`。当前优先入口，直接从稳定底座、教育部学校属性表和三年投档线旁挂表重建；主表 328 个 H1-H4 专业组，优先讨论 120 组，H0 历史待补和 H5 高冲暂缓均单列附录。
 - 本科普通批志愿草表 V1：`data/exports/issue19-volunteer-table-v1-draft.xlsx`。基于第二轮更新偏好候选生成，用于把 45 个院校专业组、460 条专业选择明细拆成冲刺、稳冲、稳妥和保底、高费专项批次，逐组讨论 6 个专业草案、完整组内调剂、原页核验和章程核验；全部行仍为讨论草案，不作为定稿依据。
 
 这些工作簿都不是最终志愿方案。进入家庭讨论或最终排序前，仍必须核第 19 期原页、湖北官方系统或省招办计划、高校官网/章程、完整专业组和调剂风险。
@@ -162,6 +164,7 @@ python3 scripts/build_issue19_stable_foundation_v0_status.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_personal_fit_v1.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round2_updated_preferences.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round3_unrestricted_region_candidates.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round4_city_gradient_candidates.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_volunteer_table_v1_draft.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
