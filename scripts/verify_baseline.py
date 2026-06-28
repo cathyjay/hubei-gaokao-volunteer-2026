@@ -25150,6 +25150,158 @@ def main():
         and not any(token in stable_foundation_v0_public_text for token in shared_forbidden_tokens),
     ))
 
+    stable_browser_script = ROOT / "scripts/export_issue19_stable_foundation_browser.py"
+    stable_browser_summary_path = (
+        ROOT / "data/exports/issue19-stable-foundation-browser-summary.json"
+    )
+    stable_browser_workbook_path = (
+        ROOT / "data/exports/issue19-stable-foundation-browser.xlsx"
+    )
+    stable_browser_group_csv = (
+        ROOT / "data/exports/issue19-stable-foundation-group-browser.csv"
+    )
+    stable_browser_major_csv = (
+        ROOT / "data/exports/issue19-stable-foundation-major-browser.csv"
+    )
+    stable_browser_observation_csv = (
+        ROOT / "data/exports/issue19-stable-foundation-observation-groups.csv"
+    )
+    stable_browser_signal_csv = (
+        ROOT / "data/exports/issue19-stable-foundation-machine-signal-majors.csv"
+    )
+    stable_browser_sample_csv = (
+        ROOT / "data/exports/issue19-stable-foundation-quick-verification-sample.csv"
+    )
+    stable_browser_candidate_csv = (
+        ROOT / "data/exports/issue19-stable-foundation-candidate-discussion-template.csv"
+    )
+    stable_browser_summary = json.loads(stable_browser_summary_path.read_text())
+    with stable_browser_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_browser_group_reader = csv.DictReader(f)
+        stable_browser_group_rows = list(stable_browser_group_reader)
+        stable_browser_group_fields = stable_browser_group_reader.fieldnames or []
+    with stable_browser_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_browser_major_reader = csv.DictReader(f)
+        stable_browser_major_rows = list(stable_browser_major_reader)
+        stable_browser_major_fields = stable_browser_major_reader.fieldnames or []
+    with stable_browser_observation_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_browser_observation_rows = list(csv.DictReader(f))
+    with stable_browser_signal_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_browser_signal_rows = list(csv.DictReader(f))
+    with stable_browser_sample_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_browser_sample_reader = csv.DictReader(f)
+        stable_browser_sample_rows = list(stable_browser_sample_reader)
+        stable_browser_sample_fields = stable_browser_sample_reader.fieldnames or []
+    with stable_browser_candidate_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_browser_candidate_reader = csv.DictReader(f)
+        stable_browser_candidate_rows = list(stable_browser_candidate_reader)
+        stable_browser_candidate_fields = stable_browser_candidate_reader.fieldnames or []
+    expected_stable_browser_group_fields = script_list_constant(
+        stable_browser_script,
+        "GROUP_BROWSER_FIELDS",
+    )
+    expected_stable_browser_major_fields = script_list_constant(
+        stable_browser_script,
+        "MAJOR_BROWSER_FIELDS",
+    )
+    expected_stable_browser_sample_fields = (
+        script_list_constant(stable_browser_script, "SAMPLE_EXTRA_FIELDS")
+        + expected_stable_browser_major_fields
+    )
+    expected_stable_browser_candidate_fields = (
+        script_list_constant(stable_browser_script, "CANDIDATE_TEMPLATE_EXTRA_FIELDS")
+        + expected_stable_browser_group_fields
+    )
+    stable_browser_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            stable_browser_summary_path,
+            stable_browser_group_csv,
+            stable_browser_major_csv,
+            stable_browser_observation_csv,
+            stable_browser_signal_csv,
+            stable_browser_sample_csv,
+            stable_browser_candidate_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座浏览导出摘要、规模和工作簿正确",
+        stable_browser_summary.get("status")
+        == "issue19_stable_foundation_browser_export_ready"
+        and stable_browser_summary.get("generated_by")
+        == "export_issue19_stable_foundation_browser.py"
+        and stable_browser_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and stable_browser_summary.get("workbook")
+        == "data/exports/issue19-stable-foundation-browser.xlsx"
+        and stable_browser_workbook_path.exists()
+        and stable_browser_workbook_path.stat().st_size > 1_000_000
+        and stable_browser_summary.get("group_browser_rows")
+        == len(stable_browser_group_rows) == 3329
+        and stable_browser_summary.get("major_browser_rows")
+        == len(stable_browser_major_rows) == 13736
+        and stable_browser_summary.get("observation_group_rows")
+        == len(stable_browser_observation_rows) == 1666
+        and stable_browser_summary.get("machine_signal_major_rows")
+        == len(stable_browser_signal_rows) == 678
+        and stable_browser_summary.get("quick_verification_sample_rows")
+        == len(stable_browser_sample_rows) == 190
+        and stable_browser_summary.get("candidate_discussion_template_rows")
+        == len(stable_browser_candidate_rows) == 722
+        and stable_browser_summary.get("first_closure_group_count") == 41,
+        f"{stable_browser_summary.get('quick_verification_sample_rows')} sample rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座浏览导出字段和筛选口径正确",
+        stable_browser_group_fields == expected_stable_browser_group_fields
+        and stable_browser_major_fields == expected_stable_browser_major_fields
+        and stable_browser_sample_fields == expected_stable_browser_sample_fields
+        and stable_browser_candidate_fields == expected_stable_browser_candidate_fields
+        and {row.get("是否进入机器初筛观察池", "") for row in stable_browser_observation_rows}
+        == {"true"}
+        and {row.get("是否可作为机器初筛线索", "") for row in stable_browser_signal_rows}
+        == {"true"}
+        and all(row.get("抽样批次", "").startswith("S") for row in stable_browser_sample_rows)
+        and all(
+            row.get("机器筛选价值层级", "") == "V1-偏好专业优先线索"
+            for row in stable_browser_candidate_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座浏览导出公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in stable_browser_public_text
+        and "/home/" not in stable_browser_public_text
+        and "/var/folders/" not in stable_browser_public_text
+        and "/private/" not in stable_browser_public_text
+        and "private/" not in stable_browser_public_text
+        and "private\\" not in stable_browser_public_text
+        and "ocr-runs" not in stable_browser_public_text
+        and "rendered-pages" not in stable_browser_public_text
+        and "file://" not in stable_browser_public_text
+        and "Authorization" not in stable_browser_public_text
+        and "Bearer " not in stable_browser_public_text
+        and "Cookie" not in stable_browser_public_text
+        and "Set-Cookie" not in stable_browser_public_text
+        and "access_token" not in stable_browser_public_text
+        and "refresh_token" not in stable_browser_public_text
+        and "password" not in stable_browser_public_text
+        and "secret" not in stable_browser_public_text
+        and "api_key" not in stable_browser_public_text
+        and "身份证" not in stable_browser_public_text
+        and "准考证" not in stable_browser_public_text
+        and "报名号" not in stable_browser_public_text
+        and "序列号" not in stable_browser_public_text
+        and "手机号" not in stable_browser_public_text
+        and "人工读数" not in stable_browser_public_text
+        and "已确认" not in stable_browser_public_text
+        and "已核准" not in stable_browser_public_text
+        and "最终推荐" not in stable_browser_public_text
+        and "最终方案" not in stable_browser_public_text
+        and "可填报" not in stable_browser_public_text
+        and "可排序" not in stable_browser_public_text
+        and not any(token in stable_browser_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

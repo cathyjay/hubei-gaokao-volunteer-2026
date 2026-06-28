@@ -1,0 +1,25 @@
+{
+  "status": "issue19_stable_foundation_browser_export_ready",
+  "generated_by": "export_issue19_stable_foundation_browser.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "workbook": "data/exports/issue19-stable-foundation-browser.xlsx",
+  "group_browser_csv": "data/exports/issue19-stable-foundation-group-browser.csv",
+  "major_browser_csv": "data/exports/issue19-stable-foundation-major-browser.csv",
+  "observation_group_csv": "data/exports/issue19-stable-foundation-observation-groups.csv",
+  "machine_signal_csv": "data/exports/issue19-stable-foundation-machine-signal-majors.csv",
+  "quick_verification_sample_csv": "data/exports/issue19-stable-foundation-quick-verification-sample.csv",
+  "candidate_discussion_template_csv": "data/exports/issue19-stable-foundation-candidate-discussion-template.csv",
+  "group_browser_rows": 3329,
+  "major_browser_rows": 13736,
+  "observation_group_rows": 1666,
+  "machine_signal_major_rows": 678,
+  "quick_verification_sample_rows": 190,
+  "candidate_discussion_template_rows": 722,
+  "first_closure_group_count": 41,
+  "usage_boundary": "只用于候选发现、数据浏览和核验排队；不作为定稿依据。",
+  "rapid_verification_strategy": [
+    "先用 baseline/checksum/血缘审计证明结构化链路没有漂移。",
+    "再用快速核验抽样覆盖偏好专业、城市、P0/P1风险、官网辅证、低风险抽检和历史线索接近项。",
+    "对进入家庭讨论或志愿梯度的院校专业组做整组100%核验。"
+  ]
+}

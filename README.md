@@ -49,6 +49,7 @@
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：第 19 期 OCR 样本学校与学校官网 double check 方案。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座、候选复核工作台和保真机制。
 - `docs/STABLE_FOUNDATION_V0_STATUS.md`：稳定数据基座 V0 状态，明确“可用于候选发现、不可用于定稿依据”的收口口径。
+- `docs/DATA_BROWSER_AND_VERIFICATION.md`：结构化数据浏览入口、Excel 工作簿、快速核验抽样和升级规则。
 - `docs/CANDIDATE_POOL_V1.md`：第一版可讨论候选池，全部待 2026 计划核验。
 - `docs/SCHOOL_CROSSCHECK_SOURCES.md`：高校官网招生计划交叉校验来源。
 - `docs/DECISIONS.md`：每天的决策日志。
@@ -59,6 +60,7 @@
 - `data/derived/`：OCR 文本、解析 CSV、等位分 JSON 和筛选池。
 - `data/external/`：第三方辅助数据源本地留存，只用于发现和交叉校验。
 - `data/working/`：当前偏好、招生计划导入模板和阶段性工作数据。
+- `data/exports/`：面向浏览、筛选和人工核验的导出层，不替代 `data/working/` 原始结构化底座。
 - `scripts/`：可重复运行的核验和筛选脚本。
 - `CHECKSUMS.sha256`：项目文件哈希清单。
 
@@ -137,6 +139,7 @@ python3 scripts/build_issue19_major_evidence_level_routing.py
 python3 scripts/build_issue19_stable_foundation_screening_views.py
 python3 scripts/build_issue19_stable_foundation_group_readiness_bridge.py
 python3 scripts/build_issue19_stable_foundation_v0_status.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_stable_foundation_browser.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
 python3 scripts/build_issue19_school_source_opportunity_queue.py
