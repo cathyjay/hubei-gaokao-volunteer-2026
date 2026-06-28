@@ -7,6 +7,7 @@
 最方便的入口是：
 
 - `data/exports/issue19-round4-city-gradient.xlsx`
+- `data/exports/issue19-closure-and-shortlist-v1.xlsx`
 - `data/exports/issue19-round4-50k-coop-city-gradient.xlsx`
 - `data/exports/issue19-round2-updated-preferences.xlsx`
 - `data/exports/issue19-round3-unrestricted-region.xlsx`
@@ -14,6 +15,8 @@
 - `data/exports/issue19-stable-foundation-browser.xlsx`
 
 `issue19-round4-city-gradient.xlsx` 是当前优先入口：它不引用 Round3 输出，直接从稳定底座、教育部学校属性表和三年投档线旁挂表重建候选，主表保留 H1-H4 共 328 个“主要可能够得着”的院校专业组，按城市和冲稳保展示；H0 历史待补、H5 高冲暂缓均单列附录。详细说明见 `docs/ROUND4_CITY_GRADIENT_CANDIDATES.md`。
+
+`issue19-closure-and-shortlist-v1.xlsx` 是当前字段闭环和重点核验入口：它把第一闭环 37 个页列、206 条最高优先级逐任务、36 所学校 80 个高校官网辅证动作、2026-06-29 live 补源尝试、Round4 55 个重点核验专业组和 458 条完整组内专业明细放在一起。它适合今天继续推进“哪些字段先核、哪些官网源能 double check、哪些专业组优先让家庭看完整组内专业”。详细说明见 `docs/CLOSURE_AND_SHORTLIST_V1.md`。
 
 `issue19-round4-50k-coop-city-gradient.xlsx` 是 Round4 的 5 万内中外合作/高收费平行专项入口：它保留 Round4 的公办、专业排除、H0/H5 单列和城市展示口径，只放费用相对清楚的 50000 元内中外合作/国际合作/高收费项目；主表 21 个专业组，费用待核、出国费用、非人民币币种和超过 50000 元的组单列附录。详细说明见 `docs/ROUND4_50K_COOP_CITY_GRADIENT_CANDIDATES.md`。
 
@@ -92,6 +95,16 @@
 - `data/exports/issue19-round4-city-gradient-history-missing-groups.csv`
 - `data/exports/issue19-round4-city-gradient-high-rush-paused-groups.csv`
 - `data/exports/issue19-round4-city-gradient-summary.json`
+
+字段闭环与重点核验 V1：
+
+- `data/exports/issue19-closure-and-shortlist-v1-first-closure-page-sides.csv`
+- `data/exports/issue19-closure-and-shortlist-v1-first-closure-detail-tasks.csv`
+- `data/exports/issue19-closure-and-shortlist-v1-school-source-tasks.csv`
+- `data/exports/issue19-closure-and-shortlist-v1-priority55-groups.csv`
+- `data/exports/issue19-closure-and-shortlist-v1-priority55-major-details.csv`
+- `data/exports/issue19-closure-and-shortlist-v1-paused65-groups.csv`
+- `data/exports/issue19-closure-and-shortlist-v1-summary.json`
 
 第四轮 5 万内中外合作/高收费专项：
 

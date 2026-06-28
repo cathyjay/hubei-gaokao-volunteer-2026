@@ -174,6 +174,18 @@
    - 已结构化到逐专业证据匹配表的来源类型：官网 AJAX/API JSON、官网静态 HTML 表、官网 XLSX、PDF 表格抽取留存 CSV、官方计划图转录 CSV、官网双表联合抽取。
    - 限制：高校官网/API/计划图只作为交叉校验证据；没有湖北院校专业组边界的来源只能核专业、计划、学费、校区或备注，不能单独证明调剂范围。武汉商学院官网“湖北”列遇到“历史或物理”等未拆分科类时，只用于核专业名、学费和选科，不作为物理类计划数。山东工商学院 PDF 的专业名列不是 PDF 文本，已用渲染图 OCR 专业名和 PDF 网格数字列双通道抽取，并保留审计表；仍需第 19 期原页和湖北官方系统闭环。
 
+11. 2026-06-29 高校官网 live 补源尝试
+   - 补源账本：`data/working/issue19-school-source-live-20260629-ledger.csv`
+   - 本地留存目录：`data/external/issue19-school-source-live-20260629/`
+   - 有效新增源：西安航空学院官网 `2026年西安航空学院本科招生计划` 页面和高清 PDF。
+   - 西安航空学院页面：`data/external/issue19-school-source-live-20260629/xaau-2026-undergraduate-plan-page.html`
+   - 西安航空学院 PDF：`data/external/issue19-school-source-live-20260629/xaau-2026-province-major-plan.pdf`
+   - 西安航空学院湖北物理/理工类抽取：`data/external/issue19-school-source-live-20260629/xaau-2026-hubei-physics-plan-extracted.csv`
+   - 西安航空学院第 19 期对照：`data/working/issue19-school-source-live-20260629-xaau-crosscheck.csv`
+   - 当前结论：西安航空学院官网 PDF 抽取到湖北物理/理工类 6 条、合计 15 人；第 19 期 K487 也有 6 条，但 OCR 计划数字段存在缺失或串读线索，特别是 K48704 自动化行疑似串入 K488 西安医学院。该源只能作为高校侧补缺候选，必须回看第 19 期原页和湖北官方侧后才能写回。
+   - 未取得湖北计划的尝试：长春工业大学官网招生计划栏目当前 2026 计划页仅见吉林省计划；武汉轻工大学官网入口为前端应用壳；湖北师范大学招生网普通抓取返回跳转登出页。
+   - 限制：live 补源尝试只扩大 double check 覆盖，不替代湖北第 19 期、省招办计划或湖北官方系统。
+
 ## 派生数据说明
 
 - `data/derived/hubei-2025-physics-toudang-ocr.txt`：由 2025 官方图片 OCR 生成。

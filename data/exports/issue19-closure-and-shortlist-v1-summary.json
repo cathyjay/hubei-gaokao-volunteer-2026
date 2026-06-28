@@ -1,0 +1,68 @@
+{
+  "status": "issue19_closure_and_shortlist_v1_ready_not_final",
+  "generated_by": "build_issue19_closure_and_shortlist_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "usage_boundary": "只用于字段事实闭环推进、官网辅证double check和Round4重点核验排序；不作为定稿依据。",
+  "outputs": {
+    "workbook": "data/exports/issue19-closure-and-shortlist-v1.xlsx",
+    "first_closure_page_sides": "data/exports/issue19-closure-and-shortlist-v1-first-closure-page-sides.csv",
+    "first_closure_detail_tasks": "data/exports/issue19-closure-and-shortlist-v1-first-closure-detail-tasks.csv",
+    "school_source_tasks": "data/exports/issue19-closure-and-shortlist-v1-school-source-tasks.csv",
+    "priority55_groups": "data/exports/issue19-closure-and-shortlist-v1-priority55-groups.csv",
+    "priority55_major_details": "data/exports/issue19-closure-and-shortlist-v1-priority55-major-details.csv",
+    "paused65_groups": "data/exports/issue19-closure-and-shortlist-v1-paused65-groups.csv"
+  },
+  "first_closure": {
+    "page_side_count": 37,
+    "detail_task_count": 206,
+    "field_confirmation_public_rows": 206,
+    "lane_counts": {
+      "E0-冲突异常双人优先核验": 18,
+      "E1-计划数补缺或偏大优先核验": 11,
+      "E2-官网未匹配专业名归属核验": 8
+    },
+    "pdf_review_pending_count": 206,
+    "hubei_official_review_pending_count": 206,
+    "field_writeback_ready_count": 0
+  },
+  "school_source": {
+    "task_count": 80,
+    "unique_school_count": 36,
+    "opportunity_type_counts": {
+      "O3-高收益缺源学校优先补源": 7,
+      "O0-冲突优先回页核验": 17,
+      "O1-官网补缺候选回页核验": 8,
+      "O2-官网专业名未匹配先补规则": 12,
+      "O5-已有来源补结构化": 10,
+      "O4-有入口但缺结构化源": 8,
+      "O7-强辅证抽检": 11,
+      "O6-继续搜索高校官网计划源": 2,
+      "O8-章程规则源只核限制": 5
+    },
+    "live_source_attempt_rows": 4
+  },
+  "round4_shortlist": {
+    "source_priority_group_count": 120,
+    "selected_group_count": 55,
+    "paused_group_count": 65,
+    "selected_major_detail_count": 458,
+    "gradient_counts": {
+      "保底观察": 1,
+      "稳妥观察": 24,
+      "稳冲观察": 18,
+      "冲刺观察": 12
+    },
+    "major_acceptance_counts": {
+      "可作为调剂了解-未命中偏好但暂未见硬排除": 267,
+      "优先了解-命中当前专业方向": 147,
+      "待核后判断-有体检/语种/单科/专项等限制": 44
+    }
+  },
+  "gates": {
+    "all_outputs_not_final_basis": true,
+    "field_writeback_ready_count": 0,
+    "recommendation_basis_allowed_count": 0,
+    "final_available_count": 0
+  }
+}

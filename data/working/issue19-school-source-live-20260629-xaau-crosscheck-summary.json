@@ -1,0 +1,10 @@
+{
+  "status": "xaau_2026_hubei_plan_official_source_crosscheck_not_final",
+  "official_rows": 6,
+  "official_hubei_plan_sum": 15,
+  "issue19_k487_rows": 6,
+  "matched_rows": 6,
+  "official_can_fill_missing_plan_candidates": 6,
+  "output_table": "data/working/issue19-school-source-live-20260629-xaau-crosscheck.csv",
+  "boundary": "高校官网PDF只作辅证；第19期原页和湖北官方侧未闭环前不可写回。"
+}
