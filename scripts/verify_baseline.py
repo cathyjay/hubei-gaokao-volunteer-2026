@@ -25302,6 +25302,110 @@ def main():
         and not any(token in stable_browser_public_text for token in shared_forbidden_tokens),
     ))
 
+    round1_script = ROOT / "scripts/build_issue19_round1_candidate_selection.py"
+    round1_summary_path = ROOT / "data/exports/issue19-round1-candidate-selection-summary.json"
+    round1_workbook_path = ROOT / "data/exports/issue19-round1-candidate-selection.xlsx"
+    round1_groups_csv = ROOT / "data/exports/issue19-round1-candidate-groups.csv"
+    round1_shortlist_csv = ROOT / "data/exports/issue19-round1-shortlist-groups.csv"
+    round1_city_csv = ROOT / "data/exports/issue19-round1-priority-city-watchlist.csv"
+    round1_majors_csv = ROOT / "data/exports/issue19-round1-shortlist-majors.csv"
+    round1_summary = json.loads(round1_summary_path.read_text())
+    with round1_groups_csv.open(newline="", encoding="utf-8-sig") as f:
+        round1_group_reader = csv.DictReader(f)
+        round1_group_rows = list(round1_group_reader)
+        round1_group_fields = round1_group_reader.fieldnames or []
+    with round1_shortlist_csv.open(newline="", encoding="utf-8-sig") as f:
+        round1_shortlist_rows = list(csv.DictReader(f))
+    with round1_city_csv.open(newline="", encoding="utf-8-sig") as f:
+        round1_city_rows = list(csv.DictReader(f))
+    with round1_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        round1_major_reader = csv.DictReader(f)
+        round1_major_rows = list(round1_major_reader)
+        round1_major_fields = round1_major_reader.fieldnames or []
+    expected_round1_group_fields = script_list_constant(round1_script, "GROUP_FIELDS")
+    expected_round1_major_fields = script_list_constant(round1_script, "MAJOR_FIELDS")
+    round1_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            round1_summary_path,
+            round1_groups_csv,
+            round1_shortlist_csv,
+            round1_city_csv,
+            round1_majors_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期第一轮候选专业组摘要、规模和工作簿正确",
+        round1_summary.get("status") == "issue19_round1_candidate_selection_ready"
+        and round1_summary.get("generated_by") == "build_issue19_round1_candidate_selection.py"
+        and round1_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and round1_summary.get("candidate_group_rows") == len(round1_group_rows) == 471
+        and round1_summary.get("shortlist_group_rows") == len(round1_shortlist_rows) == 80
+        and round1_summary.get("priority_city_watchlist_rows") == len(round1_city_rows) == 146
+        and round1_summary.get("shortlist_major_rows") == len(round1_major_rows) == 570
+        and round1_summary.get("workbook") == "data/exports/issue19-round1-candidate-selection.xlsx"
+        and round1_workbook_path.exists()
+        and round1_workbook_path.stat().st_size > 100_000,
+        f"{round1_summary.get('shortlist_group_rows')} shortlist groups",
+    ))
+    checks.append(ok(
+        "第 19 期第一轮候选专业组字段、硬过滤和城市观察口径正确",
+        round1_group_fields == expected_round1_group_fields
+        and round1_major_fields == expected_round1_major_fields
+        and all(row.get("是否可作为定稿依据") == "false" for row in round1_group_rows)
+        and all(row.get("医学护理排除专业数") == "0" for row in round1_group_rows)
+        and all(row.get("高收费或超预算专业数") == "0" for row in round1_group_rows)
+        and all(row.get("家庭底线属性动作") == "继续核公办普通学费-非民办线索" for row in round1_group_rows)
+        and {row.get("第一轮层级", "") for row in round1_shortlist_rows}
+        == {
+            "S1-保底稳妥优先讨论",
+            "S2-稳冲优先讨论",
+            "S3-冲刺保留讨论",
+            "S4-城市或历史待补观察",
+        }
+        and all(
+            row.get("城市候选") in {"武汉", "成都", "西安", "北京"}
+            for row in round1_city_rows
+        )
+        and {
+            row.get("专业组出现ID", "")
+            for row in round1_major_rows
+        }.issubset({row.get("专业组出现ID", "") for row in round1_shortlist_rows}),
+    ))
+    checks.append(ok(
+        "第 19 期第一轮候选专业组公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in round1_public_text
+        and "/home/" not in round1_public_text
+        and "/var/folders/" not in round1_public_text
+        and "/private/" not in round1_public_text
+        and "private/" not in round1_public_text
+        and "private\\" not in round1_public_text
+        and "ocr-runs" not in round1_public_text
+        and "rendered-pages" not in round1_public_text
+        and "file://" not in round1_public_text
+        and "Authorization" not in round1_public_text
+        and "Bearer " not in round1_public_text
+        and "Cookie" not in round1_public_text
+        and "Set-Cookie" not in round1_public_text
+        and "access_token" not in round1_public_text
+        and "refresh_token" not in round1_public_text
+        and "password" not in round1_public_text
+        and "secret" not in round1_public_text
+        and "api_key" not in round1_public_text
+        and "身份证" not in round1_public_text
+        and "准考证" not in round1_public_text
+        and "报名号" not in round1_public_text
+        and "序列号" not in round1_public_text
+        and "手机号" not in round1_public_text
+        and "已确认" not in round1_public_text
+        and "已核准" not in round1_public_text
+        and "最终推荐" not in round1_public_text
+        and "最终方案" not in round1_public_text
+        and "可填报" not in round1_public_text
+        and "可排序" not in round1_public_text
+        and not any(token in round1_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

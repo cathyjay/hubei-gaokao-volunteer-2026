@@ -1,0 +1,33 @@
+{
+  "status": "issue19_round1_candidate_selection_ready",
+  "generated_by": "build_issue19_round1_candidate_selection.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "selection_boundary": "第一轮候选专业组池，只用于家庭讨论和入围组核验，不作为定稿依据。",
+  "candidate_group_rows": 471,
+  "shortlist_group_rows": 80,
+  "priority_city_watchlist_rows": 146,
+  "shortlist_major_rows": 570,
+  "workbook": "data/exports/issue19-round1-candidate-selection.xlsx",
+  "candidate_groups_csv": "data/exports/issue19-round1-candidate-groups.csv",
+  "shortlist_groups_csv": "data/exports/issue19-round1-shortlist-groups.csv",
+  "priority_city_watchlist_csv": "data/exports/issue19-round1-priority-city-watchlist.csv",
+  "shortlist_majors_csv": "data/exports/issue19-round1-shortlist-majors.csv",
+  "priority_cities": [
+    "北京",
+    "成都",
+    "武汉",
+    "西安"
+  ],
+  "hard_filters": [
+    "公办/普通学费机器线索",
+    "组内医学护理排除专业数为0",
+    "组内高收费或超预算专业数为0",
+    "必须有逐专业明细"
+  ],
+  "shortlist_quota": {
+    "S1_H1_H2": 35,
+    "S2_H3": 25,
+    "S3_H4": 15,
+    "S4_city_or_history_missing": 5
+  }
+}

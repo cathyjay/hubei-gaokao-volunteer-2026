@@ -50,6 +50,7 @@
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座、候选复核工作台和保真机制。
 - `docs/STABLE_FOUNDATION_V0_STATUS.md`：稳定数据基座 V0 状态，明确“可用于候选发现、不可用于定稿依据”的收口口径。
 - `docs/DATA_BROWSER_AND_VERIFICATION.md`：结构化数据浏览入口、Excel 工作簿、快速核验抽样和升级规则。
+- `docs/ROUND1_CANDIDATE_SELECTION.md`：第一轮候选专业组选择、精选 80、优先城市观察和家庭讨论动作。
 - `docs/CANDIDATE_POOL_V1.md`：第一版可讨论候选池，全部待 2026 计划核验。
 - `docs/SCHOOL_CROSSCHECK_SOURCES.md`：高校官网招生计划交叉校验来源。
 - `docs/DECISIONS.md`：每天的决策日志。
@@ -140,6 +141,7 @@ python3 scripts/build_issue19_stable_foundation_screening_views.py
 python3 scripts/build_issue19_stable_foundation_group_readiness_bridge.py
 python3 scripts/build_issue19_stable_foundation_v0_status.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_stable_foundation_browser.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round1_candidate_selection.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
 python3 scripts/build_issue19_school_source_opportunity_queue.py
