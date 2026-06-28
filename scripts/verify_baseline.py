@@ -4,6 +4,7 @@ import ast
 import hashlib
 import json
 import re
+import runpy
 import subprocess
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -36,6 +37,13 @@ def sha256(path):
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def csv_int(row, field):
+    try:
+        return int(str(row.get(field, "") or "0").strip())
+    except ValueError:
+        return 0
 
 
 def as_int(value):
@@ -106,6 +114,11 @@ def script_list_constant(path, name):
         if any(isinstance(target, ast.Name) and target.id == name for target in node.targets):
             return ast.literal_eval(node.value)
     raise ValueError(f"{name} not found in {path}")
+
+
+def script_runtime_constant(path, name):
+    namespace = runpy.run_path(str(path), run_name=f"__verify_{path.stem}")
+    return namespace[name]
 
 
 def issue19_group_match_key(row):
@@ -25981,6 +25994,157 @@ def main():
         and "可填报" not in round4_public_text
         and "可排序" not in round4_public_text
         and not any(token in round4_public_text for token in shared_forbidden_tokens),
+    ))
+
+    round4_fee_script = ROOT / "scripts/build_issue19_round4_50k_coop_city_gradient_candidates.py"
+    round4_fee_summary_path = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-summary.json"
+    round4_fee_workbook_path = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient.xlsx"
+    round4_fee_groups_csv = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-candidate-groups.csv"
+    round4_fee_priority_csv = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-priority-groups.csv"
+    round4_fee_majors_csv = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-major-details.csv"
+    round4_fee_city_csv = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-city-summary.csv"
+    round4_fee_history_missing_csv = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-history-missing-groups.csv"
+    round4_fee_high_rush_csv = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-high-rush-paused-groups.csv"
+    round4_fee_blocked_csv = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-fee-pending-or-over-budget-groups.csv"
+    round4_fee_summary = json.loads(round4_fee_summary_path.read_text())
+    with round4_fee_groups_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_fee_group_reader = csv.DictReader(f)
+        round4_fee_group_rows = list(round4_fee_group_reader)
+        round4_fee_group_fields = round4_fee_group_reader.fieldnames or []
+    with round4_fee_priority_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_fee_priority_rows = list(csv.DictReader(f))
+    with round4_fee_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_fee_major_reader = csv.DictReader(f)
+        round4_fee_major_rows = list(round4_fee_major_reader)
+        round4_fee_major_fields = round4_fee_major_reader.fieldnames or []
+    with round4_fee_city_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_fee_city_rows = list(csv.DictReader(f))
+    with round4_fee_history_missing_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_fee_history_missing_rows = list(csv.DictReader(f))
+    with round4_fee_high_rush_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_fee_high_rush_rows = list(csv.DictReader(f))
+    with round4_fee_blocked_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_fee_blocked_rows = list(csv.DictReader(f))
+    expected_round4_fee_group_fields = script_runtime_constant(round4_fee_script, "FEE_GROUP_FIELDS")
+    expected_round4_fee_major_fields = script_runtime_constant(round4_fee_script, "FEE_MAJOR_FIELDS")
+    round4_fee_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            round4_fee_summary_path,
+            round4_fee_groups_csv,
+            round4_fee_priority_csv,
+            round4_fee_majors_csv,
+            round4_fee_city_csv,
+            round4_fee_history_missing_csv,
+            round4_fee_high_rush_csv,
+            round4_fee_blocked_csv,
+        ]
+    )
+    round4_fee_group_ids = {row.get("专业组出现ID", "") for row in round4_fee_group_rows}
+    round4_fee_priority_ids = {row.get("专业组出现ID", "") for row in round4_fee_priority_rows}
+    round4_fee_blocked_ids = {row.get("专业组出现ID", "") for row in round4_fee_blocked_rows}
+    round4_fee_group_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [round4_fee_groups_csv, round4_fee_priority_csv]
+    )
+    checks.append(ok(
+        "第 19 期第四轮 5 万中外合作专项摘要、规模和工作簿正确",
+        round4_fee_summary.get("status") == "issue19_round4_50k_coop_city_gradient_ready"
+        and round4_fee_summary.get("generated_by") == "build_issue19_round4_50k_coop_city_gradient_candidates.py"
+        and round4_fee_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and "不引用 Round3/Round4 输出" in round4_fee_summary.get("source_policy", "")
+        and round4_fee_summary.get("annual_upper_limit_yuan") == 50000
+        and round4_fee_summary.get("base_pool_rows_before_fee_filter") == 1501
+        and round4_fee_summary.get("budget_ready_group_rows") == 110
+        and round4_fee_summary.get("candidate_group_rows") == len(round4_fee_group_rows) == 21
+        and round4_fee_summary.get("priority_group_rows") == len(round4_fee_priority_rows) == 21
+        and round4_fee_summary.get("major_detail_rows") == len(round4_fee_major_rows) == 30
+        and round4_fee_summary.get("city_summary_rows") == len(round4_fee_city_rows) == 13
+        and round4_fee_summary.get("history_missing_group_rows") == len(round4_fee_history_missing_rows) == 38
+        and round4_fee_summary.get("high_rush_paused_group_rows") == len(round4_fee_high_rush_rows) == 51
+        and round4_fee_summary.get("fee_blocked_group_rows") == len(round4_fee_blocked_rows) == 165
+        and round4_fee_summary.get("candidate_score") == "515"
+        and round4_fee_summary.get("candidate_rank") == "91723"
+        and round4_fee_summary.get("equivalent_scores") == {"2025": "494", "2024": "497", "2023": "481"}
+        and round4_fee_workbook_path.exists()
+        and round4_fee_workbook_path.stat().st_size > 200_000,
+        f"{len(round4_fee_group_rows)} main, {len(round4_fee_blocked_rows)} fee-blocked",
+    ))
+    checks.append(ok(
+        "第 19 期第四轮 5 万中外合作专项字段、费用主表和附录边界正确",
+        round4_fee_group_fields == expected_round4_fee_group_fields
+        and round4_fee_major_fields == expected_round4_fee_major_fields
+        and round4_fee_priority_ids.issubset(round4_fee_group_ids)
+        and round4_fee_blocked_ids.isdisjoint(round4_fee_group_ids)
+        and {row.get("是否可作为定稿依据") for row in round4_fee_group_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round4_fee_priority_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round4_fee_history_missing_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round4_fee_high_rush_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round4_fee_blocked_rows} == {"false"}
+        and all(row.get("历史线索分层", "").startswith(("H1", "H2", "H3", "H4")) for row in round4_fee_group_rows)
+        and all(row.get("历史线索分层", "").startswith("H0") for row in round4_fee_history_missing_rows)
+        and all(row.get("历史线索分层", "").startswith("H5") for row in round4_fee_high_rush_rows)
+        and all(csv_int(row, "5万内中外合作或高收费专业数") > 0 for row in round4_fee_group_rows)
+        and all(row.get("超过5万专业数") == "0" for row in round4_fee_group_rows)
+        and all(row.get("费用待核专业数") == "0" for row in round4_fee_group_rows)
+        and all(0 < csv_int(row, "场景内最高学费") <= 50000 for row in round4_fee_group_rows)
+        and any(csv_int(row, "费用待核专业数") > 0 for row in round4_fee_blocked_rows)
+        and any(csv_int(row, "超过5万专业数") > 0 for row in round4_fee_blocked_rows)
+        and all(not row.get("公办民办机器线索", "").startswith("民办") for row in round4_fee_group_rows)
+        and all(not row.get("家庭底线属性动作", "").startswith("默认不进主方案-民办线索") for row in round4_fee_group_rows)
+        and all("职业本科" not in row.get("家庭底线属性动作", "") for row in round4_fee_group_rows)
+        and all(row.get("护理助产专业数") == "0" for row in round4_fee_group_rows)
+        and all(row.get("动物医学兽医专业数") == "0" for row in round4_fee_group_rows)
+        and all(row.get("临床口腔中医暂缓专业数") == "0" for row in round4_fee_group_rows)
+        and all(row.get("医技护理康复专业数") == "0" for row in round4_fee_group_rows)
+        and not any((row.get("城市") or "未识别") == "未识别" for row in round4_fee_group_rows)
+        and "福建海狮" not in round4_fee_group_text
+        and "澳方学费" not in round4_fee_group_text
+        and "外方授权方缴纳" not in round4_fee_group_text
+        and "学费币种" not in round4_fee_group_text,
+    ))
+    checks.append(ok(
+        "第 19 期第四轮 5 万中外合作专项冲稳保分布正确",
+        "保底观察" not in round4_fee_summary.get("gradient_distribution", {})
+        and round4_fee_summary.get("gradient_distribution", {}).get("稳妥观察") == 6
+        and round4_fee_summary.get("gradient_distribution", {}).get("稳冲观察") == 7
+        and round4_fee_summary.get("gradient_distribution", {}).get("冲刺观察") == 8
+        and round4_fee_summary.get("priority_gradient_distribution", {}).get("稳妥观察") == 6
+        and round4_fee_summary.get("priority_gradient_distribution", {}).get("稳冲观察") == 7
+        and round4_fee_summary.get("priority_gradient_distribution", {}).get("冲刺观察") == 8,
+    ))
+    checks.append(ok(
+        "第 19 期第四轮 5 万中外合作专项公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in round4_fee_public_text
+        and "/home/" not in round4_fee_public_text
+        and "/var/folders/" not in round4_fee_public_text
+        and "/private/" not in round4_fee_public_text
+        and "private/" not in round4_fee_public_text
+        and "private\\" not in round4_fee_public_text
+        and "ocr-runs" not in round4_fee_public_text
+        and "rendered-pages" not in round4_fee_public_text
+        and "file://" not in round4_fee_public_text
+        and "Authorization" not in round4_fee_public_text
+        and "Bearer " not in round4_fee_public_text
+        and "Cookie" not in round4_fee_public_text
+        and "Set-Cookie" not in round4_fee_public_text
+        and "access_token" not in round4_fee_public_text
+        and "refresh_token" not in round4_fee_public_text
+        and "password" not in round4_fee_public_text
+        and "secret" not in round4_fee_public_text
+        and "api_key" not in round4_fee_public_text
+        and "身份证" not in round4_fee_public_text
+        and "准考证" not in round4_fee_public_text
+        and "报名号" not in round4_fee_public_text
+        and "序列号" not in round4_fee_public_text
+        and "手机号" not in round4_fee_public_text
+        and "已确认" not in round4_fee_public_text
+        and "已核准" not in round4_fee_public_text
+        and "最终推荐" not in round4_fee_public_text
+        and "最终方案" not in round4_fee_public_text
+        and "可填报" not in round4_fee_public_text
+        and "可排序" not in round4_fee_public_text
+        and not any(token in round4_fee_public_text for token in shared_forbidden_tokens),
     ))
 
     personal_fit_script = ROOT / "scripts/build_issue19_personal_fit_v1.py"

@@ -1,0 +1,113 @@
+{
+  "status": "issue19_round4_50k_coop_city_gradient_ready",
+  "generated_by": "build_issue19_round4_50k_coop_city_gradient_candidates.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_policy": "直接来源于稳定底座、教育部学校属性表、三年投档线旁挂表和逐专业费用线索；不引用 Round3/Round4 输出。",
+  "city_policy": "城市按教育部学校所在地展示，仅作讨论维度；实际校区和办学地点必须再核第19期原页、湖北官方侧和招生章程。",
+  "reachable_policy": "主表纳入 H1/H2/H3/H4；H0 历史待补、H5 高冲暂缓和费用待核/超过5万均单列索引，不混入主表。",
+  "family_policy": "在 Round4 其他底线不变的基础上，允许公办高收费或中外合作/港澳合作办学线索，年学费上限50000；仍不纳入民办、职业本科、护理/助产、动物医学/兽医/动物科学、临床/口腔/中医、医技/康复。",
+  "fee_policy": "只把逐专业学费解析不超过50000元且触发明确中外/国际合作或高学费线索的专业计入主表；外方费用、出国费用、非人民币币种、费用待核和超过50000元均单列。",
+  "annual_upper_limit_yuan": 50000,
+  "candidate_score": "515",
+  "candidate_rank": "91723",
+  "equivalent_scores": {
+    "2025": "494",
+    "2024": "497",
+    "2023": "481"
+  },
+  "base_pool_rows_before_fee_filter": 1501,
+  "budget_ready_group_rows": 110,
+  "candidate_group_rows": 21,
+  "priority_group_rows": 21,
+  "major_detail_rows": 30,
+  "city_summary_rows": 13,
+  "history_missing_group_rows": 38,
+  "high_rush_paused_group_rows": 51,
+  "fee_blocked_group_rows": 165,
+  "gradient_distribution": {
+    "稳妥观察": 6,
+    "冲刺观察": 8,
+    "稳冲观察": 7
+  },
+  "priority_gradient_distribution": {
+    "稳妥观察": 6,
+    "冲刺观察": 8,
+    "稳冲观察": 7
+  },
+  "top_city_counts": [
+    [
+      "长春市",
+      6
+    ],
+    [
+      "四平市",
+      2
+    ],
+    [
+      "荆门市",
+      2
+    ],
+    [
+      "西安市",
+      2
+    ],
+    [
+      "乌鲁木齐市",
+      1
+    ],
+    [
+      "哈尔滨市",
+      1
+    ],
+    [
+      "宁波市",
+      1
+    ],
+    [
+      "武汉市",
+      1
+    ],
+    [
+      "湘潭市",
+      1
+    ],
+    [
+      "湛江市",
+      1
+    ],
+    [
+      "贵阳市",
+      1
+    ],
+    [
+      "银川市",
+      1
+    ],
+    [
+      "黄石市",
+      1
+    ]
+  ],
+  "outputs": {
+    "workbook": "data/exports/issue19-round4-50k-coop-city-gradient.xlsx",
+    "groups_csv": "data/exports/issue19-round4-50k-coop-city-gradient-candidate-groups.csv",
+    "priority_csv": "data/exports/issue19-round4-50k-coop-city-gradient-priority-groups.csv",
+    "majors_csv": "data/exports/issue19-round4-50k-coop-city-gradient-major-details.csv",
+    "city_summary_csv": "data/exports/issue19-round4-50k-coop-city-gradient-city-summary.csv",
+    "history_missing_csv": "data/exports/issue19-round4-50k-coop-city-gradient-history-missing-groups.csv",
+    "high_rush_paused_csv": "data/exports/issue19-round4-50k-coop-city-gradient-high-rush-paused-groups.csv",
+    "fee_blocked_csv": "data/exports/issue19-round4-50k-coop-city-gradient-fee-pending-or-over-budget-groups.csv"
+  },
+  "hard_filters_main": [
+    "非民办/非职业本科；允许中外合作或港澳合作办学线索单独讨论",
+    "至少一个逐专业费用线索为5万内中外合作/高收费/高学费",
+    "同组高收费/合作线索中不得有费用待核或超过5万",
+    "必须有逐专业明细",
+    "必须命中至少一个当前可讨论方向",
+    "临床/口腔/中医等暂缓方向不进主表",
+    "护理/助产、动物医学/兽医/动物科学不进主表",
+    "医技/康复不进主表",
+    "H0 历史待补不进主表",
+    "H5 高冲暂缓不进主表"
+  ]
+}

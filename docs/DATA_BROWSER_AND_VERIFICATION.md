@@ -7,12 +7,15 @@
 最方便的入口是：
 
 - `data/exports/issue19-round4-city-gradient.xlsx`
+- `data/exports/issue19-round4-50k-coop-city-gradient.xlsx`
 - `data/exports/issue19-round2-updated-preferences.xlsx`
 - `data/exports/issue19-round3-unrestricted-region.xlsx`
 - `data/exports/issue19-personal-fit-v1.xlsx`
 - `data/exports/issue19-stable-foundation-browser.xlsx`
 
 `issue19-round4-city-gradient.xlsx` 是当前优先入口：它不引用 Round3 输出，直接从稳定底座、教育部学校属性表和三年投档线旁挂表重建候选，主表保留 H1-H4 共 328 个“主要可能够得着”的院校专业组，按城市和冲稳保展示；H0 历史待补、H5 高冲暂缓均单列附录。详细说明见 `docs/ROUND4_CITY_GRADIENT_CANDIDATES.md`。
+
+`issue19-round4-50k-coop-city-gradient.xlsx` 是 Round4 的 5 万内中外合作/高收费平行专项入口：它保留 Round4 的公办、专业排除、H0/H5 单列和城市展示口径，只放费用相对清楚的 50000 元内中外合作/国际合作/高收费项目；主表 21 个专业组，费用待核、出国费用、非人民币币种和超过 50000 元的组单列附录。详细说明见 `docs/ROUND4_50K_COOP_CITY_GRADIENT_CANDIDATES.md`。
 
 `issue19-round3-unrestricted-region.xlsx` 是第三轮历史入口：它在最新家庭偏好基础上取消城市和地区筛选、加分和名额分配，保留优先讨论 60 组和主线 120 组，用于回溯旧口径。详细说明见 `docs/ROUND3_UNRESTRICTED_REGION_CANDIDATES.md`。
 
@@ -90,6 +93,17 @@
 - `data/exports/issue19-round4-city-gradient-high-rush-paused-groups.csv`
 - `data/exports/issue19-round4-city-gradient-summary.json`
 
+第四轮 5 万内中外合作/高收费专项：
+
+- `data/exports/issue19-round4-50k-coop-city-gradient-candidate-groups.csv`
+- `data/exports/issue19-round4-50k-coop-city-gradient-priority-groups.csv`
+- `data/exports/issue19-round4-50k-coop-city-gradient-major-details.csv`
+- `data/exports/issue19-round4-50k-coop-city-gradient-city-summary.csv`
+- `data/exports/issue19-round4-50k-coop-city-gradient-history-missing-groups.csv`
+- `data/exports/issue19-round4-50k-coop-city-gradient-high-rush-paused-groups.csv`
+- `data/exports/issue19-round4-50k-coop-city-gradient-fee-pending-or-over-budget-groups.csv`
+- `data/exports/issue19-round4-50k-coop-city-gradient-summary.json`
+
 ## 原始结构化数据在哪
 
 原始 OCR 结构化底稿仍然保留在 `data/working`：
@@ -163,8 +177,10 @@
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_expanded_budget_coop_scenario.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_personal_fit_v1.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round2_updated_preferences.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round4_city_gradient_candidates.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round4_50k_coop_city_gradient_candidates.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/update_checksums.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/verify_baseline.py
 ```
 
-这些命令都通过后，才说明浏览层、核验抽样层、个人候选层、Round2 更新偏好层和公开校验层是一致的。
+这些命令都通过后，才说明浏览层、核验抽样层、个人候选层、Round2 更新偏好层、Round4 普通主线、Round4 5 万专项和公开校验层是一致的。
