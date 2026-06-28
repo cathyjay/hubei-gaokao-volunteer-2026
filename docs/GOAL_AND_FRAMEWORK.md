@@ -47,6 +47,8 @@
 
 新增的 `data/working/issue19-school-source-status-snapshot-public-ledger.csv` 是高校官网辅证状态快照：它把 80 条高校侧辅证机会任务、36 所学校、C4/C6 补结构化/补源包、已有结构化高校源、live 补源记录和最终门禁统一到一张公开状态账本。当前 44 条 P0 立即处理、18 条 P1 高收益自动补源、13 条 P2 常规自动补源或抽检、5 条 P3 留存；所有 80 条仍同时阻断 PDF 原页核验、湖北官方侧核验和字段写回。它只告诉我们“哪些学校和任务下一步可以自动推进或需要人工核 PDF 原页”，不能把高校官网线索、API 线索或 live 探针结果当成最终招生计划事实。
 
+新增的 `data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 是该状态快照的执行层：它不新增字段事实，只把 80 条任务拆成冲突回页、官网补缺回页、专业名归属、补结构化、继续补源、章程规则和留存观察 7 条泳道。当前它用于继续落实基础数据基座，把“我可以自动推进什么”和“哪些必须人工/官方闭环”分清楚。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 是第一批执行入口：把最高优先级的 206 条明细任务集中到 37 个页列，先核冲突、补缺、官网未匹配和高校辅证字段线索。它只压缩人工工作量和安排核验顺序，不改变“湖北官方计划和 PDF 原页闭环前不得定案”的原则。
 
 配套的 `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-review-summary.json` 已把这 37 个页列接入私有复核页面和公开状态机。公开层只同步任务数、私有材料 SHA、回链和门禁；当前 37 个页列全部还是 `R0-Overlay已生成未填写`，所以它只是第一闭环的执行承接材料，不是字段核准表或志愿建议表。

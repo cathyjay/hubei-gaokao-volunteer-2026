@@ -21996,6 +21996,202 @@ def main():
         and not any(token in school_source_status_public_text for token in shared_forbidden_tokens),
     ))
 
+    school_source_exec_summary_path = (
+        ROOT / "data/working/issue19-school-source-auto-execution-batches-summary.json"
+    )
+    school_source_exec_csv = (
+        ROOT / "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv"
+    )
+    school_source_exec_summary = json.loads(school_source_exec_summary_path.read_text())
+    with school_source_exec_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_source_exec_reader = csv.DictReader(f)
+        school_source_exec_rows = list(school_source_exec_reader)
+        school_source_exec_fields = school_source_exec_reader.fieldnames or []
+    expected_school_source_exec_fields = script_runtime_constant(
+        ROOT / "scripts/build_issue19_school_source_auto_execution_batches.py",
+        "FIELDS",
+    )
+    school_source_status_by_id = {
+        row.get("高校官网辅证状态快照ID", ""): row for row in school_source_status_rows
+    }
+    school_source_exec_join_ok = True
+    for row in school_source_exec_rows:
+        status_row = school_source_status_by_id.get(row.get("高校官网辅证状态快照ID", ""), {})
+        school_source_exec_join_ok = (
+            school_source_exec_join_ok
+            and bool(status_row)
+            and row.get("高校官网辅证自动执行批次ID")
+            == stable_id(
+                "SCHOOLSRCEXEC",
+                [
+                    row.get("高校官网辅证状态快照ID", ""),
+                    row.get("机会队列ID", ""),
+                    row.get("自动化下一步桶", ""),
+                ],
+            )
+            and row.get("来源高校官网辅证状态快照")
+            == "data/working/issue19-school-source-status-snapshot-public-ledger.csv"
+            and row.get("来源高校官网辅证状态快照摘要")
+            == "data/working/issue19-school-source-status-snapshot-summary.json"
+            and row.get("来源C4C6高校源刷新执行包")
+            == "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv"
+            and row.get("来源C4C6结构化候选diff公开账本")
+            == "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv"
+            and row.get("来源C4C6高校官网补源尝试账本")
+            == "data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv"
+            and row.get("来源高校官网live补源账本")
+            == "data/working/issue19-school-source-live-20260629-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_school_source_auto_execution_batches_public_ledger"
+            and row.get("主表粒度") == "高校×高校侧辅证自动执行批次"
+            and row.get("院校代码") == status_row.get("院校代码")
+            and row.get("院校名称公开") == status_row.get("院校名称公开")
+            and row.get("机会队列ID") == status_row.get("机会队列ID")
+            and row.get("自动化下一步桶") == status_row.get("自动化下一步桶")
+            and row.get("人工最小核验动作桶") == status_row.get("人工最小核验动作桶")
+            and row.get("快照结论桶") == status_row.get("快照结论桶")
+            and row.get("闭环阻断状态桶") == "G0-PDF原页和湖北官方侧未闭环，禁止写回"
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_review"
+            and row.get("字段事实写回状态") == "blocked_until_pdf_hubei_official_review"
+            and all(row.get(field) == "false" for field in school_source_opportunity_false_fields)
+        )
+    school_source_exec_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_source_exec_summary_path, school_source_exec_csv]
+    )
+    checks.append(ok(
+        "第 19 期高校官网辅证自动执行批次摘要、规模和分布正确",
+        school_source_exec_summary.get("status")
+        == "issue19_school_source_auto_execution_batches_public_ledger_not_final"
+        and school_source_exec_summary.get("generated_by")
+        == "build_issue19_school_source_auto_execution_batches.py"
+        and school_source_exec_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and school_source_exec_summary.get("output_table")
+        == "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv"
+        and school_source_exec_summary.get("row_grain") == "高校×高校侧辅证自动执行批次"
+        and school_source_exec_summary.get("row_count")
+        == len(school_source_exec_rows)
+        == len(school_source_status_rows)
+        == 80
+        and school_source_exec_summary.get("unique_school_count") == 36
+        and school_source_exec_summary.get("unique_execution_batch_count") == 80
+        and school_source_exec_summary.get("execution_lane_counts")
+        == {
+            "A0-冲突回页和官方侧核验": 17,
+            "A1-官网补缺线索回页核验": 8,
+            "A2-专业名匹配规则或人工确认": 12,
+            "A3-补结构化或解析公开来源": 18,
+            "A4-继续搜索高校计划网源": 8,
+            "A5-章程规则核验": 16,
+            "A7-留存观察": 1,
+        }
+        and school_source_exec_summary.get("execution_layer_counts")
+        == {
+            "B0-先核冲突": 17,
+            "B1-先核补缺": 8,
+            "B2-先核专业名归属": 12,
+            "B3-自动补结构化": 18,
+            "B4-自动补源": 8,
+            "B5-只核规则限制": 16,
+            "B7-低收益留存": 1,
+        }
+        and school_source_exec_summary.get("blocking_bucket_counts")
+        == {"G0-PDF原页和湖北官方侧未闭环，禁止写回": 80}
+        and school_source_exec_summary.get("priority_counts")
+        == dict(school_source_status_summary.get("priority_counts"))
+        and school_source_exec_summary.get("opportunity_type_counts")
+        == dict(school_source_status_summary.get("opportunity_type_counts"))
+        and school_source_exec_summary.get("snapshot_conclusion_counts")
+        == dict(school_source_status_summary.get("snapshot_conclusion_counts")),
+    ))
+    checks.append(ok(
+        "第 19 期高校官网辅证自动执行批次字段、回链和门禁正确",
+        school_source_exec_fields == expected_school_source_exec_fields
+        and len({row.get("高校官网辅证自动执行批次ID") for row in school_source_exec_rows}) == 80
+        and [as_int(row.get("执行批次序号")) for row in school_source_exec_rows]
+        == list(range(1, 81))
+        and {row.get("高校官网辅证状态快照ID") for row in school_source_exec_rows}
+        == {row.get("高校官网辅证状态快照ID") for row in school_source_status_rows}
+        and school_source_exec_summary.get("total_involved_major_detail_count") == 854
+        and school_source_exec_summary.get("total_involved_group_count") == 227
+        and school_source_exec_summary.get("total_plan_conflict_row_count") == 19
+        and school_source_exec_summary.get("total_fill_candidate_row_count") == 55
+        and school_source_exec_summary.get("total_c4c6_packet_count") == 36
+        and school_source_exec_summary.get("total_c4c6_need_structure_detail_count") == 411
+        and school_source_exec_summary.get("total_c4c6_need_source_search_detail_count") == 190
+        and school_source_exec_summary.get("total_c4c6_structured_source_row_count") == 471
+        and school_source_exec_summary.get("total_c4c6_candidate_diff_detail_count") == 240
+        and school_source_exec_summary.get("total_c4c6_no_structured_source_detail_count") == 311
+        and school_source_exec_summary.get("total_c4c6_plan_match_candidate_count") == 101
+        and school_source_exec_summary.get("total_c4c6_plan_fill_candidate_count") == 114
+        and school_source_exec_summary.get("total_c4c6_plan_conflict_candidate_count") == 25
+        and school_source_exec_summary.get("pdf_pending_task_count") == 80
+        and school_source_exec_summary.get("hubei_official_pending_task_count") == 80
+        and school_source_exec_summary.get("field_writeback_blocked_count") == 80
+        and school_source_exec_summary.get("field_writeback_ready_count") == 0
+        and school_source_exec_summary.get("final_available_count") == 0
+        and school_source_exec_summary.get("next_stage_available_count") == 0
+        and school_source_exec_summary.get("recommendation_basis_allowed_count") == 0
+        and school_source_exec_summary.get("school_major_suggestion_allowed_count") == 0
+        and school_source_exec_summary.get("official_plan_replacement_allowed_count") == 0
+        and all(
+            row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许写回字段事实") == "false"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            for row in school_source_exec_rows
+        )
+        and school_source_exec_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期高校官网辅证自动执行批次公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        "/Users/" not in school_source_exec_public_text
+        and "/home/" not in school_source_exec_public_text
+        and "/var/folders/" not in school_source_exec_public_text
+        and "/private/" not in school_source_exec_public_text
+        and "private/" not in school_source_exec_public_text
+        and "private\\" not in school_source_exec_public_text
+        and "ocr-runs" not in school_source_exec_public_text
+        and "rendered-pages" not in school_source_exec_public_text
+        and "file://" not in school_source_exec_public_text
+        and ".png" not in school_source_exec_public_text
+        and ".jpg" not in school_source_exec_public_text
+        and ".jpeg" not in school_source_exec_public_text
+        and ".webp" not in school_source_exec_public_text
+        and ".tif" not in school_source_exec_public_text
+        and ".tiff" not in school_source_exec_public_text
+        and ".heic" not in school_source_exec_public_text
+        and "Authorization" not in school_source_exec_public_text
+        and "Bearer " not in school_source_exec_public_text
+        and "Cookie" not in school_source_exec_public_text
+        and "Set-Cookie" not in school_source_exec_public_text
+        and "access_token" not in school_source_exec_public_text
+        and "refresh_token" not in school_source_exec_public_text
+        and "password" not in school_source_exec_public_text
+        and "secret" not in school_source_exec_public_text
+        and "api_key" not in school_source_exec_public_text
+        and "身份证" not in school_source_exec_public_text
+        and "准考证" not in school_source_exec_public_text
+        and "报名号" not in school_source_exec_public_text
+        and "序列号" not in school_source_exec_public_text
+        and "手机号" not in school_source_exec_public_text
+        and "OCR行文本" not in school_source_exec_public_text
+        and "候选值" not in school_source_exec_public_text
+        and "人工读数" not in school_source_exec_public_text
+        and "字段确认值" not in school_source_exec_public_text
+        and "已确认" not in school_source_exec_public_text
+        and "已核准" not in school_source_exec_public_text
+        and "最终推荐" not in school_source_exec_public_text
+        and "最终方案" not in school_source_exec_public_text
+        and "可填报" not in school_source_exec_public_text
+        and "可排序" not in school_source_exec_public_text
+        and not any(token in school_source_exec_public_text for token in shared_forbidden_tokens),
+    ))
+
     c4_c6_packets_summary_path = (
         ROOT / "data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json"
     )

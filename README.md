@@ -93,6 +93,7 @@
 - 第一闭环证据状态报告：`data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv`、`data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv` 和 `data/working/issue19-stable-foundation-first-closure-evidence-status-summary.json`。把 206 条第一闭环任务和 37 个页列按 PDF 原页、OCR 提示、机器坐标、高校辅证、冲突状态和写回门禁合成同一公开状态层；全部仍为待核状态，不保存字段值或人工读数。
 - 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 高校官网辅证状态快照：`data/working/issue19-school-source-status-snapshot-public-ledger.csv` 和 `data/working/issue19-school-source-status-snapshot-summary.json`。由 `scripts/build_issue19_school_source_status_snapshot.py` 生成，把 36 所学校、80 条高校侧辅证机会任务、C4/C6 补结构化/补源包、live 补源记录和最终门禁放到同一张公开状态账本；它只用于安排自动补源、生成 diff、压缩人工核验范围，不能作为字段事实、学校专业建议或志愿推荐依据。
+- 高校官网辅证自动执行批次：`data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 和 `data/working/issue19-school-source-auto-execution-batches-summary.json`。由 `scripts/build_issue19_school_source_auto_execution_batches.py` 生成，在状态快照基础上把 80 条任务拆成 7 条推进泳道：冲突回页 17、补缺回页 8、专业名归属 12、补结构化 18、继续补计划网源 8、章程规则 16、留存观察 1；全部仍禁止字段写回、推荐和最终使用。
 - 本科普通批志愿草表 V1：`data/exports/issue19-volunteer-table-v1-draft.xlsx`。基于第二轮更新偏好候选生成，用于把 45 个院校专业组、460 条专业选择明细拆成冲刺、稳冲、稳妥和保底、高费专项批次，逐组讨论 6 个专业草案、完整组内调剂、原页核验和章程核验；全部行仍为讨论草案，不作为定稿依据。
 
 这些工作簿都不是最终志愿方案。进入家庭讨论或最终排序前，仍必须核第 19 期原页、湖北官方系统或省招办计划、高校官网/章程、完整专业组和调剂风险。
@@ -283,6 +284,8 @@ C4/C6 高校官网补源尝试账本：`data/working/issue19-c4-c6-school-source
 高校官网自动辅证机会队列：`data/working/issue19-school-source-opportunity-queue.csv` 在 80 条高校侧刷新任务上增加自动收益分和执行建议序号，优先处理冲突、补缺、官网专业名未匹配和高收益缺源学校。当前前 10 个自动补源/复核对象为武汉轻工大学、长春工业大学、湖北师范大学、江汉大学、浙江传媒学院、西北民族大学、西安邮电大学、南宁学院、西安建筑科技大学、喀什大学；该队列仍只生成候选 diff、补源证据或抽检任务，所有推荐和写回门禁为 0。
 
 高校官网辅证状态快照：`data/working/issue19-school-source-status-snapshot-public-ledger.csv` 和 `data/working/issue19-school-source-status-snapshot-summary.json` 把 80 条官网辅证机会任务继续汇总为可追踪状态层，覆盖 36 所学校。当前 P0 立即处理 44 条、P1 高收益自动补源 18 条、P2 常规自动补源或抽检 13 条、P3 低收益留存 5 条；36 条任务结论为高风险冲突或补缺需先核 PDF 原页和湖北官方侧，17 条已有高校侧结构化线索但不得写回，21 条需补结构化、匹配规则或继续找 2026 湖北物理类计划网源，5 条只核章程规则限制。该快照公开层只保存学校、任务桶、来源数量、集合 SHA、状态桶和非最终门禁，不保存 URL 正文、字段值、OCR 原文、人工记录或登录态。
+
+高校官网辅证自动执行批次：`data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 和 `data/working/issue19-school-source-auto-execution-batches-summary.json` 把上述 80 条任务进一步落成可执行推进泳道，覆盖 36 所学校。当前 A0 冲突回页 17 条、A1 官网补缺回页 8 条、A2 专业名归属 12 条、A3 补结构化 18 条、A4 继续搜索高校计划网源 8 条、A5 章程规则 16 条、A7 留存观察 1 条；同时记录结构化状态、候选 diff 状态、补源状态和闭环阻断状态。该账本只安排自动补源、补结构化、候选 diff 和人工最小核验，仍不能替代第 19 期 PDF 原页、湖北官方系统或省招办计划。
 
 C4/C6 高校源刷新执行包：`data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv` 把上述学校刷新账本里最大的自动化缺口单独拆出，覆盖 36 个高校源刷新包、30 所学校和 601 条私有逐专业执行明细。其中 C4 22 个包、411 条明细需要补湖北物理行结构化，C6 14 个包、190 条明细需要继续找或获取高校官网 2026 湖北计划源。公开层只保存包级计数、泳道、集合 SHA 和私有 CSV SHA，不保存专业字段值、OCR 原文或人工记录；它只用于并行补源和生成后续 diff，不能替代湖北官方计划。
 

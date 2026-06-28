@@ -133,6 +133,7 @@
    - 自动核验优先级：优先抓高校官网的 API/JSON/XLSX，其次 HTML 表格，再其次 PDF 或图片计划；所有自动结果只作为字段候选、冲突提示或抽检样本，不能直接生成最终字段事实。
    - 人工核验降载方式：家庭或人工只集中签认最终候选完整专业组、冲稳保边界、红色冲突项和抽检失败升级项；不把 41208 个字段全部摊给人工逐项核对。
    - C4/C6 高校源刷新执行包：`data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv`，把 36 个 C4/C6 学校侧任务单独拆成公开执行包，并在 Git 忽略目录生成 601 条私有逐专业补源/补结构化明细；公开层只保存包级计数、泳道、集合 SHA 和私有 CSV SHA。
+   - 高校官网辅证自动执行批次：`data/working/issue19-school-source-auto-execution-batches-public-ledger.csv`，从高校官网辅证状态快照生成 80 条公开执行批次，拆成冲突回页、补缺回页、专业名归属、补结构化、继续补源、章程规则和留存观察 7 条泳道；公开层只保存学校级任务、计数、SHA、状态桶和门禁。
    - 抽样门禁表：`data/working/issue19-official-unavailable-sampling-gates.csv`，用于在湖北官方结构化计划暂不可得时，把 80 条高校侧任务和 25 条 P3 低风险抽样明细变成可执行的 100% 核验、自动 diff、分层抽检和失败升级规则。
    - 抽样执行明细表：`data/working/issue19-official-unavailable-sampling-execution-detail.csv`，把抽样门禁下沉到 155 条逐专业明细，作为高风险 100% 核验、C2 强辅证抽样和 P3 低风险抽样的逐行执行入口。
    - 抽样复核 Overlay 公开账本：`data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv`，把 155 条执行明细接到本地私有复核表；公开层只保存 SHA、状态和计数，不保存学校专业明细、字段读数或人工备注。
@@ -435,6 +436,8 @@
 - `data/working/issue19-stable-foundation-next-closure-workbench-summary.json`：稳定基座下一步闭环摘要；记录自动工作台 854 行、人工工作台 319 行、官网辅证动作分布、P0 字段分布、官方公开入口仍不可定稿和所有最终门禁为 0。
 - `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv`：稳定基座高校侧辅证刷新公开账本，80 行；一行对应一个 `高校×高校侧辅证动作`，把 854 条 B0/B1 高校官网辅证压缩为可自动复跑、补结构化、继续补源、分层抽检和人工确认的学校级任务。公开表只保存动作、计数、集合 SHA、公开来源数量和非最终门禁，不保存复跑结果、人工核验结论或字段读数。
 - `data/working/issue19-stable-foundation-school-source-refresh-public-ledger-summary.json`：高校侧辅证刷新摘要；记录 80 条公开任务、36 所学校、S0/S1/S2/S3/S4/S5 分布 15/12/23/11/14/5，源头 854 条 B0/B1 高校辅证任务，以及字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数全部为 0。私有工作台 SHA 保存在摘要中，具体复跑和人工核验结果只在 Git 忽略目录。
+- `data/working/issue19-school-source-auto-execution-batches-public-ledger.csv`：高校官网辅证自动执行批次公开账本，80 行；从高校官网辅证状态快照派生，覆盖 36 所学校和 7 条执行泳道，用于安排自动补源、补结构化、候选 diff 和人工最小核验。
+- `data/working/issue19-school-source-auto-execution-batches-summary.json`：上述执行批次摘要；记录 17 条冲突回页、8 条官网补缺回页、12 条专业名归属、18 条补结构化、8 条继续找高校计划网源、16 条章程规则和 1 条留存观察，所有字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数为 0。
 - `data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv`：C4/C6 高校官网补源尝试公开账本，12 行；覆盖 12 所 C4/C6 D4/D5/D6 剩余补源缺口学校和 312 条相关私有明细。公开层只保存学校级 URL、既有入口证据、自动探针状态、补源建议、人工最小核验动作和非最终门禁，不保存逐专业候选值或登录态。
 - `data/working/issue19-c4-c6-school-source-acquisition-attempts-summary.json`：C4/C6 高校官网补源尝试摘要；记录 12 所学校中 4 所有入口但尚未结构化、1 所需补 parser/匹配规则、7 所仍需继续找官方招生计划源，全部字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数为 0。
 - `data/working/issue19-stable-foundation-first-closure-detail-packet.csv`：稳定基座第一闭环明细包，206 行；只纳入 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务，用于先核最高风险冲突、补缺、未匹配和高校辅证线索。
