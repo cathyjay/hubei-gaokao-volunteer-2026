@@ -28018,6 +28018,392 @@ def main():
         and not any(token in first_fact_packets_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_w0_b0_minimal_script = (
+        ROOT / "scripts/build_issue19_first_closure_w0_b0_minimal_manual_checklist.py"
+    )
+    first_w0_b0_minimal_packets_csv = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv"
+    )
+    first_w0_b0_minimal_items_csv = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-items-public-ledger.csv"
+    )
+    first_w0_b0_minimal_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-summary.json"
+    )
+    first_w0_b0_minimal_summary = json.loads(first_w0_b0_minimal_summary_path.read_text())
+    with first_w0_b0_minimal_packets_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_w0_b0_minimal_packet_reader = csv.DictReader(f)
+        first_w0_b0_minimal_packet_rows = list(first_w0_b0_minimal_packet_reader)
+        first_w0_b0_minimal_packet_fields = first_w0_b0_minimal_packet_reader.fieldnames or []
+    with first_w0_b0_minimal_items_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_w0_b0_minimal_item_reader = csv.DictReader(f)
+        first_w0_b0_minimal_item_rows = list(first_w0_b0_minimal_item_reader)
+        first_w0_b0_minimal_item_fields = first_w0_b0_minimal_item_reader.fieldnames or []
+    expected_first_w0_b0_minimal_packet_fields = script_runtime_constant(
+        first_w0_b0_minimal_script,
+        "PACKET_FIELDS",
+    )
+    expected_first_w0_b0_minimal_item_fields = script_runtime_constant(
+        first_w0_b0_minimal_script,
+        "ITEM_FIELDS",
+    )
+    first_w0_b0_source_b0_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv"
+    )
+    with first_w0_b0_source_b0_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_w0_b0_source_b0_rows = list(csv.DictReader(f))
+
+    def first_pipe_sha256_values(values):
+        normalized = sorted({str(value or "").strip() for value in values if str(value or "").strip()})
+        if not normalized:
+            return ""
+        return hashlib.sha256("|".join(normalized).encode("utf-8")).hexdigest()
+
+    def first_w0_b0_minimal_type(source_row):
+        if source_row.get("事实域") == "专业组边界":
+            return "M0-先核专业组边界"
+        if source_row.get("事实域") == "字段事实":
+            return "M1-双人核明确冲突字段"
+        return "M2-核专业名归属"
+
+    first_w0_b0_source_w0_by_key = defaultdict(list)
+    first_w0_b0_source_minimal_by_key = defaultdict(list)
+    for row in first_fact_packet_items_rows:
+        is_w0_fact = row.get("核验波次") == "W0-B0冲突优先"
+        if is_w0_fact:
+            first_w0_b0_source_w0_by_key[row.get("页码版面键", "")].append(row)
+        is_minimal_fact = (
+            is_w0_fact
+            and (
+                row.get("事实域") in {"专业组边界", "专业名归属"}
+                or (
+                    row.get("事实域") == "字段事实"
+                    and row.get("核验动作层级") == "N0-先双人核PDF原页冲突"
+                )
+            )
+        )
+        if is_minimal_fact:
+            first_w0_b0_source_minimal_by_key[row.get("页码版面键", "")].append(row)
+    first_w0_b0_minimal_source_ids = {
+        row.get("第一闭环事实核验包明细ID", "")
+        for rows in first_w0_b0_source_minimal_by_key.values()
+        for row in rows
+    }
+    first_w0_b0_source_item_by_id = {
+        row.get("第一闭环事实核验包明细ID", ""): row
+        for row in first_fact_packet_items_rows
+    }
+    first_w0_b0_source_b0_by_key = {
+        row.get("页码版面键", ""): row for row in first_w0_b0_source_b0_rows
+    }
+    first_w0_b0_minimal_packet_by_key = {
+        row.get("页码版面键", ""): row for row in first_w0_b0_minimal_packet_rows
+    }
+    first_w0_b0_minimal_packet_by_id = {
+        row.get("W0B0最小人工复核包ID", ""): row
+        for row in first_w0_b0_minimal_packet_rows
+    }
+    first_w0_b0_minimal_item_source_ids = {
+        row.get("第一闭环事实核验包明细ID", "")
+        for row in first_w0_b0_minimal_item_rows
+    }
+    first_w0_b0_packet_join_ok = True
+    for row in first_w0_b0_minimal_packet_rows:
+        page_key = row.get("页码版面键", "")
+        packet_row = first_fact_packets_by_key.get(page_key, {})
+        b0_row = first_w0_b0_source_b0_by_key.get(page_key, {})
+        w0_rows = first_w0_b0_source_w0_by_key.get(page_key, [])
+        minimal_rows = first_w0_b0_source_minimal_by_key.get(page_key, [])
+        task_ids = [item.get("稳定基座第一闭环明细任务ID", "") for item in minimal_rows]
+        major_ids = [item.get("专业行ID", "") for item in minimal_rows]
+        school_ids = [item.get("院校代码", "") for item in minimal_rows]
+        first_w0_b0_packet_join_ok = (
+            first_w0_b0_packet_join_ok
+            and bool(packet_row)
+            and bool(b0_row)
+            and bool(w0_rows)
+            and bool(minimal_rows)
+            and row.get("W0B0最小人工复核包ID")
+            == stable_id_sha256(
+                "W0B0MANPKT",
+                [
+                    page_key,
+                    packet_row.get("第一闭环事实核验包ID", ""),
+                    first_pipe_sha256_values([
+                        item.get("第一闭环事实核验包明细ID", "")
+                        for item in minimal_rows
+                    ]),
+                ],
+            )
+            and row.get("来源第一闭环事实核验包")
+            == "data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv"
+            and row.get("来源第一闭环事实核验包明细")
+            == "data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv"
+            and row.get("来源B0冲突页列核验状态")
+            == "data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_w0_b0_minimal_manual_checklist"
+            and row.get("第一闭环事实核验包ID") == packet_row.get("第一闭环事实核验包ID")
+            and row.get("B0冲突页列核验状态ID") == b0_row.get("B0冲突页列核验状态ID")
+            and row.get("W0事实范围总数") == str(len(w0_rows))
+            and row.get("最小人工复核事实数") == str(len(minimal_rows))
+            and row.get("同页伴生待核事实数") == str(len(w0_rows) - len(minimal_rows))
+            and row.get("专业组边界先核事实数")
+            == str(sum(item.get("事实类型") == "专业组边界事实" for item in minimal_rows))
+            and row.get("明确冲突字段事实数")
+            == str(sum(item.get("事实域") == "字段事实" for item in minimal_rows))
+            and row.get("专业名归属事实数")
+            == str(sum(item.get("事实类型") == "专业名归属事实" for item in minimal_rows))
+            and row.get("专业计划数冲突字段事实数")
+            == str(sum(item.get("事实类型") == "字段事实-专业计划数" for item in minimal_rows))
+            and row.get("学费冲突字段事实数")
+            == str(sum(item.get("事实类型") == "字段事实-学费" for item in minimal_rows))
+            and row.get("再选科目冲突字段事实数")
+            == str(sum(item.get("事实类型") == "字段事实-再选科目" for item in minimal_rows))
+            and row.get("涉及第一闭环任务数")
+            == str(len({task_id for task_id in task_ids if task_id}))
+            and row.get("涉及冲突任务数") == b0_row.get("B0页列冲突任务数")
+            and row.get("涉及专业行数") == str(len({major_id for major_id in major_ids if major_id}))
+            and row.get("涉及院校代码数") == str(len({school_id for school_id in school_ids if school_id}))
+            and row.get("需双人复核事实数")
+            == str(sum(item.get("是否需要双人复核") == "true" for item in minimal_rows))
+            and row.get("需人工看图事实数")
+            == str(sum(item.get("是否需要人工看图") == "true" for item in minimal_rows))
+            and row.get("B0页列任务数") == b0_row.get("页列任务数")
+            and row.get("B0明确冲突任务数") == b0_row.get("B0页列冲突任务数")
+            and row.get("B0同页非冲突待闭环任务数") == b0_row.get("同页非冲突待闭环任务数")
+            and row.get("全局计划数冲突专项同页行数")
+            == b0_row.get("同页B0B1计划数冲突专项记录数")
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and row.get("最小人工复核事实集合SHA256")
+            == first_pipe_sha256_values([
+                item.get("第一闭环事实核验包明细ID", "")
+                for item in minimal_rows
+            ])
+            and row.get("同页W0事实集合SHA256")
+            == first_pipe_sha256_values([
+                item.get("第一闭环事实核验包明细ID", "")
+                for item in w0_rows
+            ])
+            and row.get("任务ID集合SHA256") == first_pipe_sha256_values(task_ids)
+            and row.get("专业行ID集合SHA256") == first_pipe_sha256_values(major_ids)
+            and row.get("院校代码集合SHA256") == first_pipe_sha256_values(school_ids)
+            and all(row.get(field) == "false" for field in first_false_fields)
+        )
+    first_w0_b0_item_join_ok = True
+    for row in first_w0_b0_minimal_item_rows:
+        source_item = first_w0_b0_source_item_by_id.get(row.get("第一闭环事实核验包明细ID", ""), {})
+        packet_row = first_w0_b0_minimal_packet_by_id.get(
+            row.get("W0B0最小人工复核包ID", ""),
+            {},
+        )
+        first_w0_b0_item_join_ok = (
+            first_w0_b0_item_join_ok
+            and bool(source_item)
+            and bool(packet_row)
+            and row.get("W0B0最小人工复核明细ID")
+            == stable_id_sha256(
+                "W0B0MANITEM",
+                [
+                    row.get("W0B0最小人工复核包ID", ""),
+                    source_item.get("第一闭环事实核验包明细ID", ""),
+                ],
+            )
+            and row.get("来源第一闭环事实核验包明细")
+            == "data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_w0_b0_minimal_manual_checklist_items"
+            and row.get("页码版面键") == source_item.get("页码版面键")
+            and row.get("第一闭环事实范围缺口公开账本ID")
+            == source_item.get("第一闭环事实范围缺口公开账本ID")
+            and row.get("第一闭环字段事实公开账本ID")
+            == source_item.get("第一闭环字段事实公开账本ID")
+            and row.get("稳定基座第一闭环明细任务ID")
+            == source_item.get("稳定基座第一闭环明细任务ID")
+            and row.get("专业行ID") == source_item.get("专业行ID")
+            and row.get("专业组出现ID") == source_item.get("专业组出现ID")
+            and row.get("院校代码") == source_item.get("院校代码")
+            and row.get("事实域") == source_item.get("事实域")
+            and row.get("事实类型") == source_item.get("事实类型")
+            and row.get("事实粒度") == source_item.get("事实粒度")
+            and row.get("字段名") == source_item.get("字段名")
+            and row.get("最小复核类型") == first_w0_b0_minimal_type(source_item)
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(row.get(field) == "false" for field in first_false_fields)
+        )
+    first_w0_b0_minimal_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_w0_b0_minimal_summary_path,
+            first_w0_b0_minimal_packets_csv,
+            first_w0_b0_minimal_items_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期第一闭环 W0/B0 最小人工复核清单摘要、规模和门禁正确",
+        first_w0_b0_minimal_summary.get("status")
+        == "issue19_stable_foundation_first_closure_w0_b0_minimal_manual_checklist_ready_not_final"
+        and first_w0_b0_minimal_summary.get("generated_by")
+        == "build_issue19_first_closure_w0_b0_minimal_manual_checklist.py"
+        and first_w0_b0_minimal_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and first_w0_b0_minimal_summary.get("packet_output_table")
+        == "data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv"
+        and first_w0_b0_minimal_summary.get("item_output_table")
+        == "data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-items-public-ledger.csv"
+        and first_w0_b0_minimal_summary.get("packet_row_count")
+        == len(first_w0_b0_minimal_packet_rows) == 10
+        and first_w0_b0_minimal_summary.get("item_row_count")
+        == len(first_w0_b0_minimal_item_rows) == 87
+        and first_w0_b0_minimal_summary.get("w0_total_fact_scope_count") == 275
+        and first_w0_b0_minimal_summary.get("companion_pending_fact_count") == 188
+        and first_w0_b0_minimal_summary.get("unique_page_side_count") == 10
+        and first_w0_b0_minimal_summary.get("unique_task_count") == 35
+        and first_w0_b0_minimal_summary.get("minimal_review_type_counts")
+        == {
+            "M0-先核专业组边界": 10,
+            "M1-双人核明确冲突字段": 68,
+            "M2-核专业名归属": 9,
+        }
+        and first_w0_b0_minimal_summary.get("fact_type_counts")
+        == {
+            "专业组边界事实": 10,
+            "字段事实-专业计划数": 26,
+            "字段事实-再选科目": 16,
+            "字段事实-学费": 26,
+            "专业名归属事实": 9,
+        }
+        and first_w0_b0_minimal_summary.get("b0_priority_counts")
+        == {
+            "P0-整页列高冲突，先双人核PDF原页与湖北官方侧": 1,
+            "P1-多字段冲突或双人复核较多，优先核PDF原页": 6,
+            "P3-单点冲突，随同页列材料完成核验": 3,
+        }
+        and first_w0_b0_minimal_summary.get("field_writeback_ready_count") == 0
+        and first_w0_b0_minimal_summary.get("recommendation_basis_allowed_count") == 0
+        and first_w0_b0_minimal_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_w0_b0_minimal_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_w0_b0_minimal_summary.get("final_available_count") == 0,
+        f"{len(first_w0_b0_minimal_item_rows)} minimal facts",
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环 W0/B0 最小人工复核清单字段、来源回链和最小口径正确",
+        first_w0_b0_minimal_packet_fields == expected_first_w0_b0_minimal_packet_fields
+        and first_w0_b0_minimal_item_fields == expected_first_w0_b0_minimal_item_fields
+        and set(first_w0_b0_minimal_packet_by_key)
+        == set(first_w0_b0_source_b0_by_key)
+        == {"135-left", "199-left", "209-right", "169-right", "018-left", "037-left", "137-right", "056-left", "226-left", "226-right"}
+        and first_w0_b0_minimal_item_source_ids == first_w0_b0_minimal_source_ids
+        and len(first_w0_b0_minimal_item_source_ids) == 87
+        and len({row.get("W0B0最小人工复核包ID") for row in first_w0_b0_minimal_packet_rows}) == 10
+        and len({row.get("W0B0最小人工复核明细ID") for row in first_w0_b0_minimal_item_rows}) == 87
+        and [as_int(row.get("最小人工复核包序号")) for row in first_w0_b0_minimal_packet_rows]
+        == list(range(1, 11))
+        and sum(csv_int(row, "W0事实范围总数") for row in first_w0_b0_minimal_packet_rows) == 275
+        and sum(csv_int(row, "最小人工复核事实数") for row in first_w0_b0_minimal_packet_rows) == 87
+        and sum(csv_int(row, "同页伴生待核事实数") for row in first_w0_b0_minimal_packet_rows) == 188
+        and sum(csv_int(row, "专业组边界先核事实数") for row in first_w0_b0_minimal_packet_rows) == 10
+        and sum(csv_int(row, "明确冲突字段事实数") for row in first_w0_b0_minimal_packet_rows) == 68
+        and sum(csv_int(row, "专业名归属事实数") for row in first_w0_b0_minimal_packet_rows) == 9
+        and sum(csv_int(row, "专业计划数冲突字段事实数") for row in first_w0_b0_minimal_packet_rows) == 26
+        and sum(csv_int(row, "学费冲突字段事实数") for row in first_w0_b0_minimal_packet_rows) == 26
+        and sum(csv_int(row, "再选科目冲突字段事实数") for row in first_w0_b0_minimal_packet_rows) == 16
+        and sum(csv_int(row, "需双人复核事实数") for row in first_w0_b0_minimal_packet_rows) == 57
+        and sum(csv_int(row, "需人工看图事实数") for row in first_w0_b0_minimal_packet_rows) == 75
+        and Counter(row.get("最小复核类型", "") for row in first_w0_b0_minimal_item_rows)
+        == Counter(
+            {
+                "M0-先核专业组边界": 10,
+                "M1-双人核明确冲突字段": 68,
+                "M2-核专业名归属": 9,
+            }
+        )
+        and Counter(row.get("事实类型", "") for row in first_w0_b0_minimal_item_rows)
+        == Counter(
+            {
+                "专业组边界事实": 10,
+                "字段事实-专业计划数": 26,
+                "字段事实-再选科目": 16,
+                "字段事实-学费": 26,
+                "专业名归属事实": 9,
+            }
+        )
+        and all(row.get("PDF原页核页状态") == "pending_pdf_page_review" for row in first_w0_b0_minimal_packet_rows)
+        and all(row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_plan_review" for row in first_w0_b0_minimal_packet_rows)
+        and all(row.get("字段事实写回状态") == "blocked_until_pdf_hubei_school_three_way_closure" for row in first_w0_b0_minimal_packet_rows)
+        and all(row.get(field) == "false" for row in first_w0_b0_minimal_packet_rows for field in first_false_fields)
+        and all(row.get(field) == "false" for row in first_w0_b0_minimal_item_rows for field in first_false_fields)
+        and first_w0_b0_packet_join_ok
+        and first_w0_b0_item_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环 W0/B0 最小人工复核清单公开文件不含私有路径、字段值、登录态和最终误导结论",
+        "/Users/" not in first_w0_b0_minimal_public_text
+        and "/home/" not in first_w0_b0_minimal_public_text
+        and "/var/folders/" not in first_w0_b0_minimal_public_text
+        and "/private/" not in first_w0_b0_minimal_public_text
+        and "private/" not in first_w0_b0_minimal_public_text
+        and "private\\" not in first_w0_b0_minimal_public_text
+        and "ocr-runs" not in first_w0_b0_minimal_public_text
+        and "rendered-pages" not in first_w0_b0_minimal_public_text
+        and "file://" not in first_w0_b0_minimal_public_text
+        and ".png" not in first_w0_b0_minimal_public_text
+        and ".jpg" not in first_w0_b0_minimal_public_text
+        and ".jpeg" not in first_w0_b0_minimal_public_text
+        and ".webp" not in first_w0_b0_minimal_public_text
+        and ".tif" not in first_w0_b0_minimal_public_text
+        and ".tiff" not in first_w0_b0_minimal_public_text
+        and ".heic" not in first_w0_b0_minimal_public_text
+        and "Authorization" not in first_w0_b0_minimal_public_text
+        and "Bearer " not in first_w0_b0_minimal_public_text
+        and "Cookie" not in first_w0_b0_minimal_public_text
+        and "Set-Cookie" not in first_w0_b0_minimal_public_text
+        and "access_token" not in first_w0_b0_minimal_public_text
+        and "refresh_token" not in first_w0_b0_minimal_public_text
+        and "password" not in first_w0_b0_minimal_public_text
+        and "secret" not in first_w0_b0_minimal_public_text
+        and "api_key" not in first_w0_b0_minimal_public_text
+        and "身份证" not in first_w0_b0_minimal_public_text
+        and "准考证" not in first_w0_b0_minimal_public_text
+        and "报名号" not in first_w0_b0_minimal_public_text
+        and "序列号" not in first_w0_b0_minimal_public_text
+        and "手机号" not in first_w0_b0_minimal_public_text
+        and "院校名称" not in first_w0_b0_minimal_public_text
+        and "专业名称" not in first_w0_b0_minimal_public_text
+        and "专业代号" not in first_w0_b0_minimal_public_text
+        and "院校专业组" not in first_w0_b0_minimal_public_text
+        and "OCR行文本" not in first_w0_b0_minimal_public_text
+        and "OCR原文" not in first_w0_b0_minimal_public_text
+        and "候选值" not in first_w0_b0_minimal_public_text
+        and "字段确认值" not in first_w0_b0_minimal_public_text
+        and "人工读数" not in first_w0_b0_minimal_public_text
+        and "PDF原页人工读数" not in first_w0_b0_minimal_public_text
+        and "湖北官方字段值" not in first_w0_b0_minimal_public_text
+        and "高校官网或招生章程字段值" not in first_w0_b0_minimal_public_text
+        and "复核备注" not in first_w0_b0_minimal_public_text
+        and "已确认" not in first_w0_b0_minimal_public_text
+        and "已核准" not in first_w0_b0_minimal_public_text
+        and "最终推荐" not in first_w0_b0_minimal_public_text
+        and "最终方案" not in first_w0_b0_minimal_public_text
+        and "可填报" not in first_w0_b0_minimal_public_text
+        and "可排序" not in first_w0_b0_minimal_public_text
+        and not any(token in first_w0_b0_minimal_public_text for token in shared_forbidden_tokens),
+    ))
+
     first_b0_conflict_summary_path = (
         ROOT
         / "data/working/issue19-stable-foundation-first-closure-b0-conflict-status-summary.json"
