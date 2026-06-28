@@ -1,0 +1,25 @@
+{
+  "status": "issue19_expanded_budget_coop_scenario_ready",
+  "generated_by": "export_issue19_expanded_budget_coop_scenario.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "scenario_source": "data/working/family-preferences-expanded-2026-06-28.json",
+  "annual_upper_limit_yuan": 70000,
+  "group_output": "data/exports/issue19-expanded-budget-coop-groups.csv",
+  "major_output": "data/exports/issue19-expanded-budget-coop-majors.csv",
+  "workbook": "data/exports/issue19-expanded-budget-coop-scenario.xlsx",
+  "group_count": 853,
+  "major_count": 2330,
+  "scenario_judgement_counts": {
+    "预算内中外合作/高收费可讨论": 1706,
+    "预算内高学费可讨论": 259,
+    "费用待核": 234,
+    "超过预算": 131
+  },
+  "group_judgement_counts": {
+    "预算内中外合作/高收费可讨论": 667,
+    "费用待核": 120,
+    "超过预算": 66
+  },
+  "medical_pending_major_count": 191,
+  "usage_boundary": "只用于7万预算内中外合作/高收费专项讨论，不作为定稿依据。"
+}

@@ -42,6 +42,7 @@
 - `docs/VOLUNTEER_FILLING_GUIDE.md`：志愿填报阶段、专业名词和注意事项。
 - `docs/MAJOR_DIRECTIONS.md`：当前可能专业方向和后续调研问题。
 - `docs/FAMILY_PREFERENCES_AND_CONSTRAINTS.md`：家庭偏好、预算、体检和筛选硬底线。
+- `docs/EXPANDED_BUDGET_COOP_AND_SPECIAL_TRACKS.md`：7 万预算、中外合作/高收费和军事院校专项讨论入口。
 - `docs/2026_ADMISSION_PLAN_ACQUISITION.md`：2026 招生计划获取来源、接口状态和下一步动作。
 - `docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`：《湖北招生考试》第 16/19 期专项检索记录。
 - `docs/OCR_WORKFLOW.md`：第 19 期纸质版照片 OCR、批量处理和人工复核流程。
@@ -64,6 +65,13 @@
 - `data/exports/`：面向浏览、筛选和人工核验的导出层，不替代 `data/working/` 原始结构化底座。
 - `scripts/`：可重复运行的核验和筛选脚本。
 - `CHECKSUMS.sha256`：项目文件哈希清单。
+
+## 当前浏览入口
+
+- 稳定数据基座浏览：`data/exports/issue19-stable-foundation-browser.xlsx`。用于看第 19 期全量结构化底座、专业组、逐专业明细、观察池和快速核验抽样。
+- 7 万预算中外合作专项：`data/exports/issue19-expanded-budget-coop-scenario.xlsx`。用于讨论中外合作/高收费项目是否值得作为花钱换机会的专项线；当前覆盖 853 个专业组、2330 条专业明细，其中预算内中外合作/高收费可讨论 1706 条、预算内高学费可讨论 259 条、费用待核 234 条、超过 70000 元预算 131 条。
+
+两份工作簿都不是最终志愿方案。进入家庭讨论或最终排序前，仍必须核第 19 期原页、湖北官方系统或省招办计划、高校官网/章程、完整专业组和调剂风险。
 
 ## 快速命令
 
@@ -141,6 +149,7 @@ python3 scripts/build_issue19_stable_foundation_screening_views.py
 python3 scripts/build_issue19_stable_foundation_group_readiness_bridge.py
 python3 scripts/build_issue19_stable_foundation_v0_status.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_stable_foundation_browser.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_expanded_budget_coop_scenario.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round1_candidate_selection.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py

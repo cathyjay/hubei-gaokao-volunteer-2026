@@ -25302,6 +25302,140 @@ def main():
         and not any(token in stable_browser_public_text for token in shared_forbidden_tokens),
     ))
 
+    expanded_scenario_script = ROOT / "scripts/export_issue19_expanded_budget_coop_scenario.py"
+    expanded_scenario_source_path = (
+        ROOT / "data/working/family-preferences-expanded-2026-06-28.json"
+    )
+    expanded_scenario_summary_path = (
+        ROOT / "data/exports/issue19-expanded-budget-coop-scenario-summary.json"
+    )
+    expanded_scenario_workbook_path = (
+        ROOT / "data/exports/issue19-expanded-budget-coop-scenario.xlsx"
+    )
+    expanded_scenario_group_csv = (
+        ROOT / "data/exports/issue19-expanded-budget-coop-groups.csv"
+    )
+    expanded_scenario_major_csv = (
+        ROOT / "data/exports/issue19-expanded-budget-coop-majors.csv"
+    )
+    expanded_scenario_source = json.loads(expanded_scenario_source_path.read_text())
+    expanded_scenario_summary = json.loads(expanded_scenario_summary_path.read_text())
+    with expanded_scenario_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        expanded_group_reader = csv.DictReader(f)
+        expanded_group_rows = list(expanded_group_reader)
+        expanded_group_fields = expanded_group_reader.fieldnames or []
+    with expanded_scenario_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        expanded_major_reader = csv.DictReader(f)
+        expanded_major_rows = list(expanded_major_reader)
+        expanded_major_fields = expanded_major_reader.fieldnames or []
+    expected_expanded_group_fields = script_list_constant(
+        expanded_scenario_script,
+        "GROUP_FIELDS",
+    )
+    expected_expanded_major_fields = script_list_constant(
+        expanded_scenario_script,
+        "MAJOR_FIELDS",
+    )
+    expanded_scenario_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            expanded_scenario_summary_path,
+            expanded_scenario_group_csv,
+            expanded_scenario_major_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期 7 万预算中外合作专项场景口径、摘要和工作簿正确",
+        expanded_scenario_source.get("scenario_id")
+        == "expanded_budget_coop_and_special_tracks_20260628"
+        and expanded_scenario_source.get("budget", {}).get("annual_upper_limit_yuan")
+        == 70000
+        and expanded_scenario_source.get("special_tracks", {})
+        .get("military_academies", {})
+        .get("can_explore")
+        is True
+        and expanded_scenario_summary.get("status")
+        == "issue19_expanded_budget_coop_scenario_ready"
+        and expanded_scenario_summary.get("generated_by")
+        == "export_issue19_expanded_budget_coop_scenario.py"
+        and expanded_scenario_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and expanded_scenario_summary.get("workbook")
+        == "data/exports/issue19-expanded-budget-coop-scenario.xlsx"
+        and expanded_scenario_workbook_path.exists()
+        and expanded_scenario_workbook_path.stat().st_size > 500_000
+        and expanded_scenario_summary.get("group_count")
+        == len(expanded_group_rows) == 853
+        and expanded_scenario_summary.get("major_count")
+        == len(expanded_major_rows) == 2330
+        and expanded_scenario_summary.get("scenario_judgement_counts") == {
+            "预算内中外合作/高收费可讨论": 1706,
+            "预算内高学费可讨论": 259,
+            "费用待核": 234,
+            "超过预算": 131,
+        }
+        and expanded_scenario_summary.get("group_judgement_counts") == {
+            "预算内中外合作/高收费可讨论": 667,
+            "费用待核": 120,
+            "超过预算": 66,
+        }
+        and expanded_scenario_summary.get("medical_pending_major_count") == 191,
+        f"{len(expanded_group_rows)} groups, {len(expanded_major_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期 7 万预算中外合作专项字段、门禁和保守费用口径正确",
+        expanded_group_fields == expected_expanded_group_fields
+        and expanded_major_fields == expected_expanded_major_fields
+        and {row.get("是否可作为定稿依据") for row in expanded_group_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in expanded_major_rows} == {"false"}
+        and any(
+            row.get("院校名称OCR") == "西安航空学院"
+            and row.get("专业名称及备注短摘", "").startswith("机械电子工程")
+            and row.get("学费OCR候选") == "4"
+            and row.get("场景判断") == "费用待核"
+            for row in expanded_major_rows
+        )
+        and any(
+            row.get("院校名称OCR") == "北京语言大学"
+            and row.get("学费OCR候选") == "10万"
+            and row.get("场景判断") == "超过预算"
+            for row in expanded_major_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期 7 万预算中外合作专项公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in expanded_scenario_public_text
+        and "/home/" not in expanded_scenario_public_text
+        and "/var/folders/" not in expanded_scenario_public_text
+        and "/private/" not in expanded_scenario_public_text
+        and "private/" not in expanded_scenario_public_text
+        and "private\\" not in expanded_scenario_public_text
+        and "ocr-runs" not in expanded_scenario_public_text
+        and "rendered-pages" not in expanded_scenario_public_text
+        and "Authorization" not in expanded_scenario_public_text
+        and "Bearer " not in expanded_scenario_public_text
+        and "Cookie" not in expanded_scenario_public_text
+        and "Set-Cookie" not in expanded_scenario_public_text
+        and "access_token" not in expanded_scenario_public_text
+        and "refresh_token" not in expanded_scenario_public_text
+        and "password" not in expanded_scenario_public_text
+        and "secret" not in expanded_scenario_public_text
+        and "api_key" not in expanded_scenario_public_text
+        and "身份证" not in expanded_scenario_public_text
+        and "准考证" not in expanded_scenario_public_text
+        and "报名号" not in expanded_scenario_public_text
+        and "序列号" not in expanded_scenario_public_text
+        and "手机号" not in expanded_scenario_public_text
+        and "人工读数" not in expanded_scenario_public_text
+        and "已确认" not in expanded_scenario_public_text
+        and "已核准" not in expanded_scenario_public_text
+        and "最终推荐" not in expanded_scenario_public_text
+        and "最终方案" not in expanded_scenario_public_text
+        and "可填报" not in expanded_scenario_public_text
+        and "可排序" not in expanded_scenario_public_text
+        and not any(token in expanded_scenario_public_text for token in shared_forbidden_tokens),
+    ))
+
     round1_script = ROOT / "scripts/build_issue19_round1_candidate_selection.py"
     round1_summary_path = ROOT / "data/exports/issue19-round1-candidate-selection-summary.json"
     round1_workbook_path = ROOT / "data/exports/issue19-round1-candidate-selection.xlsx"

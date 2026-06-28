@@ -10,6 +10,12 @@
 
 这个 Excel 工作簿是从稳定数据基座 V0 生成的浏览版，不改动原始 CSV。它适合家庭一起看、筛选和做第一轮讨论。
 
+如果这次专门看“年学费 70000 元以内、中外合作或高收费是否值得讨论”，打开：
+
+- `data/exports/issue19-expanded-budget-coop-scenario.xlsx`
+
+这份工作簿是新增的专项覆盖层，不改动 V0 底座。详细说明见 `docs/EXPANDED_BUDGET_COOP_AND_SPECIAL_TRACKS.md`。
+
 工作簿里主要看这几张表：
 
 1. `00_怎么看`：工作簿使用说明。
@@ -29,6 +35,12 @@
 - `data/exports/issue19-stable-foundation-machine-signal-majors.csv`
 - `data/exports/issue19-stable-foundation-quick-verification-sample.csv`
 - `data/exports/issue19-stable-foundation-candidate-discussion-template.csv`
+
+7 万预算中外合作专项 CSV：
+
+- `data/exports/issue19-expanded-budget-coop-groups.csv`
+- `data/exports/issue19-expanded-budget-coop-majors.csv`
+- `data/exports/issue19-expanded-budget-coop-scenario-summary.json`
 
 ## 原始结构化数据在哪
 
@@ -100,6 +112,7 @@
 
 ```bash
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_stable_foundation_browser.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_expanded_budget_coop_scenario.py
 python3 scripts/update_checksums.py
 python3 scripts/verify_baseline.py
 ```
