@@ -217,11 +217,13 @@
 14. P0 top3 私有复核包公开台账
    - 生成脚本：`scripts/build_issue19_p0_top3_review_packet.py`
    - 公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`
+   - 逐字段公开台账：`data/working/issue19-p0-top3-field-review-public-ledger.csv`
    - 公开摘要：`data/working/issue19-p0-top3-review-packet-summary.json`
    - 私有材料证据编号：`p0_top3_private_review_packet_not_public`
    - 输入来源：数据基座下一批执行工作台 V1 的 P0 冲突包表和 P0 冲突逐任务表、第一闭环字段确认公开账本，以及 Git 忽略目录中的第一闭环私有工作台、页图和 OCR 文本。
-   - 当前结论：已为 `135-left`、`199-left`、`209-right` 生成 3 个包、15 条任务的本地私有复核入口；15 条均为待 PDF 原页、湖北官方侧、高校辅证和双人复核闭环状态。
-   - 限制：公开台账只保存状态、计数、证据编号、集合 SHA 和私有材料 SHA；不保存页图路径、OCR 文本、字段候选值、人工读数、核验人或备注；不确认字段事实，不允许字段写回，不作为志愿推荐依据。
+   - 当前结论：已为 `135-left`、`199-left`、`209-right` 生成 3 个包、15 条任务的本地私有复核入口，并拆成 36 个字段核验单元：计划数 15 个、学费 15 个、再选科目 6 个。
+   - 字段候选关系：`R0-候选冲突` 16 个、`R3-仅高校辅证候选` 13 个、`R1-候选一致` 6 个、`R2-仅PDFOCR候选` 1 个。该关系只用于安排核验优先级，不确认字段事实。
+   - 限制：公开台账只保存状态、计数、关系桶、证据编号、集合 SHA 和私有材料 SHA；不保存页图路径、OCR 文本、字段候选值、人工读数、核验人或备注；不确认字段事实，不允许字段写回，不作为志愿推荐依据。
 
 ## 派生数据说明
 

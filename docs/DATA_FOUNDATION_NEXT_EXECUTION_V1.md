@@ -81,10 +81,13 @@
 
 - 生成脚本：`scripts/build_issue19_p0_top3_review_packet.py`
 - 公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`
+- 逐字段公开台账：`data/working/issue19-p0-top3-field-review-public-ledger.csv`
 - 公开摘要：`data/working/issue19-p0-top3-review-packet-summary.json`
 - 私有材料：`private/review-assets/issue19-p0-top3-review-packet/`，不提交公开仓库。
 
 这批材料覆盖 3 个 P0 冲突包、15 条任务，15 条全部需要双人复核、PDF 原页读数、湖北官方侧记录和高校辅证记录。公开台账只保存包级计数、状态、证据编号和 SHA；页图、OCR 文本、字段候选值、人工读数、复核人和备注只留在私有材料。
+
+逐字段层已进一步拆成 36 个字段核验单元：计划数 15 个、学费 15 个、再选科目 6 个。其中候选关系为 `R0-候选冲突` 16 个、`R3-仅高校辅证候选` 13 个、`R1-候选一致` 6 个、`R2-仅PDFOCR候选` 1 个。关系桶只用于安排核验优先级，不确认字段事实。
 
 注意：同一页列里可能还有其他任务，所以这批 top3 不是按页列从全量公开账本直接抓取，而是以 `data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-tasks.csv` 的 `第一闭环任务ID` 为准，再回连私有工作台。
 

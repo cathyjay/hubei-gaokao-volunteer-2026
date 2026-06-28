@@ -24,10 +24,12 @@ FIELD_PRIVATE = (
 PRIVATE_OUTPUT_DIR = PRIVATE_ROOT / "review-assets/issue19-p0-top3-review-packet"
 PRIVATE_HTML_DIR = PRIVATE_OUTPUT_DIR / "html"
 PRIVATE_TASK_CSV = PRIVATE_OUTPUT_DIR / "p0-top3-private-tasks.csv"
+PRIVATE_FIELD_CSV = PRIVATE_OUTPUT_DIR / "p0-top3-private-field-review.csv"
 PRIVATE_INDEX_CSV = PRIVATE_OUTPUT_DIR / "p0-top3-private-index.csv"
 PRIVATE_MASTER_HTML = PRIVATE_OUTPUT_DIR / "index.html"
 
 PUBLIC_LEDGER = WORKING / "issue19-p0-top3-review-packet-public-ledger.csv"
+PUBLIC_FIELD_LEDGER = WORKING / "issue19-p0-top3-field-review-public-ledger.csv"
 PUBLIC_SUMMARY = WORKING / "issue19-p0-top3-review-packet-summary.json"
 
 SOURCE_ISSUE = "湖北招生考试2026年19期·本科普通批（下）"
@@ -140,6 +142,85 @@ PRIVATE_TASK_FIELDS = [
     "三方一致性结论",
     "字段事实写回建议",
     "人工复核备注",
+]
+
+PRIVATE_FIELD_FIELDS = [
+    "P0Top3私有字段核验ID",
+    "P0Top3字段公开账本ID",
+    "P0Top3私有复核任务ID",
+    "P0Top3公开复核包ID",
+    "核验包编号",
+    "页码版面",
+    "来源页码",
+    "版面列",
+    "院校代码",
+    "院校名称",
+    "院校专业组代码",
+    "专业代号",
+    "专业名称短摘",
+    "专业行ID",
+    "第一闭环任务ID",
+    "第一闭环字段确认公开账本ID",
+    "字段名",
+    "字段候选关系桶",
+    "PDFOCR字段候选值",
+    "高校辅证字段候选值",
+    "PDF原页字段人工读数",
+    "湖北官方字段值",
+    "高校官网或招生章程字段值",
+    "字段确认值",
+    "字段确认来源组合",
+    "PDF核页复核人A",
+    "PDF核页复核人B",
+    "湖北官方核验人",
+    "高校辅证核验人",
+    "双人一致性结论",
+    "三方一致性结论",
+    "字段事实写回建议",
+    "人工复核备注",
+]
+
+PUBLIC_FIELD_FIELDS = [
+    "P0Top3字段公开账本ID",
+    "来源P0Top3公开复核包台账",
+    "来源P0Top3私有字段核验表",
+    "来源期号",
+    "来源PDF_SHA256",
+    "数据阶段",
+    "主表粒度",
+    "任务粒度",
+    "最终可用",
+    "可进入下一阶段",
+    "是否允许作为志愿推荐依据",
+    "是否允许生成学校专业建议",
+    "是否允许字段写回",
+    "字段总序",
+    "P0Top3公开复核包ID",
+    "核验包编号",
+    "页码版面",
+    "来源页码",
+    "版面列",
+    "字段名",
+    "字段候选关系桶",
+    "PDFOCR字段候选状态",
+    "高校辅证字段候选状态",
+    "是否需要双人复核",
+    "是否需要人工看图",
+    "PDF原页待记录状态",
+    "湖北官方待记录状态",
+    "高校辅证待记录状态",
+    "三方一致性状态",
+    "字段事实写回状态",
+    "来源任务ID_SHA256",
+    "来源专业行ID_SHA256",
+    "来源院校代码_SHA256",
+    "来源专业组代码_SHA256",
+    "来源专业代号_SHA256",
+    "私有字段核验表证据编号",
+    "私有字段核验表_SHA256",
+    "私有字段线索_SHA256",
+    "下一步",
+    "公开安全边界",
 ]
 
 PRIVATE_INDEX_FIELDS = [
@@ -322,6 +403,136 @@ def build_private_task_rows(package_rows, task_rows, private_field_by_task):
     return private_rows
 
 
+def split_fields(value):
+    return [part.strip() for part in str(value or "").split("；") if part.strip()]
+
+
+def field_candidate_values(row, field_name):
+    if field_name == "专业计划数":
+        return row.get("PDFOCR计划数候选值", ""), row.get("高校辅证计划数候选值", "")
+    if field_name == "学费":
+        return row.get("PDFOCR学费候选值", ""), row.get("高校辅证学费候选值", "")
+    if field_name == "再选科目":
+        return row.get("PDFOCR选科候选值", ""), row.get("高校辅证选科候选值", "")
+    return "", ""
+
+
+def relation_bucket(pdf_value, school_value):
+    if pdf_value and school_value and pdf_value == school_value:
+        return "R1-候选一致"
+    if pdf_value and school_value and pdf_value != school_value:
+        return "R0-候选冲突"
+    if pdf_value and not school_value:
+        return "R2-仅PDFOCR候选"
+    if school_value and not pdf_value:
+        return "R3-仅高校辅证候选"
+    return "R4-候选均缺"
+
+
+def clue_hash(row):
+    parts = [
+        row.get("P0Top3私有字段核验ID", ""),
+        row.get("第一闭环任务ID", ""),
+        row.get("字段名", ""),
+        row.get("字段候选关系桶", ""),
+        row.get("PDFOCR字段候选值", ""),
+        row.get("高校辅证字段候选值", ""),
+    ]
+    return hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()
+
+
+def build_private_field_rows(private_task_rows):
+    rows = []
+    for task in private_task_rows:
+        for field_name in split_fields(task.get("字段范围", "")):
+            pdf_value, school_value = field_candidate_values(task, field_name)
+            private_field_id = stable_id(
+                "P0TOP3FIELD",
+                [task.get("第一闭环任务ID", ""), field_name],
+            )
+            public_field_id = stable_id(
+                "P0TOP3FPUB",
+                [task.get("第一闭环任务ID", ""), field_name],
+            )
+            rows.append({
+                "P0Top3私有字段核验ID": private_field_id,
+                "P0Top3字段公开账本ID": public_field_id,
+                "P0Top3私有复核任务ID": task.get("P0Top3私有复核任务ID", ""),
+                "P0Top3公开复核包ID": task.get("P0Top3公开复核包ID", ""),
+                "核验包编号": task.get("核验包编号", ""),
+                "页码版面": task.get("页码版面", ""),
+                "来源页码": task.get("来源页码", ""),
+                "版面列": task.get("版面列", ""),
+                "院校代码": task.get("院校代码", ""),
+                "院校名称": task.get("院校名称", ""),
+                "院校专业组代码": task.get("院校专业组代码", ""),
+                "专业代号": task.get("专业代号", ""),
+                "专业名称短摘": task.get("专业名称短摘", ""),
+                "专业行ID": task.get("专业行ID", ""),
+                "第一闭环任务ID": task.get("第一闭环任务ID", ""),
+                "第一闭环字段确认公开账本ID": task.get("第一闭环字段确认公开账本ID", ""),
+                "字段名": field_name,
+                "字段候选关系桶": relation_bucket(pdf_value, school_value),
+                "PDFOCR字段候选值": pdf_value,
+                "高校辅证字段候选值": school_value,
+            })
+    return rows
+
+
+def build_public_field_rows(private_field_rows, private_field_csv_sha):
+    public_rows = []
+    for index, row in enumerate(private_field_rows, start=1):
+        pdf_status = "has_pdfocr_candidate" if row.get("PDFOCR字段候选值") else "missing_pdfocr_candidate"
+        school_status = (
+            "has_school_evidence_candidate"
+            if row.get("高校辅证字段候选值")
+            else "missing_school_evidence_candidate"
+        )
+        public_rows.append({
+            "P0Top3字段公开账本ID": row.get("P0Top3字段公开账本ID", ""),
+            "来源P0Top3公开复核包台账": "data/working/issue19-p0-top3-review-packet-public-ledger.csv",
+            "来源P0Top3私有字段核验表": "p0_top3_private_field_review_not_public",
+            "来源期号": SOURCE_ISSUE,
+            "来源PDF_SHA256": SOURCE_PDF_SHA256,
+            "数据阶段": "issue19_p0_top3_field_review_public_ledger",
+            "主表粒度": "逐字段",
+            "任务粒度": "P0冲突top3×专业行×字段",
+            "最终可用": "false",
+            "可进入下一阶段": "false",
+            "是否允许作为志愿推荐依据": "false",
+            "是否允许生成学校专业建议": "false",
+            "是否允许字段写回": "false",
+            "字段总序": str(index),
+            "P0Top3公开复核包ID": row.get("P0Top3公开复核包ID", ""),
+            "核验包编号": row.get("核验包编号", ""),
+            "页码版面": row.get("页码版面", ""),
+            "来源页码": row.get("来源页码", ""),
+            "版面列": row.get("版面列", ""),
+            "字段名": row.get("字段名", ""),
+            "字段候选关系桶": row.get("字段候选关系桶", ""),
+            "PDFOCR字段候选状态": pdf_status,
+            "高校辅证字段候选状态": school_status,
+            "是否需要双人复核": "true",
+            "是否需要人工看图": "true",
+            "PDF原页待记录状态": "pending_private_pdf_field_reading",
+            "湖北官方待记录状态": "pending_private_hubei_field_reading",
+            "高校辅证待记录状态": "pending_private_school_field_reading",
+            "三方一致性状态": "pending_private_three_way_field_confirmation",
+            "字段事实写回状态": "blocked_until_private_field_readings_complete",
+            "来源任务ID_SHA256": hashlib.sha256(row.get("第一闭环任务ID", "").encode("utf-8")).hexdigest(),
+            "来源专业行ID_SHA256": hashlib.sha256(row.get("专业行ID", "").encode("utf-8")).hexdigest(),
+            "来源院校代码_SHA256": hashlib.sha256(row.get("院校代码", "").encode("utf-8")).hexdigest(),
+            "来源专业组代码_SHA256": hashlib.sha256(row.get("院校专业组代码", "").encode("utf-8")).hexdigest(),
+            "来源专业代号_SHA256": hashlib.sha256(row.get("专业代号", "").encode("utf-8")).hexdigest(),
+            "私有字段核验表证据编号": "P0TOP3-PRIVATE-FIELD-REVIEW-CSV",
+            "私有字段核验表_SHA256": private_field_csv_sha,
+            "私有字段线索_SHA256": clue_hash(row),
+            "下一步": "在私有字段核验表逐字段补PDF原页、湖北官方侧和高校辅证字段值；三方闭环前不得写回。",
+            "公开安全边界": "公开层只保存字段名、状态、关系桶、证据编号和SHA；不保存候选值、人工读数、院校专业明细或复核备注。",
+        })
+    return public_rows
+
+
 def write_page_html(public_id, package, rows, page_image, page_text, task_csv_sha):
     page_side = package["页码版面"]
     html_path = PRIVATE_HTML_DIR / f"{page_side}.html"
@@ -398,8 +609,10 @@ def write_master_html(index_rows):
 
 
 def public_safety_check():
-    text = PUBLIC_LEDGER.read_text(encoding="utf-8", errors="ignore") + PUBLIC_SUMMARY.read_text(
-        encoding="utf-8", errors="ignore"
+    text = (
+        PUBLIC_LEDGER.read_text(encoding="utf-8", errors="ignore")
+        + PUBLIC_FIELD_LEDGER.read_text(encoding="utf-8", errors="ignore")
+        + PUBLIC_SUMMARY.read_text(encoding="utf-8", errors="ignore")
     )
     hits = [token for token in FORBIDDEN_PUBLIC_TOKENS if token in text]
     if hits:
@@ -443,6 +656,11 @@ def main():
     private_task_rows = build_private_task_rows(packages, tasks, private_field_by_task)
     write_csv(PRIVATE_TASK_CSV, private_task_rows, PRIVATE_TASK_FIELDS)
     private_task_csv_sha = sha256_file(PRIVATE_TASK_CSV)
+    private_field_rows = build_private_field_rows(private_task_rows)
+    write_csv(PRIVATE_FIELD_CSV, private_field_rows, PRIVATE_FIELD_FIELDS)
+    private_field_csv_sha = sha256_file(PRIVATE_FIELD_CSV)
+    public_field_rows = build_public_field_rows(private_field_rows, private_field_csv_sha)
+    write_csv(PUBLIC_FIELD_LEDGER, public_field_rows, PUBLIC_FIELD_FIELDS)
 
     public_rows = []
     private_index_rows = []
@@ -541,24 +759,39 @@ def main():
         "top_page_sides": TOP_PAGE_SIDES,
         "public_package_count": len(public_rows),
         "private_task_count": len(private_task_rows),
+        "private_field_review_row_count": len(private_field_rows),
+        "public_field_review_row_count": len(public_field_rows),
         "unique_task_count": len({row["第一闭环任务ID"] for row in private_task_rows}),
+        "unique_field_task_count": len({row["P0Top3私有字段核验ID"] for row in private_field_rows}),
         "unique_page_side_count": len({row["页码版面"] for row in private_task_rows}),
+        "field_name_counts": dict(Counter(row.get("字段名", "") for row in private_field_rows)),
+        "field_candidate_relation_counts": dict(
+            Counter(row.get("字段候选关系桶", "") for row in private_field_rows)
+        ),
         "double_review_task_count": sum(row.get("是否需要双人复核") == "true" for row in tasks),
+        "double_review_field_count": len(private_field_rows),
         "school_evidence_task_count": sum(row.get("高校辅证线索") == "true" for row in tasks),
+        "field_pdf_pending_count": len(private_field_rows),
+        "field_hubei_pending_count": len(private_field_rows),
+        "field_school_pending_count": len(private_field_rows),
+        "field_three_way_pending_count": len(private_field_rows),
         "pdf_pending_task_count": sum(row.get("PDF原页记录状态") == "pending_private_pdf_reading" for row in tasks),
         "hubei_pending_task_count": sum(row.get("湖北官方记录状态") == "pending_private_hubei_reading" for row in tasks),
         "school_pending_task_count": sum(row.get("高校辅证记录状态") == "pending_private_school_reading" for row in tasks),
         "three_way_pending_task_count": sum(row.get("三方一致性状态") == "pending_private_three_way_field_confirmation" for row in tasks),
         "field_writeback_ready_count": sum(row.get("字段写回状态") == "ready_for_manual_field_writeback_review" for row in tasks),
+        "field_review_writeback_ready_count": 0,
         "recommendation_basis_allowed_count": 0,
         "school_major_suggestion_allowed_count": 0,
         "field_writeback_allowed_count": 0,
         "private_task_csv_sha256": private_task_csv_sha,
+        "private_field_review_csv_sha256": private_field_csv_sha,
         "private_index_csv_sha256": sha256_file(PRIVATE_INDEX_CSV),
         "private_master_html_sha256": sha256_file(PRIVATE_MASTER_HTML),
         "private_page_html_count": len(private_index_rows),
         "hashes": {
             "public_ledger_sha256": sha256_file(PUBLIC_LEDGER),
+            "public_field_ledger_sha256": sha256_file(PUBLIC_FIELD_LEDGER),
             "page_html_sha16": hashlib.sha256("；".join(row["私有页HTML_SHA256"] for row in private_index_rows).encode("utf-8")).hexdigest()[:16],
             "page_image_sha16": hashlib.sha256("；".join(row["私有页图_SHA256"] for row in private_index_rows).encode("utf-8")).hexdigest()[:16],
             "page_text_sha16": hashlib.sha256("；".join(row["私有OCR文本_SHA256"] for row in private_index_rows).encode("utf-8")).hexdigest()[:16],
