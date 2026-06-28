@@ -1,0 +1,66 @@
+{
+  "status": "issue19_school_source_gap_priority_public_ledger_not_final",
+  "generated_by": "build_issue19_school_source_gap_priority_ledger.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_latest_reconciliation": "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv",
+  "source_status_snapshot": "data/working/issue19-school-source-status-snapshot-public-ledger.csv",
+  "source_auto_execution_batches": "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv",
+  "output_table": "data/working/issue19-school-source-gap-priority-public-ledger.csv",
+  "generated_at": "2026-06-29",
+  "row_count": 80,
+  "unique_school_code_count": 36,
+  "gap_category_counts": {
+    "G0-冲突差异回页核验": 17,
+    "G1-OCR补缺线索回页核验": 8,
+    "G2-专业名归属或匹配规则": 12,
+    "G3-已有公开来源待结构化": 18,
+    "G4-真缺或曾缺2026湖北物理计划网源": 8,
+    "G5-章程规则限制专项": 16,
+    "G6-低收益留存观察": 1
+  },
+  "execution_priority_counts": {
+    "E0-人工先核回页": 37,
+    "E1-自动补结构化或补源": 26,
+    "E2-规则抽检或留存": 17
+  },
+  "latest_evidence_level_counts": {
+    "L3-已有湖北物理结构化或候选diff线索": 60,
+    "L0-暂无可复用高校侧计划源": 8,
+    "L1-有入口或探针记录但未取得湖北物理结构化明细": 12
+  },
+  "auto_lane_counts": {
+    "A0-冲突回页和官方侧核验": 17,
+    "A1-官网补缺线索回页核验": 8,
+    "A2-专业名匹配规则或人工确认": 12,
+    "A3-补结构化或解析公开来源": 18,
+    "A4-继续搜索高校计划网源": 8,
+    "A5-章程规则核验": 16,
+    "A7-留存观察": 1
+  },
+  "progress_against_auto_counts": {
+    "P1-保持原执行泳道": 24,
+    "P2-原任务已有高校侧来源继续回页": 30,
+    "P0-A3公开来源不足仍需补源": 9,
+    "P3-A3已有diff或湖北物理结构化线索": 9,
+    "P0-A4仍需继续补源": 4,
+    "P3-A4已推进到结构化或diff线索": 4
+  },
+  "manual_first_count": 37,
+  "auto_structure_or_source_count": 26,
+  "rules_or_observe_count": 17,
+  "auto_structure_required_count": 18,
+  "continue_source_search_required_count": 4,
+  "pdf_page_review_required_count": 80,
+  "hubei_official_review_required_count": 80,
+  "school_side_hint_available_count": 60,
+  "c4c6_candidate_diff_detail_count": 714,
+  "c4c6_plan_conflict_candidate_count": 81,
+  "c4c6_plan_fill_candidate_count": 326,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该表只安排高校源缺口优先级，不确认字段事实，不替代第19期PDF原页或湖北官方系统，不进入志愿推荐。"
+}

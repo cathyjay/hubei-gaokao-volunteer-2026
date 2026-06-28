@@ -22762,6 +22762,243 @@ def main():
         and not any(token in school_source_reconcile_public_text for token in shared_forbidden_tokens),
     ))
 
+    school_source_gap_priority_summary_path = (
+        ROOT / "data/working/issue19-school-source-gap-priority-summary.json"
+    )
+    school_source_gap_priority_csv = (
+        ROOT / "data/working/issue19-school-source-gap-priority-public-ledger.csv"
+    )
+    school_source_gap_priority_summary = json.loads(
+        school_source_gap_priority_summary_path.read_text()
+    )
+    with school_source_gap_priority_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_source_gap_priority_reader = csv.DictReader(f)
+        school_source_gap_priority_rows = list(school_source_gap_priority_reader)
+        school_source_gap_priority_fields = school_source_gap_priority_reader.fieldnames or []
+    expected_school_source_gap_priority_fields = script_runtime_constant(
+        ROOT / "scripts/build_issue19_school_source_gap_priority_ledger.py",
+        "FIELDS",
+    )
+    school_source_reconcile_by_id = {
+        row.get("高校源最新对齐ID", ""): row for row in school_source_reconcile_rows
+    }
+    school_source_gap_priority_join_ok = True
+    for row in school_source_gap_priority_rows:
+        source = school_source_reconcile_by_id.get(row.get("高校源最新对齐ID", ""), {})
+        expected_id = stable_id_sha256(
+            "SCHOOLGAP",
+            [
+                row.get("高校源最新对齐ID", ""),
+                row.get("高校官网辅证自动执行批次ID", ""),
+                row.get("高校官网辅证状态快照ID", ""),
+            ],
+        )
+        school_source_gap_priority_join_ok = (
+            school_source_gap_priority_join_ok
+            and bool(source)
+            and row.get("高校源缺口优先级ID") == expected_id
+            and row.get("来源高校源最新证据对齐账本")
+            == "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv"
+            and row.get("来源高校官网辅证状态快照")
+            == "data/working/issue19-school-source-status-snapshot-public-ledger.csv"
+            and row.get("来源高校官网辅证自动执行批次")
+            == "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv"
+            and row.get("来源C4C6结构化候选diff账本")
+            == "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv"
+            and row.get("来源C4C6补源尝试账本")
+            == "data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_school_source_gap_priority_public_ledger"
+            and row.get("高校官网辅证状态快照ID")
+            == source.get("高校官网辅证状态快照ID")
+            and row.get("高校官网辅证自动执行批次ID")
+            == source.get("原自动执行批次ID")
+            and row.get("院校代码") == source.get("院校代码")
+            and row.get("原自动执行泳道") == source.get("原自动执行泳道")
+            and row.get("原结构化输出状态桶") == source.get("原结构化输出状态桶")
+            and row.get("原候选diff状态桶") == source.get("原候选diff状态桶")
+            and row.get("原补源状态桶") == source.get("原补源状态桶")
+            and row.get("最新高校侧证据层级") == source.get("最新高校侧证据层级")
+            and row.get("相对原自动账本推进状态")
+            == source.get("相对原自动账本推进状态")
+            and row.get("涉及招生明细数") == source.get("原涉及招生明细数")
+            and row.get("涉及专业组数") == source.get("原涉及专业组数")
+            and row.get("next20任务数") == source.get("next20任务数")
+            and row.get("C4C6结构化diff包数") == source.get("C4C6结构化diff包数")
+            and row.get("C4C6可生成候选diff明细数")
+            == source.get("C4C6可生成候选diff明细数")
+            and row.get("C4C6计划数冲突候选数")
+            == source.get("C4C6计划数冲突候选数")
+            and row.get("C4C6官网可补OCR计划数候选数")
+            == source.get("C4C6官网可补OCR计划数候选数")
+            and row.get("C4C6补源尝试记录数") == source.get("C4C6补源尝试记录数")
+            and row.get("最新公开证据集合SHA16") == source.get("最新公开证据集合SHA16")
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(row.get(field) == "false" for field in school_source_opportunity_false_fields)
+        )
+    school_source_gap_priority_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_source_gap_priority_summary_path, school_source_gap_priority_csv]
+    )
+    checks.append(ok(
+        "第 19 期高校源缺口优先级清单摘要、规模和分布正确",
+        school_source_gap_priority_summary.get("status")
+        == "issue19_school_source_gap_priority_public_ledger_not_final"
+        and school_source_gap_priority_summary.get("generated_by")
+        == "build_issue19_school_source_gap_priority_ledger.py"
+        and school_source_gap_priority_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and school_source_gap_priority_summary.get("source_latest_reconciliation")
+        == "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv"
+        and school_source_gap_priority_summary.get("source_status_snapshot")
+        == "data/working/issue19-school-source-status-snapshot-public-ledger.csv"
+        and school_source_gap_priority_summary.get("source_auto_execution_batches")
+        == "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv"
+        and school_source_gap_priority_summary.get("output_table")
+        == "data/working/issue19-school-source-gap-priority-public-ledger.csv"
+        and school_source_gap_priority_summary.get("row_count")
+        == len(school_source_gap_priority_rows)
+        == len(school_source_reconcile_rows)
+        == 80
+        and school_source_gap_priority_summary.get("unique_school_code_count") == 36
+        and school_source_gap_priority_summary.get("gap_category_counts")
+        == {
+            "G0-冲突差异回页核验": 17,
+            "G1-OCR补缺线索回页核验": 8,
+            "G2-专业名归属或匹配规则": 12,
+            "G3-已有公开来源待结构化": 18,
+            "G4-真缺或曾缺2026湖北物理计划网源": 8,
+            "G5-章程规则限制专项": 16,
+            "G6-低收益留存观察": 1,
+        }
+        and school_source_gap_priority_summary.get("execution_priority_counts")
+        == {"E0-人工先核回页": 37, "E1-自动补结构化或补源": 26, "E2-规则抽检或留存": 17}
+        and school_source_gap_priority_summary.get("latest_evidence_level_counts")
+        == school_source_reconcile_summary.get("latest_evidence_level_counts")
+        and school_source_gap_priority_summary.get("auto_lane_counts")
+        == school_source_reconcile_summary.get("auto_lane_counts")
+        and school_source_gap_priority_summary.get("progress_against_auto_counts")
+        == school_source_reconcile_summary.get("progress_against_auto_counts")
+        and school_source_gap_priority_summary.get("manual_first_count") == 37
+        and school_source_gap_priority_summary.get("auto_structure_or_source_count") == 26
+        and school_source_gap_priority_summary.get("rules_or_observe_count") == 17
+        and school_source_gap_priority_summary.get("auto_structure_required_count") == 18
+        and school_source_gap_priority_summary.get("continue_source_search_required_count") == 4
+        and school_source_gap_priority_summary.get("pdf_page_review_required_count") == 80
+        and school_source_gap_priority_summary.get("hubei_official_review_required_count") == 80
+        and school_source_gap_priority_summary.get("school_side_hint_available_count") == 60
+        and school_source_gap_priority_summary.get("c4c6_candidate_diff_detail_count") == 714
+        and school_source_gap_priority_summary.get("c4c6_plan_conflict_candidate_count") == 81
+        and school_source_gap_priority_summary.get("c4c6_plan_fill_candidate_count") == 326
+        and school_source_gap_priority_summary.get("field_writeback_ready_count") == 0
+        and school_source_gap_priority_summary.get("recommendation_basis_allowed_count") == 0
+        and school_source_gap_priority_summary.get("school_major_suggestion_allowed_count") == 0
+        and school_source_gap_priority_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_source_gap_priority_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期高校源缺口优先级清单字段、排序、回链和门禁正确",
+        school_source_gap_priority_fields == expected_school_source_gap_priority_fields
+        and len({row.get("高校源缺口优先级ID") for row in school_source_gap_priority_rows}) == 80
+        and {row.get("高校源最新对齐ID") for row in school_source_gap_priority_rows}
+        == {row.get("高校源最新对齐ID") for row in school_source_reconcile_rows}
+        and {row.get("高校官网辅证自动执行批次ID") for row in school_source_gap_priority_rows}
+        == {row.get("原自动执行批次ID") for row in school_source_reconcile_rows}
+        and {row.get("高校官网辅证状态快照ID") for row in school_source_gap_priority_rows}
+        == {row.get("高校官网辅证状态快照ID") for row in school_source_reconcile_rows}
+        and [as_int(row.get("缺口优先级序号")) for row in school_source_gap_priority_rows]
+        == list(range(1, 81))
+        and [
+            as_int(row.get("执行优先级分"))
+            for row in school_source_gap_priority_rows
+        ]
+        == sorted(
+            [
+                as_int(row.get("执行优先级分"))
+                for row in school_source_gap_priority_rows
+            ],
+            reverse=True,
+        )
+        and Counter(row.get("缺口主类") for row in school_source_gap_priority_rows)
+        == Counter(school_source_gap_priority_summary.get("gap_category_counts", {}))
+        and Counter(row.get("执行优先级") for row in school_source_gap_priority_rows)
+        == Counter(school_source_gap_priority_summary.get("execution_priority_counts", {}))
+        and sum(row.get("是否需要自动补结构化") == "true" for row in school_source_gap_priority_rows) == 18
+        and sum(row.get("是否需要继续补源") == "true" for row in school_source_gap_priority_rows) == 4
+        and sum(row.get("是否需要回PDF原页") == "true" for row in school_source_gap_priority_rows) == 80
+        and sum(row.get("是否需要湖北官方侧核验") == "true" for row in school_source_gap_priority_rows) == 80
+        and sum(row.get("是否已有可用于提示的高校侧线索") == "true" for row in school_source_gap_priority_rows) == 60
+        and school_source_gap_priority_join_ok
+        and all(
+            row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许写回字段事实") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            for row in school_source_gap_priority_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期高校源缺口优先级清单公开文件不含学校专业明细、私有路径、字段记录、登录态和最终误导结论",
+        "/Users/" not in school_source_gap_priority_public_text
+        and "/home/" not in school_source_gap_priority_public_text
+        and "/var/folders/" not in school_source_gap_priority_public_text
+        and "/private/" not in school_source_gap_priority_public_text
+        and "private/" not in school_source_gap_priority_public_text
+        and "private\\" not in school_source_gap_priority_public_text
+        and "ocr-runs" not in school_source_gap_priority_public_text
+        and "rendered-pages" not in school_source_gap_priority_public_text
+        and "file://" not in school_source_gap_priority_public_text
+        and ".png" not in school_source_gap_priority_public_text
+        and ".jpg" not in school_source_gap_priority_public_text
+        and ".jpeg" not in school_source_gap_priority_public_text
+        and ".webp" not in school_source_gap_priority_public_text
+        and ".tif" not in school_source_gap_priority_public_text
+        and ".tiff" not in school_source_gap_priority_public_text
+        and ".heic" not in school_source_gap_priority_public_text
+        and "Authorization" not in school_source_gap_priority_public_text
+        and "Bearer " not in school_source_gap_priority_public_text
+        and "Cookie" not in school_source_gap_priority_public_text
+        and "Set-Cookie" not in school_source_gap_priority_public_text
+        and "access_token" not in school_source_gap_priority_public_text
+        and "refresh_token" not in school_source_gap_priority_public_text
+        and "password" not in school_source_gap_priority_public_text
+        and "secret" not in school_source_gap_priority_public_text
+        and "api_key" not in school_source_gap_priority_public_text
+        and "身份证" not in school_source_gap_priority_public_text
+        and "准考证" not in school_source_gap_priority_public_text
+        and "报名号" not in school_source_gap_priority_public_text
+        and "序列号" not in school_source_gap_priority_public_text
+        and "手机号" not in school_source_gap_priority_public_text
+        and "院校名称" not in school_source_gap_priority_public_text
+        and "专业名称" not in school_source_gap_priority_public_text
+        and "专业代号" not in school_source_gap_priority_public_text
+        and "院校专业组" not in school_source_gap_priority_public_text
+        and "OCR行文本" not in school_source_gap_priority_public_text
+        and "OCR原文" not in school_source_gap_priority_public_text
+        and "候选值" not in school_source_gap_priority_public_text
+        and "人工读数" not in school_source_gap_priority_public_text
+        and "字段确认值" not in school_source_gap_priority_public_text
+        and "PDF原页人工读数" not in school_source_gap_priority_public_text
+        and "湖北官方字段值" not in school_source_gap_priority_public_text
+        and "高校官网或招生章程字段值" not in school_source_gap_priority_public_text
+        and "复核备注" not in school_source_gap_priority_public_text
+        and "已确认" not in school_source_gap_priority_public_text
+        and "已核准" not in school_source_gap_priority_public_text
+        and "最终推荐" not in school_source_gap_priority_public_text
+        and "最终方案" not in school_source_gap_priority_public_text
+        and "可填报" not in school_source_gap_priority_public_text
+        and "可排序" not in school_source_gap_priority_public_text
+        and "K48704" not in school_source_gap_priority_public_text
+        and not any(token in school_source_gap_priority_public_text for token in shared_forbidden_tokens),
+    ))
+
     c4_c6_packets_summary_path = (
         ROOT / "data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json"
     )
