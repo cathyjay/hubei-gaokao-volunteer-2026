@@ -88,6 +88,7 @@
 - 字段闭环与重点核验 V1：`data/exports/issue19-closure-and-shortlist-v1.xlsx`。当前新增推进入口，把第一闭环 37 个页列、206 条逐任务、36 所学校 80 个高校官网辅证动作、2026-06-29 live 补源尝试、Round4 55 个重点核验组和 458 条完整组内专业明细放在同一工作簿；全部仍为核验入口，不作为定稿依据。
 - 下一轮闭环与家庭讨论 V1：`data/exports/issue19-next-closure-family-review-v1.xlsx`。当前推进数据基座的优先执行入口，把 37 个页列继续拆成 64 个小核验包，并把 55 个重点专业组按家庭讨论、先核页、先核限制、先核费用分层；全部仍为 `not_final`，字段写回、推荐依据和最终可用计数均为 0。
 - 数据基座下一批执行 V1：`data/exports/issue19-data-foundation-next-execution-v1.xlsx`。当前新增执行入口，聚焦 P0 冲突 10 包/26 任务、高校官网辅证 next20 和 55 组调剂风险；用于继续推进字段事实闭环，不确认字段事实，不作为最终志愿方案。
+- P0 top3 私有复核包公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv` 和 `data/working/issue19-p0-top3-review-packet-summary.json`。把 `135-left`、`199-left`、`209-right` 这 3 个最高优先 P0 冲突包落成 15 条本地私有核验任务；公开层只保存计数、状态和 SHA，原页图、OCR 文本、候选值和人工读数留在 Git 忽略目录。
 - 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 本科普通批志愿草表 V1：`data/exports/issue19-volunteer-table-v1-draft.xlsx`。基于第二轮更新偏好候选生成，用于把 45 个院校专业组、460 条专业选择明细拆成冲刺、稳冲、稳妥和保底、高费专项批次，逐组讨论 6 个专业草案、完整组内调剂、原页核验和章程核验；全部行仍为讨论草案，不作为定稿依据。
 
@@ -198,6 +199,7 @@ python3 scripts/build_issue19_first_closure_page_side_candidate_dashboard.py
 python3 scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py
 python3 scripts/build_issue19_first_closure_field_confirmation_workbench.py
 python3 scripts/build_issue19_next_closure_family_review_v1.py
+python3 scripts/build_issue19_p0_top3_review_packet.py
 python3 scripts/build_issue19_data_foundation_next_execution_v1.py
 python3 scripts/build_issue19_major_line_layout_continuity_risk_ledger.py
 python3 scripts/build_issue19_major_code_order_risk_ledger.py

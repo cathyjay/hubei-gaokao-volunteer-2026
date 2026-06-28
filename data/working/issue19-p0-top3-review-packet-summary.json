@@ -1,0 +1,38 @@
+{
+  "status": "issue19_p0_top3_review_packet_ready_not_final",
+  "generated_by": "build_issue19_p0_top3_review_packet.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "usage_boundary": "用于把P0冲突top3转成私有人工复核入口；不确认字段事实，不允许字段写回，不作为志愿推荐依据。",
+  "output_public_ledger": "data/working/issue19-p0-top3-review-packet-public-ledger.csv",
+  "source_private_review_material": "p0_top3_private_review_packet_not_public",
+  "top_page_sides": [
+    "135-left",
+    "199-left",
+    "209-right"
+  ],
+  "public_package_count": 3,
+  "private_task_count": 15,
+  "unique_task_count": 15,
+  "unique_page_side_count": 3,
+  "double_review_task_count": 15,
+  "school_evidence_task_count": 15,
+  "pdf_pending_task_count": 15,
+  "hubei_pending_task_count": 15,
+  "school_pending_task_count": 15,
+  "three_way_pending_task_count": 15,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "private_task_csv_sha256": "1c5c895aa71b52162fbbceac785480ef660c262fdd3c1d848897a4507d1beffe",
+  "private_index_csv_sha256": "a05c54e922519fd73cd7981f4280abbb38b1c57807865435b9421b368c4bd4c3",
+  "private_master_html_sha256": "e6949df074b1389161980a8dabbdce0f225bf2d615409903d2831224b3060837",
+  "private_page_html_count": 3,
+  "hashes": {
+    "public_ledger_sha256": "a52212a648773b7e2b87eabbe79ad3f1d49e28d12003895ba13816d828e83435",
+    "page_html_sha16": "9bf0ea989eba1f72",
+    "page_image_sha16": "83c93fcf14c114b5",
+    "page_text_sha16": "c4005a6cb6a4a757"
+  }
+}

@@ -75,6 +75,19 @@
 
 推进原则：先核 `135-left` 打样，再核 `199-left` 和 `209-right` 验证小包流程；P0 但非双人复核的包要补一个“不需双人复核原因确认”，不能默默通过。
 
+## P0 top3 私有复核包
+
+已把最优先的 `135-left`、`199-left`、`209-right` 单独落成第一批私有复核材料：
+
+- 生成脚本：`scripts/build_issue19_p0_top3_review_packet.py`
+- 公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`
+- 公开摘要：`data/working/issue19-p0-top3-review-packet-summary.json`
+- 私有材料：`private/review-assets/issue19-p0-top3-review-packet/`，不提交公开仓库。
+
+这批材料覆盖 3 个 P0 冲突包、15 条任务，15 条全部需要双人复核、PDF 原页读数、湖北官方侧记录和高校辅证记录。公开台账只保存包级计数、状态、证据编号和 SHA；页图、OCR 文本、字段候选值、人工读数、复核人和备注只留在私有材料。
+
+注意：同一页列里可能还有其他任务，所以这批 top3 不是按页列从全量公开账本直接抓取，而是以 `data/exports/issue19-data-foundation-next-execution-v1-p0-conflict-tasks.csv` 的 `第一闭环任务ID` 为准，再回连私有工作台。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

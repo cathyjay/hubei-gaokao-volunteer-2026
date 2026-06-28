@@ -20979,6 +20979,177 @@ def main():
         and not any(token in next_execution_public_text for token in shared_forbidden_tokens),
     ))
 
+    p0_top3_script = ROOT / "scripts/build_issue19_p0_top3_review_packet.py"
+    p0_top3_summary_path = ROOT / "data/working/issue19-p0-top3-review-packet-summary.json"
+    p0_top3_public_csv = ROOT / "data/working/issue19-p0-top3-review-packet-public-ledger.csv"
+    p0_top3_private_dir = ROOT / "private/review-assets/issue19-p0-top3-review-packet"
+    p0_top3_private_tasks_csv = p0_top3_private_dir / "p0-top3-private-tasks.csv"
+    p0_top3_private_index_csv = p0_top3_private_dir / "p0-top3-private-index.csv"
+    p0_top3_private_master_html = p0_top3_private_dir / "index.html"
+    p0_top3_summary = json.loads(p0_top3_summary_path.read_text())
+    with p0_top3_public_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_top3_public_reader = csv.DictReader(f)
+        p0_top3_public_rows = list(p0_top3_public_reader)
+        p0_top3_public_fields = p0_top3_public_reader.fieldnames or []
+    with p0_top3_private_tasks_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_top3_private_task_reader = csv.DictReader(f)
+        p0_top3_private_task_rows = list(p0_top3_private_task_reader)
+        p0_top3_private_task_fields = p0_top3_private_task_reader.fieldnames or []
+    with p0_top3_private_index_csv.open(newline="", encoding="utf-8-sig") as f:
+        p0_top3_private_index_reader = csv.DictReader(f)
+        p0_top3_private_index_rows = list(p0_top3_private_index_reader)
+        p0_top3_private_index_fields = p0_top3_private_index_reader.fieldnames or []
+    expected_p0_top3_public_fields = script_list_constant(p0_top3_script, "PUBLIC_FIELDS")
+    expected_p0_top3_private_task_fields = script_list_constant(p0_top3_script, "PRIVATE_TASK_FIELDS")
+    expected_p0_top3_private_index_fields = script_list_constant(p0_top3_script, "PRIVATE_INDEX_FIELDS")
+    expected_p0_top3_page_sides = ["135-left", "199-left", "209-right"]
+    p0_top3_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [p0_top3_summary_path, p0_top3_public_csv]
+    )
+    p0_top3_source_tasks = [
+        row for row in next_execution_p0_tasks_rows
+        if row.get("页码版面键") in expected_p0_top3_page_sides
+    ]
+    p0_top3_source_task_ids = {row.get("第一闭环任务ID", "") for row in p0_top3_source_tasks}
+    p0_top3_private_task_ids = {
+        row.get("第一闭环任务ID", "") for row in p0_top3_private_task_rows
+    }
+    p0_top3_private_index_ok = True
+    for row in p0_top3_private_index_rows:
+        html_path = p0_top3_private_dir / row.get("私有页HTML相对路径", "")
+        p0_top3_private_index_ok = (
+            p0_top3_private_index_ok
+            and html_path.exists()
+            and sha256(html_path) == row.get("私有页HTML_SHA256")
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有页图_SHA256", "") or "")
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有OCR文本_SHA256", "") or "")
+            and row.get("私有任务CSV_SHA256") == sha256(p0_top3_private_tasks_csv)
+        )
+    checks.append(ok(
+        "第 19 期 P0 top3 私有复核包公开台账摘要、规模和门禁正确",
+        p0_top3_summary.get("status") == "issue19_p0_top3_review_packet_ready_not_final"
+        and p0_top3_summary.get("generated_by") == "build_issue19_p0_top3_review_packet.py"
+        and p0_top3_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and "不确认字段事实" in p0_top3_summary.get("usage_boundary", "")
+        and p0_top3_summary.get("output_public_ledger")
+        == "data/working/issue19-p0-top3-review-packet-public-ledger.csv"
+        and p0_top3_summary.get("source_private_review_material")
+        == "p0_top3_private_review_packet_not_public"
+        and p0_top3_summary.get("top_page_sides") == expected_p0_top3_page_sides
+        and p0_top3_summary.get("public_package_count") == len(p0_top3_public_rows) == 3
+        and p0_top3_summary.get("private_task_count") == len(p0_top3_private_task_rows) == 15
+        and p0_top3_summary.get("unique_task_count") == 15
+        and p0_top3_summary.get("unique_page_side_count") == 3
+        and p0_top3_summary.get("double_review_task_count") == 15
+        and p0_top3_summary.get("school_evidence_task_count") == 15
+        and p0_top3_summary.get("pdf_pending_task_count") == 15
+        and p0_top3_summary.get("hubei_pending_task_count") == 15
+        and p0_top3_summary.get("school_pending_task_count") == 15
+        and p0_top3_summary.get("three_way_pending_task_count") == 15
+        and p0_top3_summary.get("field_writeback_ready_count") == 0
+        and p0_top3_summary.get("recommendation_basis_allowed_count") == 0
+        and p0_top3_summary.get("school_major_suggestion_allowed_count") == 0
+        and p0_top3_summary.get("field_writeback_allowed_count") == 0
+        and p0_top3_summary.get("private_task_csv_sha256") == sha256(p0_top3_private_tasks_csv)
+        and p0_top3_summary.get("private_index_csv_sha256") == sha256(p0_top3_private_index_csv)
+        and p0_top3_summary.get("private_master_html_sha256") == sha256(p0_top3_private_master_html)
+        and p0_top3_summary.get("private_page_html_count") == 3,
+        f"{len(p0_top3_public_rows)} packages, {len(p0_top3_private_task_rows)} tasks",
+    ))
+    checks.append(ok(
+        "第 19 期 P0 top3 私有复核包字段、回链和私有材料 SHA 正确",
+        p0_top3_public_fields == expected_p0_top3_public_fields
+        and p0_top3_private_task_fields == expected_p0_top3_private_task_fields
+        and p0_top3_private_index_fields == expected_p0_top3_private_index_fields
+        and [row.get("页码版面") for row in p0_top3_public_rows] == expected_p0_top3_page_sides
+        and p0_top3_private_task_ids == p0_top3_source_task_ids
+        and len(p0_top3_private_index_rows) == 3
+        and p0_top3_private_index_ok
+        and all(row.get("最终可用") == "false" for row in p0_top3_public_rows)
+        and all(row.get("可进入下一阶段") == "false" for row in p0_top3_public_rows)
+        and all(row.get("是否允许作为志愿推荐依据") == "false" for row in p0_top3_public_rows)
+        and all(row.get("是否允许生成学校专业建议") == "false" for row in p0_top3_public_rows)
+        and all(row.get("是否允许字段写回") == "false" for row in p0_top3_public_rows)
+        and all(row.get("字段事实写回状态") == "blocked_until_private_pdf_hubei_school_double_review_closed" for row in p0_top3_public_rows)
+        and sum(as_int(row.get("包内任务数")) for row in p0_top3_public_rows) == 15
+        and sum(as_int(row.get("双人复核任务数")) for row in p0_top3_public_rows) == 15
+        and sum(as_int(row.get("PDF原页待记录任务数")) for row in p0_top3_public_rows) == 15
+        and sum(as_int(row.get("湖北官方待记录任务数")) for row in p0_top3_public_rows) == 15
+        and sum(as_int(row.get("高校辅证待记录任务数")) for row in p0_top3_public_rows) == 15
+        and sum(as_int(row.get("三方一致性待确认任务数")) for row in p0_top3_public_rows) == 15
+        and sum(as_int(row.get("字段写回ready任务数")) for row in p0_top3_public_rows) == 0
+        and sum(as_int(row.get("字段写回blocked任务数")) for row in p0_top3_public_rows) == 15
+        and all(
+            re.fullmatch(r"[0-9a-f]{64}", row.get(field, "") or "")
+            for row in p0_top3_public_rows
+            for field in [
+                "涉及任务ID集合SHA256",
+                "涉及专业行ID集合SHA256",
+                "涉及院校代码集合SHA256",
+                "涉及专业组代码集合SHA256",
+                "涉及专业代号集合SHA256",
+                "私有任务CSV_SHA256",
+                "私有页HTML_SHA256",
+                "私有页图_SHA256",
+                "私有OCR文本_SHA256",
+            ]
+        )
+        and all(
+            row.get(field, "") == ""
+            for row in p0_top3_private_task_rows
+            for field in [
+                "PDF原页专业代号读数",
+                "PDF原页专业名称读数",
+                "PDF原页专业计划数读数",
+                "PDF原页学费读数",
+                "PDF原页再选科目读数",
+                "湖北官方专业计划数",
+                "湖北官方学费",
+                "字段确认值",
+                "三方一致性结论",
+                "字段事实写回建议",
+            ]
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期 P0 top3 私有复核包公开文件不含私有路径、OCR 文本、字段候选读数、登录态、身份信息和已定案误导结论",
+        "/Users/" not in p0_top3_public_text
+        and "/home/" not in p0_top3_public_text
+        and "/var/folders/" not in p0_top3_public_text
+        and "/private/" not in p0_top3_public_text
+        and "private/" not in p0_top3_public_text
+        and "private\\" not in p0_top3_public_text
+        and "ocr-runs" not in p0_top3_public_text
+        and "rendered-pages" not in p0_top3_public_text
+        and ".png" not in p0_top3_public_text
+        and ".jpg" not in p0_top3_public_text
+        and ".jpeg" not in p0_top3_public_text
+        and ".webp" not in p0_top3_public_text
+        and ".heic" not in p0_top3_public_text
+        and "Authorization" not in p0_top3_public_text
+        and "Bearer " not in p0_top3_public_text
+        and "Cookie" not in p0_top3_public_text
+        and "身份证" not in p0_top3_public_text
+        and "准考证" not in p0_top3_public_text
+        and "报名号" not in p0_top3_public_text
+        and "序列号" not in p0_top3_public_text
+        and "手机号" not in p0_top3_public_text
+        and "OCR行文本" not in p0_top3_public_text
+        and "PDFOCR计划数候选值" not in p0_top3_public_text
+        and "高校辅证计划数候选值" not in p0_top3_public_text
+        and "PDF原页专业计划数读数" not in p0_top3_public_text
+        and "湖北官方专业计划数" not in p0_top3_public_text
+        and "字段确认值" not in p0_top3_public_text
+        and "已确认" not in p0_top3_public_text
+        and "已核准" not in p0_top3_public_text
+        and "最终推荐" not in p0_top3_public_text
+        and "最终方案" not in p0_top3_public_text
+        and "可填报" not in p0_top3_public_text
+        and "可排序" not in p0_top3_public_text
+        and not any(token in p0_top3_public_text for token in shared_forbidden_tokens),
+    ))
+
     school_refresh_summary_path = (
         ROOT
         / "data/working/issue19-stable-foundation-school-source-refresh-public-ledger-summary.json"
