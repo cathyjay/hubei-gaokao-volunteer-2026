@@ -54,9 +54,17 @@
 
 优先打开：
 
+- `data/exports/issue19-round4-priority-focus55.xlsx`
 - `data/exports/issue19-next-closure-family-review-v1.xlsx`
 - `data/exports/issue19-data-foundation-next-execution-v1.xlsx`
 - `data/exports/issue19-closure-and-shortlist-v1.xlsx`
+
+新的 `issue19-round4-priority-focus55.xlsx` 是当前最清楚的候选压缩入口。它把 Round4 优先 120 组压缩为 55 组重点核验入口，65 组暂缓，并展开 458 条完整组内专业。它适合先看：
+
+- 为什么这一组进入 55 组。
+- 它属于保底、稳妥、稳冲还是冲刺。
+- 组内所有专业是否大体能接受调剂。
+- 需要优先核第 19 期原页、湖北官方侧、章程、学费、校区还是特殊限制。
 
 新的 `issue19-next-closure-family-review-v1.xlsx` 是当前执行入口，它在 `issue19-closure-and-shortlist-v1.xlsx` 的基础上做了两件事：
 
@@ -80,7 +88,16 @@
 - Round4 优先 120 个专业组压缩出的 55 个重点核验组。
 - 55 个重点组的 458 条完整组内专业明细。
 
-这两个工作簿都只是当前推进入口，不是最终方案。
+这些工作簿都只是当前推进入口，不是定稿表。
+
+`issue19-round4-priority-focus55.xlsx` 当前工作簿校验通过，sheet 数和行数为：
+
+| Sheet | 行数 |
+| --- | ---: |
+| 00_摘要 | 5 |
+| 01_重点核验55组 | 55 |
+| 02_重点组完整专业 | 458 |
+| 03_暂缓65组 | 65 |
 
 `issue19-next-closure-family-review-v1.xlsx` 当前工作簿校验通过，sheet 数和行数为：
 

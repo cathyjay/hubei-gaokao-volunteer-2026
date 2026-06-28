@@ -215,7 +215,18 @@
    - 当前结论：P0 冲突包 10 个、26 条任务，其中 19 条需双人复核、26 条均有高校辅证线索；官网辅证 next20 覆盖 18 所学校；55 个重点组中 29 组建议进入下一轮重点核验。
    - 限制：该入口只安排下一批核验和补源，不确认字段事实，不允许字段写回，不作为最终志愿方案。
 
-14. P0 top3 私有复核包公开台账
+14. Round4 重点核验55组独立入口
+   - 生成脚本：`scripts/build_issue19_round4_priority_focus55.py`
+   - 工作簿：`data/exports/issue19-round4-priority-focus55.xlsx`
+   - 摘要：`data/exports/issue19-round4-priority-focus55-summary.json`
+   - 重点核验组：`data/exports/issue19-round4-priority-focus55-groups.csv`
+   - 完整组内专业明细：`data/exports/issue19-round4-priority-focus55-major-details.csv`
+   - 暂缓组：`data/exports/issue19-round4-priority-focus55-paused65-groups.csv`
+   - 输入来源：Round4 优先 120 组、Round4 完整组内专业、稳定基座专业组就绪桥接表和 Closure V1 重点 55 组。
+   - 当前结论：从 Round4 优先 120 组压缩出 55 个重点核验组，另 65 组暂缓；55 组覆盖 48 所学校、458 条完整组内专业。
+   - 限制：该入口只说明优先核验顺序、压缩理由、核验成本和调剂风险；不确认字段事实，不允许字段写回，不作为志愿推荐依据。
+
+15. P0 top3 私有复核包公开台账
    - 生成脚本：`scripts/build_issue19_p0_top3_review_packet.py`
    - 公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`
    - 逐字段公开台账：`data/working/issue19-p0-top3-field-review-public-ledger.csv`

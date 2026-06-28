@@ -27620,6 +27620,165 @@ def main():
         and not any(token in round4_public_text for token in shared_forbidden_tokens),
     ))
 
+    round4_focus_script = ROOT / "scripts/build_issue19_round4_priority_focus55.py"
+    round4_focus_summary_path = ROOT / "data/exports/issue19-round4-priority-focus55-summary.json"
+    round4_focus_workbook_path = ROOT / "data/exports/issue19-round4-priority-focus55.xlsx"
+    round4_focus_groups_csv = ROOT / "data/exports/issue19-round4-priority-focus55-groups.csv"
+    round4_focus_majors_csv = ROOT / "data/exports/issue19-round4-priority-focus55-major-details.csv"
+    round4_focus_paused_csv = ROOT / "data/exports/issue19-round4-priority-focus55-paused65-groups.csv"
+    round4_focus_summary = json.loads(round4_focus_summary_path.read_text())
+    with round4_focus_groups_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_focus_group_reader = csv.DictReader(f)
+        round4_focus_group_rows = list(round4_focus_group_reader)
+        round4_focus_group_fields = round4_focus_group_reader.fieldnames or []
+    with round4_focus_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_focus_major_reader = csv.DictReader(f)
+        round4_focus_major_rows = list(round4_focus_major_reader)
+        round4_focus_major_fields = round4_focus_major_reader.fieldnames or []
+    with round4_focus_paused_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_focus_paused_reader = csv.DictReader(f)
+        round4_focus_paused_rows = list(round4_focus_paused_reader)
+        round4_focus_paused_fields = round4_focus_paused_reader.fieldnames or []
+    expected_round4_focus_group_fields = script_runtime_constant(round4_focus_script, "GROUP_FIELDS")
+    expected_round4_focus_major_fields = script_runtime_constant(round4_focus_script, "MAJOR_FIELDS")
+    round4_focus_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            round4_focus_summary_path,
+            round4_focus_groups_csv,
+            round4_focus_majors_csv,
+            round4_focus_paused_csv,
+        ]
+    )
+    round4_focus_group_ids = {row.get("第四轮候选ID", "") for row in round4_focus_group_rows}
+    round4_focus_paused_ids = {row.get("第四轮候选ID", "") for row in round4_focus_paused_rows}
+    round4_priority_candidate_ids = {row.get("第四轮候选ID", "") for row in round4_priority_rows}
+    with (ROOT / "data/exports/issue19-closure-and-shortlist-v1-priority55-groups.csv").open(
+        newline="", encoding="utf-8-sig"
+    ) as f:
+        round4_closure55_rows = list(csv.DictReader(f))
+    round4_closure55_ids = {row.get("第四轮候选ID", "") for row in round4_closure55_rows}
+    focus_false_fields = [
+        "最终可用",
+        "可进入下一阶段",
+        "可否进入最终志愿方案",
+        "是否允许作为志愿推荐依据",
+        "是否允许自动写回主表",
+        "是否允许官网证据替代湖北官方计划",
+        "是否允许生成学校专业建议",
+        "是否允许写回字段事实",
+    ]
+    checks.append(ok(
+        "第 19 期 Round4 重点核验55组摘要、规模和工作簿正确",
+        round4_focus_summary.get("status") == "issue19_round4_priority_focus55_not_final"
+        and round4_focus_summary.get("generated_by") == "build_issue19_round4_priority_focus55.py"
+        and round4_focus_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and round4_focus_summary.get("target_focus_range") == "40-60"
+        and round4_focus_summary.get("source_priority120_group_count") == len(round4_priority_rows) == 120
+        and round4_focus_summary.get("selected_group_count") == len(round4_focus_group_rows) == 55
+        and round4_focus_summary.get("paused_group_count") == len(round4_focus_paused_rows) == 65
+        and round4_focus_summary.get("selected_major_detail_count") == len(round4_focus_major_rows) == 458
+        and round4_focus_summary.get("unique_selected_school_count") == 48
+        and round4_focus_summary.get("selected_overlap_with_closure_v1_priority55") == 55
+        and round4_focus_workbook_path.exists()
+        and round4_focus_workbook_path.stat().st_size > 100_000,
+        f"{len(round4_focus_group_rows)} focus groups, {len(round4_focus_major_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期 Round4 重点核验55组字段、集合和门禁正确",
+        round4_focus_group_fields == expected_round4_focus_group_fields
+        and round4_focus_paused_fields == expected_round4_focus_group_fields
+        and round4_focus_major_fields == expected_round4_focus_major_fields
+        and round4_focus_group_ids.isdisjoint(round4_focus_paused_ids)
+        and round4_focus_group_ids | round4_focus_paused_ids == round4_priority_candidate_ids
+        and round4_focus_group_ids == round4_closure55_ids
+        and {
+            row.get("第四轮候选ID", "")
+            for row in round4_focus_major_rows
+        }.issubset(round4_focus_group_ids)
+        and [as_int(row.get("压缩序号")) for row in round4_focus_group_rows] == list(range(1, 56))
+        and {row.get("是否进入40到60重点核验") for row in round4_focus_group_rows} == {"true"}
+        and {row.get("是否建议进入下一轮重点核验") for row in round4_focus_group_rows} == {"true"}
+        and {row.get("是否进入40到60重点核验") for row in round4_focus_paused_rows} == {"false"}
+        and all(
+            row.get(field) == "false"
+            for row in round4_focus_group_rows + round4_focus_paused_rows + round4_focus_major_rows
+            for field in focus_false_fields
+        )
+        and round4_focus_summary.get("field_writeback_ready_count") == 0
+        and round4_focus_summary.get("final_available_count") == 0
+        and round4_focus_summary.get("next_stage_available_count") == 0
+        and round4_focus_summary.get("recommendation_basis_allowed_count") == 0
+        and round4_focus_summary.get("school_major_suggestion_allowed_count") == 0
+        and round4_focus_summary.get("official_plan_replacement_allowed_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期 Round4 重点核验55组梯度、专业和风险分布正确",
+        round4_focus_summary.get("selected_gradient_counts")
+        == {"保底观察": 1, "冲刺观察": 12, "稳冲观察": 18, "稳妥观察": 24}
+        and round4_focus_summary.get("paused_gradient_counts")
+        == {"冲刺观察": 23, "稳冲观察": 17, "稳妥观察": 25}
+        and round4_focus_summary.get("selected_professional_match_counts")
+        == {
+            "P0-命中数字媒体技术": 3,
+            "P1-命中计算机/软件/AI": 48,
+            "P2-命中电子信息/网络或师范": 4,
+        }
+        and round4_focus_summary.get("selected_verification_cost_counts")
+        == {
+            "V0-高核验成本，先核页和组边界": 29,
+            "V1-中高核验成本，需集中核字段": 9,
+            "V2-中等核验成本，保留字段缺口": 17,
+        }
+        and round4_focus_summary.get("selected_transfer_risk_counts")
+        == {
+            "T1-特殊限制待核，先核章程/原页": 11,
+            "T2-结构异常，先核完整组内专业": 14,
+            "T3-组内专业较多，需逐条确认": 4,
+            "T4-暂未见硬阻断，仍需人工接受度判断": 26,
+        }
+        and round4_focus_summary.get("selected_major_acceptance_counts")
+        == {
+            "优先了解-命中当前专业方向": 147,
+            "可调剂了解-未命中偏好但暂未见硬排除": 267,
+            "待核后判断-有体检/语种/单科/专项等限制": 44,
+        },
+    ))
+    checks.append(ok(
+        "第 19 期 Round4 重点核验55组公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in round4_focus_public_text
+        and "/home/" not in round4_focus_public_text
+        and "/var/folders/" not in round4_focus_public_text
+        and "/private/" not in round4_focus_public_text
+        and "private/" not in round4_focus_public_text
+        and "private\\" not in round4_focus_public_text
+        and "ocr-runs" not in round4_focus_public_text
+        and "rendered-pages" not in round4_focus_public_text
+        and "file://" not in round4_focus_public_text
+        and "Authorization" not in round4_focus_public_text
+        and "Bearer " not in round4_focus_public_text
+        and "Cookie" not in round4_focus_public_text
+        and "Set-Cookie" not in round4_focus_public_text
+        and "access_token" not in round4_focus_public_text
+        and "refresh_token" not in round4_focus_public_text
+        and "password" not in round4_focus_public_text
+        and "secret" not in round4_focus_public_text
+        and "api_key" not in round4_focus_public_text
+        and "身份证" not in round4_focus_public_text
+        and "准考证" not in round4_focus_public_text
+        and "报名号" not in round4_focus_public_text
+        and "序列号" not in round4_focus_public_text
+        and "手机号" not in round4_focus_public_text
+        and "人工读数" not in round4_focus_public_text
+        and "已确认" not in round4_focus_public_text
+        and "已核准" not in round4_focus_public_text
+        and "最终推荐" not in round4_focus_public_text
+        and "最终方案" not in round4_focus_public_text
+        and "可填报" not in round4_focus_public_text
+        and "可排序" not in round4_focus_public_text
+        and not any(token in round4_focus_public_text for token in shared_forbidden_tokens),
+    ))
+
     round4_fee_script = ROOT / "scripts/build_issue19_round4_50k_coop_city_gradient_candidates.py"
     round4_fee_summary_path = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient-summary.json"
     round4_fee_workbook_path = ROOT / "data/exports/issue19-round4-50k-coop-city-gradient.xlsx"

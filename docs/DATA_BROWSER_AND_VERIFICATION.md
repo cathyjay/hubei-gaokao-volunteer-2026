@@ -1,12 +1,13 @@
 # 结构化数据浏览与快速核验说明
 
-更新时间：2026-06-28
+更新时间：2026-06-29
 
 ## 现在怎么直接看
 
 最方便的入口是：
 
 - `data/exports/issue19-round4-city-gradient.xlsx`
+- `data/exports/issue19-round4-priority-focus55.xlsx`
 - `data/exports/issue19-closure-and-shortlist-v1.xlsx`
 - `data/exports/issue19-round4-50k-coop-city-gradient.xlsx`
 - `data/exports/issue19-round2-updated-preferences.xlsx`
@@ -15,6 +16,8 @@
 - `data/exports/issue19-stable-foundation-browser.xlsx`
 
 `issue19-round4-city-gradient.xlsx` 是当前优先入口：它不引用 Round3 输出，直接从稳定底座、教育部学校属性表和三年投档线旁挂表重建候选，主表保留 H1-H4 共 328 个“主要可能够得着”的院校专业组，按城市和冲稳保展示；H0 历史待补、H5 高冲暂缓均单列附录。详细说明见 `docs/ROUND4_CITY_GRADIENT_CANDIDATES.md`。
+
+`issue19-round4-priority-focus55.xlsx` 是 Round4 压缩入口：它把优先 120 组压缩为 55 个重点核验组，并把 65 组暂缓；55 组展开为 458 条完整组内专业，适合先做家庭调剂接受度判断和下一批核验排序。它仍是核验入口，不是定稿表。
 
 `issue19-closure-and-shortlist-v1.xlsx` 是当前字段闭环和重点核验入口：它把第一闭环 37 个页列、206 条最高优先级逐任务、36 所学校 80 个高校官网辅证动作、2026-06-29 live 补源尝试、Round4 55 个重点核验专业组和 458 条完整组内专业明细放在一起。它适合今天继续推进“哪些字段先核、哪些官网源能 double check、哪些专业组优先让家庭看完整组内专业”。详细说明见 `docs/CLOSURE_AND_SHORTLIST_V1.md`。
 

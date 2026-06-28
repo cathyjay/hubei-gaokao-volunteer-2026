@@ -1,0 +1,146 @@
+{
+  "status": "issue19_round4_priority_focus55_not_final",
+  "generated_by": "build_issue19_round4_priority_focus55.py",
+  "source_round4_priority120": "data/exports/issue19-round4-city-gradient-priority120-groups.csv",
+  "source_round4_major_details": "data/exports/issue19-round4-city-gradient-major-details.csv",
+  "source_group_readiness_bridge": "data/working/issue19-stable-foundation-group-readiness-bridge.csv",
+  "source_closure_v1_priority55": "data/exports/issue19-closure-and-shortlist-v1-priority55-groups.csv",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "output_group_table": "data/exports/issue19-round4-priority-focus55-groups.csv",
+  "output_major_table": "data/exports/issue19-round4-priority-focus55-major-details.csv",
+  "output_paused_table": "data/exports/issue19-round4-priority-focus55-paused65-groups.csv",
+  "output_workbook": "data/exports/issue19-round4-priority-focus55.xlsx",
+  "target_focus_range": "40-60",
+  "selected_group_count": 55,
+  "paused_group_count": 65,
+  "source_priority120_group_count": 120,
+  "selected_major_detail_count": 458,
+  "unique_selected_school_count": 48,
+  "selected_gradient_counts": {
+    "保底观察": 1,
+    "冲刺观察": 12,
+    "稳冲观察": 18,
+    "稳妥观察": 24
+  },
+  "paused_gradient_counts": {
+    "冲刺观察": 23,
+    "稳冲观察": 17,
+    "稳妥观察": 25
+  },
+  "selected_history_counts": {
+    "H1-历史最高线低于等位分20分以上": 1,
+    "H2-历史最高线不高于等位分": 24,
+    "H3-历史最高线高于等位分15分内": 18,
+    "H4-历史最高线高于等位分16-30分": 12
+  },
+  "selected_city_top20": {
+    "乌鲁木齐市": 3,
+    "孝感市": 3,
+    "黄石市": 3,
+    "武汉市": 3,
+    "十堰市": 2,
+    "长春市": 2,
+    "兰州市": 2,
+    "黄冈市": 2,
+    "桂林市": 2,
+    "和田地区": 1,
+    "伊犁哈萨克自治州": 1,
+    "阳泉市": 1,
+    "荆门市": 1,
+    "忻州市": 1,
+    "图木舒克市": 1,
+    "吕梁市": 1,
+    "曲靖市": 1,
+    "抚州市": 1,
+    "海口市": 1,
+    "保定市": 1
+  },
+  "selected_professional_match_counts": {
+    "P0-命中数字媒体技术": 3,
+    "P1-命中计算机/软件/AI": 48,
+    "P2-命中电子信息/网络或师范": 4
+  },
+  "selected_verification_cost_counts": {
+    "V0-高核验成本，先核页和组边界": 29,
+    "V1-中高核验成本，需集中核字段": 9,
+    "V2-中等核验成本，保留字段缺口": 17
+  },
+  "selected_transfer_risk_counts": {
+    "T1-特殊限制待核，先核章程/原页": 11,
+    "T2-结构异常，先核完整组内专业": 14,
+    "T3-组内专业较多，需逐条确认": 4,
+    "T4-暂未见硬阻断，仍需人工接受度判断": 26
+  },
+  "selected_structure_block_counts": {
+    "S0-结构或归属未闭环11行": 1,
+    "S0-结构或归属未闭环14行": 1,
+    "S0-结构或归属未闭环17行": 1,
+    "S0-结构或归属未闭环1行": 14,
+    "S0-结构或归属未闭环2行": 2,
+    "S0-结构或归属未闭环3行": 2,
+    "S0-结构或归属未闭环4行": 1,
+    "S0-结构或归属未闭环5行": 1,
+    "S0-结构或归属未闭环7行": 1,
+    "S0-结构或归属未闭环8行": 1,
+    "S0-结构或归属未闭环9行": 1,
+    "S1-字段事实缺口10行": 1,
+    "S1-字段事实缺口11行": 2,
+    "S1-字段事实缺口19行": 1,
+    "S1-字段事实缺口1行": 1,
+    "S1-字段事实缺口3行": 6,
+    "S1-字段事实缺口4行": 6,
+    "S1-字段事实缺口5行": 2,
+    "S1-字段事实缺口6行": 1,
+    "S1-字段事实缺口7行": 5,
+    "S1-字段事实缺口8行": 3,
+    "S1-字段事实缺口9行": 1
+  },
+  "selected_major_acceptance_counts": {
+    "优先了解-命中当前专业方向": 147,
+    "可调剂了解-未命中偏好但暂未见硬排除": 267,
+    "待核后判断-有体检/语种/单科/专项等限制": 44
+  },
+  "selected_by_gradient_quota": {
+    "保底观察": 1,
+    "冲刺观察": 12,
+    "稳冲观察": 18,
+    "稳妥观察": 24
+  },
+  "selected_overlap_with_closure_v1_priority55": 55,
+  "field_writeback_ready_count": 0,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "summary_rows": [
+    {
+      "项目": "Round4优先讨论组",
+      "当前值": "120",
+      "说明": "从第四轮城市冲稳保候选池进入压缩的组数"
+    },
+    {
+      "项目": "建议重点核验组",
+      "当前值": "55",
+      "说明": "本轮固定压缩为55组，位于40-60目标区间内"
+    },
+    {
+      "项目": "暂缓组",
+      "当前值": "65",
+      "说明": "仍保留在Round4优先120组备选，不投入第一批人工核验"
+    },
+    {
+      "项目": "重点组完整专业",
+      "当前值": "458",
+      "说明": "55组内完整组内专业展开，用于调剂接受度判断"
+    },
+    {
+      "项目": "字段事实门禁",
+      "当前值": "0",
+      "说明": "字段写回、推荐依据和最终可用均为0"
+    }
+  ],
+  "public_boundary": "该表只把Round4优先120组压缩为55个重点核验入口；所有组仍需第19期原页、湖北官方侧、高校章程和完整调剂范围核验后才可进入定稿表。"
+}
