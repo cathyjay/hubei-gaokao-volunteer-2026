@@ -295,11 +295,12 @@ def main():
     ))
     checks.append(ok(
         "当前家庭偏好已记录专项了解和体检公开摘要",
-        current_family_preferences.get("preference_version") == "current_round2_updated_preferences_20260628"
+        current_family_preferences.get("preference_version") == "current_round3_unrestricted_region_20260628"
         and "医学影像技术" in current_major_preference.get("special_research_directions", [])
         and "动物医学/兽医/动物科学等动物相关方向" in current_major_preference.get("pause_or_exclude_for_main_plan", [])
         and "护理类/助产" in current_major_preference.get("pause_or_exclude_for_main_plan", [])
         and "临床医学" in current_major_preference.get("pause_or_exclude_for_main_plan", [])
+        and "不参与筛选、加分或名额分配" in current_family_preferences.get("city_context", {}).get("current_round_policy", "")
         and current_physical_summary.get("color_vision") == "色觉相关检查正常。"
         and current_physical_summary.get("corrected_visual_acuity", {}).get("right") == "4.80"
         and current_physical_summary.get("corrected_visual_acuity", {}).get("left") == "4.80"
@@ -25707,6 +25708,151 @@ def main():
         and "可填报" not in round2_public_text
         and "可排序" not in round2_public_text
         and not any(token in round2_public_text for token in shared_forbidden_tokens),
+    ))
+
+    round3_script = ROOT / "scripts/build_issue19_round3_unrestricted_region_candidates.py"
+    round3_summary_path = ROOT / "data/exports/issue19-round3-unrestricted-region-summary.json"
+    round3_workbook_path = ROOT / "data/exports/issue19-round3-unrestricted-region.xlsx"
+    round3_groups_csv = ROOT / "data/exports/issue19-round3-unrestricted-region-candidate-groups.csv"
+    round3_main_csv = ROOT / "data/exports/issue19-round3-unrestricted-region-main-shortlist-groups.csv"
+    round3_discussion_csv = ROOT / "data/exports/issue19-round3-unrestricted-region-discussion-priority-groups.csv"
+    round3_special_csv = ROOT / "data/exports/issue19-round3-unrestricted-region-special-low-priority-groups.csv"
+    round3_main_majors_csv = ROOT / "data/exports/issue19-round3-unrestricted-region-main-shortlist-majors.csv"
+    round3_special_majors_csv = ROOT / "data/exports/issue19-round3-unrestricted-region-special-majors.csv"
+    round3_city_distribution_csv = ROOT / "data/exports/issue19-round3-unrestricted-region-city-distribution.csv"
+    round3_summary = json.loads(round3_summary_path.read_text())
+    with round3_groups_csv.open(newline="", encoding="utf-8-sig") as f:
+        round3_group_reader = csv.DictReader(f)
+        round3_group_rows = list(round3_group_reader)
+        round3_group_fields = round3_group_reader.fieldnames or []
+    with round3_main_csv.open(newline="", encoding="utf-8-sig") as f:
+        round3_main_rows = list(csv.DictReader(f))
+    with round3_discussion_csv.open(newline="", encoding="utf-8-sig") as f:
+        round3_discussion_rows = list(csv.DictReader(f))
+    with round3_special_csv.open(newline="", encoding="utf-8-sig") as f:
+        round3_special_rows = list(csv.DictReader(f))
+    with round3_main_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        round3_main_major_reader = csv.DictReader(f)
+        round3_main_major_rows = list(round3_main_major_reader)
+        round3_main_major_fields = round3_main_major_reader.fieldnames or []
+    with round3_special_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        round3_special_major_reader = csv.DictReader(f)
+        round3_special_major_rows = list(round3_special_major_reader)
+        round3_special_major_fields = round3_special_major_reader.fieldnames or []
+    with round3_city_distribution_csv.open(newline="", encoding="utf-8-sig") as f:
+        round3_city_distribution_rows = list(csv.DictReader(f))
+    expected_round3_group_fields = script_list_constant(round3_script, "ROUND3_GROUP_FIELDS")
+    expected_round3_major_fields = script_list_constant(round3_script, "ROUND3_MAJOR_FIELDS")
+    round3_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            round3_summary_path,
+            round3_groups_csv,
+            round3_main_csv,
+            round3_discussion_csv,
+            round3_special_csv,
+            round3_main_majors_csv,
+            round3_special_majors_csv,
+            round3_city_distribution_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期第三轮不限地区候选池摘要、规模和工作簿正确",
+        round3_summary.get("status") == "issue19_round3_unrestricted_region_ready"
+        and round3_summary.get("generated_by") == "build_issue19_round3_unrestricted_region_candidates.py"
+        and round3_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and round3_summary.get("city_policy") == "城市仅展示不参与筛选排序"
+        and round3_summary.get("candidate_group_rows") == len(round3_group_rows) == 1272
+        and round3_summary.get("main_pool_rows_before_shortlist") == 1212
+        and round3_summary.get("main_shortlist_group_rows") == len(round3_main_rows) == 120
+        and round3_summary.get("discussion_priority_group_rows") == len(round3_discussion_rows) == 60
+        and round3_summary.get("special_pool_rows_before_shortlist") == 60
+        and round3_summary.get("special_group_rows") == len(round3_special_rows) == 25
+        and round3_summary.get("main_shortlist_major_rows") == len(round3_main_major_rows) == 1046
+        and round3_summary.get("special_major_rows") == len(round3_special_major_rows) == 81
+        and round3_summary.get("city_distribution_rows") == len(round3_city_distribution_rows) == 5
+        and round3_summary.get("workbook") == "data/exports/issue19-round3-unrestricted-region.xlsx"
+        and round3_workbook_path.exists()
+        and round3_workbook_path.stat().st_size > 1_000_000,
+        f"{len(round3_main_rows)} main, {len(round3_discussion_rows)} discussion, {len(round3_special_rows)} special",
+    ))
+    round3_main_group_ids = {row.get("专业组出现ID", "") for row in round3_main_rows}
+    round3_discussion_group_ids = {row.get("专业组出现ID", "") for row in round3_discussion_rows}
+    round3_special_group_ids = {row.get("专业组出现ID", "") for row in round3_special_rows}
+    checks.append(ok(
+        "第 19 期第三轮不限地区字段、主线门禁和专项隔离正确",
+        round3_group_fields == expected_round3_group_fields
+        and round3_main_major_fields == expected_round3_major_fields
+        and round3_special_major_fields == expected_round3_major_fields
+        and {row.get("是否可作为定稿依据") for row in round3_group_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round3_main_major_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round3_special_major_rows} == {"false"}
+        and {row.get("城市筛选口径") for row in round3_main_rows} == {"城市仅展示不参与筛选排序"}
+        and {row.get("城市筛选口径") for row in round3_discussion_rows} == {"城市仅展示不参与筛选排序"}
+        and all(row.get("高收费或超预算专业数") == "0" for row in round3_main_rows)
+        and all(row.get("临床口腔中医暂缓专业数") == "0" for row in round3_main_rows)
+        and all(row.get("医技护理康复专业数") == "0" for row in round3_main_rows)
+        and all(row.get("护理助产专业数") == "0" for row in round3_main_rows)
+        and all(row.get("动物医学兽医专业数") == "0" for row in round3_main_rows)
+        and all(as_int(row.get("护理助产专业数")) == 0 for row in round3_special_rows)
+        and all(as_int(row.get("动物医学兽医专业数")) == 0 for row in round3_special_rows)
+        and round3_discussion_group_ids.issubset(round3_main_group_ids)
+        and round3_main_group_ids.isdisjoint(round3_special_group_ids)
+        and {
+            row.get("专业组出现ID", "")
+            for row in round3_main_major_rows
+        }.issubset(round3_main_group_ids)
+        and {
+            row.get("专业组出现ID", "")
+            for row in round3_special_major_rows
+        }.issubset(round3_special_group_ids),
+    ))
+    checks.append(ok(
+        "第 19 期第三轮不限地区方向统计和梯度分布正确",
+        round3_summary.get("direction_group_counts", {}).get("护理助产专业数") == 111
+        and round3_summary.get("direction_major_counts", {}).get("护理助产专业数") == 120
+        and round3_summary.get("direction_group_counts", {}).get("动物医学兽医专业数") == 52
+        and round3_summary.get("direction_major_counts", {}).get("动物医学兽医专业数") == 84
+        and round3_summary.get("direction_group_counts", {}).get("医技护理康复专业数") == 249
+        and round3_summary.get("direction_major_counts", {}).get("医技护理康复专业数") == 341
+        and round3_summary.get("direction_group_counts", {}).get("计算机AI软件专业数") == 1040
+        and round3_summary.get("main_shortlist_gradient_distribution", {}).get("稳妥观察") == 49
+        and round3_summary.get("discussion_gradient_distribution", {}).get("稳冲观察") == 22,
+    ))
+    checks.append(ok(
+        "第 19 期第三轮不限地区公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in round3_public_text
+        and "/home/" not in round3_public_text
+        and "/var/folders/" not in round3_public_text
+        and "/private/" not in round3_public_text
+        and "private/" not in round3_public_text
+        and "private\\" not in round3_public_text
+        and "ocr-runs" not in round3_public_text
+        and "rendered-pages" not in round3_public_text
+        and "file://" not in round3_public_text
+        and "Authorization" not in round3_public_text
+        and "Bearer " not in round3_public_text
+        and "Cookie" not in round3_public_text
+        and "Set-Cookie" not in round3_public_text
+        and "access_token" not in round3_public_text
+        and "refresh_token" not in round3_public_text
+        and "password" not in round3_public_text
+        and "secret" not in round3_public_text
+        and "api_key" not in round3_public_text
+        and "身份证" not in round3_public_text
+        and "准考证" not in round3_public_text
+        and "报名号" not in round3_public_text
+        and "序列号" not in round3_public_text
+        and "手机号" not in round3_public_text
+        and "已确认" not in round3_public_text
+        and "已核准" not in round3_public_text
+        and "最终推荐" not in round3_public_text
+        and "最终方案" not in round3_public_text
+        and "可填报" not in round3_public_text
+        and "可排序" not in round3_public_text
+        and "priority_city" not in round3_public_text
+        and "city_bonus" not in round3_public_text
+        and not any(token in round3_public_text for token in shared_forbidden_tokens),
     ))
 
     personal_fit_script = ROOT / "scripts/build_issue19_personal_fit_v1.py"

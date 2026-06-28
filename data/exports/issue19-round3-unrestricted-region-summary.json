@@ -1,0 +1,94 @@
+{
+  "status": "issue19_round3_unrestricted_region_ready",
+  "generated_by": "build_issue19_round3_unrestricted_region_candidates.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "city_policy": "城市仅展示不参与筛选排序",
+  "selection_boundary": "第三轮不限地区候选池只用于家庭讨论和入围组核验，不作为定稿依据。",
+  "family_constraints": [
+    "优先公办本科、普通学费，普通主线年学费上限15000。",
+    "城市地区本轮不限制、不加分、不设优先城市名额。",
+    "临床/口腔/中医等医学主线暂缓；护理/助产、动物医学/兽医/动物科学暂不纳入。",
+    "医技/康复只进入低优先级专项了解，不自动进入普通主线。"
+  ],
+  "candidate_group_rows": 1272,
+  "main_pool_rows_before_shortlist": 1212,
+  "main_shortlist_group_rows": 120,
+  "discussion_priority_group_rows": 60,
+  "special_pool_rows_before_shortlist": 60,
+  "special_group_rows": 25,
+  "main_shortlist_major_rows": 1046,
+  "special_major_rows": 81,
+  "city_distribution_rows": 5,
+  "discussion_gradient_distribution": {
+    "稳妥观察": 23,
+    "保底观察": 1,
+    "稳冲观察": 22,
+    "冲刺观察": 10,
+    "历史待补": 4
+  },
+  "main_shortlist_gradient_distribution": {
+    "稳妥观察": 49,
+    "保底观察": 1,
+    "稳冲观察": 35,
+    "冲刺观察": 25,
+    "历史待补": 10
+  },
+  "top_city_counts_in_main_shortlist": [
+    [
+      "未识别",
+      116
+    ],
+    [
+      "西安",
+      2
+    ],
+    [
+      "成都",
+      1
+    ],
+    [
+      "北京",
+      1
+    ]
+  ],
+  "direction_group_counts": {
+    "机械自动化机器人专业数": 755,
+    "电子信息网络专业数": 646,
+    "计算机AI软件专业数": 1040,
+    "农业动医兽医专业数": 155,
+    "动物医学兽医专业数": 52,
+    "护理助产专业数": 111,
+    "工商旅游管理专业数": 400,
+    "环境工程科学专业数": 223,
+    "医技护理康复专业数": 249,
+    "临床口腔中医暂缓专业数": 245
+  },
+  "direction_major_counts": {
+    "机械自动化机器人专业数": 1403,
+    "电子信息网络专业数": 1151,
+    "计算机AI软件专业数": 1922,
+    "农业动医兽医专业数": 325,
+    "动物医学兽医专业数": 84,
+    "护理助产专业数": 120,
+    "工商旅游管理专业数": 746,
+    "环境工程科学专业数": 272,
+    "医技护理康复专业数": 341,
+    "临床口腔中医暂缓专业数": 416
+  },
+  "workbook": "data/exports/issue19-round3-unrestricted-region.xlsx",
+  "candidate_groups_csv": "data/exports/issue19-round3-unrestricted-region-candidate-groups.csv",
+  "main_shortlist_csv": "data/exports/issue19-round3-unrestricted-region-main-shortlist-groups.csv",
+  "discussion_priority_csv": "data/exports/issue19-round3-unrestricted-region-discussion-priority-groups.csv",
+  "special_groups_csv": "data/exports/issue19-round3-unrestricted-region-special-low-priority-groups.csv",
+  "main_majors_csv": "data/exports/issue19-round3-unrestricted-region-main-shortlist-majors.csv",
+  "special_majors_csv": "data/exports/issue19-round3-unrestricted-region-special-majors.csv",
+  "city_distribution_csv": "data/exports/issue19-round3-unrestricted-region-city-distribution.csv",
+  "hard_filters_main": [
+    "公办/普通学费机器线索",
+    "组内高收费或超预算专业数为0",
+    "必须有逐专业明细",
+    "临床/口腔/中医等暂缓方向不进主线",
+    "护理/助产、动物医学/兽医/动物科学不进主线",
+    "医技/康复不混入主线"
+  ]
+}

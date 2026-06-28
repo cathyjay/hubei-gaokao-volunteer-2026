@@ -54,9 +54,13 @@
     "ai_resilience_note": "外部曾建议兽医、护理类可能有长期需求且短期不易被 AI 替代；最新家庭反馈认为二者可能仍不能纳入，因此本轮暂不进入主线或专项候选池。",
     "teacher_attitude": "可以了解",
     "other_directions": "待了解",
-    "decision_principle": "专业组内所有专业可接受优先于城市偏好；中外合作项目必须额外核验费用和培养模式。"
+    "decision_principle": "专业组内所有专业可接受优先；城市和地区只作为展示、生活成本、交通和就业资源讨论字段，不参与 Round3 筛选加分；中外合作项目必须额外核验费用和培养模式。"
   },
-  "city_preference_order": ["成都", "西安", "武汉", "北京"],
+  "city_context": {
+    "current_round_policy": "城市和地区不参与筛选、加分或名额分配。",
+    "initially_mentioned_cities": ["成都", "西安", "武汉", "北京"],
+    "note": "这些城市是早期讨论线索，不是当前候选池边界。"
+  },
   "special_tracks": {
     "military_academies": {
       "can_explore": true,

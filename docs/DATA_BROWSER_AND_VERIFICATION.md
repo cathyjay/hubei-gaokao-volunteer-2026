@@ -7,10 +7,13 @@
 最方便的入口是：
 
 - `data/exports/issue19-round2-updated-preferences.xlsx`
+- `data/exports/issue19-round3-unrestricted-region.xlsx`
 - `data/exports/issue19-personal-fit-v1.xlsx`
 - `data/exports/issue19-stable-foundation-browser.xlsx`
 
-`issue19-round2-updated-preferences.xlsx` 是当前最适合家庭先看的入口：它吸收了最新体检摘要和家庭偏好，把护理、动物医学/兽医设为本轮暂不纳入，把医技/康复保留为专项了解，同时新增机械自动化、电子信息/网络、计算机/AI/软件、环境、农业、工商旅游管理等研究方向。详细说明见 `docs/ROUND2_UPDATED_PREFERENCES.md`。
+`issue19-round3-unrestricted-region.xlsx` 是当前“不限地区”入口：它在最新家庭偏好基础上取消城市和地区筛选、加分和名额分配，优先看 `02_优先讨论60组`，再看主线 120 组和完整组内专业明细。详细说明见 `docs/ROUND3_UNRESTRICTED_REGION_CANDIDATES.md`。
+
+`issue19-round2-updated-preferences.xlsx` 是第二轮历史入口：它吸收了最新体检摘要和家庭偏好，把护理、动物医学/兽医设为本轮暂不纳入，把医技/康复保留为专项了解，同时新增机械自动化、电子信息/网络、计算机/AI/软件、环境、农业、工商旅游管理等研究方向。该批次保留了优先城市观察表，用于复现旧口径，不作为 Round3 城市限制。详细说明见 `docs/ROUND2_UPDATED_PREFERENCES.md`。
 
 `issue19-personal-fit-v1.xlsx` 是上一版个人适配候选：它把 515 分、91723 位次、旧家庭偏好、公办普通主线和 7 万中外合作专项口径合在一起，压缩成 45 个院校专业组、267 条完整组内专业明细。该文件仍可回溯，但不是最新偏好入口。详细说明见 `docs/PERSONAL_FIT_CANDIDATES_V1.md`。
 
@@ -64,6 +67,16 @@
 - `data/exports/issue19-round2-updated-preferences-special-majors.csv`
 - `data/exports/issue19-round2-updated-preferences-summary.json`
 
+第三轮不限地区候选：
+
+- `data/exports/issue19-round3-unrestricted-region-discussion-priority-groups.csv`
+- `data/exports/issue19-round3-unrestricted-region-main-shortlist-groups.csv`
+- `data/exports/issue19-round3-unrestricted-region-main-shortlist-majors.csv`
+- `data/exports/issue19-round3-unrestricted-region-special-low-priority-groups.csv`
+- `data/exports/issue19-round3-unrestricted-region-special-majors.csv`
+- `data/exports/issue19-round3-unrestricted-region-city-distribution.csv`
+- `data/exports/issue19-round3-unrestricted-region-summary.json`
+
 ## 原始结构化数据在哪
 
 原始 OCR 结构化底稿仍然保留在 `data/working`：
@@ -85,7 +98,7 @@
 建议筛选顺序：
 
 1. `公办民办机器线索` 和 `家庭底线属性动作`：先排除明显不符合“公办、正常学费”的组。
-2. `城市候选`：先看武汉、成都、西安、北京，也可以后续扩展城市。
+2. `城市候选`：只作为展示字段；Round3 不按城市筛选、加分或分配名额，城市后续用于生活成本、交通、就业资源和家庭接受度讨论。
 3. `偏好专业数`、`数字媒体技术专业数`、`计算机类相关专业数`、`师范类相关专业数`：找偏好专业组。
 4. `调剂初判`：重点看完整专业组里有没有医学护理、高收费、特殊限制等不能接受项。
 5. `历史线索分层`、`历史最高等位分差`、`历史最低等位分差`：粗看冲稳保线索。
@@ -98,7 +111,7 @@
 快速验证不应该让家里人手工核 13,736 条明细。合理方案是三层：
 
 1. 机器一致性验收：用 `python3 scripts/verify_baseline.py` 和 `CHECKSUMS.sha256` 保证结构化表、血缘表、页列证据、风险表没有漂移。
-2. 分层抽样核验：先核 `06_快速核验抽样` 的 190 条样本，覆盖偏好专业、优先城市、P0/P1 风险、官网辅证、低风险抽检和历史线索接近项。
+2. 分层抽样核验：先核 `06_快速核验抽样` 的 190 条样本，覆盖偏好专业、城市字段、P0/P1 风险、官网辅证、低风险抽检和历史线索接近项。
 3. 入围组 100% 核验：只要一个院校专业组进入家庭讨论或志愿梯度，就必须核完整组，不只核想填的专业。
 
 `06_快速核验抽样` 每一行都带：

@@ -36,7 +36,7 @@
 - 是否属于普通类、中外合作、预科、民族班、国家专项、地方专项、护理类、校企合作、联合培养等特殊类别。
 - 2026 湖北招生计划、选科要求、专业备注和招生章程。
 
-2026 招生计划明细底座的默认粒度是一行一个招生专业明细，院校专业组只是投档和调剂范围字段。只有当原始招生专业明细准确结构化之后，后续才适合叠加家庭偏好、专业研究、城市偏好、近三年投档稳定性和冲稳保排序。
+2026 招生计划明细底座的默认粒度是一行一个招生专业明细，院校专业组只是投档和调剂范围字段。只有当原始招生专业明细准确结构化之后，后续才适合叠加家庭偏好、专业研究、城市地区展示字段、近三年投档稳定性和冲稳保排序。Round3 生成候选时不按城市加分或设名额。
 当前第 19 期底座数据坐稳的直接入口是 `data/working/issue19-p0-immediate-page-execution-queue.csv`、`data/working/issue19-p0-immediate-pdf-reading-candidate-public-audit.csv`、`data/working/issue19-p0-immediate-page-review-packets.csv`、`data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv`、`data/working/issue19-p0-immediate-crop-ocr-public-audit.csv`、`data/working/issue19-p0-immediate-three-way-closure-public-ledger.csv`、`data/working/issue19-p0-immediate-pdf-crop-evidence-index.csv`、`data/working/issue19-field-fact-p0-immediate-review-packet.csv`、`data/working/issue19-field-fact-closure-ledger.csv`、`data/working/issue19-field-fact-verification-tasks.csv`、`data/working/issue19-field-fact-p0-reread-worklist.csv`、`data/working/issue19-field-fact-p0-reread-machine-candidates.csv`、`data/working/issue19-field-fact-p0-closure-action-workbench.csv`、`data/working/issue19-field-fact-p0-semantic-crosssource-audit.csv` 和 `data/working/issue19-field-fact-p0-triage-execution-workbench.csv`：它们不替代湖北官方计划，只负责把再选科目、专业计划数、学费三项关键字段的缺口、候选、语义风险、PDF 原页待核状态、高校官网/章程辅证线索和湖北官方待核状态逐专业、逐字段结构化。P0 字段原页重读清单专门处理 K0 无候选字段，机器坐标候选表只给人工回页提供候选值和坐标线索，闭环推进工作台再把 PDF 原页、湖北官方系统或省招办计划、高校官网或章程三方待核状态分列，语义多源审计表把明显 OCR 噪声、候选偏大、官网补缺线索和多源冲突提前标出，三方核验执行工作台把 11444 条字段任务排成稳定执行顺序并逐行回连 PDF 原页锚点、湖北官方待核包和高校辅证线索，即时复核包再从中切出 319 条最高优先级字段任务，裁图证据索引再为这 319 条任务提供本地原页裁图的公开证据编号、哈希和 bbox，P0 即时三方闭环公开账本再把 PDF 原页、湖北官方系统或省招办计划、高校官网或章程三列状态分离，裁图 OCR 公开审计再用第二套 OCR 对 319 张私有裁图做状态级复读，字段确认公开账本再把私有人工记录是否完成、是否需要双人复核、是否存在三方冲突和是否可进入字段写回评估转成公开状态机，按页核页包再把 319 条任务按 `PDF页码×版面列` 分成 148 个执行包，PDF 原页读数候选公开审计再把私有候选读数降格为“有候选/无候选/冲突/需双人复核”的公开状态，页列核页执行队列再把 148 个页列包按候选冲突、无稳定候选、候选一致待官方和常规候选四档排序，方便人工逐页逐列看原件并防止左右列串读。所有这些表都避免把高校线索或单一 OCR 候选越权当事实，保证后续家庭偏好和专业分析不会建立在含混字段上。
 
 本轮新增的 `data/working/issue19-field-fact-page-side-verification-queue.csv`、`data/working/issue19-page-side-foundation-risk-register.csv`、`data/working/issue19-page-side-foundation-verification-batches.csv`、`data/working/issue19-page-side-foundation-batch-execution-packets.csv`、`data/working/issue19-page-side-foundation-review-progress-public-ledger.csv`、`data/working/issue19-page-side-foundation-field-clue-public-audit.csv`、`data/working/issue19-page-side-foundation-human-review-overlay-public-ledger.csv`、`data/working/issue19-page-side-foundation-all-batch-review-public-ledger.csv` 和 `data/working/issue19-p0-immediate-page-execution-progress-public-ledger.csv` 继续服务于同一个目标：第一张表把全量 41208 条字段任务聚合到 462 个 `PDF页码×版面列` 执行单元，确保后续新增城市、学校或专业方向时仍能回到全量原始字段任务；第二张表在同一页列粒度上叠加结构、源证据、官方消歧、官网差异、决策闸门等风险，形成 460 个 Z0、2 个 Z1 的全量页列核验入口；第三张表把这 462 个页列按风险顺序切成 19 个可执行核验批次，前 18 批各 25 个页列、最后 1 批 12 个页列；第四张表进一步为 19 批生成批次级执行包，并在本地私有目录生成每批 HTML/CSV 核页材料，公开层只保留私有材料 SHA、批次计数和非最终门禁；第五张表把 19 批私有核页材料的填写状态公开成 462 行进度账本；第六张表把 41208 个字段任务重新聚合到 462 个页列，只公开字段分布、状态桶、线索缺失/冲突计数和私有模板 SHA，明确当前仍无任何字段事实可写回；第七张表在不可变字段线索模板之上建立私有人工复核 Overlay，公开层只同步 Overlay 记录数、已填计数、私有 CSV SHA 和非最终门禁，防止后续人工读数覆盖机器线索或误公开字段值；第八张表把第 1 批样板扩展为全 19 批公开复核账本，证明 462 个页列、13736 条专业明细和 41208 个字段任务都已经进入可复核流水线，但人工填写、字段确认、推荐依据和最终可用仍全部为 0；第九张表把 P0 即时 148 个页列包的私有核验进度公开成计数和门禁，明确当前全部仍为 R0，不能因为已经有执行队列就误判为字段已核准。官方入口状态已刷新到 2026-06-28：湖北教育考试网计划页和索引页公开可访问，但计划页仍含“持续更新中/敬请期待”；湖北招生数智平台首页可访问但无登录探针仍返回 401。目标院校、目标专业和城市范围仍未锁定，这些表只让原始招生计划数据更准确、更可复用。
@@ -63,7 +63,7 @@
 
 ## 三、学校分析维度
 
-- 城市：武汉、成都、西安、北京是初始偏好，后续可以继续增加城市。
+- 城市和校区：当前不限制城市或地区；城市用于生活成本、交通、就业资源、实习机会和家庭接受度讨论，不参与 Round3 机器筛选加分。
 - 属性：公办、民办、独立学院、职业本科、中外合作要分开看。
 - 平台：硕士点、博士点、优势学科、行业资源、实习机会。
 - 校区：实际就读校区、交通、生活成本、是否异地校区或联合培养。
@@ -88,7 +88,7 @@
 - 就业出口：本科就业、考研必要性、考编考证、地域依赖、行业周期。
 - 转换空间：能否转向数据、教育、运营、产品、考公、考编或考研。
 - 调剂后果：同一专业组里是否有明显不能接受的专业。
-- 家庭和考生偏好：兴趣、禁忌、城市接受度、费用承受度。
+- 家庭和考生偏好：兴趣、禁忌、城市地区接受度、费用承受度。
 
 ## 五、冲稳保定义
 

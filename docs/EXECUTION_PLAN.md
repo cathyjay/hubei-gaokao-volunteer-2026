@@ -164,7 +164,7 @@
 - 已生成逐专业三年投档线索旁挂表：`data/working/issue19-major-line-historical-toudang-sidecar.csv` 覆盖全部 13736 条专业明细；同代码 3 年命中 5836 条、2 年命中 3946 条、1 年命中 1940 条、0 年命中 2014 条。该表只作后续冲稳保筛选前置线索，不能替代 2026 招生计划核验。
 - 已生成单一逐专业招生明细总工作台：`data/working/issue19-admission-detail-master-workbench.csv` 覆盖全部 13736 条专业明细；一行一个招生专业，把统一底座、闭环缺口看板、PDF 原页锚点和三年投档线索合并到同一行。后续新增城市、学校或专业方向时默认先看这张表；学校、专业组、页码只作索引和调剂上下文。
 - 已生成逐专业结构保真登记和风险事件派单表：`data/working/issue19-admission-detail-structural-fidelity-register.csv` 覆盖全部 13736 条专业明细，`data/working/issue19-structural-risk-major-line-ledger.csv` 拆出 3108 条结构风险事件；其中唯一组码回退归属 1838 条、组内专业代号重复 116 条、重复组码 14 条、原页窗口 P0 13 条、原页窗口 P1 1127 条。另有 `data/working/issue19-zero-detail-group-placeholder-workbench.csv` 保留 40 个无明细组占位。
-- 已生成逐专业候选筛选准备表：`data/working/issue19-candidate-filter-prep-major-detail.csv` 覆盖全部 13736 条专业明细；城市偏好关键词命中 1723 条、学费超预算机器线索 1862 条、学费字段待核 1262 条、办学属性待核 13736 条。该表只用于机器预筛和核验排序，不生成候选方案。
+- 已生成逐专业候选筛选准备表：`data/working/issue19-candidate-filter-prep-major-detail.csv` 覆盖全部 13736 条专业明细；早期城市关键词命中 1723 条、学费超预算机器线索 1862 条、学费字段待核 1262 条、办学属性待核 13736 条。该表只用于机器预筛和核验排序，不生成候选方案；Round3 当前不按城市加分或设名额。
 - 已生成逐专业决策闸门表：`data/working/issue19-major-decision-readiness-gates.csv` 覆盖全部 13736 条专业明细；G0 结构或归属未闭环 4459 条、G1 家庭底线风险 2342 条、G2 字段缺口 6218 条、G3 可作机器预筛线索但不可定案 350 条、G4 常规留存 367 条。所有行仍需 PDF 原页、湖北官方系统、办学属性、家庭接受度和同组调剂闭环。
 - 已生成教育部学校属性逐专业核验表：`data/working/issue19-moe-school-attribute-major-detail.csv` 覆盖全部 13736 条专业明细；教育部精确匹配 13161 条，父校/校区/医学部等保守匹配 190 条，未匹配待核 385 条、涉及 49 个院校代码+校名。民办线索 2230 条、合作办学线索 34 条、职业本科名称线索 241 条已下沉到逐专业行；这些只是学校登记信息和风险线索，不能替代 2026 湖北招生计划、招生章程和实际校区核验。
 - 已生成湖北官方查询键碰撞清单：`data/working/issue19-hubei-official-query-key-collision-ledger.csv` 覆盖 59 个非唯一官方查询三元组、118 条专业明细；后续官方系统回填不得只按院校代码、专业组代码和专业代号合并。
@@ -226,7 +226,7 @@
 
 ## 五、下一步具体做什么
 
-下一步是在全量底座上做逐字段保真复核：先处理 P0/K0 无候选字段和原页结构问题，再处理 K1 有候选待核字段，最后处理 K2 OCR 齐全但尚未三方闭环的字段。执行时机器线索模板不再被人工改写，PDF 原页人工读数、湖北官方字段值、高校官网或章程字段值、字段确认值和复核结论统一写入私有 Overlay，再由公开 Overlay 账本同步计数和门禁。目标院校、目标专业和城市偏好仍然可以继续调整；新增方向只改变筛选和补证优先级，不改变原始数据底座。
+下一步是在全量底座上做逐字段保真复核：先处理 P0/K0 无候选字段和原页结构问题，再处理 K1 有候选待核字段，最后处理 K2 OCR 齐全但尚未三方闭环的字段。执行时机器线索模板不再被人工改写，PDF 原页人工读数、湖北官方字段值、高校官网或章程字段值、字段确认值和复核结论统一写入私有 Overlay，再由公开 Overlay 账本同步计数和门禁。目标院校、目标专业和城市地区讨论仍然可以继续调整；新增方向只改变筛选和补证优先级，不改变原始数据底座。
 
 当前第一闭环优先从 `data/working/issue19-stable-foundation-first-closure-execution-queue.csv` 开始执行，并同时参考 `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv`、`data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv`：先核 E0 冲突异常和需要双人复核的页列，页列内优先处理 P0 PDF OCR 与高校辅证冲突任务，再处理缺 PDF OCR 但已有机器坐标候选的任务，再处理仍需人工看图的任务，最后处理 P2/P3。P0 即时字段仍从 `data/working/issue19-p0-immediate-page-execution-queue.csv` 安排人工核页顺序：先核 Q0 候选冲突页列，再核 Q1 无稳定候选页列，再核 Q2 候选一致但仍需官方闭环页列，最后核 Q3 常规候选页列。这些入口只负责把原始数据核准工作排得更稳，不代表目标学校或专业已经确定。
 

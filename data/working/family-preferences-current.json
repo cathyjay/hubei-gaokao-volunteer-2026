@@ -1,11 +1,12 @@
 {
   "last_updated": "2026-06-28",
-  "preference_version": "current_round2_updated_preferences_20260628",
+  "preference_version": "current_round3_unrestricted_region_20260628",
   "privacy_note": "本文件只记录可公开的家庭偏好、体检决策摘要和候选讨论线索，不保存任何直接身份标识、截图或完整体检明细。",
   "relationship_to_previous_versions": {
     "family-preferences.json": "历史 V0 输入，保留用于复现早期家庭底线筛选表，不直接覆盖。",
     "family-preferences-expanded-2026-06-28.json": "7 万预算和中外合作专项场景输入。",
-    "round2_exports": "当前偏好已落入 issue19-round2-updated-preferences 系列导出。"
+    "round2_exports": "第二轮偏好已落入 issue19-round2-updated-preferences 系列导出。",
+    "round3_exports": "当前不限地区口径已落入 issue19-round3-unrestricted-region 系列导出。"
   },
   "school_attribute": {
     "preferred": ["公办本科"],
@@ -52,7 +53,11 @@
     "teacher_attitude": "可以了解",
     "decision_principle": "完整院校专业组内所有可能录取或调剂专业都必须可接受；不能只看想填的 6 个专业。"
   },
-  "city_preference_order": ["成都", "西安", "武汉", "北京"],
+  "city_context": {
+    "current_round_policy": "城市和地区不参与筛选、加分或名额分配，只作为展示字段和后续生活成本、交通、就业资源、实习机会、家庭接受度讨论字段。",
+    "initially_mentioned_cities": ["成都", "西安", "武汉", "北京"],
+    "note": "这些城市是早期讨论线索，不是当前候选池边界。Round3 已按不限地区口径重跑。"
+  },
   "physical_constraints_public_summary": {
     "color_vision": "色觉相关检查正常。",
     "corrected_visual_acuity": {
@@ -71,7 +76,7 @@
       "school": "西安建筑科技大学",
       "major_or_group_hint": "环境科学/环境工程方向",
       "project_type": "普通或专项待核",
-      "why_consider": "西安城市偏好，外部建议认为可冲。",
+      "why_consider": "外部建议认为可冲；城市只作为后续生活成本和就业资源讨论字段。",
       "verification_status": "待核",
       "risk_notes": "需核 2026 湖北物理类招生专业组、计划数、学费、校区、组内调剂专业和近三年波动。"
     },
@@ -89,7 +94,7 @@
       "major_or_group_hint": "04 组农业资源与环境中外合作/3+1",
       "project_type": "北京/农业/中外合作专项",
       "tuition_yuan_per_year_hint": 28000,
-      "why_consider": "北京城市偏好，农业资源与环境方向可专项了解。",
+      "why_consider": "农业资源与环境方向可专项了解；城市只作为后续生活成本和就业资源讨论字段。",
       "verification_status": "待核",
       "risk_notes": "截图费用为国内约 2.8 万线索，需核官方计划、国内外阶段费用、证书、3+1 出国要求和调剂范围。"
     },
