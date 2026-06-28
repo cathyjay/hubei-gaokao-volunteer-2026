@@ -215,7 +215,18 @@
    - 当前结论：P0 冲突包 10 个、26 条任务，其中 19 条需双人复核、26 条均有高校辅证线索；官网辅证 next20 覆盖 18 所学校；55 个重点组中 29 组建议进入下一轮重点核验。
    - 限制：该入口只安排下一批核验和补源，不确认字段事实，不允许字段写回，不作为最终志愿方案。
 
-14. Round4 重点核验55组独立入口
+14. 高校官网 next20 官方源探测账本
+   - 生成脚本：`scripts/build_issue19_school_source_next20_probe_ledger.py`
+   - 智能答疑 API 留存脚本：`scripts/fetch_issue19_next20_zhinengdayi_official_sources.py`
+   - 公开账本：`data/working/issue19-school-source-next20-official-probe-public-ledger.csv`
+   - 公开摘要：`data/working/issue19-school-source-next20-official-probe-summary.json`
+   - 智能答疑 API 公开账本：`data/working/issue19-next20-zhinengdayi-official-source-fetch-public-ledger.csv`
+   - 智能答疑 API 摘要：`data/working/issue19-next20-zhinengdayi-official-source-fetch-summary.json`
+   - 输入来源：数据基座下一批执行工作台 V1 的官网辅证 next20、2026-06-29 live 补源账本、C4/C6 已留存官网源复用审计、本地公开官方 JSON/PDF/XLSX/HTML/图片抽取源。
+   - 当前结论：next20 共 20 个任务行、18 所学校；15 个任务行已有结构化高校侧辅证，覆盖 13 所学校；4 所学校仍需继续找 2026 湖北物理类分省分专业计划源或解析入口。
+   - 限制：该账本只汇总高校侧官方源探测状态和公开计数，不公开逐专业字段值，不确认计划数、学费、选科或组边界，不允许字段写回。
+
+15. Round4 重点核验55组独立入口
    - 生成脚本：`scripts/build_issue19_round4_priority_focus55.py`
    - 工作簿：`data/exports/issue19-round4-priority-focus55.xlsx`
    - 摘要：`data/exports/issue19-round4-priority-focus55-summary.json`
@@ -226,7 +237,7 @@
    - 当前结论：从 Round4 优先 120 组压缩出 55 个重点核验组，另 65 组暂缓；55 组覆盖 48 所学校、458 条完整组内专业。
    - 限制：该入口只说明优先核验顺序、压缩理由、核验成本和调剂风险；不确认字段事实，不允许字段写回，不作为志愿推荐依据。
 
-15. P0 top3 私有复核包公开台账
+16. P0 top3 私有复核包公开台账
    - 生成脚本：`scripts/build_issue19_p0_top3_review_packet.py`
    - 公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`
    - 逐字段公开台账：`data/working/issue19-p0-top3-field-review-public-ledger.csv`

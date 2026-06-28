@@ -1,0 +1,45 @@
+{
+  "status": "issue19_next20_zhinengdayi_official_sources_retained_not_final",
+  "generated_by": "fetch_issue19_next20_zhinengdayi_official_sources.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "source_api_url": "https://admin.zhinengdayi.com/front/enroll/findEnrollPlanDetail",
+  "public_ledger": "data/working/issue19-next20-zhinengdayi-official-source-fetch-public-ledger.csv",
+  "source_count": 2,
+  "plan_row_count": 74,
+  "plan_sum": 4715,
+  "sources": [
+    {
+      "院校代码": "C125",
+      "院校名称": "武汉轻工大学",
+      "raw_output": "data/external/issue19-next20-official-sources/whpu-2026-hubei-physics-normal.json",
+      "raw_output_sha256": "54f2e470fff14357fd9d4b37a5f275f79854f806f7283aa4a3ecf6d41bfc064e",
+      "plan_row_count": 38,
+      "plan_sum": 2915,
+      "success": true,
+      "totalRows": 38,
+      "all_year_2026": true,
+      "all_province_hubei": true,
+      "subject": "物理类",
+      "policy": "高校官网API只作辅证和差异发现，不能替代湖北省招办计划或第19期PDF原页。"
+    },
+    {
+      "院校代码": "C133",
+      "院校名称": "湖北师范大学",
+      "raw_output": "data/external/issue19-next20-official-sources/hbnu-2026-hubei-physics-group-normal.json",
+      "raw_output_sha256": "c47fef6dffb040986bd71e78d567352e8456f0b119ca8ab2d029e8badff4a315",
+      "plan_row_count": 36,
+      "plan_sum": 1800,
+      "success": true,
+      "totalRows": 36,
+      "all_year_2026": true,
+      "all_province_hubei": true,
+      "subject": "物理组",
+      "policy": "高校官网API只作辅证和差异发现，不能替代湖北省招办计划或第19期PDF原页。"
+    }
+  ],
+  "official_plan_replacement_allowed": false,
+  "field_writeback_allowed": false,
+  "recommendation_basis_allowed": false,
+  "policy": "本摘要只留存高校智能答疑官网API原始源，不能替代第19期原页、湖北官方系统或省招办计划。"
+}

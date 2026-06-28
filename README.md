@@ -95,6 +95,7 @@
 - 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 高校官网辅证状态快照：`data/working/issue19-school-source-status-snapshot-public-ledger.csv` 和 `data/working/issue19-school-source-status-snapshot-summary.json`。由 `scripts/build_issue19_school_source_status_snapshot.py` 生成，把 36 所学校、80 条高校侧辅证机会任务、C4/C6 补结构化/补源包、live 补源记录和最终门禁放到同一张公开状态账本；它只用于安排自动补源、生成 diff、压缩人工核验范围，不能作为字段事实、学校专业建议或志愿推荐依据。
 - 高校官网辅证自动执行批次：`data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 和 `data/working/issue19-school-source-auto-execution-batches-summary.json`。由 `scripts/build_issue19_school_source_auto_execution_batches.py` 生成，在状态快照基础上把 80 条任务拆成 7 条推进泳道：冲突回页 17、补缺回页 8、专业名归属 12、补结构化 18、继续补计划网源 8、章程规则 16、留存观察 1；全部仍禁止字段写回、推荐和最终使用。
+- 高校官网 next20 官方源探测：`data/working/issue19-school-source-next20-official-probe-public-ledger.csv` 和 `data/working/issue19-school-source-next20-official-probe-summary.json`。由 `scripts/build_issue19_school_source_next20_probe_ledger.py` 生成，把 next20 的 20 个任务、18 所学校汇总到官方 API/PDF/XLSX/HTML/入口探测状态；当前 15 个任务行已有结构化高校侧辅证，仍只作 double check。
 - 本科普通批志愿草表 V1：`data/exports/issue19-volunteer-table-v1-draft.xlsx`。基于第二轮更新偏好候选生成，用于把 45 个院校专业组、460 条专业选择明细拆成冲刺、稳冲、稳妥和保底、高费专项批次，逐组讨论 6 个专业草案、完整组内调剂、原页核验和章程核验；全部行仍为讨论草案，不作为定稿依据。
 
 这些工作簿都不是最终志愿方案。进入家庭讨论或最终排序前，仍必须核第 19 期原页、湖北官方系统或省招办计划、高校官网/章程、完整专业组和调剂风险。

@@ -20986,6 +20986,243 @@ def main():
         and not any(token in next_execution_public_text for token in shared_forbidden_tokens),
     ))
 
+    next20_zhinengdayi_script = ROOT / "scripts/fetch_issue19_next20_zhinengdayi_official_sources.py"
+    next20_zhinengdayi_summary_path = (
+        ROOT / "data/working/issue19-next20-zhinengdayi-official-source-fetch-summary.json"
+    )
+    next20_zhinengdayi_ledger_csv = (
+        ROOT / "data/working/issue19-next20-zhinengdayi-official-source-fetch-public-ledger.csv"
+    )
+    next20_zhinengdayi_whpu_json = (
+        ROOT / "data/external/issue19-next20-official-sources/whpu-2026-hubei-physics-normal.json"
+    )
+    next20_zhinengdayi_hbnu_json = (
+        ROOT / "data/external/issue19-next20-official-sources/hbnu-2026-hubei-physics-group-normal.json"
+    )
+    next20_zhinengdayi_summary = json.loads(next20_zhinengdayi_summary_path.read_text())
+    with next20_zhinengdayi_ledger_csv.open(newline="", encoding="utf-8-sig") as f:
+        next20_zhinengdayi_reader = csv.DictReader(f)
+        next20_zhinengdayi_rows = list(next20_zhinengdayi_reader)
+        next20_zhinengdayi_fields = next20_zhinengdayi_reader.fieldnames or []
+    expected_next20_zhinengdayi_fields = script_list_constant(
+        next20_zhinengdayi_script, "PUBLIC_FIELDS"
+    )
+    next20_zhinengdayi_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [next20_zhinengdayi_summary_path, next20_zhinengdayi_ledger_csv]
+    )
+    next20_zhinengdayi_whpu = json.loads(next20_zhinengdayi_whpu_json.read_text(encoding="utf-8"))
+    next20_zhinengdayi_hbnu = json.loads(next20_zhinengdayi_hbnu_json.read_text(encoding="utf-8"))
+    next20_zhinengdayi_whpu_rows = next20_zhinengdayi_whpu.get("data", [])
+    next20_zhinengdayi_hbnu_rows = next20_zhinengdayi_hbnu.get("data", [])
+    checks.append(ok(
+        "第 19 期 next20 智能答疑官网 API 原始源摘要、规模和边界正确",
+        next20_zhinengdayi_summary.get("status")
+        == "issue19_next20_zhinengdayi_official_sources_retained_not_final"
+        and next20_zhinengdayi_summary.get("generated_by")
+        == "fetch_issue19_next20_zhinengdayi_official_sources.py"
+        and next20_zhinengdayi_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and next20_zhinengdayi_summary.get("source_api_url")
+        == "https://admin.zhinengdayi.com/front/enroll/findEnrollPlanDetail"
+        and next20_zhinengdayi_summary.get("source_count") == 2
+        and next20_zhinengdayi_summary.get("plan_row_count") == 74
+        and next20_zhinengdayi_summary.get("plan_sum") == 4715
+        and next20_zhinengdayi_summary.get("official_plan_replacement_allowed") is False
+        and next20_zhinengdayi_summary.get("field_writeback_allowed") is False
+        and next20_zhinengdayi_summary.get("recommendation_basis_allowed") is False
+        and next20_zhinengdayi_whpu.get("success") is True
+        and len(next20_zhinengdayi_whpu_rows) == 38
+        and sum(as_int(row.get("enrollNum")) for row in next20_zhinengdayi_whpu_rows) == 2915
+        and all(str(row.get("year")) == "2026" for row in next20_zhinengdayi_whpu_rows)
+        and all(row.get("cityName") == "湖北" for row in next20_zhinengdayi_whpu_rows)
+        and all(row.get("science") == "物理类" for row in next20_zhinengdayi_whpu_rows)
+        and next20_zhinengdayi_hbnu.get("success") is True
+        and len(next20_zhinengdayi_hbnu_rows) == 36
+        and sum(as_int(row.get("enrollNum")) for row in next20_zhinengdayi_hbnu_rows) == 1800
+        and all(str(row.get("year")) == "2026" for row in next20_zhinengdayi_hbnu_rows)
+        and all(row.get("cityName") == "湖北" for row in next20_zhinengdayi_hbnu_rows)
+        and all(row.get("science") == "物理组" for row in next20_zhinengdayi_hbnu_rows),
+        "WHPU 38 rows, HBNU 36 rows",
+    ))
+    checks.append(ok(
+        "第 19 期 next20 智能答疑官网 API 公开账本字段、SHA和门禁正确",
+        next20_zhinengdayi_fields == expected_next20_zhinengdayi_fields
+        and len(next20_zhinengdayi_rows) == 2
+        and {row.get("院校代码") for row in next20_zhinengdayi_rows} == {"C125", "C133"}
+        and all(row.get("本地留存文件SHA256") == sha256(ROOT / row.get("本地留存文件")) for row in next20_zhinengdayi_rows)
+        and all(row.get(field) == "false" for row in next20_zhinengdayi_rows for field in [
+            "最终可用",
+            "可进入下一阶段",
+            "是否可作为定稿依据",
+            "是否允许作为志愿推荐依据",
+            "是否允许自动写回主表",
+            "是否允许官网证据替代湖北官方计划",
+            "是否允许生成学校专业建议",
+            "是否允许写回字段事实",
+        ])
+        and {row.get("字段事实写回状态") for row in next20_zhinengdayi_rows}
+        == {"blocked_until_pdf_hubei_official_review"},
+    ))
+    checks.append(ok(
+        "第 19 期 next20 智能答疑官网 API 公开文件不含私有路径、登录态和最终误导结论",
+        "/Users/" not in next20_zhinengdayi_public_text
+        and "/home/" not in next20_zhinengdayi_public_text
+        and "/var/folders/" not in next20_zhinengdayi_public_text
+        and "/private/" not in next20_zhinengdayi_public_text
+        and "private/" not in next20_zhinengdayi_public_text
+        and "private\\" not in next20_zhinengdayi_public_text
+        and "Authorization" not in next20_zhinengdayi_public_text
+        and "Bearer " not in next20_zhinengdayi_public_text
+        and "Cookie" not in next20_zhinengdayi_public_text
+        and "access_token" not in next20_zhinengdayi_public_text
+        and "password" not in next20_zhinengdayi_public_text
+        and "secret" not in next20_zhinengdayi_public_text
+        and "人工读数" not in next20_zhinengdayi_public_text
+        and "已确认" not in next20_zhinengdayi_public_text
+        and "已核准" not in next20_zhinengdayi_public_text
+        and "最终推荐" not in next20_zhinengdayi_public_text
+        and "最终方案" not in next20_zhinengdayi_public_text
+        and "可填报" not in next20_zhinengdayi_public_text
+        and "可排序" not in next20_zhinengdayi_public_text
+        and not any(token in next20_zhinengdayi_public_text for token in shared_forbidden_tokens),
+    ))
+
+    school_next20_probe_script = ROOT / "scripts/build_issue19_school_source_next20_probe_ledger.py"
+    school_next20_probe_csv = (
+        ROOT / "data/working/issue19-school-source-next20-official-probe-public-ledger.csv"
+    )
+    school_next20_probe_summary_path = (
+        ROOT / "data/working/issue19-school-source-next20-official-probe-summary.json"
+    )
+    school_next20_probe_summary = json.loads(school_next20_probe_summary_path.read_text())
+    with school_next20_probe_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_next20_probe_reader = csv.DictReader(f)
+        school_next20_probe_rows = list(school_next20_probe_reader)
+        school_next20_probe_fields = school_next20_probe_reader.fieldnames or []
+    expected_school_next20_probe_fields = script_list_constant(
+        school_next20_probe_script, "OUTPUT_FIELDS"
+    )
+    school_next20_probe_by_order = {
+        row.get("执行建议序号", ""): row for row in school_next20_probe_rows
+    }
+    school_next20_probe_by_code = {}
+    for row in school_next20_probe_rows:
+        school_next20_probe_by_code.setdefault(row.get("院校代码", ""), []).append(row)
+    school_next20_probe_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_next20_probe_csv, school_next20_probe_summary_path]
+    )
+    checks.append(ok(
+        "第 19 期高校官网 next20 官方源探测账本摘要、规模和门禁正确",
+        school_next20_probe_summary.get("status")
+        == "issue19_school_source_next20_official_probe_not_final"
+        and school_next20_probe_summary.get("generated_by")
+        == "build_issue19_school_source_next20_probe_ledger.py"
+        and school_next20_probe_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and school_next20_probe_summary.get("source_next20")
+        == "data/exports/issue19-data-foundation-next-execution-v1-school-source-next20.csv"
+        and school_next20_probe_summary.get("output_csv")
+        == "data/working/issue19-school-source-next20-official-probe-public-ledger.csv"
+        and school_next20_probe_summary.get("next20_action_row_count")
+        == len(school_next20_probe_rows)
+        == 20
+        and school_next20_probe_summary.get("unique_school_count") == 18
+        and school_next20_probe_summary.get("structured_action_row_count") == 15
+        and school_next20_probe_summary.get("structured_unique_school_count") == 13
+        and school_next20_probe_summary.get("needs_source_unique_school_count") == 4
+        and school_next20_probe_summary.get("total_structured_hubei_rows_by_action") == 420
+        and school_next20_probe_summary.get("total_structured_physics_rows_by_action") == 389
+        and school_next20_probe_summary.get("total_plan_sum_by_action") == 8281
+        and school_next20_probe_summary.get("field_writeback_allowed_count") == 0
+        and school_next20_probe_summary.get("recommendation_basis_allowed_count") == 0
+        and school_next20_probe_summary.get("final_available_count") == 0,
+        f"{len(school_next20_probe_rows)} next20 probe rows",
+    ))
+    checks.append(ok(
+        "第 19 期高校官网 next20 官方源探测账本字段、来源和关键学校状态正确",
+        school_next20_probe_fields == expected_school_next20_probe_fields
+        and [row.get("执行建议序号") for row in school_next20_probe_rows]
+        == [str(i) for i in range(1, 21)]
+        and [row.get("院校代码") for row in school_next20_probe_rows]
+        == [row.get("院校代码") for row in next_execution_school_rows]
+        and all(row.get("来源next20执行表") == str(next_execution_school_csv.relative_to(ROOT)) for row in school_next20_probe_rows)
+        and all(row.get(field) == "false" for row in school_next20_probe_rows for field in [
+            "最终可用",
+            "可进入下一阶段",
+            "是否可作为定稿依据",
+            "是否允许作为志愿推荐依据",
+            "是否允许自动写回主表",
+            "是否允许官网证据替代湖北官方计划",
+            "是否允许生成学校专业建议",
+            "是否允许写回字段事实",
+        ])
+        and Counter(row.get("官网源探测层级") for row in school_next20_probe_rows)
+        == Counter({
+            "S0-已有官方智能答疑API湖北物理结构化源": 2,
+            "S0-已有官方API湖北物理结构化源": 7,
+            "S0-已有官网PDF抽取湖北物理结构化源": 3,
+            "S0-已有官网静态表结构化线索": 1,
+            "S0-已有官方图片转录湖北物理结构化源": 1,
+            "S0-已有官方XLSX湖北物理结构化源": 1,
+            "S1-已有官方XLSX湖北列，科类边界待核": 1,
+            "S3-仅外省计划，未取得湖北计划": 1,
+            "S3-仅入口和信息公开页，未取得结构化计划": 1,
+            "S3-仅招生工作入口，未取得结构化计划": 1,
+            "S4-官网访问失败，未取得结构化计划": 1,
+        })
+        and school_next20_probe_by_order["1"].get("官网源探测层级")
+        == "S0-已有官方智能答疑API湖北物理结构化源"
+        and as_int(school_next20_probe_by_order["1"].get("结构化湖北物理行数")) == 38
+        and as_int(school_next20_probe_by_order["1"].get("结构化计划数合计")) == 2915
+        and school_next20_probe_by_order["3"].get("官网源探测层级")
+        == "S0-已有官方智能答疑API湖北物理结构化源"
+        and as_int(school_next20_probe_by_order["3"].get("结构化湖北物理行数")) == 36
+        and as_int(school_next20_probe_by_order["3"].get("结构化计划数合计")) == 1800
+        and school_next20_probe_by_order["4"].get("院校名称") == "江汉大学"
+        and as_int(school_next20_probe_by_order["4"].get("结构化湖北物理行数")) == 51
+        and as_int(school_next20_probe_by_order["7"].get("结构化湖北物理行数")) == 25
+        and as_int(school_next20_probe_by_order["10"].get("结构化湖北相关行数")) == 31
+        and as_int(school_next20_probe_by_order["10"].get("结构化湖北物理行数")) == 0
+        and as_int(school_next20_probe_by_order["12"].get("结构化计划数合计")) == 34
+        and as_int(school_next20_probe_by_order["20"].get("结构化湖北物理行数")) == 21
+        and len(school_next20_probe_by_code.get("H450", [])) == 2
+        and len(school_next20_probe_by_code.get("C108", [])) == 2
+        and all(row.get("字段事实写回状态") == "blocked_until_pdf_hubei_official_review" for row in school_next20_probe_rows),
+    ))
+    checks.append(ok(
+        "第 19 期高校官网 next20 官方源探测公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in school_next20_probe_public_text
+        and "/home/" not in school_next20_probe_public_text
+        and "/var/folders/" not in school_next20_probe_public_text
+        and "/private/" not in school_next20_probe_public_text
+        and "private/" not in school_next20_probe_public_text
+        and "private\\" not in school_next20_probe_public_text
+        and "ocr-runs" not in school_next20_probe_public_text
+        and "rendered-pages" not in school_next20_probe_public_text
+        and "Authorization" not in school_next20_probe_public_text
+        and "Bearer " not in school_next20_probe_public_text
+        and "Cookie" not in school_next20_probe_public_text
+        and "Set-Cookie" not in school_next20_probe_public_text
+        and "access_token" not in school_next20_probe_public_text
+        and "refresh_token" not in school_next20_probe_public_text
+        and "password" not in school_next20_probe_public_text
+        and "secret" not in school_next20_probe_public_text
+        and "api_key" not in school_next20_probe_public_text
+        and "身份证" not in school_next20_probe_public_text
+        and "准考证" not in school_next20_probe_public_text
+        and "报名号" not in school_next20_probe_public_text
+        and "序列号" not in school_next20_probe_public_text
+        and "手机号" not in school_next20_probe_public_text
+        and "人工读数" not in school_next20_probe_public_text
+        and "已确认" not in school_next20_probe_public_text
+        and "已核准" not in school_next20_probe_public_text
+        and "最终推荐" not in school_next20_probe_public_text
+        and "最终方案" not in school_next20_probe_public_text
+        and "可填报" not in school_next20_probe_public_text
+        and "可排序" not in school_next20_probe_public_text
+        and not any(token in school_next20_probe_public_text for token in shared_forbidden_tokens),
+    ))
+
     p0_top3_script = ROOT / "scripts/build_issue19_p0_top3_review_packet.py"
     p0_top3_summary_path = ROOT / "data/working/issue19-p0-top3-review-packet-summary.json"
     p0_top3_public_csv = ROOT / "data/working/issue19-p0-top3-review-packet-public-ledger.csv"

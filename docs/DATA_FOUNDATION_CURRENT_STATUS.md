@@ -77,6 +77,8 @@
 - 高校官网辅证 next20，覆盖 18 所学校，优先处理高收益缺源、计划数冲突、官网补缺和专业名未匹配。
 - 55 个重点专业组的调剂风险，其中 29 组建议进入下一轮重点核验。
 
+`data/working/issue19-school-source-next20-official-probe-public-ledger.csv` 是 next20 官网源探测账本：它把 20 个任务行、18 所学校按官方 API/PDF/XLSX/HTML/入口状态汇总，当前 15 个任务行已有结构化高校侧辅证，13 所学校可进入候选 diff 和核页优先级判断；仍有 4 所学校需要继续补源或解析入口。
+
 新增的 `data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 是当前高校官网辅证自动推进总控入口。它把 36 所学校、80 条高校侧辅证任务拆成 7 条泳道：17 条冲突回页、8 条官网补缺回页、12 条专业名归属、18 条补结构化、8 条继续找高校计划网源、16 条章程规则、1 条留存观察。它只安排自动补源、结构化、候选 diff 和人工最小核验，不确认字段事实。
 
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
