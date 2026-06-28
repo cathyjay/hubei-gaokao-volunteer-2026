@@ -27400,6 +27400,217 @@ def main():
         and not any(token in first_field_fact_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_fact_scope_script = ROOT / "scripts/build_issue19_first_closure_fact_scope_gap_ledger.py"
+    first_fact_scope_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-fact-scope-gap-public-ledger.csv"
+    )
+    first_fact_scope_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-fact-scope-gap-summary.json"
+    )
+    first_fact_scope_summary = json.loads(first_fact_scope_summary_path.read_text())
+    with first_fact_scope_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_fact_scope_reader = csv.DictReader(f)
+        first_fact_scope_rows = list(first_fact_scope_reader)
+        first_fact_scope_fields = first_fact_scope_reader.fieldnames or []
+    expected_first_fact_scope_fields = script_runtime_constant(
+        first_fact_scope_script,
+        "FIELDS",
+    )
+    first_fact_scope_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_fact_scope_csv, first_fact_scope_summary_path]
+    )
+    first_fact_scope_field_rows = [
+        row for row in first_fact_scope_rows if row.get("事实域") == "字段事实"
+    ]
+    first_fact_scope_major_name_rows = [
+        row for row in first_fact_scope_rows if row.get("事实域") == "专业名归属"
+    ]
+    first_fact_scope_group_boundary_rows = [
+        row for row in first_fact_scope_rows if row.get("事实域") == "专业组边界"
+    ]
+    expected_major_name_task_ids = {
+        row.get("稳定基座第一闭环明细任务ID", "")
+        for row in first_next_action_task_rows
+        if "专业名" in row.get("执行泳道", "")
+        or "专业名" in row.get("官网辅证自动动作", "")
+    }
+    first_fact_scope_expected_fact_type_counts = {
+        "字段事实-专业计划数": 170,
+        "字段事实-学费": 105,
+        "字段事实-再选科目": 77,
+        "字段事实-待人工判定字段": 2,
+        "专业名归属事实": 48,
+        "专业组边界事实": 37,
+    }
+    first_fact_scope_join_ok = True
+    for row in first_fact_scope_rows:
+        row_id = row.get("第一闭环事实范围缺口公开账本ID", "")
+        if row.get("事实域") == "字段事实":
+            expected_id = stable_id_sha256(
+                "FIRSTSCOPE",
+                [
+                    "field",
+                    row.get("第一闭环字段事实公开账本ID", ""),
+                    row.get("字段名", ""),
+                ],
+            )
+        elif row.get("事实域") == "专业名归属":
+            expected_id = stable_id_sha256(
+                "FIRSTSCOPE",
+                [
+                    "major_name",
+                    row.get("稳定基座第一闭环明细任务ID", ""),
+                ],
+            )
+        else:
+            expected_id = stable_id_sha256(
+                "FIRSTSCOPE",
+                [
+                    "group_boundary",
+                    row.get("页码版面键", ""),
+                    row.get("稳定基座第一闭环页列包ID", ""),
+                ],
+            )
+        first_fact_scope_join_ok = (
+            first_fact_scope_join_ok
+            and row_id == expected_id
+            and row.get("来源第一闭环字段事实公开账本")
+            == "data/working/issue19-stable-foundation-first-closure-field-fact-public-ledger.csv"
+            and row.get("来源第一闭环下一步动作矩阵")
+            == "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv"
+            and row.get("来源第一闭环页列下一步动作汇总")
+            == "data/working/issue19-stable-foundation-first-closure-next-action-page-summary.csv"
+            and row.get("来源第一闭环证据状态账本")
+            == "data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv"
+            and row.get("来源第一闭环页列证据汇总")
+            == "data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_fact_scope_gap_public_ledger"
+            and row.get("事实闭环状态") == "F0-待原页与湖北官方侧闭环"
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(row.get(field) == "false" for field in first_false_fields)
+        )
+    checks.append(ok(
+        "第 19 期第一闭环事实范围缺口账本摘要、规模和事实类型正确",
+        first_fact_scope_summary.get("status")
+        == "issue19_stable_foundation_first_closure_fact_scope_gap_public_ledger_ready_not_final"
+        and first_fact_scope_summary.get("generated_by")
+        == "build_issue19_first_closure_fact_scope_gap_ledger.py"
+        and first_fact_scope_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_fact_scope_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-fact-scope-gap-public-ledger.csv"
+        and first_fact_scope_summary.get("row_count") == len(first_fact_scope_rows) == 439
+        and first_fact_scope_summary.get("source_field_fact_row_count") == len(first_field_fact_rows) == 354
+        and first_fact_scope_summary.get("source_next_action_task_count")
+        == len(first_next_action_task_rows) == 206
+        and first_fact_scope_summary.get("source_page_side_count")
+        == len(first_next_action_page_rows) == 37
+        and first_fact_scope_summary.get("field_fact_atom_count")
+        == len(first_fact_scope_field_rows) == 354
+        and first_fact_scope_summary.get("major_name_assignment_fact_count")
+        == len(first_fact_scope_major_name_rows) == 48
+        and first_fact_scope_summary.get("group_boundary_fact_count")
+        == len(first_fact_scope_group_boundary_rows) == 37
+        and first_fact_scope_summary.get("unique_task_count") == 206
+        and first_fact_scope_summary.get("unique_page_side_count") == 37
+        and first_fact_scope_summary.get("fact_domain_counts")
+        == {"字段事实": 354, "专业名归属": 48, "专业组边界": 37}
+        and first_fact_scope_summary.get("fact_type_counts")
+        == first_fact_scope_expected_fact_type_counts
+        and first_fact_scope_summary.get("fact_closure_status_counts")
+        == {"F0-待原页与湖北官方侧闭环": 439}
+        and first_fact_scope_summary.get("pdf_pending_fact_count") == 439
+        and first_fact_scope_summary.get("hubei_official_pending_fact_count") == 439
+        and first_fact_scope_summary.get("double_review_required_fact_count") == 146
+        and first_fact_scope_summary.get("manual_image_required_fact_count") == 152
+        and first_fact_scope_summary.get("field_writeback_ready_count") == 0
+        and first_fact_scope_summary.get("recommendation_basis_allowed_count") == 0
+        and first_fact_scope_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_fact_scope_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_fact_scope_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环事实范围缺口账本字段、回链和门禁正确",
+        first_fact_scope_fields == expected_first_fact_scope_fields
+        and len({row.get("第一闭环事实范围缺口公开账本ID") for row in first_fact_scope_rows}) == 439
+        and [as_int(row.get("事实序号")) for row in first_fact_scope_rows] == list(range(1, 440))
+        and {
+            row.get("第一闭环字段事实公开账本ID", "")
+            for row in first_fact_scope_field_rows
+        } == {row.get("第一闭环字段事实公开账本ID", "") for row in first_field_fact_rows}
+        and {
+            row.get("稳定基座第一闭环明细任务ID", "")
+            for row in first_fact_scope_major_name_rows
+        } == expected_major_name_task_ids
+        and {
+            row.get("页码版面键", "")
+            for row in first_fact_scope_group_boundary_rows
+        } == set(first_next_action_by_page_key)
+        and all(row.get("是否字段事实") == "true" for row in first_fact_scope_field_rows)
+        and all(row.get("是否专业名归属事实") == "true" for row in first_fact_scope_major_name_rows)
+        and all(row.get("是否专业组边界事实") == "true" for row in first_fact_scope_group_boundary_rows)
+        and all(row.get(field) == "false" for row in first_fact_scope_rows for field in first_false_fields)
+        and first_fact_scope_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环事实范围缺口账本不含私有路径、字段值、登录态和最终误导结论",
+        "/Users/" not in first_fact_scope_public_text
+        and "/home/" not in first_fact_scope_public_text
+        and "/var/folders/" not in first_fact_scope_public_text
+        and "/private/" not in first_fact_scope_public_text
+        and "private/" not in first_fact_scope_public_text
+        and "private\\" not in first_fact_scope_public_text
+        and "ocr-runs" not in first_fact_scope_public_text
+        and "rendered-pages" not in first_fact_scope_public_text
+        and "file://" not in first_fact_scope_public_text
+        and ".png" not in first_fact_scope_public_text
+        and ".jpg" not in first_fact_scope_public_text
+        and ".jpeg" not in first_fact_scope_public_text
+        and ".webp" not in first_fact_scope_public_text
+        and ".tif" not in first_fact_scope_public_text
+        and ".tiff" not in first_fact_scope_public_text
+        and ".heic" not in first_fact_scope_public_text
+        and "Authorization" not in first_fact_scope_public_text
+        and "Bearer " not in first_fact_scope_public_text
+        and "Cookie" not in first_fact_scope_public_text
+        and "Set-Cookie" not in first_fact_scope_public_text
+        and "access_token" not in first_fact_scope_public_text
+        and "refresh_token" not in first_fact_scope_public_text
+        and "password" not in first_fact_scope_public_text
+        and "secret" not in first_fact_scope_public_text
+        and "api_key" not in first_fact_scope_public_text
+        and "身份证" not in first_fact_scope_public_text
+        and "准考证" not in first_fact_scope_public_text
+        and "报名号" not in first_fact_scope_public_text
+        and "序列号" not in first_fact_scope_public_text
+        and "手机号" not in first_fact_scope_public_text
+        and "院校名称" not in first_fact_scope_public_text
+        and "专业名称" not in first_fact_scope_public_text
+        and "专业代号" not in first_fact_scope_public_text
+        and "院校专业组" not in first_fact_scope_public_text
+        and "候选值" not in first_fact_scope_public_text
+        and "字段确认值" not in first_fact_scope_public_text
+        and "人工读数" not in first_fact_scope_public_text
+        and "PDF原页人工读数" not in first_fact_scope_public_text
+        and "湖北官方字段值" not in first_fact_scope_public_text
+        and "高校官网或招生章程字段值" not in first_fact_scope_public_text
+        and "复核备注" not in first_fact_scope_public_text
+        and "已确认" not in first_fact_scope_public_text
+        and "已核准" not in first_fact_scope_public_text
+        and "最终推荐" not in first_fact_scope_public_text
+        and "最终方案" not in first_fact_scope_public_text
+        and "可填报" not in first_fact_scope_public_text
+        and "可排序" not in first_fact_scope_public_text
+        and not any(token in first_fact_scope_public_text for token in shared_forbidden_tokens),
+    ))
+
     first_evidence_map_script = ROOT / "scripts/build_issue19_first_closure_public_evidence_map.py"
     first_evidence_map_csv = (
         ROOT / "data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv"

@@ -1,0 +1,54 @@
+{
+  "status": "issue19_stable_foundation_first_closure_fact_scope_gap_public_ledger_ready_not_final",
+  "generated_by": "build_issue19_first_closure_fact_scope_gap_ledger.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_first_closure_field_fact_public_ledger": "data/working/issue19-stable-foundation-first-closure-field-fact-public-ledger.csv",
+  "source_first_closure_next_action_matrix": "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv",
+  "source_first_closure_next_action_page_summary": "data/working/issue19-stable-foundation-first-closure-next-action-page-summary.csv",
+  "source_first_closure_evidence_status": "data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv",
+  "source_first_closure_evidence_page_summary": "data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv",
+  "output_table": "data/working/issue19-stable-foundation-first-closure-fact-scope-gap-public-ledger.csv",
+  "row_grain": "第一闭环事实范围缺口",
+  "row_count": 439,
+  "source_field_fact_row_count": 354,
+  "source_next_action_task_count": 206,
+  "source_page_side_count": 37,
+  "field_fact_atom_count": 354,
+  "major_name_assignment_fact_count": 48,
+  "group_boundary_fact_count": 37,
+  "unique_task_count": 206,
+  "unique_page_side_count": 37,
+  "fact_domain_counts": {
+    "字段事实": 354,
+    "专业名归属": 48,
+    "专业组边界": 37
+  },
+  "fact_type_counts": {
+    "字段事实-专业计划数": 170,
+    "字段事实-学费": 105,
+    "字段事实-再选科目": 77,
+    "字段事实-待人工判定字段": 2,
+    "专业名归属事实": 48,
+    "专业组边界事实": 37
+  },
+  "fact_gap_counts": {
+    "G0-关键字段待闭环": 354,
+    "G1-专业名归属待闭环": 48,
+    "G2-专业组边界待闭环": 37
+  },
+  "fact_closure_status_counts": {
+    "F0-待原页与湖北官方侧闭环": 439
+  },
+  "pdf_pending_fact_count": 439,
+  "hubei_official_pending_fact_count": 439,
+  "double_review_required_fact_count": 146,
+  "manual_image_required_fact_count": 152,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该公开账本只说明第一闭环还缺哪些事实范围，不公开学校专业明细和字段明细值，不写回字段，不生成志愿排序。"
+}
