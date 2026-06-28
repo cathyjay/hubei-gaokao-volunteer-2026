@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="renderer" content="webkit" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>浙江工业大学本科招生网</title>
+<script type="text/javascript" src="../jsp/js/jquery.min.js"></script>
+<script type="text/javascript" src="../jsp/js/jquery.SuperSlide.2.1.js"></script>
+
+<link href="../jsp/css/web.css" rel="stylesheet" type="text/css" id="cssfile"/>
+<link href="../jsp/css/superslide.css" rel="stylesheet" type="text/css" id="cssfile"/>
+    <style type="text/css">
+		.news1content
+		{
+			font: normal 18px Microsoft YaHei,Georgia,Serif;
+		}
+    </style>
+<!--[if IE 7]>
+<link rel="stylesheet" href="../plugins/Font-Awesome-3.2.1/css/font-awesome-ie7.min.css">
+<![endif]-->
+</head>
+
+<body>
+
+
+
+<link href="../jsp/css/web.css" rel="stylesheet" type="text/css" id="cssfile"/>
+<script type="text/javascript" src="../jsp/js/jquery.md5.js"></script>
+<!--顶部-->
+
+		<style type="text/css">
+		/* css 重置 */
+		*{margin:0; padding:0; list-style:none; }
+		img{ border:0;  }
+		a{ text-decoration:none; color:#333;  }
+		a:hover{ color:#1974A1;  }
+#searchtable a{color:#fff;}
+
+		</style>
+
+
+	<!--导航-->
+    <div class="headertop">
+		<div class="headertop_in">
+			<div class="top2">
+			<div id="logo"><img src="../jsp/images/logo.png" width="425" height="100" style="margin-top:10px;"/></div>
+			<table width="400" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px; float: right;" id="searchtable">
+			  <tr>
+				<td align="right"><div class="search">
+				<input type="text" id="keyword" name="keyword" class="text"  value="请输入查询关键字" onfocus="if(value=='请输入查询关键字') {value=''}" onblur="if(value==''){value='请输入查询关键字'}" style="width: 170px; height: 30px;"/>
+				<input type="button" id="btnSearch" class="btn" value="" onclick="searchDocument();"/></div></td>
+			  </tr>
+			  </table>
+			</div>
+			<div id="top2_1">
+
+			  <ul id="nav" class="nav clearfix">
+				<li class="nLi">
+				  <h3><a href="index.html" target="_blank">首页</a></h3>
+				</li>
+				<li class="nLi "><h3><a href='../jsp/../html/w1_1.html'>聚焦工大</a></h3><ul class='sub'><li><a href='../jsp/../html/w16_1.html'>学校概况</a></li><li><a href='../jsp/../html/w20_1.html'>学科专业建设</a></li><li><a href='../jsp/../html/w73_1.html'>影像工大</a></li><li><a href='../jsp/../html/w17_1.html'>校园风光</a></li></ul></li><li class="nLi "><h3><a href='../jsp/../html/w2_1.html'>院系专业</a></h3><ul class='sub'><li><a href='../jsp/../html/w38_1.html'>院系纵览</a></li><li><a href='../jsp/../html/w18_1.html'>专业介绍</a></li><li><a href='../jsp/../html/w82_1.html'>工大教授话专业</a></li><li><a href='../jsp/../html/w84_1.html'>专业密码</a></li></ul></li><li class="nLi "><h3><a href='../jsp/../html/w3_1.html'>报考指南</a></h3><ul class='sub'><li><a href='../jsp/../html/w23_1.html'>招生章程</a></li><li><a href='../jsp/../html/w26_1.html'>招生计划</a></li><li><a href='../jsp/../html/w71_1.html'>答考生问</a></li><li><a href='../jsp/../html/w47_1.html'>“三位一体”招生章程</a></li><li><a href='../jsp/../html/w31_1.html'>美术类招生简章</a></li><li><a href='../jsp/../html/w30_1.html'>播音主持招生简章</a></li><li><a href='../jsp/../html/w32_1.html'>高水平运动员招生简章</a></li><li><a href='../jsp/../html/w85_1.html'>港澳台招生简章</a></li><li><a href='../jsp/../html/w218_1.html'>第二学士学位招生简章</a></li></ul></li><li class="nLi "><h3><a href='../jsp/../html/w28_1.html'>历年统计</a></h3><ul class='sub'><li><a href='https://zs.zjut.edu.cn/jsp/lnzssearch.jsp'>历年录取查询系统</a></li></ul></li><li class="nLi "><h3><a href='../jsp/../html/w9_1.html'>报名系统</a></h3><ul class='sub'><li><a href='http://www.swyt.zjut.edu.cn/swytyun_2xw/apply/main.jsp'>第二学士学位报考系统</a></li><li><a href='http://www.swyt.zjut.edu.cn/swytyun/apply/main.jsp'>三位一体报名系统</a></li></ul></li>
+			  </ul>
+			  <script id="jsID" type="text/javascript">
+
+				jQuery("#nav").slide({
+					type:"menu",// 效果类型，针对菜单/导航而引入的参数（默认slide）
+					titCell:".nLi", //鼠标触发对象
+					targetCell:".sub", //titCell里面包含的要显示/消失的对象
+					effect:"slideDown", //targetCell下拉效果
+					delayTime:300 , //效果时间
+					triggerTime:0, //鼠标延迟触发时间（默认150）
+					returnDefault:true //鼠标移走后返回默认状态，例如默认频道是“预告片”，鼠标移走后会返回“预告片”（默认false）
+				});
+			  </script>
+			</div>
+		</div>
+
+
+    </div>
+
+<script type="text/javascript">
+//快速链接
+
+function searchDocument(){
+	var keyword = document.getElementById("keyword").value;
+	if(keyword==""){
+		alert("请输入搜索关键字！");
+		return false;
+	}
+	console.info(keyword);
+	console.info($.md5(encodeURI(keyword)));
+	var key = $.md5(encodeURI(keyword));
+
+	var url = '/jsp/newssearch.jsp?search='+encodeURI(keyword)+'&key='+key;
+	window.location.href=url;
+}
+</script>
+
+
+
+<div id="banner2" style="background:url(/zjutzsnews//upload/image/2020/0210/1581328905145008390.jpg);background-size:cover;"></div>
+
+<div id="mainbody">
+
+<div id="bigbox1">
+
+
+
+
+	<!--底部-->
+
+
+
+			<div class="panel" id="bboxnews1">
+				<ul>
+				<li id="classname">报考指南</li>
+					<li id='bli'><a href=../jsp/../html/w23_1.html>招生章程</a></li>
+				    <li id='bli2'><a href=../jsp/../html/w26_1.html>招生计划</a></li>
+				    <li id='bli'><a href=../jsp/../html/w71_1.html>答考生问</a></li>
+				    <li id='bli'><a href=../jsp/../html/w47_1.html>“三位一体”招生章程</a></li>
+				    <li id='bli'><a href=../jsp/../html/w31_1.html>美术类招生简章</a></li>
+				    <li id='bli'><a href=../jsp/../html/w30_1.html>播音主持招生简章</a></li>
+				    <li id='bli'><a href=../jsp/../html/w32_1.html>高水平运动员招生简章</a></li>
+				    <li id='bli'><a href=../jsp/../html/w85_1.html>港澳台招生简章</a></li>
+				    <li id='bli'><a href=../jsp/../html/w218_1.html>第二学士学位招生简章</a></li>
+
+				</ul>
+			</div>
+
+			<br/>
+
+
+</div>
+
+
+<div id="bigbox2">
+<div id="newsbox">
+<div id="news1">
+<div id="boxtitle3"><li><i class="icon-home"></i><a href='../html/index.html'>首页</a>/</li><li><a href='../jsp/../html/w3_1.html'>报考指南</a>/</li><li><a href='../jsp/../html/w26_1.html'>招生计划</a>/</li></div>
+
+        <div class="news1title">浙江工业大学2026年本科分省分专业招生计划表</div>
+        <div class="news1info">
+        作者：系统管理员
+        发布日期：2026-06-18
+        浏览次数：<script src="../jsp/counter.jsp?neId=2569&count=true"></script>
+        </div>
+
+
+<br/>
+
+		<div id="news1content" class="news1content"><p>我校2026年计划招生5458人，其中浙江省内3396人，包括“三位一体”综合评价招生500人，普通类提前（教育学类）155人，普通类专业2482人，艺术类（设计学类、播音与主持艺术）98人，省内地方专项计划99人，中外合作办学专业62人。面向浙江省以外的30个省（市、自治区）计划招生2010人。另不分省招生计划52人。</p><p><br/></p><p style="line-height: 16px;"><img style="vertical-align: middle; margin-right: 2px;" src="https://zs.zjut.edu.cn/plugins/ueditor/dialogs/attachment/fileTypeImages/icon_pdf.gif"/><a style="color: rgb(0, 102, 204); font-size: 20px; text-decoration: underline;" href="/ueditor/jsp/upload/file/20260619/1781834218425078385.pdf" title="浙江工业大学2026年普通类提前本科分专业招生计划表（浙江省）.pdf"><span style="font-size: 20px;">浙江工业大学2026年普通类提前本科分专业招生计划表（浙江省）.pdf</span></a></p><p style="line-height: 16px;"><img style="vertical-align: middle; margin-right: 2px;" src="https://zs.zjut.edu.cn/plugins/ueditor/dialogs/attachment/fileTypeImages/icon_pdf.gif"/><a style="color: rgb(0, 102, 204); font-size: 20px; text-decoration: underline;" href="/ueditor/jsp/upload/file/20260619/1781834371782007072.pdf" title="浙江工业大学2026年普通类本科分专业招生计划表（浙江省）.pdf"><span style="font-size: 20px;">浙江工业大学2026年普通类本科分专业招生计划表（浙江省）.pdf</span></a></p><p style="line-height: 16px;"><img style="vertical-align: middle; margin-right: 2px;" src="https://zs.zjut.edu.cn/plugins/ueditor/dialogs/attachment/fileTypeImages/icon_pdf.gif"/><a style="color: rgb(0, 102, 204); font-size: 20px; text-decoration: underline;" href="/ueditor/jsp/upload/file/20260618/1781778115928094589.pdf" title="浙江工业大学2026年艺术类分专业招生计划表（浙江省）.pdf"><span style="font-size: 20px;">浙江工业大学2026年艺术类分专业招生计划表（浙江省）.pdf</span></a></p><p style="line-height: 16px;"><img style="vertical-align: middle; margin-right: 2px;" src="https://zs.zjut.edu.cn/plugins/ueditor/dialogs/attachment/fileTypeImages/icon_pdf.gif"/><a style="color: rgb(0, 102, 204); font-size: 20px; text-decoration: underline;" href="/ueditor/jsp/upload/file/20260618/1781777775637059419.pdf" title="浙江工业大学2026年浙江省外本科分省分专业招生计划表.pdf"><span style="font-size: 20px;">浙江工业大学2026年浙江省外本科分省分专业招生计划表.pdf</span></a></p><p style="white-space: normal; line-height: 16px;"><br/></p><p>*最终招生计划以上级主管部门公布为准</p></div>
+
+
+</div>
+</div>
+<div id="pager">
+	<ul>
+
+	  <li id="pagerleft"><a href="../jsp/news.jsp?neId=2528">上一篇</a></li>
+
+
+	</ul>
+</div>
+
+</div>
+
+</div>
+
+
+<link href="../jsp/css/web.css" rel="stylesheet" type="text/css" id="cssfile"/>
+
+<!--底部-->
+<div id="bottom">
+	<div id="bottom1">
+<div id="hotlink">
+<table height="215" border="0" cellspacing="10">
+  <tr>
+    <td valign="top" style="width:300px;">
+	<span>常用链接</span>
+		<ul>
+
+		<li ><a href="https://www.zjzs.net" target="_blank">浙江省教育考试院  </a></li>
+
+		<li ><a href="http://www.zjut.edu.cn" target="_blank">浙江工业大学</a></li>
+
+		<li ><a href="http://xgb.zjc.zjut.edu.cn/zs/" target="_blank">浙江工业大学之江学院招生网</a></li>
+
+		<li ><a href="https://www.zzjc.edu.cn/" target="_blank">浙江工业大学之江学院</a></li>
+
+        </ul>
+    </td>
+    <td style="background: url(../jsp/images/web_44.jpg) left;background-repeat: no-repeat;padding:20px">
+		地址：浙江省杭州市潮王路18号<br>
+		电话：0571-88320032，88320501（传真）<br>
+		邮箱：zsb@zjut.edu.cn </td>
+    <td style="background: url(../jsp/images/web_44.jpg) left;background-repeat: no-repeat;padding:20px"><p>版权所有 浙江工业大学招生办公室</p>
+      <p>浙ICP备06055204号<br>
+      建议使用1024*768以上分辨率<br>
+      IE9.0以上版本浏览器
+      </p></td>
+    <td align="right"><img src="../jsp/images/web_48.jpg" width="75" height="75" /></td>
+    <td align="right"><img src="../jsp/images/web_50.jpg" width="75" height="75" /></td>
+  </tr>
+</table>
+
+
+
+</div>
+     </div>
+</div>
+
+
+<script type="text/javascript">
+//处理编辑器字体大小
+window.onload=function(){
+	var ps=document.getElementById('news1content').getElementsByTagName('span');
+	var p=document.getElementById('news1content').getElementsByTagName('p');
+	for(var i=0;i<ps.length;i++){
+		ps[i].style.fontSize="18px";
+		ps[i].style.fontFamily="Microsoft YaHei,Georgia,Serif";
+	}
+	for(var i=0;i<p.length;i++){
+		p[i].style.fontSize="18px";
+		p[i].style.fontFamily="Microsoft YaHei,Georgia,Serif";
+	}
+}
+</script>
+</body>
+
+</html>

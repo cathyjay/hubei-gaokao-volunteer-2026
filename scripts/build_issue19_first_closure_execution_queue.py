@@ -426,7 +426,7 @@ def main():
         "school_major_suggestion_allowed_count": 0,
         "official_plan_replacement_allowed_count": 0,
         "policy": {
-            "purpose": "把第一闭环36个页列排成可执行核验顺序，减少人工在多个账本之间跳转。",
+            "purpose": f"把第一闭环{len(rows)}个页列排成可执行核验顺序，减少人工在多个账本之间跳转。",
             "public_boundary": "公开表只保存页列排序、计数、证据编号、SHA、完成条件和门禁，不保存候选值或私有记录值。",
             "no_finalization": "执行队列不确认字段事实，不自动写回，不生成学校专业建议。",
         },

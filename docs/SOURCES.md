@@ -124,13 +124,13 @@
    - 官方结构化计划暂不可得时的替代保真策略：第 19 期 PDF 原页仍是省招办原件层，高校官网/API/XLSX/PDF/图片只做自动 double check；最终候选、冲稳保边界、B0/B1 组、计划数冲突、官网未匹配、字段空缺但进入候选的专业必须 100% 回看原页并尽量核湖北官方系统。低风险辅证只做分层抽检，抽检出现结构错误、计划数冲突、关键限定词丢失、物理/历史未拆分、官网不是 2026 湖北物理普通本科、同组有家庭不能接受专业等情况时，升级同页列、同校或同组 100% 人工核验。
    - 自动核验优先级：优先抓高校官网的 API/JSON/XLSX，其次 HTML 表格，再其次 PDF 或图片计划；所有自动结果只作为字段候选、冲突提示或抽检样本，不能直接生成最终字段事实。
    - 人工核验降载方式：家庭或人工只集中签认最终候选完整专业组、冲稳保边界、红色冲突项和抽检失败升级项；不把 41208 个字段全部摊给人工逐项核对。
-   - C4/C6 高校源刷新执行包：`data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv`，把 36 个 C4/C6 学校侧任务单独拆成公开执行包，并在 Git 忽略目录生成 607 条私有逐专业补源/补结构化明细；公开层只保存包级计数、泳道、集合 SHA 和私有 CSV SHA。
-   - 抽样门禁表：`data/working/issue19-official-unavailable-sampling-gates.csv`，用于在湖北官方结构化计划暂不可得时，把 78 条高校侧任务和 25 条 P3 低风险抽样明细变成可执行的 100% 核验、自动 diff、分层抽检和失败升级规则。
-   - 抽样执行明细表：`data/working/issue19-official-unavailable-sampling-execution-detail.csv`，把抽样门禁下沉到 153 条逐专业明细，作为高风险 100% 核验、C2 强辅证抽样和 P3 低风险抽样的逐行执行入口。
-   - 抽样复核 Overlay 公开账本：`data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv`，把 153 条执行明细接到本地私有复核表；公开层只保存 SHA、状态和计数，不保存学校专业明细、字段读数或人工备注。
-   - 抽样页列核验包公开账本：`data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv`，把 153 条抽样复核明细压缩成 46 个 `PDF页码×版面列` 私有核页包；公开层只保存页列计数、证据编号、SHA 和非最终状态，不保存页图、OCR 行、学校专业明细或人工记录。
+   - C4/C6 高校源刷新执行包：`data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv`，把 36 个 C4/C6 学校侧任务单独拆成公开执行包，并在 Git 忽略目录生成 601 条私有逐专业补源/补结构化明细；公开层只保存包级计数、泳道、集合 SHA 和私有 CSV SHA。
+   - 抽样门禁表：`data/working/issue19-official-unavailable-sampling-gates.csv`，用于在湖北官方结构化计划暂不可得时，把 80 条高校侧任务和 25 条 P3 低风险抽样明细变成可执行的 100% 核验、自动 diff、分层抽检和失败升级规则。
+   - 抽样执行明细表：`data/working/issue19-official-unavailable-sampling-execution-detail.csv`，把抽样门禁下沉到 155 条逐专业明细，作为高风险 100% 核验、C2 强辅证抽样和 P3 低风险抽样的逐行执行入口。
+   - 抽样复核 Overlay 公开账本：`data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv`，把 155 条执行明细接到本地私有复核表；公开层只保存 SHA、状态和计数，不保存学校专业明细、字段读数或人工备注。
+   - 抽样页列核验包公开账本：`data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv`，把 155 条抽样复核明细压缩成 46 个 `PDF页码×版面列` 私有核页包；公开层只保存页列计数、证据编号、SHA 和非最终状态，不保存页图、OCR 行、学校专业明细或人工记录。
    - 抽样页列执行队列：`data/working/issue19-official-unavailable-sampling-review-execution-queue.csv`，把 46 个页列核验包按 E0-E4 风险泳道排序，公开层只保存页列顺序、计数、证据编号、SHA、升级规则和非最终门禁。
-   - 抽样私有预填公开审计：`data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv`，把 46 个页列执行队列接到 Git 忽略的私有预填工作台；私有层预填 153 条明细的高校官网、OCR 和字段线索，公开层只保存页列计数、16 个高校来源文件聚合计数、私有 CSV SHA 和非最终门禁。
+   - 抽样私有预填公开审计：`data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv`，把 46 个页列执行队列接到 Git 忽略的私有预填工作台；私有层预填 155 条明细的高校官网、OCR 和字段线索，公开层只保存页列计数、17 个高校来源文件聚合计数、私有 CSV SHA 和非最终门禁。
 
 7. 《湖北招生考试》第 16/19 期专项检索
    - 检索记录：`docs/HUBEI_ADMISSION_MAGAZINE_SEARCH.md`
@@ -161,7 +161,7 @@
 10. 候选 V3 B0/B1 官网/API 交叉校验源
    - 来源状态种子：`data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv`
    - 本地留存目录：`data/external/issue19-b0-b1-official-sources/`
-   - 已留存来源：成都信息工程大学静态招生计划页，江汉大学、西安邮电大学、西安财经大学、西安医学院、中国传媒大学、山东大学、兰州大学、西北民族大学、天津外国语大学等官网/API 返回，杭州电子科技大学 XLSX，忻州师范学院、山东工商学院 PDF 原件及抽取表，江苏理工学院官方计划图和转录表，南宁学院官网静态计划表，武汉商学院分省分专业来源计划表和本科专业招生计划一览表，喀什大学 XLSX，以及若干仅能作为入口或章程线索的页面。
+   - 已留存来源：成都信息工程大学静态招生计划页，江汉大学、西安邮电大学、西安财经大学、西安医学院、中国传媒大学、山东大学、兰州大学、西北民族大学、天津外国语大学等官网/API 返回，杭州电子科技大学 XLSX，浙江工业大学 PDF 原件及抽取表，忻州师范学院、山东工商学院 PDF 原件及抽取表，江苏理工学院官方计划图和转录表，南宁学院官网静态计划表，武汉商学院分省分专业来源计划表和本科专业招生计划一览表，喀什大学 XLSX，以及若干仅能作为入口或章程线索的页面。
    - 当前状态：7 所学校为可复用高校官网湖北计划源，16 所为部分可核线索，8 所仍需继续补高校官网计划或章程来源，5 所目前只有章程/规则或不可用计划线索。
    - 已结构化到逐专业证据匹配表的来源类型：官网 AJAX/API JSON、官网静态 HTML 表、官网 XLSX、PDF 表格抽取留存 CSV、官方计划图转录 CSV、官网双表联合抽取。
    - 限制：高校官网/API/计划图只作为交叉校验证据；没有湖北院校专业组边界的来源只能核专业、计划、学费、校区或备注，不能单独证明调剂范围。武汉商学院官网“湖北”列遇到“历史或物理”等未拆分科类时，只用于核专业名、学费和选科，不作为物理类计划数。山东工商学院 PDF 的专业名列不是 PDF 文本，已用渲染图 OCR 专业名和 PDF 网格数字列双通道抽取，并保留审计表；仍需第 19 期原页和湖北官方系统闭环。
@@ -178,27 +178,27 @@
 - `data/working/issue19-official-public-entry-status.json`：第 19 期底座相关官方公开入口状态快照，记录湖北教育考试网计划页/索引页 SHA、平台无登录 401 探针和当前不能直接定稿的边界。
 - `data/working/issue19-official-public-entry-live-recheck.json`：第 19 期底座相关官方公开入口活体复查结果，记录当前公开入口 SHA 是否与留存一致、无登录接口是否仍返回 401，以及当前不能自动取得湖北官方结构化计划的边界。
 - `data/working/issue19-official-unavailable-sampling-gates.csv`：湖北官方结构化计划暂不可得时的高校侧 double check 和分层抽样门禁表；高风险 100% 人工核验，低风险抽检失败后升级同页列、同校或同组。
-- `data/working/issue19-official-unavailable-sampling-gates-summary.json`：上述抽样门禁摘要，记录 103 行门禁、C0/C1/C7 100% 核验明细数、C2 最低抽检明细数、P3 抽样数和全部非最终门禁。
-- `data/working/issue19-official-unavailable-sampling-execution-detail.csv`：官方不可得时的逐专业抽样执行明细，覆盖 104 条高风险 100% 核验明细、24 条 C2 强辅证抽样明细和 25 条 P3 低风险抽样明细。
-- `data/working/issue19-official-unavailable-sampling-execution-detail-summary.json`：上述执行明细摘要，记录 153 行逐专业明细、动作分布、风险分布、双人复核数和全部非最终门禁。
-- `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv`：官方不可得时的 153 条抽样执行明细复核 Overlay 公开账本；只保存本地复核表记录 SHA、三类证据填写计数、抽检失败/升级状态和非最终门禁。
-- `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger-summary.json`：上述公开账本摘要，记录 153 条 Overlay 记录、104/24/25 分层、49 条双人复核要求、初始 R0 状态和全部不可写回/不可推荐门禁。
-- `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv`：官方不可得时的抽样页列核验包公开账本，46 行；把 153 条抽样复核明细按 `PDF页码×版面列` 聚合，覆盖 40 个 PDF 页，只公开页列计数、证据编号、私有 CSV/HTML SHA、OCR 行数和非最终门禁。
-- `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger-summary.json`：上述页列包摘要，记录 46 个页列包、153 条抽样明细、104 条高风险 100% 核验、24 条 C2 抽样、25 条 P3 抽样、49 条双人复核和全部 R0 未填写状态。
+- `data/working/issue19-official-unavailable-sampling-gates-summary.json`：上述抽样门禁摘要，记录 105 行门禁、C0/C1/C7 100% 核验明细数、C2 最低抽检明细数、P3 抽样数和全部非最终门禁。
+- `data/working/issue19-official-unavailable-sampling-execution-detail.csv`：官方不可得时的逐专业抽样执行明细，覆盖 105 条高风险 100% 核验明细、25 条 C2 强辅证抽样明细和 25 条 P3 低风险抽样明细。
+- `data/working/issue19-official-unavailable-sampling-execution-detail-summary.json`：上述执行明细摘要，记录 155 行逐专业明细、动作分布、风险分布、双人复核数和全部非最终门禁。
+- `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger.csv`：官方不可得时的 155 条抽样执行明细复核 Overlay 公开账本；只保存本地复核表记录 SHA、三类证据填写计数、抽检失败/升级状态和非最终门禁。
+- `data/working/issue19-official-unavailable-sampling-review-overlay-public-ledger-summary.json`：上述公开账本摘要，记录 155 条 Overlay 记录、105/25/25 分层、50 条双人复核要求、初始 R0 状态和全部不可写回/不可推荐门禁。
+- `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger.csv`：官方不可得时的抽样页列核验包公开账本，46 行；把 155 条抽样复核明细按 `PDF页码×版面列` 聚合，覆盖 40 个 PDF 页，只公开页列计数、证据编号、私有 CSV/HTML SHA、OCR 行数和非最终门禁。
+- `data/working/issue19-official-unavailable-sampling-review-packets-public-ledger-summary.json`：上述页列包摘要，记录 46 个页列包、155 条抽样明细、105 条高风险 100% 核验、25 条 C2 抽样、25 条 P3 抽样、50 条双人复核和全部 R0 未填写状态。
 - `data/working/issue19-official-unavailable-sampling-review-execution-queue.csv`：官方不可得时的抽样页列核验执行队列，46 行；按页列包生成 E0-E4 执行泳道和总序，人工优先核冲突/错位、官网未匹配、官网补缺候选，再核强辅证和低风险抽检。
-- `data/working/issue19-official-unavailable-sampling-review-execution-queue-summary.json`：上述执行队列摘要，记录 46 个页列包、153 条抽样明细、104 条高风险 100% 核验、128 条需高校辅证、25 条待补源，以及 E0/E1/E2/E3/E4 为 6/11/3/2/24。
-- `data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv`：官方不可得时的抽样私有预填公开审计，46 行；把页列执行队列接到私有预填工作台，公开层只保存页列级计数、16 个高校来源文件聚合计数、私有 CSV SHA 和全部非最终门禁。
-- `data/working/issue19-official-unavailable-sampling-triage-prefill-summary.json`：上述预填公开审计摘要，记录 153 条私有预填明细、97 条高校辅证线索、16 个高校来源文件、128 条需高校辅证复核、25 条待补源，以及字段写回/推荐/下一阶段/最终可用计数均为 0。
-- `data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv`：C4/C6 高校源刷新执行包，36 行；把 411 条 C4 补结构化明细和 196 条 C6 继续补源明细拆成可并行执行的学校包，公开层只保存计数、泳道、集合 SHA、私有 CSV SHA 和非最终门禁。
-- `data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json`：上述执行包摘要，记录 30 所学校、36 个包、607 条私有逐专业明细、X0/X1/X2/X3 泳道分布，以及所有字段写回/推荐/下一阶段/最终可用计数均为 0。
+- `data/working/issue19-official-unavailable-sampling-review-execution-queue-summary.json`：上述执行队列摘要，记录 46 个页列包、155 条抽样明细、105 条高风险 100% 核验、130 条需高校辅证、25 条待补源，以及 E0/E1/E2/E3/E4 为 7/11/3/2/23。
+- `data/working/issue19-official-unavailable-sampling-triage-prefill-public-audit.csv`：官方不可得时的抽样私有预填公开审计，46 行；把页列执行队列接到私有预填工作台，公开层只保存页列级计数、17 个高校来源文件聚合计数、私有 CSV SHA 和全部非最终门禁。
+- `data/working/issue19-official-unavailable-sampling-triage-prefill-summary.json`：上述预填公开审计摘要，记录 155 条私有预填明细、99 条高校辅证线索、17 个高校来源文件、130 条需高校辅证复核、25 条待补源，以及字段写回/推荐/下一阶段/最终可用计数均为 0。
+- `data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv`：C4/C6 高校源刷新执行包，36 行；把 411 条 C4 补结构化明细和 190 条 C6 继续补源明细拆成可并行执行的学校包，公开层只保存计数、泳道、集合 SHA、私有 CSV SHA 和非最终门禁。
+- `data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json`：上述执行包摘要，记录 30 所学校、36 个包、601 条私有逐专业明细、X0/X1/X2/X3 泳道分布，以及所有字段写回/推荐/下一阶段/最终可用计数均为 0。
 - `data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv`：C4/C6 已留存官网源复用公开审计，36 行；把 C4/C6 执行包同已留存官网标准化证据做保守匹配，公开层只保存包级计数、优先级和私有明细 SHA。
-- `data/working/issue19-c4-c6-retained-source-reuse-summary.json`：上述复用审计摘要，记录 607 条私有明细中 203 条专业名匹配、83 条计划数一致候选、104 条 OCR 计划数补缺候选、18 条计划数冲突候选，全部不得写回或推荐。
+- `data/working/issue19-c4-c6-retained-source-reuse-summary.json`：上述复用审计摘要，记录 601 条私有明细中 206 条专业名匹配、85 条计划数一致候选、104 条 OCR 计划数补缺候选、19 条计划数冲突候选，全部不得写回或推荐。
 - `data/external/issue19-c4-c6-official-sources/blcu-2026-hubei-physics-normal.json`：北京语言大学招生系统 API 原始留存，参数为湖北、2026、物理类、普通类；返回 14 条逐专业计划和 1 条汇总行，仅作高校侧辅证。
 - `data/working/issue19-c4-c6-blcu-official-source-fetch-public-ledger.csv`：北京语言大学 C6 官方 API 抓取公开账本，1 行；只记录来源、请求参数摘要、本地 SHA、行数合计和非最终门禁。
 - `data/external/issue19-c4-c6-official-sources/xauat-2026-hubei-physics-normal.json`：西安建筑科技大学招生系统 API 原始留存，参数为湖北、2026、物理类、普通类；返回 20 条逐专业计划和 1 条汇总行，仅作高校侧辅证。
 - `data/working/issue19-c4-c6-xauat-official-source-fetch-public-ledger.csv`：西安建筑科技大学 C4/C6 官方 API 抓取公开账本，1 行；只记录来源、请求参数摘要、本地 SHA、行数合计、字段局限和非最终门禁。
-- `data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv`：C4/C6 结构化候选 diff 公开账本，36 行；把既有官网标准化证据和新增高校官网源合并后，对 607 条私有明细生成包级匹配、计划数状态、人工最小核验集合和非最终门禁。
-- `data/working/issue19-c4-c6-structured-candidate-diff-summary.json`：上述结构化候选 diff 摘要，记录综合结构化高校源 468 行、20 个有源包、19 个可生成候选 diff 包、95 条计划数一致候选、113 条 OCR 计划数补缺候选、24 条计划数冲突候选；只用于压缩人工核验范围。
+- `data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv`：C4/C6 结构化候选 diff 公开账本，36 行；把既有官网标准化证据和新增高校官网源合并后，对 601 条私有明细生成包级匹配、计划数状态、人工最小核验集合和非最终门禁。
+- `data/working/issue19-c4-c6-structured-candidate-diff-summary.json`：上述结构化候选 diff 摘要，记录综合结构化高校源 480 行、21 个有源包、20 个可生成候选 diff 包、97 条计划数一致候选、113 条 OCR 计划数补缺候选、25 条计划数冲突候选；只用于压缩人工核验范围。
 - `data/working/2026-admission-plan-template.csv`：后续导入 2026 招生计划的字段模板。
 - `data/working/issue19-pdf-source.json`：第 19 期 PDF 元数据和私有留存边界。
 - `data/working/issue19-admission-plan-template.csv`：第 19 期结构化计划录入模板。
@@ -260,11 +260,11 @@
 - `data/working/issue19-hubei-official-plan-major-crosscheck-packets.csv`：湖北官方系统逐专业核验包，13736 行；一行对应一个招生专业明细和一个湖北官方系统/省招办计划核验任务，预留官方系统证据编号、字段差异和公开原始行 SHA。
 - `data/working/issue19-hubei-official-plan-major-crosscheck-packets-summary.json`：湖北官方系统核验包摘要；记录 13736 个唯一专业行和 13736 个官方核验任务，当前全部 `pending_hubei_official_plan_review`。
 - `data/working/issue19-b0-b1-public-official-diff-ledger.csv`：B0/B1 逐专业官网差异账，854 行；只覆盖已有高校官网/章程辅证线索的招生专业明细，记录官网匹配字段、计划数冲突、官网未匹配和仍需核验项。
-- `data/working/issue19-b0-b1-public-official-diff-ledger-summary.json`：B0/B1 逐专业官网差异账摘要；记录 18 条计划数冲突、28 条官网未匹配、153 条已有最佳官网来源文件，以及全部非最终门禁。
+- `data/working/issue19-b0-b1-public-official-diff-ledger-summary.json`：B0/B1 逐专业官网差异账摘要；记录 19 条计划数冲突、28 条官网未匹配、159 条已有最佳官网来源命中，以及全部非最终门禁。
 - `data/working/issue19-b0-b1-official-evidence-by-major-line.csv`：B0/B1 官网证据逐专业旁挂表，854 行；一行一个 `专业行ID`，按官网证据强度分为 strong_support、fill_candidate、conflict_review、field_support、partial_source、needs_source、rules_only、unmatched。该表不替代湖北官方计划。
 - `data/working/issue19-b0-b1-official-plan-fill-candidates.csv`：B0/B1 官网计划数补缺候选表，55 行；只收 OCR 计划数缺失但官网有计划数的专业明细，必须回到 PDF 原页和湖北官方系统确认后才能使用。
-- `data/working/issue19-b0-b1-official-conflict-review.csv`：B0/B1 官网计划数冲突复核表，18 行；其中 13 行疑似 OCR 把学费读入计划数字段，优先回看原页计划数列和学费列。
-- `data/working/issue19-b0-b1-official-evidence-sidecar-summary.json`：B0/B1 官网证据旁挂摘要；记录 61 条强辅证、55 条计划数补缺候选、18 条冲突核页、13 条疑似计划数学费错读和全部非最终门禁。
+- `data/working/issue19-b0-b1-official-conflict-review.csv`：B0/B1 官网计划数冲突复核表，19 行；其中 13 行疑似 OCR 把学费读入计划数字段，优先回看原页计划数列和学费列。
+- `data/working/issue19-b0-b1-official-evidence-sidecar-summary.json`：B0/B1 官网证据旁挂摘要；记录 66 条强辅证、55 条计划数补缺候选、19 条冲突核页、13 条疑似计划数学费错读和全部非最终门禁。
 - `data/working/issue19-major-line-pdf-evidence-anchors.csv`：专业行原页证据锚点表，13736 行；一行一个招生专业明细，记录专业起始 OCR 行、专业窗口行号范围、坐标摘要、窗口文本 SHA256、页图/OCR 文本证据编号。公开表不保存 OCR 窗口原文，窗口原文只在 `private/`。
 - `data/working/issue19-major-line-pdf-evidence-anchors-summary.json`：专业行原页证据锚点摘要；记录 13736 条专业行全部精确回连起始 OCR 行，其中 12596 条已生成专业行级 OCR 锚点，1127 条缺少组标题上下文，13 条专业窗口需重点回看。
 - `data/working/issue19-major-detail-foundation-release.csv`：第 19 期统一逐专业底座入口，13736 行；一行一个招生专业明细，以 `专业行ID` 为主键，聚合 P0 复核任务、P1 字段缺口、湖北官方系统核验包、B0/B1 官网差异、页级证据编号、家庭底线、调剂风险和三年投档线索。该表用于检索、复核、补证和后续筛选预处理，不是最终志愿表。
@@ -359,29 +359,29 @@
 - `data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv`：稳定基座自动官网辅证交叉核验工作台，854 行；一行对应一条 B0/B1 高校官网辅证旁挂，把官网强辅证、补缺候选、冲突复核、章程规则、部分来源和待补源拆成可复跑动作。高校官网仍只能 double check 和定位冲突，不能替代湖北官方计划。
 - `data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv`：稳定基座最小人工闭环工作台，319 行；一行对应一个 P0 即时字段核验任务，把页列进度、裁图证据、官网辅证动作、双人复核和人工必做步骤接到同一张表。该表只安排 PDF 原页和湖北官方侧核验，不保存人工读数或最终字段事实。
 - `data/working/issue19-stable-foundation-next-closure-workbench-summary.json`：稳定基座下一步闭环摘要；记录自动工作台 854 行、人工工作台 319 行、官网辅证动作分布、P0 字段分布、官方公开入口仍不可定稿和所有最终门禁为 0。
-- `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv`：稳定基座高校侧辅证刷新公开账本，78 行；一行对应一个 `高校×高校侧辅证动作`，把 854 条 B0/B1 高校官网辅证压缩为可自动复跑、补结构化、继续补源、分层抽检和人工确认的学校级任务。公开表只保存动作、计数、集合 SHA、公开来源数量和非最终门禁，不保存复跑结果、人工核验结论或字段读数。
-- `data/working/issue19-stable-foundation-school-source-refresh-public-ledger-summary.json`：高校侧辅证刷新摘要；记录 78 条公开任务、36 所学校、S0/S1/S2/S3/S4/S5 分布 14/12/23/10/14/5，源头 854 条 B0/B1 高校辅证任务，以及字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数全部为 0。私有工作台 SHA 保存在摘要中，具体复跑和人工核验结果只在 Git 忽略目录。
-- `data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv`：C4/C6 高校官网补源尝试公开账本，13 行；覆盖 13 所 C4/C6 D4/D5/D6 剩余补源缺口学校和 322 条相关私有明细。公开层只保存学校级 URL、既有入口证据、自动探针状态、补源建议、人工最小核验动作和非最终门禁，不保存逐专业候选值或登录态。
-- `data/working/issue19-c4-c6-school-source-acquisition-attempts-summary.json`：C4/C6 高校官网补源尝试摘要；记录 13 所学校中 4 所有入口但尚未结构化、1 所需补 parser/匹配规则、8 所仍需继续找官方招生计划源，全部字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数为 0。
-- `data/working/issue19-stable-foundation-first-closure-detail-packet.csv`：稳定基座第一闭环明细包，205 行；只纳入 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务，用于先核最高风险冲突、补缺、未匹配和高校辅证线索。
-- `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv`：稳定基座第一闭环页列包，36 行；把 205 条明细任务聚合到 36 个 `PDF页码×版面列`，用于集中人工核 PDF 原页、湖北官方侧和高校官网辅证。
-- `data/working/issue19-stable-foundation-first-closure-packet-summary.json`：第一闭环批次包摘要；记录 205 条明细、36 个页列、32 个 PDF 页、28 个计划数冲突或补缺页列、29 个双人复核页列，以及所有最终门禁为 0。
-- `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv`：第一闭环复核材料公开账本，36 行；把第一闭环页列包接到 Git 忽略的私有 HTML/CSV 核页材料和 Overlay 状态机。公开表只保存页列计数、任务分布、材料 SHA、回链状态和非最终门禁，不保存页图路径、OCR 原文、人工读数或字段记录值。
-- `data/working/issue19-stable-foundation-first-closure-review-summary.json`：第一闭环复核材料摘要；记录 36 个页列、32 个 PDF 页、205 条任务、104 条自动官网辅证任务、101 条人工字段任务、Q0/Q1/Q2 分布、私有材料 SHA、官方公开入口不可定稿和所有最终门禁为 0。
-- `data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv`：第一闭环任务级复核公开账本，205 行；一行对应一条第一闭环明细任务，把任务回连到页列复核材料、PDF 原页待核、湖北官方侧待核、高校辅证待核、公共高校来源文件 SHA、双人复核要求和人工最小动作。公开表不保存字段读数、页图路径、OCR 原文、私有 HTML/CSV 路径或人工复核记录。
-- `data/working/issue19-stable-foundation-first-closure-task-review-summary.json`：第一闭环任务级复核摘要；记录 205 条任务、36 个页列、32 个 PDF 页、104 条自动官网辅证、101 条 P0 人工字段、73 条可作为核页提示的公共高校来源文件线索、90 条双人复核任务、205 条 PDF 原页和湖北官方侧必核任务，以及所有最终门禁为 0。
-- `data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv`：第一闭环私有预填公开审计，36 行；一行对应一个 `PDF页码×版面列`，只保存任务计数、高校侧辅证线索计数、私有页列 CSV SHA 和非最终门禁。候选计划数、学费、选科、OCR 候选、人工读数和复核结论只留在 Git 忽略的私有工作台。
-- `data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json`：第一闭环私有预填摘要；记录 205 条私有任务行、36 个页列、73 条高校侧辅证候选线索、11 个公共高校来源文件和全部非最终门禁。该摘要只证明私有提示材料已生成，不确认字段事实。
-- `data/working/issue19-stable-foundation-first-closure-execution-queue.csv`：第一闭环核验执行队列，36 行；把页列按 E0 冲突异常双人优先、E1 计划数补缺或偏大、E2 官网未匹配专业名归属排序，只保存页列顺序、计数、证据编号、SHA、完成条件和阻断原因。
-- `data/working/issue19-stable-foundation-first-closure-execution-queue-summary.json`：第一闭环核验执行队列摘要；记录 36 个页列、205 条任务、E0/E1/E2 分布、Q0/Q1/Q2 分布、73 条公共高校来源文件任务、90 条双人复核任务和所有最终门禁为 0。该摘要不确认字段事实，不公开学校专业明细、候选值、人工读数、识别正文或私有路径。
-- `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv`：第一闭环 PDF OCR 候选公开审计，205 行；一行对应一条第一闭环任务，只公开 PDF OCR 候选是否存在、与高校辅证的关系桶、候选字段计数、冲突计数、证据编号和非最终门禁，不公开候选值、学校专业明细、识别正文或私有路径。
-- `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json`：第一闭环 PDF OCR 候选摘要；记录 102 条任务已有 PDF OCR 候选、103 条需人工看图、25 条 PDF OCR 与高校辅证冲突、13 条存在一致字段但仍需官方闭环、自动写入私有记录 0 和全部非最终门禁。私有候选工作台 SHA 保存在摘要中，候选明细只在 Git 忽略目录。
-- `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv`：第一闭环页列候选看板，36 行；把 205 条第一闭环任务聚合为 36 个 `PDF页码×版面列`，公开每个页列的 PDF OCR 候选、缺候选、冲突、一致、直接看图、双人复核和下一步动作计数。
-- `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard-summary.json`：第一闭环页列候选看板摘要；记录 36 个页列、205 条任务、9 个先核冲突页列、21 个先人工看图页列、6 个按 PDF OCR 候选确认页列，以及全部非最终门禁。
-- `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv`：第一闭环机器坐标候选公开审计，205 行；读取 P0 字段机器坐标候选表和第一闭环 PDF OCR 候选私有工作台，把 103 条原缺 PDF OCR 候选任务中的 49 条标为机器坐标候选待人工核页，公开层只保存状态桶、计数、证据编号和门禁。
+- `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv`：稳定基座高校侧辅证刷新公开账本，80 行；一行对应一个 `高校×高校侧辅证动作`，把 854 条 B0/B1 高校官网辅证压缩为可自动复跑、补结构化、继续补源、分层抽检和人工确认的学校级任务。公开表只保存动作、计数、集合 SHA、公开来源数量和非最终门禁，不保存复跑结果、人工核验结论或字段读数。
+- `data/working/issue19-stable-foundation-school-source-refresh-public-ledger-summary.json`：高校侧辅证刷新摘要；记录 80 条公开任务、36 所学校、S0/S1/S2/S3/S4/S5 分布 15/12/23/11/14/5，源头 854 条 B0/B1 高校辅证任务，以及字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数全部为 0。私有工作台 SHA 保存在摘要中，具体复跑和人工核验结果只在 Git 忽略目录。
+- `data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv`：C4/C6 高校官网补源尝试公开账本，12 行；覆盖 12 所 C4/C6 D4/D5/D6 剩余补源缺口学校和 312 条相关私有明细。公开层只保存学校级 URL、既有入口证据、自动探针状态、补源建议、人工最小核验动作和非最终门禁，不保存逐专业候选值或登录态。
+- `data/working/issue19-c4-c6-school-source-acquisition-attempts-summary.json`：C4/C6 高校官网补源尝试摘要；记录 12 所学校中 4 所有入口但尚未结构化、1 所需补 parser/匹配规则、7 所仍需继续找官方招生计划源，全部字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数为 0。
+- `data/working/issue19-stable-foundation-first-closure-detail-packet.csv`：稳定基座第一闭环明细包，206 行；只纳入 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务，用于先核最高风险冲突、补缺、未匹配和高校辅证线索。
+- `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv`：稳定基座第一闭环页列包，37 行；把 206 条明细任务聚合到 37 个 `PDF页码×版面列`，用于集中人工核 PDF 原页、湖北官方侧和高校官网辅证。
+- `data/working/issue19-stable-foundation-first-closure-packet-summary.json`：第一闭环批次包摘要；记录 206 条明细、37 个页列、32 个 PDF 页、29 个计划数冲突或补缺页列、30 个双人复核页列，以及所有最终门禁为 0。
+- `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv`：第一闭环复核材料公开账本，37 行；把第一闭环页列包接到 Git 忽略的私有 HTML/CSV 核页材料和 Overlay 状态机。公开表只保存页列计数、任务分布、材料 SHA、回链状态和非最终门禁，不保存页图路径、OCR 原文、人工读数或字段记录值。
+- `data/working/issue19-stable-foundation-first-closure-review-summary.json`：第一闭环复核材料摘要；记录 37 个页列、32 个 PDF 页、206 条任务、105 条自动官网辅证任务、101 条人工字段任务、Q0/Q1/Q2 分布、私有材料 SHA、官方公开入口不可定稿和所有最终门禁为 0。
+- `data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv`：第一闭环任务级复核公开账本，206 行；一行对应一条第一闭环明细任务，把任务回连到页列复核材料、PDF 原页待核、湖北官方侧待核、高校辅证待核、公共高校来源文件 SHA、双人复核要求和人工最小动作。公开表不保存字段读数、页图路径、OCR 原文、私有 HTML/CSV 路径或人工复核记录。
+- `data/working/issue19-stable-foundation-first-closure-task-review-summary.json`：第一闭环任务级复核摘要；记录 206 条任务、37 个页列、32 个 PDF 页、105 条自动官网辅证、101 条 P0 人工字段、74 条可作为核页提示的公共高校来源文件线索、91 条双人复核任务、206 条 PDF 原页和湖北官方侧必核任务，以及所有最终门禁为 0。
+- `data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv`：第一闭环私有预填公开审计，37 行；一行对应一个 `PDF页码×版面列`，只保存任务计数、高校侧辅证线索计数、私有页列 CSV SHA 和非最终门禁。候选计划数、学费、选科、OCR 候选、人工读数和复核结论只留在 Git 忽略的私有工作台。
+- `data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json`：第一闭环私有预填摘要；记录 206 条私有任务行、37 个页列、74 条高校侧辅证候选线索、12 个公共高校来源文件和全部非最终门禁。该摘要只证明私有提示材料已生成，不确认字段事实。
+- `data/working/issue19-stable-foundation-first-closure-execution-queue.csv`：第一闭环核验执行队列，37 行；把页列按 E0 冲突异常双人优先、E1 计划数补缺或偏大、E2 官网未匹配专业名归属排序，只保存页列顺序、计数、证据编号、SHA、完成条件和阻断原因。
+- `data/working/issue19-stable-foundation-first-closure-execution-queue-summary.json`：第一闭环核验执行队列摘要；记录 37 个页列、206 条任务、E0/E1/E2 分布、Q0/Q1/Q2 分布、74 条公共高校来源文件任务、91 条双人复核任务和所有最终门禁为 0。该摘要不确认字段事实，不公开学校专业明细、候选值、人工读数、识别正文或私有路径。
+- `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv`：第一闭环 PDF OCR 候选公开审计，206 行；一行对应一条第一闭环任务，只公开 PDF OCR 候选是否存在、与高校辅证的关系桶、候选字段计数、冲突计数、证据编号和非最终门禁，不公开候选值、学校专业明细、识别正文或私有路径。
+- `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json`：第一闭环 PDF OCR 候选摘要；记录 103 条任务已有 PDF OCR 候选、103 条需人工看图、26 条 PDF OCR 与高校辅证冲突、13 条存在一致字段但仍需官方闭环、自动写入私有记录 0 和全部非最终门禁。私有候选工作台 SHA 保存在摘要中，候选明细只在 Git 忽略目录。
+- `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv`：第一闭环页列候选看板，37 行；把 206 条第一闭环任务聚合为 37 个 `PDF页码×版面列`，公开每个页列的 PDF OCR 候选、缺候选、冲突、一致、直接看图、双人复核和下一步动作计数。
+- `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard-summary.json`：第一闭环页列候选看板摘要；记录 37 个页列、206 条任务、10 个先核冲突页列、21 个先人工看图页列、6 个按 PDF OCR 候选确认页列，以及全部非最终门禁。
+- `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv`：第一闭环机器坐标候选公开审计，206 行；读取 P0 字段机器坐标候选表和第一闭环 PDF OCR 候选私有工作台，把 103 条原缺 PDF OCR 候选任务中的 49 条标为机器坐标候选待人工核页，公开层只保存状态桶、计数、证据编号和门禁。
 - `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit-summary.json`：第一闭环机器坐标候选摘要；记录原缺 PDF OCR 候选 103 条、机器坐标可补候选 49 条、剩余缺候选 54 条、字段分布为专业计划数 44 条和学费 5 条。私有机器坐标候选工作台 SHA 保存在摘要中，字段明细只在 Git 忽略目录。
-- `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv`：第一闭环字段确认公开账本，205 行；一行对应一条第一闭环任务，把任务级复核账本、PDF OCR 候选、机器坐标候选、页列候选看板和私有字段确认工作台接到同一个公开状态机。公开层只保存核验泳道、候选提示状态、PDF 原页/湖北官方/高校辅证私有记录状态、双人复核状态、三方一致性公开状态和非最终门禁，不保存任何候选值或人工字段值。
-- `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger-summary.json`：第一闭环字段确认摘要；记录 205 条任务、36 个页列、32 个 PDF 页、PDF OCR 提示 102 条、机器坐标提示 49 条、高校辅证线索 73 条、直接看图 79 条、双人复核 90 条，以及 PDF 原页和湖北官方侧记录均待完成。字段写回、推荐依据、学校专业建议和最终可用仍全部为 0；私有字段确认工作台 SHA 保存在摘要中，具体读数只在 Git 忽略目录。
+- `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv`：第一闭环字段确认公开账本，206 行；一行对应一条第一闭环任务，把任务级复核账本、PDF OCR 候选、机器坐标候选、页列候选看板和私有字段确认工作台接到同一个公开状态机。公开层只保存核验泳道、候选提示状态、PDF 原页/湖北官方/高校辅证私有记录状态、双人复核状态、三方一致性公开状态和非最终门禁，不保存任何候选值或人工字段值。
+- `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger-summary.json`：第一闭环字段确认摘要；记录 206 条任务、37 个页列、32 个 PDF 页、PDF OCR 提示 103 条、机器坐标提示 49 条、高校辅证线索 74 条、直接看图 80 条、双人复核 91 条，以及 PDF 原页和湖北官方侧记录均待完成。字段写回、推荐依据、学校专业建议和最终可用仍全部为 0；私有字段确认工作台 SHA 保存在摘要中，具体读数只在 Git 忽略目录。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -424,18 +424,20 @@
 - `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-queue.csv`：B0/B1 组级官方交叉校验索引，覆盖 49 个优先专业组，逐组记录 PDF、湖北官方系统、高校官网/章程、家庭接受度和调剂结论待核状态；全部 `可进入下一阶段=false`。
 - `data/working/issue19-candidate-v3-b0-b1-major-official-crosscheck-queue.csv`：B0/B1 原逐专业官方交叉校验队列，覆盖 324 个逐专业任务；一行一个专业或 0 明细占位任务，记录专业代号、专业名称、计划数、学费、风险、官网来源状态和各字段待核状态。
 - `data/working/issue19-candidate-v3-b0-b1-official-crosscheck-summary.json`：B0/B1 官方交叉校验摘要，记录 36 校、49 组、324 个逐专业任务、逐专业招生明细主表行数、官网来源状态分布、`final_available_count=0` 和 `major_final_available_count=0`。
-- `data/working/issue19-b0-b1-retained-official-plan-normalized.csv`：B0/B1 已留存官网/API/HTML/XLSX/PDF/图片/双表联合抽取证据标准化表，当前 434 条；字段包括学校、来源文件、证据类型、年份、省份、科类、专业、计划数、学费、校区、选科和来源局限。
+- `data/working/issue19-b0-b1-retained-official-plan-normalized.csv`：B0/B1 已留存官网/API/HTML/XLSX/PDF/图片/双表联合抽取证据标准化表，当前 446 条；字段包括学校、来源文件、证据类型、年份、省份、科类、专业、计划数、学费、校区、选科和来源局限。
 - `data/working/issue19-candidate-v3-b0-b1-official-evidence-match.csv`：B0/B1 逐专业官网证据匹配表，覆盖 324 条招生明细；一行一个招生专业，带出页码、专业组、专业代号、OCR 专业名、OCR 计划数、官网匹配专业、官网计划数、匹配状态、计划数核验状态和仍需核验项。
-- `data/working/issue19-candidate-v3-b0-b1-official-evidence-match-summary.json`：B0/B1 逐专业官网证据匹配摘要；当前 152 条专业名匹配，其中 61 条计划数与 OCR 一致，55 条为 OCR 缺失但官网可补，19 条官网未给可比计划数，18 条计划数存在差异，全部保持非最终结论。
-- `data/working/issue19-b0-b1-plan-conflict-review-queue.csv`：B0/B1 计划数冲突复核队列，18 条；按 OCR 疑似误取学费、计划数不一致等类型安排核页顺序，并记录保真诊断和计划数候选引用方式。
+- `data/working/issue19-candidate-v3-b0-b1-official-evidence-match-summary.json`：B0/B1 逐专业官网证据匹配摘要；当前 158 条专业名匹配，其中 66 条计划数与 OCR 一致，55 条为 OCR 缺失但官网可补，19 条官网未给可比计划数，19 条计划数存在差异，全部保持非最终结论。
+- `data/working/issue19-b0-b1-plan-conflict-review-queue.csv`：B0/B1 计划数冲突复核队列，19 条；按 OCR 疑似误取学费、计划数不一致等类型安排核页顺序，并记录保真诊断和计划数候选引用方式。
 - `data/working/issue19-b0-b1-unmatched-major-review-queue.csv`：B0/B1 官网证据未匹配专业复核队列，32 条；用于定位 OCR 噪声、串行、官网表未覆盖和关键限定词未覆盖问题。
-- `data/working/issue19-b0-b1-official-source-gap-priority.csv`：B0/B1 学校补源缺口优先表，19 所；区分 8 所 P0 待补官方计划源和 11 所已有官网线索但尚未结构化到逐专业证据的学校。
+- `data/working/issue19-b0-b1-official-source-gap-priority.csv`：B0/B1 学校补源缺口优先表，18 所；区分 7 所 P0 待补官方计划源、6 所已有官网线索但尚未结构化到逐专业证据的学校、5 所仅章程规则线索学校。
 - `data/working/issue19-b0-b1-fidelity-review-summary.json`：B0/B1 保真复核队列摘要；只用于安排核页/补源，不是最终候选或填报方案。
 - `data/working/issue19-candidate-v3-major-field-fidelity-ledger.csv`：候选 V3 全量逐专业字段保真总账，覆盖 8412 条招生明细；一行对应一个招生专业或 0 明细占位，合并 D0 原页证据、B0/B1 计划数冲突、官网未匹配、字段完整性、结构异常、费用底线、调剂风险和家庭底线，所有行均保持 `最终可用=false`。
 - `data/working/issue19-candidate-v3-major-field-fidelity-ledger-summary.json`：全量逐专业字段保真总账摘要；记录 8412 行总账、8234 条高风险保真行、178 条暂未触发机器高风险行、18 条 B0/B1 计划冲突覆盖和 32 条 B0/B1 官网未匹配覆盖。
 - `data/external/issue19-b0-b1-official-sources/xztu-2026-hubei-physics-plan-extracted.csv`：忻州师范学院官网 PDF 宽表抽取出的湖北物理类逐专业证据，15 条；作为 PDF 原件的可复跑抽取结果，不替代第 19 期原页和湖北官方系统。
 - `data/external/issue19-b0-b1-official-sources/sdtbu-2026-hubei-physics-plan-extracted.csv`：山东工商学院官网 PDF 抽取出的湖北物理类逐专业证据，24 条；专业名来自 PDF 渲染图 Apple Vision OCR 并带 OCR 原文、置信度和校正说明，湖北计划数来自 PDF 网格数字列，不替代第 19 期原页和湖北官方系统。
 - `data/external/issue19-b0-b1-official-sources/sdtbu-2026-pdf-ocr-grid-audit.csv`：山东工商学院官网 PDF 网格 OCR 审计表，42 条；保留每个有湖北计划数行的 PDF 表格行号、OCR 原文、校正说明、是否纳入湖北物理类匹配表。
+- `data/external/issue19-b0-b1-official-sources/zjut-2026-province-major-plan.pdf`：浙江工业大学官网 2026 年分省分专业招生计划 PDF 原件；仅作高校侧辅证，不替代第 19 期原页和湖北官方系统。
+- `data/external/issue19-b0-b1-official-sources/zjut-2026-hubei-physics-plan-extracted.csv`：浙江工业大学官网 PDF 抽取出的湖北物理类逐专业证据，12 条，计划数合计 48；另有 `zjut-2026-pdf-grid-audit.csv` 保留 PDF 网格审计记录。
 - `data/external/issue19-b0-b1-official-sources/jsut-2026-hubei-physics-plan-extracted.csv`：江苏理工学院官方计划图转录出的湖北物理类普通类逐专业证据，15 条；作为官方计划图的结构化转录结果，不替代第 19 期原页和湖北官方系统。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：20 所样本学校 OCR 与学校官网交叉核验说明。
 - `docs/ISSUE19_DOUBLE_CHECK_RESULTS_V1.md`：第 19 期高优先级 7 校样本核验 V1 结论和全量结构化前质量门槛。
@@ -482,10 +484,10 @@
 - `scripts/build_issue19_foundation_stability_dashboard.py`：生成底座稳定性总看板和教育部未匹配校名逐专业解析表；所有输出保持逐专业粒度、非最终门禁和 pending 边界。
 - `scripts/build_issue19_foundation_stabilization_major_detail_tasks.py`：生成 B0/B1/B2 逐专业稳定化任务表；用于把底座保真任务落到招生专业明细，不生成学校/专业组层推荐。
 - `scripts/build_issue19_official_public_entry_status_snapshot.py`：生成官方公开入口状态快照；只记录公开页面 `GET/200`、SHA、字节数、标题、入口角色、`can_finalize=false` 和无登录探针边界，不保存登录态。
-- `scripts/build_issue19_official_unavailable_sampling_review_overlay.py`：读取官方不可得抽样执行明细，生成 153 条本地私有抽样复核 Overlay 和公开进度账本；公开层只保存 SHA、状态、计数和非最终门禁，人工读数和备注只进入 Git 忽略的本地表。
-- `scripts/build_issue19_official_unavailable_sampling_review_packets.py`：读取官方不可得抽样复核 Overlay，把 153 条逐专业明细按 `PDF页码×版面列` 生成 46 个本地私有 HTML/CSV 核页包和公开页列包账本；公开层只保存计数、SHA 和状态，私有层承接页图、OCR 行、学校专业线索和人工填写栏。
+- `scripts/build_issue19_official_unavailable_sampling_review_overlay.py`：读取官方不可得抽样执行明细，生成 155 条本地私有抽样复核 Overlay 和公开进度账本；公开层只保存 SHA、状态、计数和非最终门禁，人工读数和备注只进入 Git 忽略的本地表。
+- `scripts/build_issue19_official_unavailable_sampling_review_packets.py`：读取官方不可得抽样复核 Overlay，把 155 条逐专业明细按 `PDF页码×版面列` 生成 46 个本地私有 HTML/CSV 核页包和公开页列包账本；公开层只保存计数、SHA 和状态，私有层承接页图、OCR 行、学校专业线索和人工填写栏。
 - `scripts/build_issue19_official_unavailable_sampling_review_execution_queue.py`：读取抽样页列核验包、公开 Overlay 和本地私有 Overlay，生成 46 行页列执行队列和摘要；用于在官方结构化计划暂不可得时把自动高校辅证和最小人工核验排成可复跑顺序。
-- `scripts/build_issue19_official_unavailable_sampling_triage_prefill.py`：读取官方不可得抽样页列执行队列、本地私有 Overlay 和官方入口活体复查，生成 46 行公开审计和 Git 忽略的 153 行私有预填工作台；高校官网与 OCR 线索只能作为人工核页提示，不确认字段事实。
+- `scripts/build_issue19_official_unavailable_sampling_triage_prefill.py`：读取官方不可得抽样页列执行队列、本地私有 Overlay 和官方入口活体复查，生成 46 行公开审计和 Git 忽略的 155 行私有预填工作台；高校官网与 OCR 线索只能作为人工核页提示，不确认字段事实。
 - `scripts/build_issue19_major_source_evidence_risk_sidecar.py`：生成逐专业源证据风险侧账，把原始源证据风险、底座稳定性、闭环缺口和 P0 复核任务下沉到 `专业行ID`。
 - `scripts/build_issue19_field_fact_closure_ledger.py`：生成字段事实闭环总账，逐专业汇总再选科目、专业计划数、学费的 OCR 候选、字段缺口候选、PDF/湖北官方待核状态和禁止写回边界。
 - `scripts/build_issue19_field_fact_verification_tasks.py`：生成字段事实核验任务队列，把每条招生专业明细拆成再选科目、专业计划数、学费三项字段任务，并回连字段事实总账和页级保真队列。
@@ -502,20 +504,20 @@
 - `scripts/build_issue19_stable_foundation_screening_views.py`：读取单一逐专业总工作台、候选筛选准备表、字段事实闭环、证据路由、教育部学校属性、三年投档旁挂和家庭专业组筛选表，生成稳定基座逐专业/专业组筛选视图；用于后续筛学校、专业和专业组时统一查看家庭底线、字段缺口、学校属性、历史线索和整组调剂风险，不打开最终门禁，不替代湖北官方系统或省招办计划。
 - `scripts/build_issue19_stable_foundation_next_closure_workbench.py`：读取稳定基座筛选视图、逐专业证据路由、B0/B1 高校官网证据旁挂、P0 字段确认账本、P0 页列进度和湖北官方公开入口状态，生成 854 行自动官网辅证交叉核验工作台、319 行最小人工闭环工作台和摘要；用于把官方公开结构化源暂不可得时的 double check 与人工核页路径落成可复跑任务表。
 - `scripts/build_issue19_stable_foundation_school_source_refresh_queue.py`：读取稳定基座自动官网辅证交叉核验工作台、B0/B1 高校官网补源种子表和湖北官方公开入口状态，生成 78 行高校侧辅证刷新公开账本，并在 Git 忽略目录生成私有复跑/人工核验工作台；用于把学校官网 double check 自动化、抽检和补源任务降到学校级，不确认字段事实。
-- `scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py`：读取高校侧辅证刷新公开账本、稳定基座自动交叉核验工作台和高校官网补源种子表，把 C4/C6 最大补源缺口拆成 36 个公开执行包和 Git 忽略的 607 条私有逐专业明细；用于并行补源、补结构化和生成后续 diff，不写回字段事实。
+- `scripts/build_issue19_c4_c6_school_source_refresh_execution_packets.py`：读取高校侧辅证刷新公开账本、稳定基座自动交叉核验工作台和高校官网补源种子表，把 C4/C6 最大补源缺口拆成 36 个公开执行包和 Git 忽略的 601 条私有逐专业明细；用于并行补源、补结构化和生成后续 diff，不写回字段事实。
 - `scripts/build_issue19_c4_c6_retained_source_reuse_audit.py`：读取 C4/C6 执行包、私有逐专业明细、已留存官网标准化证据和全量字段保真总账，生成 C4/C6 已留存官网源复用公开审计和 Git 忽略的逐专业候选明细；用于确定哪些包可直接生成候选 diff，仍不写回字段事实。
 - `scripts/fetch_issue19_c4_c6_blcu_official_source.py`：抓取北京语言大学招生系统 2026 湖北物理类普通类计划 API，留存原始 JSON 并生成公开抓取账本；该源只作高校侧辅证，不替代湖北省招办计划。
 - `scripts/fetch_issue19_c4_c6_xauat_official_source.py`：抓取西安建筑科技大学招生系统 2026 湖北物理类普通类计划 API，留存原始 JSON 并生成公开抓取账本；该源只作高校侧辅证，不替代湖北省招办计划。
 - `scripts/build_issue19_c4_c6_structured_candidate_diff.py`：读取 C4/C6 执行包、私有逐专业明细、既有官网标准化证据、新增高校官网源和全量字段保真总账，生成结构化候选 diff 公开账本与 Git 忽略的逐专业候选明细；用于官方不可得时自动 double check 并最小化人工核验。
 - `scripts/build_issue19_c4_c6_school_source_acquisition_attempts.py`：读取 C4/C6 结构化候选 diff、C4/C6 执行包和高校官网补源种子表，生成学校级补源尝试公开账本；记录自动探针状态、既有入口证据、自动补源建议和人工最小核验动作，不确认逐专业字段事实。
-- `scripts/build_issue19_stable_foundation_first_closure_packet.py`：读取稳定基座下一步闭环工作台，把最高优先级 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成 205 条明细任务和 36 个页列执行包。
-- `scripts/build_issue19_first_closure_review_materials.py`：读取第一闭环明细包、页列包、页列底座公开进度账本、字段线索审计、人工复核 Overlay、官方入口状态和私有 OCR 证据，生成第一闭环公开复核账本，并在 Git 忽略的 `private/` 目录生成 36 份页列 HTML/CSV 核页材料。
-- `scripts/build_issue19_first_closure_task_review_ledger.py`：读取第一闭环明细包、页列包、第一闭环复核公开账本和官方入口状态，生成 205 行任务级公开复核账本；公共高校来源文件只公开相对路径和 SHA，字段读数、OCR 原文、页图路径和人工记录继续留在私有复核材料。
-- `scripts/build_issue19_first_closure_private_triage_prefill.py`：读取第一闭环明细包、任务级复核公开账本、页列复核公开账本和官方入口状态，生成 36 行公开审计和 Git 忽略的私有预填工作台；高校侧候选值只能作为私有核页提示，不写入公开字段事实或最终门禁。
-- `scripts/build_issue19_first_closure_execution_queue.py`：读取第一闭环页列包、页列复核公开账本、任务级复核公开账本、私有预填公开审计和官方入口状态，生成 36 行公开执行队列；用于压缩人工核验路径和固定执行顺序，不能替代 PDF 原页、湖北官方侧或高校官网/章程闭环。
-- `scripts/build_issue19_first_closure_pdf_ocr_candidate_audit.py`：读取第一闭环执行队列、任务级复核公开账本、私有复核材料和私有预填工作台，生成 205 行 PDF OCR 候选公开审计和 Git 忽略的私有候选工作台；公开输出只保存状态桶和计数，候选明细不能自动写回人工记录。
-- `scripts/build_issue19_first_closure_page_side_candidate_dashboard.py`：读取第一闭环执行队列和 PDF OCR 候选公开审计，生成 36 行页列候选看板；用于把任务级候选状态聚合成页列级核验动作，不确认字段事实。
-- `scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py`：读取第一闭环 PDF OCR 候选公开/私有工作台和 P0 字段机器坐标候选表，生成 205 行机器坐标候选公开审计和 Git 忽略的私有候选工作台；用于把部分缺 PDF OCR 候选任务转成机器坐标候选待人工核页，不能自动写回字段或替代湖北官方计划。
+- `scripts/build_issue19_stable_foundation_first_closure_packet.py`：读取稳定基座下一步闭环工作台，把最高优先级 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成 206 条明细任务和 37 个页列执行包。
+- `scripts/build_issue19_first_closure_review_materials.py`：读取第一闭环明细包、页列包、页列底座公开进度账本、字段线索审计、人工复核 Overlay、官方入口状态和私有 OCR 证据，生成第一闭环公开复核账本，并在 Git 忽略的 `private/` 目录生成 37 份页列 HTML/CSV 核页材料。
+- `scripts/build_issue19_first_closure_task_review_ledger.py`：读取第一闭环明细包、页列包、第一闭环复核公开账本和官方入口状态，生成 206 行任务级公开复核账本；公共高校来源文件只公开相对路径和 SHA，字段读数、OCR 原文、页图路径和人工记录继续留在私有复核材料。
+- `scripts/build_issue19_first_closure_private_triage_prefill.py`：读取第一闭环明细包、任务级复核公开账本、页列复核公开账本和官方入口状态，生成 37 行公开审计和 Git 忽略的私有预填工作台；高校侧候选值只能作为私有核页提示，不写入公开字段事实或最终门禁。
+- `scripts/build_issue19_first_closure_execution_queue.py`：读取第一闭环页列包、页列复核公开账本、任务级复核公开账本、私有预填公开审计和官方入口状态，生成 37 行公开执行队列；用于压缩人工核验路径和固定执行顺序，不能替代 PDF 原页、湖北官方侧或高校官网/章程闭环。
+- `scripts/build_issue19_first_closure_pdf_ocr_candidate_audit.py`：读取第一闭环执行队列、任务级复核公开账本、私有复核材料和私有预填工作台，生成 206 行 PDF OCR 候选公开审计和 Git 忽略的私有候选工作台；公开输出只保存状态桶和计数，候选明细不能自动写回人工记录。
+- `scripts/build_issue19_first_closure_page_side_candidate_dashboard.py`：读取第一闭环执行队列和 PDF OCR 候选公开审计，生成 37 行页列候选看板；用于把任务级候选状态聚合成页列级核验动作，不确认字段事实。
+- `scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py`：读取第一闭环 PDF OCR 候选公开/私有工作台和 P0 字段机器坐标候选表，生成 206 行机器坐标候选公开审计和 Git 忽略的私有候选工作台；用于把部分缺 PDF OCR 候选任务转成机器坐标候选待人工核页，不能自动写回字段或替代湖北官方计划。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。

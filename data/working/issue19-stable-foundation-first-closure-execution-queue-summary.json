@@ -9,25 +9,25 @@
   "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
   "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
   "output_table": "data/working/issue19-stable-foundation-first-closure-execution-queue.csv",
-  "public_row_count": 36,
-  "unique_page_side_count": 36,
+  "public_row_count": 37,
+  "unique_page_side_count": 37,
   "unique_pdf_page_count": 32,
-  "total_task_count": 205,
-  "auto_task_count": 104,
+  "total_task_count": 206,
+  "auto_task_count": 105,
   "manual_task_count": 101,
-  "pdf_required_count": 205,
-  "hubei_official_required_count": 205,
-  "school_support_required_count": 179,
-  "double_review_required_count": 90,
-  "public_school_source_file_task_count": 73,
-  "unique_public_school_source_file_count": 11,
+  "pdf_required_count": 206,
+  "hubei_official_required_count": 206,
+  "school_support_required_count": 180,
+  "double_review_required_count": 91,
+  "public_school_source_file_task_count": 74,
+  "unique_public_school_source_file_count": 12,
   "lane_counts": {
-    "E0-冲突异常双人优先核验": 17,
+    "E0-冲突异常双人优先核验": 18,
     "E1-计划数补缺或偏大优先核验": 11,
     "E2-官网未匹配专业名归属核验": 8
   },
   "priority_counts": {
-    "Q0-冲突页列第一批先核": 17,
+    "Q0-冲突页列第一批先核": 18,
     "Q1-补缺或计划数偏大页列先核": 11,
     "Q2-官网未匹配或高校辅证页列先核": 8
   },
@@ -38,10 +38,10 @@
     "169-right",
     "018-left",
     "037-left",
+    "137-right",
     "194-left",
     "056-left",
-    "070-left",
-    "023-left"
+    "070-left"
   ],
   "official_public_plan_page_can_finalize": false,
   "zspt_platform_can_finalize": false,
@@ -55,7 +55,7 @@
   "school_major_suggestion_allowed_count": 0,
   "official_plan_replacement_allowed_count": 0,
   "policy": {
-    "purpose": "把第一闭环36个页列排成可执行核验顺序，减少人工在多个账本之间跳转。",
+    "purpose": "把第一闭环37个页列排成可执行核验顺序，减少人工在多个账本之间跳转。",
     "public_boundary": "公开表只保存页列排序、计数、证据编号、SHA、完成条件和门禁，不保存候选值或私有记录值。",
     "no_finalization": "执行队列不确认字段事实，不自动写回，不生成学校专业建议。"
   }

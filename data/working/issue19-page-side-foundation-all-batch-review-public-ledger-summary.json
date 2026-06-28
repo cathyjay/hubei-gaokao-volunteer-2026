@@ -8,7 +8,7 @@
   "source_private_human_review_overlay": "private_human_review_overlay_not_public",
   "output_table": "data/working/issue19-page-side-foundation-all-batch-review-public-ledger.csv",
   "private_batch_detail": "private_batch_detail_not_public",
-  "private_batch_detail_index_sha256": "6b04984422c5dad0c51a552b614619bbeba0d8e7bfc88c6fa1e60ae57b47d27c",
+  "private_batch_detail_index_sha256": "534332222e3e3674f12ee7fc2d45e9390150e6925d03a28cece40fc5df036691",
   "public_row_count": 462,
   "private_detail_file_count": 19,
   "private_detail_row_count": 41208,

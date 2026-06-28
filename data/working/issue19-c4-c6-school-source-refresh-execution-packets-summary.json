@@ -11,14 +11,14 @@
   "official_without_login_structured_plan_available": false,
   "output_public_table": "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv",
   "public_packet_count": 36,
-  "private_detail_row_count": 607,
+  "private_detail_row_count": 601,
   "private_index_row_count": 36,
   "unique_school_count": 30,
   "unique_school_action_count": 36,
   "c4_packet_count": 22,
   "c6_packet_count": 14,
   "c4_detail_count": 411,
-  "c6_detail_count": 196,
+  "c6_detail_count": 190,
   "lane_packet_counts": {
     "X3-C4已有部分来源待结构化": 16,
     "X2-C4有入口但未留存结果": 6,
@@ -29,7 +29,7 @@
     "X3-C4已有部分来源待结构化": 297,
     "X2-C4有入口但未留存结果": 114,
     "X1-C6有入口待获取湖北计划": 29,
-    "X0-C6无官网计划入口需搜索": 167
+    "X0-C6无官网计划入口需搜索": 161
   },
   "seed_url_packet_count": 28,
   "seed_without_url_packet_count": 8,
@@ -38,9 +38,9 @@
     "S1-种子记录未留存": 6,
     "S0-无本地留存路径": 8
   },
-  "private_master_csv_sha256": "37bc95e04a9ba325d1da100bb5d9e7a0aaf2d057b27932cc16431f6829146315",
-  "private_index_csv_sha256": "fb99d2cc53543ee54e15ac60308153c03cb98fe38374d7ebcd4b0b81ddba7a1e",
-  "private_index_html_sha256": "f56af23de8492b8a93da33e65f4339540e1a255c917c50046f5645b821eb4849",
+  "private_master_csv_sha256": "981c4a54d39ca10f0da506658348226746088baf99946c19b896f577020575ba",
+  "private_index_csv_sha256": "ee4b8d24b03bb44e8453a9e4bf1a4fb177bae1ea2cc068a24555b49611307a56",
+  "private_index_html_sha256": "b1c100ba19e1a1f470d65347c2d9ea5a6c6e561bb9111955809eaa2ed590af83",
   "private_packet_csv_count": 36,
   "field_writeback_allowed_count": 0,
   "recommendation_basis_allowed_count": 0,

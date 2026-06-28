@@ -11,49 +11,49 @@
   "input_files": [
     {
       "path": "data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv",
-      "sha256": "843095e2f4174ea261da4f4d3d75abb0b3493f05538099535d05848bf8564c1c",
-      "row_count": 78
+      "sha256": "773a25595d06224d708da6dcd929f1d06e981b7365d7d77f27703366c6541771",
+      "row_count": 80
     },
     {
       "path": "data/working/issue19-major-evidence-level-routing.csv",
-      "sha256": "0110ed8ce58b32b6fd1731615d7937b92015b39cc977419a724e754ade8d9795",
+      "sha256": "3eb5d11214f7874058c0e81dac1dd387dd45227f70f1f2996bf5787b14ba00f2",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-official-public-entry-live-recheck.json",
-      "sha256": "f590c76a16281d27d99a33b465a6f7f83e2b331f6ca05f45935eb66d07568d27"
+      "sha256": "7ced3a7014de66bc635a98845caefdb1c470246d9153b19bd2552c3d2022ca75"
     }
   ],
   "output_table": "data/working/issue19-official-unavailable-sampling-gates.csv",
   "row_grain": "高校侧任务或低风险抽检专业明细",
-  "row_count": 103,
-  "unique_sampling_gate_id_count": 103,
-  "school_refresh_task_count": 78,
+  "row_count": 105,
+  "unique_sampling_gate_id_count": 105,
+  "school_refresh_task_count": 80,
   "p3_low_risk_pool_major_count": 184,
   "p3_low_risk_sample_major_count": 25,
-  "selected_or_100pct_task_count": 61,
+  "selected_or_100pct_task_count": 63,
   "risk_level_counts": {
-    "R4-blocker": 6,
+    "R4-blocker": 7,
     "R3-high": 20,
     "R2-medium": 42,
-    "R1-low": 10,
+    "R1-low": 11,
     "R0-observe": 25
   },
   "action_counts": {
-    "C0-冲突先核PDF原页和湖北官方系统": 6,
+    "C0-冲突先核PDF原页和湖北官方系统": 7,
     "C1-官网补缺候选但禁止自动写回": 8,
     "C7-官网源未匹配专业需人工确认专业名": 12,
     "C4-已有部分来源需补结构化或补湖北行": 22,
     "C3-字段辅证补充结构化后核原页": 1,
-    "C2-强辅证抽检并等待湖北官方闭环": 10,
+    "C2-强辅证抽检并等待湖北官方闭环": 11,
     "C6-继续搜索高校官网2026湖北计划源": 14,
     "C5-仅章程规则核特殊要求不能核计划数": 5,
     "P3-低风险抽检但非最终": 25
   },
-  "c0_c1_c7_100pct_major_count": 104,
-  "c2_strong_support_pool_major_count": 61,
-  "c2_selected_school_task_count": 10,
-  "c2_min_sample_major_count": 24,
+  "c0_c1_c7_100pct_major_count": 105,
+  "c2_strong_support_pool_major_count": 66,
+  "c2_selected_school_task_count": 11,
+  "c2_min_sample_major_count": 25,
   "field_writeback_allowed_count": 0,
   "recommendation_basis_allowed_count": 0,
   "school_major_suggestion_allowed_count": 0,

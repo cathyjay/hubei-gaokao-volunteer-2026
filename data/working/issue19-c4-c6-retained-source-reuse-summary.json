@@ -11,29 +11,29 @@
   "official_without_login_structured_plan_available": false,
   "output_public_table": "data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv",
   "public_packet_count": 36,
-  "private_detail_row_count": 607,
+  "private_detail_row_count": 601,
   "private_index_row_count": 36,
-  "retained_official_row_count": 434,
-  "retained_official_school_count": 17,
-  "packet_with_retained_source_count": 16,
-  "packet_with_reuse_candidate_count": 16,
+  "retained_official_row_count": 446,
+  "retained_official_school_count": 18,
+  "packet_with_retained_source_count": 17,
+  "packet_with_reuse_candidate_count": 17,
   "detail_match_status_counts": {
-    "no_school_source": 352,
-    "matched": 203,
-    "unmatched": 50,
+    "no_school_source": 342,
+    "matched": 206,
+    "unmatched": 51,
     "possible_match": 2
   },
   "detail_plan_check_counts": {
-    "not_covered": 402,
-    "match": 83,
+    "not_covered": 393,
+    "match": 85,
     "ocr_plan_missing_official_available": 104,
-    "mismatch": 18
+    "mismatch": 19
   },
   "priority_counts": {
     "R3-无留存标准化源但有入口需抓取或补parser": 12,
-    "R0-已有官网源且存在计划数一致候选": 8,
+    "R0-已有官网源且存在计划数一致候选": 9,
     "R1-已有官网源但计划数需核页或OCR补缺": 8,
-    "R4-无入口需搜索高校官网计划源": 8
+    "R4-无入口需搜索高校官网计划源": 7
   },
   "lane_priority_counts": {
     "X3-C4已有部分来源待结构化|R3-无留存标准化源但有入口需抓取或补parser": 6,
@@ -42,14 +42,15 @@
     "X3-C4已有部分来源待结构化|R0-已有官网源且存在计划数一致候选": 5,
     "X3-C4已有部分来源待结构化|R1-已有官网源但计划数需核页或OCR补缺": 5,
     "X1-C6有入口待获取湖北计划|R3-无留存标准化源但有入口需抓取或补parser": 6,
-    "X0-C6无官网计划入口需搜索|R4-无入口需搜索高校官网计划源": 8
+    "X0-C6无官网计划入口需搜索|R4-无入口需搜索高校官网计划源": 7,
+    "X0-C6无官网计划入口需搜索|R0-已有官网源且存在计划数一致候选": 1
   },
-  "plan_match_candidate_count": 83,
+  "plan_match_candidate_count": 85,
   "ocr_plan_missing_official_available_count": 104,
-  "plan_mismatch_candidate_count": 18,
-  "no_retained_source_detail_count": 352,
-  "private_detail_csv_sha256": "234932bf053b796bfa5af1d1c2b94d0a4633c9067849e378b22084db469b4d41",
-  "private_index_csv_sha256": "d640c12fe5cf35c6fea0abb794c6bfd12a05f0a60357e4fc634780088ef82d25",
+  "plan_mismatch_candidate_count": 19,
+  "no_retained_source_detail_count": 342,
+  "private_detail_csv_sha256": "17b4c980bbf5e4d7e841e102b50fcc3279ba117107e440bff5394ce75332261c",
+  "private_index_csv_sha256": "16b12c4dd60a7736e3c227f0e3e150803d99893a7d00e59f81b37c4592aa43ed",
   "field_writeback_allowed_count": 0,
   "recommendation_basis_allowed_count": 0,
   "school_major_suggestion_allowed_count": 0,

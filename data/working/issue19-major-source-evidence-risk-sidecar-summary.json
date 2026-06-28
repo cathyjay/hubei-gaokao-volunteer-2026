@@ -13,7 +13,7 @@
     "stability_dashboard_row_count": 13736,
     "gap_scorecard_row_count": 13736,
     "master_workbench_row_count": 13736,
-    "p0_review_worklist_row_count": 6619,
+    "p0_review_worklist_row_count": 6620,
     "p0_review_worklist_major_line_count": 5310
   },
   "join_match_counts": {
@@ -47,7 +47,7 @@
   "start_line_qc_p0_total_count": 6092,
   "start_line_qc_p1_total_count": 6966,
   "low_confidence_page_major_line_count": 291,
-  "p0_review_worklist_task_total_count": 6619,
+  "p0_review_worklist_task_total_count": 6620,
   "p0_review_worklist_major_line_count": 5310,
   "final_available_count": 0,
   "next_stage_available_count": 0,

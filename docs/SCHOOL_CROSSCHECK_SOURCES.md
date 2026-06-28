@@ -15,7 +15,7 @@
 
 ## 二、当前自动核验账本
 
-当前高校侧辅证刷新入口为 `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv`，覆盖 36 所学校、78 个 `高校×高校侧辅证动作`。它把 854 条 B0/B1 高校辅证压缩成学校级任务：S0 PDF 原页与湖北官方优先闭环 14 条、S1 专业名匹配人工确认 12 条、S2 高校官网来源结构化刷新 23 条、S3 强辅证分层抽检 10 条、S4 继续补高校官网计划源 14 条、S5 章程规则核特殊限制 5 条。该账本只做 double check 和派单，不证明字段事实已核准。
+当前高校侧辅证刷新入口为 `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv`，覆盖 36 所学校、80 个 `高校×高校侧辅证动作`。它把 854 条 B0/B1 高校辅证压缩成学校级任务：S0 PDF 原页与湖北官方优先闭环 15 条、S1 专业名匹配人工确认 12 条、S2 高校官网来源结构化刷新 23 条、S3 强辅证分层抽检 11 条、S4 继续补高校官网计划源 14 条、S5 章程规则核特殊限制 5 条。该账本只做 double check 和派单，不证明字段事实已核准。
 
 ## 三、已留存样例
 

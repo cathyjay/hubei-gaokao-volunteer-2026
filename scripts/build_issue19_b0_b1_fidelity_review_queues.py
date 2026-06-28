@@ -262,13 +262,13 @@ def build_unmatched_rows(ledger_rows):
 def source_gap_kind(row, retained_school_names):
     name = row.get("院校名称OCR", "")
     status = row.get("官网来源状态", "")
+    if name in retained_school_names:
+        return "已有结构化证据但仍需省招办闭环"
     if status == "needs_official_plan_source_search":
         return "需继续寻找高校官网湖北2026计划"
-    if name not in retained_school_names:
-        return "有官网线索但尚未结构化到逐专业证据"
     if status == "charter_or_rules_only_no_plan":
         return "仅章程规则线索"
-    return "已有结构化证据但仍需省招办闭环"
+    return "有官网线索但尚未结构化到逐专业证据"
 
 
 def source_gap_priority(row, kind):

@@ -9,12 +9,12 @@
   "input_files": [
     {
       "path": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
-      "sha256": "c72ce06fb3946d4806bc3d95a5bc857fb7381b7f7d5037faa0056daf83f5d426",
+      "sha256": "e315a73c436a6744d2317fa44919aa08d3e4e8b19b97ff41d42a62f3530c33bf",
       "row_count": 854
     },
     {
       "path": "data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv",
-      "sha256": "dd4d8e3793d1581f8de1d5b1e902e16aaee06d5208d315d5dee7a89ebd6c876a",
+      "sha256": "fdffbc42cf4058dee37b25df130b20647b87cc0a1d2ca61a77ec4f00814aadc4",
       "row_count": 319
     },
     {
@@ -24,17 +24,17 @@
   ],
   "detail_output_table": "data/working/issue19-stable-foundation-first-closure-detail-packet.csv",
   "page_side_output_table": "data/working/issue19-stable-foundation-first-closure-page-side-packet.csv",
-  "detail_row_count": 205,
-  "page_side_row_count": 36,
-  "unique_detail_task_id_count": 205,
-  "unique_major_line_id_count": 150,
+  "detail_row_count": 206,
+  "page_side_row_count": 37,
+  "unique_detail_task_id_count": 206,
+  "unique_major_line_id_count": 151,
   "unique_pdf_page_count": 32,
-  "unique_page_side_count": 36,
-  "auto_priority_detail_count": 104,
+  "unique_page_side_count": 37,
+  "auto_priority_detail_count": 105,
   "manual_priority_detail_count": 101,
   "auto_action_counts": {
     "C1-官网补缺候选但禁止自动写回": 55,
-    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C0-冲突先核PDF原页和湖北官方系统": 19,
     "C7-官网源未匹配专业需人工确认专业名": 31
   },
   "manual_execution_batch_counts": {
@@ -43,13 +43,13 @@
     "EXEC-01-冲突异常立即核页": 16
   },
   "page_side_priority_counts": {
-    "Q0-冲突页列第一批先核": 17,
+    "Q0-冲突页列第一批先核": 18,
     "Q1-补缺或计划数偏大页列先核": 11,
     "Q2-官网未匹配或高校辅证页列先核": 8
   },
   "page_side_with_auto_and_manual_count": 12,
-  "page_side_with_plan_conflict_or_fill_count": 28,
-  "page_side_with_double_review_count": 29,
+  "page_side_with_plan_conflict_or_fill_count": 29,
+  "page_side_with_double_review_count": 30,
   "final_available_count": 0,
   "next_stage_available_count": 0,
   "recommendation_basis_allowed_count": 0,
@@ -58,7 +58,7 @@
   "field_writeback_allowed_count": 0,
   "policy": {
     "scope": "第一闭环批次只纳入C0/C1/C7官网辅证任务和EXEC-01/02/03 P0字段任务。",
-    "manual_compression": "205条明细任务压缩到36个页列、32个PDF页，按页列集中核验。",
+    "manual_compression": "206条明细任务压缩到37个页列、32个PDF页，按页列集中核验。",
     "official_boundary": "第19期PDF原页和湖北官方系统/省招办计划仍是字段事实闭环条件；高校官网不能替代湖北官方计划。",
     "no_finalization": "本批次不确认任何字段值，不自动写回主表，不生成学校专业建议。"
   }

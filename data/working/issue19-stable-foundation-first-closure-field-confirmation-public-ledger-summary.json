@@ -11,18 +11,18 @@
   "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
   "output_table": "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv",
   "row_grain": "逐任务×第一闭环字段确认公开状态",
-  "row_count": 205,
+  "row_count": 206,
   "private_field_confirmation_workbench_generated": true,
-  "private_field_confirmation_workbench_sha256": "a70db15bec76719830e4df5d0c41c3e1d6c0b890a01fdac7a61de4874de1cba2",
-  "unique_public_ledger_id_count": 205,
-  "unique_first_closure_task_id_count": 205,
-  "unique_pdf_ocr_audit_id_count": 205,
-  "unique_machine_coordinate_audit_id_count": 205,
-  "unique_page_side_count": 36,
+  "private_field_confirmation_workbench_sha256": "0b21bd0f897722a533a28630a339b61f4d22a6a410984004847a1415b3b69507",
+  "unique_public_ledger_id_count": 206,
+  "unique_first_closure_task_id_count": 206,
+  "unique_pdf_ocr_audit_id_count": 206,
+  "unique_machine_coordinate_audit_id_count": 206,
+  "unique_page_side_count": 37,
   "unique_pdf_page_count": 32,
   "field_counts": {
     "专业计划数；学费": 36,
-    "专业计划数；学费；再选科目": 54,
+    "专业计划数；学费；再选科目": 55,
     "学费": 12,
     "专业计划数": 79,
     "再选科目": 20,
@@ -30,64 +30,64 @@
     "待人工判定字段": 2
   },
   "task_source_type_counts": {
-    "自动官网辅证任务": 104,
+    "自动官网辅证任务": 105,
     "P0人工字段任务": 101
   },
   "manual_review_lane_counts": {
-    "F0-PDFOCR与高校辅证冲突双人核页": 25,
+    "F0-PDFOCR与高校辅证冲突双人核页": 26,
     "F1-机器坐标候选辅助核页": 49,
     "F2-PDFOCR候选人工确认": 77,
     "F4-无候选人工看图": 54
   },
   "manual_review_mode_counts": {
-    "双人复核": 25,
+    "双人复核": 26,
     "单人初核加抽检": 126,
     "人工看图": 54
   },
   "combined_hint_bucket_counts": {
-    "H0-PDFOCR与高校辅证冲突": 25,
+    "H0-PDFOCR与高校辅证冲突": 26,
     "H1-原缺PDFOCR但有机器坐标候选": 49,
     "H2-已有PDFOCR候选": 77,
     "H4-无候选需人工看图": 54
   },
   "pdf_hint_record_status_counts": {
-    "private_pdf_ocr_candidate_seeded": 102,
+    "private_pdf_ocr_candidate_seeded": 103,
     "private_pdf_ocr_candidate_unavailable_needs_manual_image_review": 103
   },
   "machine_hint_record_status_counts": {
-    "M2-原已有PDFOCR候选不启用机器坐标补候选": 102,
+    "M2-原已有PDFOCR候选不启用机器坐标补候选": 103,
     "M0-机器坐标单一候选可作为人工核页提示": 49,
     "M1-机器坐标仍无候选需人工看图": 52,
     "M3-未匹配到P0机器坐标任务需人工判定": 2
   },
   "pdf_private_record_status_counts": {
-    "pending_private_pdf_reading": 205
+    "pending_private_pdf_reading": 206
   },
   "hubei_private_record_status_counts": {
-    "pending_private_hubei_reading": 205
+    "pending_private_hubei_reading": 206
   },
   "school_private_record_status_counts": {
-    "pending_private_school_reading": 179,
+    "pending_private_school_reading": 180,
     "not_applicable_no_school_field_clue": 26
   },
   "double_review_status_counts": {
-    "pending_double_review": 90,
+    "pending_double_review": 91,
     "double_review_not_required": 115
   },
   "three_way_public_status_counts": {
-    "pending_private_three_way_field_confirmation": 205
+    "pending_private_three_way_field_confirmation": 206
   },
   "field_writeback_review_status_counts": {
-    "blocked_until_required_private_readings_complete": 205
+    "blocked_until_required_private_readings_complete": 206
   },
-  "pdf_ocr_hint_task_count": 102,
+  "pdf_ocr_hint_task_count": 103,
   "machine_coordinate_hint_task_count": 49,
-  "school_hint_task_count": 73,
-  "direct_image_review_required_count": 79,
-  "double_review_required_count": 90,
-  "pdf_manual_review_pending_count": 205,
-  "hubei_official_review_pending_count": 205,
-  "three_way_closure_pending_count": 205,
+  "school_hint_task_count": 74,
+  "direct_image_review_required_count": 80,
+  "double_review_required_count": 91,
+  "pdf_manual_review_pending_count": 206,
+  "hubei_official_review_pending_count": 206,
+  "three_way_closure_pending_count": 206,
   "field_writeback_ready_count": 0,
   "field_conflict_blocked_count": 0,
   "final_available_count": 0,

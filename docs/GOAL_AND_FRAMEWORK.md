@@ -43,23 +43,23 @@
 
 新增的 `data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv` 和 `data/working/issue19-stable-foundation-minimal-manual-closure-workbench.csv` 是当前“湖北官方公开结构化源暂不可得”时的下一步闭环入口：前者把 854 条高校官网辅证分成自动复跑、冲突、补缺、补结构化和补源动作，后者把 319 条 P0 即时字段任务压缩成最小人工核页包。它们只能决定核验顺序和工作量压缩方式，不能把高校官网、裁图 OCR 或人工派单当作最终招生计划事实。
 
-新增的 `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 是高校侧辅证刷新账本：把 854 条 B0/B1 高校官网辅证按 `高校×高校侧辅证动作` 聚合成 78 条任务，覆盖 36 所学校。它用于自动复跑或补结构化高校官网/API/XLSX/PDF/图片来源，并把 C0/C1/C7 必核项、C2 抽检项、C4/C6 补结构化和补源项分开；抽检失败时升级同页列、同校或同专业组人工核验。该账本仍只是 double check 和低人工量派单层，不替代湖北官方侧和第 19 期原页。
+新增的 `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 是高校侧辅证刷新账本：把 854 条 B0/B1 高校官网辅证按 `高校×高校侧辅证动作` 聚合成 80 条任务，覆盖 36 所学校。它用于自动复跑或补结构化高校官网/API/XLSX/PDF/图片来源，并把 C0/C1/C7 必核项、C2 抽检项、C4/C6 补结构化和补源项分开；抽检失败时升级同页列、同校或同专业组人工核验。该账本仍只是 double check 和低人工量派单层，不替代湖北官方侧和第 19 期原页。
 
-新增的 `data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 是第一批执行入口：把最高优先级的 205 条明细任务集中到 36 个页列，先核冲突、补缺、官网未匹配和高校辅证字段线索。它只压缩人工工作量和安排核验顺序，不改变“湖北官方计划和 PDF 原页闭环前不得定案”的原则。
+新增的 `data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 是第一批执行入口：把最高优先级的 206 条明细任务集中到 37 个页列，先核冲突、补缺、官网未匹配和高校辅证字段线索。它只压缩人工工作量和安排核验顺序，不改变“湖北官方计划和 PDF 原页闭环前不得定案”的原则。
 
-配套的 `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-review-summary.json` 已把这 36 个页列接入私有复核页面和公开状态机。公开层只同步任务数、私有材料 SHA、回链和门禁；当前 36 个页列全部还是 `R0-Overlay已生成未填写`，所以它只是第一闭环的执行承接材料，不是字段核准表或志愿建议表。
+配套的 `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-review-summary.json` 已把这 37 个页列接入私有复核页面和公开状态机。公开层只同步任务数、私有材料 SHA、回链和门禁；当前 37 个页列全部还是 `R0-Overlay已生成未填写`，所以它只是第一闭环的执行承接材料，不是字段核准表或志愿建议表。
 
-进一步的 `data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-task-review-summary.json` 把 205 条任务逐条回连到页列材料、PDF 原页、湖北官方侧、高校辅证线索和公共来源文件 SHA。它让后续人工核页可以按任务推进，但所有推荐、写回、最终可用门禁仍为 0。
+进一步的 `data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-task-review-summary.json` 把 206 条任务逐条回连到页列材料、PDF 原页、湖北官方侧、高校辅证线索和公共来源文件 SHA。它让后续人工核页可以按任务推进，但所有推荐、写回、最终可用门禁仍为 0。
 
-新增的 `data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json` 只公开第一闭环私有预填的页列级审计：36 个页列、205 条任务、73 条高校侧辅证候选线索已经进入私有核页提示层，但公开层不保存候选值。它的作用是减少人工打开高校官网和逐行查找成本，不改变“PDF 原页、省招办/湖北官方侧、必要高校侧辅证和双人复核闭环前不得定案”的原则。
+新增的 `data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json` 只公开第一闭环私有预填的页列级审计：37 个页列、206 条任务、74 条高校侧辅证候选线索已经进入私有核页提示层，但公开层不保存候选值。它的作用是减少人工打开高校官网和逐行查找成本，不改变“PDF 原页、省招办/湖北官方侧、必要高校侧辅证和双人复核闭环前不得定案”的原则。
 
-新增的 `data/working/issue19-stable-foundation-first-closure-execution-queue.csv` 和 `data/working/issue19-stable-foundation-first-closure-execution-queue-summary.json` 把这 36 个页列排成第一闭环核验顺序：E0 冲突异常双人优先核验 17 个、E1 计划数补缺或偏大优先核验 11 个、E2 官网未匹配专业名归属核验 8 个。它只公开页列顺序、计数、证据编号、SHA、完成条件和阻断原因，不公开学校专业明细、候选值、人工读数、识别正文或私有路径；它是“先核什么”的工作台，不是“已经核准”的事实表。
+新增的 `data/working/issue19-stable-foundation-first-closure-execution-queue.csv` 和 `data/working/issue19-stable-foundation-first-closure-execution-queue-summary.json` 把这 37 个页列排成第一闭环核验顺序：E0 冲突异常双人优先核验 18 个、E1 计划数补缺或偏大优先核验 11 个、E2 官网未匹配专业名归属核验 8 个。它只公开页列顺序、计数、证据编号、SHA、完成条件和阻断原因，不公开学校专业明细、候选值、人工读数、识别正文或私有路径；它是“先核什么”的工作台，不是“已经核准”的事实表。
 
-新增的 `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json` 是第一闭环 PDF OCR 候选提示层：覆盖 205 条任务，102 条已有 PDF OCR 候选，103 条需人工看图，25 条存在 PDF OCR 与高校辅证冲突，13 条存在一致字段但仍需官方闭环。它把私有候选值留在 Git 忽略目录，公开层只同步状态桶和计数，用于减少人工找行成本，不能自动写入人工记录或字段事实。
+新增的 `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json` 是第一闭环 PDF OCR 候选提示层：覆盖 206 条任务，103 条已有 PDF OCR 候选，103 条需人工看图，26 条存在 PDF OCR 与高校辅证冲突，13 条存在一致字段但仍需官方闭环。它把私有候选值留在 Git 忽略目录，公开层只同步状态桶和计数，用于减少人工找行成本，不能自动写入人工记录或字段事实。
 
-新增的 `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv` 和 `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv` 继续压缩第一闭环人工工作量：前者把 205 条任务按 36 个页列给出核验动作，后者把 103 条原缺 PDF OCR 候选任务中的 49 条提升为机器坐标候选待人工核页。机器坐标候选只用于提示人工回看 PDF 原页，仍必须核湖北官方侧，不得自动写回字段事实或进入志愿推荐。
+新增的 `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv` 和 `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv` 继续压缩第一闭环人工工作量：前者把 206 条任务按 37 个页列给出核验动作，后者把 103 条原缺 PDF OCR 候选任务中的 49 条提升为机器坐标候选待人工核页。机器坐标候选只用于提示人工回看 PDF 原页，仍必须核湖北官方侧，不得自动写回字段事实或进入志愿推荐。
 
-新增的 `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv` 是第一闭环的字段确认桥：它不公开候选值和人工读数，只把 205 条任务的 PDF 原页私有记录、湖北官方侧私有记录、高校辅证私有记录、双人复核和三方一致性状态同步为公开状态机。当前它显示 205 条任务仍全部卡在 PDF 原页和湖北官方侧待核阶段，字段写回、推荐依据、学校专业建议和最终可用全部为 0；这正是后续人工或登录官方系统核验的执行入口，而不是最终招生计划事实表。
+新增的 `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv` 是第一闭环的字段确认桥：它不公开候选值和人工读数，只把 206 条任务的 PDF 原页私有记录、湖北官方侧私有记录、高校辅证私有记录、双人复核和三方一致性状态同步为公开状态机。当前它显示 206 条任务仍全部卡在 PDF 原页和湖北官方侧待核阶段，字段写回、推荐依据、学校专业建议和最终可用全部为 0；这正是后续人工或登录官方系统核验的执行入口，而不是最终招生计划事实表。
 
 ## 三、学校分析维度
 

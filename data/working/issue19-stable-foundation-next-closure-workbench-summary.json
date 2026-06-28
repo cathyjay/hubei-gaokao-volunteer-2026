@@ -9,37 +9,37 @@
   "input_files": [
     {
       "path": "data/working/issue19-stable-foundation-major-screening-view.csv",
-      "sha256": "8abc03946fcb1bdbd18d565428bf402e46915f778150420726a1afb413472885",
+      "sha256": "b882538b5ffc1eec289714c7864d40bd5035361e11b32184cc5181425705c9fb",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-stable-foundation-group-screening-view.csv",
-      "sha256": "536b023f65d8986ae73cc4f43c1c4434bf65aaa15b3ec0eaeb99e4ad237d5052",
+      "sha256": "42091721fcc2d155307628bc8593b98bae54b3a442a57d7d3cbad925a9282782",
       "row_count": 3329
     },
     {
       "path": "data/working/issue19-major-evidence-level-routing.csv",
-      "sha256": "0110ed8ce58b32b6fd1731615d7937b92015b39cc977419a724e754ade8d9795",
+      "sha256": "3eb5d11214f7874058c0e81dac1dd387dd45227f70f1f2996bf5787b14ba00f2",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-b0-b1-official-evidence-by-major-line.csv",
-      "sha256": "73bd9c3ad276d8533936b676cd174c6d8d19aabc1a410419455da7af492c40c6",
+      "sha256": "ab7172b10c0c7b1f50d729b8ae5438eba2a01f70d2868e7fafb22f6650c29e83",
       "row_count": 854
     },
     {
       "path": "data/working/issue19-b0-b1-public-official-diff-ledger.csv",
-      "sha256": "56e84609ffdd4407f9a12761489dd01638c188d4eaa28f6bfcbb440898ee31fa",
+      "sha256": "4b48a949cc5c48945cb7f6d135566c99898bdfd9ecd79a2f5c175810f28c7f02",
       "row_count": 854
     },
     {
       "path": "data/working/issue19-p0-immediate-field-confirmation-public-ledger.csv",
-      "sha256": "87ec452071e325daaf9ff0e51c221e6e217932d8f8eeebc6f8eb17c5729b3236",
+      "sha256": "57d38908d751b2f7cd38ff0ba8eaad9b9b00259a1ce585ba6ddc4f48ab902e30",
       "row_count": 319
     },
     {
       "path": "data/working/issue19-p0-immediate-page-execution-progress-public-ledger.csv",
-      "sha256": "75cde6d5bead1eb7af5254deca8f46d73cf9b2fa13ad8421ecbf9e29e67cfc65",
+      "sha256": "abd5347985ab88ac5d27590424647d45e52dc6d736192df3873a4902ea8397f8",
       "row_count": 148
     },
     {
@@ -57,24 +57,24 @@
   "unique_manual_major_line_id_count": 319,
   "unique_manual_page_side_count": 148,
   "auto_action_counts": {
-    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C0-冲突先核PDF原页和湖北官方系统": 19,
     "C1-官网补缺候选但禁止自动写回": 55,
     "C7-官网源未匹配专业需人工确认专业名": 31,
-    "C2-强辅证抽检并等待湖北官方闭环": 61,
+    "C2-强辅证抽检并等待湖北官方闭环": 66,
     "C3-字段辅证补充结构化后核原页": 19,
     "C4-已有部分来源需补结构化或补湖北行": 411,
     "C5-仅章程规则核特殊要求不能核计划数": 63,
-    "C6-继续搜索高校官网2026湖北计划源": 196
+    "C6-继续搜索高校官网2026湖北计划源": 190
   },
   "auto_evidence_strength_counts": {
-    "conflict_review": 18,
+    "conflict_review": 19,
     "fill_candidate": 55,
     "unmatched": 31,
-    "strong_support": 61,
+    "strong_support": 66,
     "field_support": 19,
     "partial_source": 411,
     "rules_only": 63,
-    "needs_source": 196
+    "needs_source": 190
   },
   "manual_field_counts": {
     "专业计划数": 281,

@@ -22,7 +22,7 @@
   "candidate_v3_fidelity_hit_row_count": 7199,
   "b0_b1_school_source_hit_row_count": 464,
   "d0_pdf_evidence_hit_row_count": 54,
-  "b0_b1_plan_conflict_row_count": 8,
+  "b0_b1_plan_conflict_row_count": 9,
   "b0_b1_unmatched_major_row_count": 24,
   "missing_plan_count_row_count": 2831,
   "missing_tuition_row_count": 450,
@@ -43,13 +43,13 @@
     "charter_or_rules_only_no_plan": 41,
     "has_partial_source_needs_followup": 203,
     "has_reusable_2026_hubei_plan_source": 104,
-    "needs_official_plan_source_search": 108,
+    "needs_official_plan_source_search": 107,
     "priority_pack_not_yet_school_source_searched": 7073,
-    "官网专业名匹配但计划数冲突-优先核页": 8
+    "官网专业名匹配但计划数冲突-优先核页": 9
   },
   "evidence_marker_counts": {
     "B0/B1官网未匹配专业": 24,
-    "B0/B1计划数冲突": 8,
+    "B0/B1计划数冲突": 9,
     "命中B0/B1学校官网来源队列": 464,
     "命中D0原页OCR证据": 54,
     "命中候选V3保真总账": 7199,

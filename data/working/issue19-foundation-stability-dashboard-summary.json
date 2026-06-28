@@ -33,11 +33,11 @@
   },
   "scorecard_action_bucket_counts": {
     "S4-字段缺口无候选需原页重读": 3360,
-    "S2-P0原页结构和字段先核": 5176,
+    "S2-P0原页结构和字段先核": 5170,
     "S3-字段缺口有候选先核": 4248,
     "S6-常规三方闭环": 609,
-    "S1-P0原页+官网辅证同步核": 116,
-    "S0-B0B1冲突+P0原页优先": 18,
+    "S1-P0原页+官网辅证同步核": 121,
+    "S0-B0B1冲突+P0原页优先": 19,
     "S8-低风险抽检": 207,
     "S7-低风险但证据锚点异常抽检": 2
   },
@@ -53,9 +53,9 @@
     "not_yet_school_source_searched_in_full_workbench": 12882,
     "has_partial_source_needs_followup": 412,
     "has_reusable_2026_hubei_plan_source": 194,
-    "官网专业名匹配但计划数冲突-优先核页": 18,
+    "官网专业名匹配但计划数冲突-优先核页": 19,
     "charter_or_rules_only_no_plan": 63,
-    "needs_official_plan_source_search": 167
+    "needs_official_plan_source_search": 166
   },
   "field_gap_count_distribution": {
     "1": 6574,

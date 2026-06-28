@@ -387,17 +387,21 @@ def build_b0b1_diff_ledger(indexes):
             full_row.get("专业代号OCR", ""),
             full_row.get("专业名称及备注OCR", ""),
         ), {})
+        effective_source_status = match_row.get("官网来源状态") or source_status
         diff_fields = []
-        if full_row.get("B0B1计划冲突来源明细ID"):
+        if (
+            full_row.get("B0B1计划冲突来源明细ID")
+            or match_row.get("计划数核验状态") == "mismatch"
+        ):
             diff_fields.append("计划数冲突")
         if full_row.get("B0B1未匹配专业来源明细ID"):
             diff_fields.append("官网专业未匹配")
-        if not match_row.get("最佳官网来源文件") and source_status in {
+        if not match_row.get("最佳官网来源文件") and effective_source_status in {
             "needs_official_plan_source_search",
             "has_partial_source_needs_followup",
         }:
             diff_fields.append("官网计划源待补强")
-        if source_status == "charter_or_rules_only_no_plan":
+        if effective_source_status == "charter_or_rules_only_no_plan":
             diff_fields.append("仅章程或规则线索")
         rows.append({
             "公开官网差异账ID": stable_id("B0B1DIFF", [full_row.get("专业行ID", "")]),
@@ -420,8 +424,8 @@ def build_b0b1_diff_ledger(indexes):
             "OCR计划数": full_row.get("专业计划数OCR候选", ""),
             "OCR学费": full_row.get("学费OCR候选", ""),
             "OCR再选科目": full_row.get("再选科目OCR候选", ""),
-            "高校官网/章程辅证状态": source_status,
-            "官网来源状态": match_row.get("官网来源状态", source_status),
+            "高校官网/章程辅证状态": effective_source_status,
+            "官网来源状态": effective_source_status,
             "官网证据匹配状态": match_row.get("官网证据匹配状态", ""),
             "最佳官网来源文件": match_row.get("最佳官网来源文件", ""),
             "最佳官网专业名称": match_row.get("最佳官网专业名称", full_row.get("最佳官网专业名称", "")),

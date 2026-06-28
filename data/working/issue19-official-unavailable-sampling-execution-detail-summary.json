@@ -13,54 +13,54 @@
   "input_files": [
     {
       "path": "data/working/issue19-official-unavailable-sampling-gates.csv",
-      "sha256": "253480397b5ee95956ec97f6d3b5a9bc8ce2b4c3dc9d0af4b5fd64e7efd090b1",
-      "row_count": 103
+      "sha256": "3f1b39526adc53b48915925286c4276b13b6cf834601f6e3e7e10ab50b13ef82",
+      "row_count": 105
     },
     {
       "path": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
-      "sha256": "c72ce06fb3946d4806bc3d95a5bc857fb7381b7f7d5037faa0056daf83f5d426",
+      "sha256": "e315a73c436a6744d2317fa44919aa08d3e4e8b19b97ff41d42a62f3530c33bf",
       "row_count": 854
     },
     {
       "path": "data/working/issue19-major-evidence-level-routing.csv",
-      "sha256": "0110ed8ce58b32b6fd1731615d7937b92015b39cc977419a724e754ade8d9795",
+      "sha256": "3eb5d11214f7874058c0e81dac1dd387dd45227f70f1f2996bf5787b14ba00f2",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-admission-detail-master-workbench.csv",
-      "sha256": "de9d7801cf4eacbf7cc34dbd01d275a5f477fb3f9c5976463062093ff2087fea",
+      "sha256": "f0c203252be5baf2eb8eb4d7af3cf5f4790314edc4dadec8dceb9e477db57f1d",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-official-public-entry-live-recheck.json",
-      "sha256": "f590c76a16281d27d99a33b465a6f7f83e2b331f6ca05f45935eb66d07568d27"
+      "sha256": "7ced3a7014de66bc635a98845caefdb1c470246d9153b19bd2552c3d2022ca75"
     }
   ],
   "output_table": "data/working/issue19-official-unavailable-sampling-execution-detail.csv",
   "row_grain": "逐专业招生明细",
-  "row_count": 153,
-  "unique_execution_detail_id_count": 153,
-  "unique_major_line_count": 153,
-  "high_risk_100pct_detail_count": 104,
-  "c2_sample_detail_count": 24,
+  "row_count": 155,
+  "unique_execution_detail_id_count": 155,
+  "unique_major_line_count": 155,
+  "high_risk_100pct_detail_count": 105,
+  "c2_sample_detail_count": 25,
   "p3_sample_detail_count": 25,
-  "double_review_required_count": 49,
+  "double_review_required_count": 50,
   "action_counts": {
-    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C0-冲突先核PDF原页和湖北官方系统": 19,
     "C1-官网补缺候选但禁止自动写回": 55,
     "C7-官网源未匹配专业需人工确认专业名": 31,
-    "C2-强辅证抽检并等待湖北官方闭环": 24,
+    "C2-强辅证抽检并等待湖北官方闭环": 25,
     "P3-低风险抽检但非最终": 25
   },
   "execution_category_counts": {
-    "H0-高风险100%人工核验": 104,
-    "H1-C2强辅证抽样核验": 24,
+    "H0-高风险100%人工核验": 105,
+    "H1-C2强辅证抽样核验": 25,
     "H2-P3低风险抽样验收": 25
   },
   "risk_level_counts": {
-    "R4-blocker": 18,
+    "R4-blocker": 19,
     "R3-high": 86,
-    "R1-low": 24,
+    "R1-low": 25,
     "R0-observe": 25
   },
   "field_writeback_allowed_count": 0,
@@ -70,8 +70,8 @@
   "final_available_count": 0,
   "next_stage_available_count": 0,
   "policy": {
-    "high_risk": "C0/C1/C7 已展开到 104 条逐专业明细，全部必须回第19期原页并核湖北官方侧。",
-    "sampling": "C2 强辅证从 61 条池中抽 24 条逐专业明细，P3 低风险池抽 25 条逐专业明细。",
+    "high_risk": "C0/C1/C7 已展开到 105 条逐专业明细，全部必须回第19期原页并核湖北官方侧。",
+    "sampling": "C2 强辅证抽 25 条逐专业明细，P3 低风险池抽 25 条逐专业明细。",
     "boundary": "本表只把任务下沉到可执行明细，仍不确认字段、不写回、不生成学校专业建议或志愿推荐。"
   }
 }

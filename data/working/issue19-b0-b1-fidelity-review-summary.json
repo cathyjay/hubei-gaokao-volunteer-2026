@@ -6,13 +6,14 @@
     "data/working/issue19-candidate-v3-b0-b1-school-official-source-queue.csv",
     "data/working/issue19-b0-b1-retained-official-plan-normalized.csv"
   ],
-  "plan_conflict_row_count": 18,
+  "plan_conflict_row_count": 19,
   "plan_conflict_type_counts": {
     "OCR计划数疑似误取学费": 13,
-    "OCR计划数与官网计划数不一致": 5
+    "OCR计划数与官网计划数不一致": 6
   },
   "plan_conflict_school_counts": {
     "江苏理工学院": 10,
+    "浙江工业大学": 1,
     "山东工商学院": 1,
     "中国传媒大学": 1,
     "南宁学院": 3,
@@ -26,14 +27,16 @@
     "专业代号非数字疑似OCR噪声": 3,
     "OCR专业名疑似串入下一院校": 4
   },
-  "source_gap_school_count": 19,
+  "source_gap_school_count": 18,
   "source_gap_type_counts": {
-    "需继续寻找高校官网湖北2026计划": 8,
-    "有官网线索但尚未结构化到逐专业证据": 11
+    "需继续寻找高校官网湖北2026计划": 7,
+    "有官网线索但尚未结构化到逐专业证据": 6,
+    "仅章程规则线索": 5
   },
   "source_gap_priority_counts": {
-    "P0-待补官方计划源": 8,
-    "P1-已有线索待结构化": 11
+    "P0-待补官方计划源": 7,
+    "P1-已有线索待结构化": 6,
+    "P2-已有证据待闭环": 5
   },
   "notes": [
     "本摘要只用于安排人工核页和补源，不是最终志愿方案。",

@@ -366,6 +366,10 @@ def main():
     action_counts = Counter(row["官网辅证自动动作"] for row in output_rows)
     category_counts = Counter(row["执行类别"] for row in output_rows)
     risk_counts = Counter(row["风险等级"] for row in output_rows)
+    high_risk_count = sum(row["是否100%人工核验"] == "true" for row in output_rows)
+    c2_sample_count = sum(row["官网辅证自动动作"] == C2_ACTION for row in output_rows)
+    p3_sample_count = sum(row["官网辅证自动动作"] == P3_ACTION for row in output_rows)
+
     summary = {
         "status": "issue19_official_unavailable_sampling_execution_detail_not_final",
         "generated_by": "build_issue19_official_unavailable_sampling_execution_detail.py",
@@ -390,9 +394,9 @@ def main():
         "row_count": len(output_rows),
         "unique_execution_detail_id_count": len({row["官方不可得抽样执行明细ID"] for row in output_rows}),
         "unique_major_line_count": len({row["专业行ID"] for row in output_rows if row["专业行ID"]}),
-        "high_risk_100pct_detail_count": sum(row["是否100%人工核验"] == "true" for row in output_rows),
-        "c2_sample_detail_count": sum(row["官网辅证自动动作"] == C2_ACTION for row in output_rows),
-        "p3_sample_detail_count": sum(row["官网辅证自动动作"] == P3_ACTION for row in output_rows),
+        "high_risk_100pct_detail_count": high_risk_count,
+        "c2_sample_detail_count": c2_sample_count,
+        "p3_sample_detail_count": p3_sample_count,
         "double_review_required_count": sum(row["是否需要双人复核"] == "true" for row in output_rows),
         "action_counts": dict(action_counts),
         "execution_category_counts": dict(category_counts),
@@ -404,8 +408,8 @@ def main():
         "final_available_count": 0,
         "next_stage_available_count": 0,
         "policy": {
-            "high_risk": "C0/C1/C7 已展开到 104 条逐专业明细，全部必须回第19期原页并核湖北官方侧。",
-            "sampling": "C2 强辅证从 61 条池中抽 24 条逐专业明细，P3 低风险池抽 25 条逐专业明细。",
+            "high_risk": f"C0/C1/C7 已展开到 {high_risk_count} 条逐专业明细，全部必须回第19期原页并核湖北官方侧。",
+            "sampling": f"C2 强辅证抽 {c2_sample_count} 条逐专业明细，P3 低风险池抽 {p3_sample_count} 条逐专业明细。",
             "boundary": "本表只把任务下沉到可执行明细，仍不确认字段、不写回、不生成学校专业建议或志愿推荐。",
         },
     }

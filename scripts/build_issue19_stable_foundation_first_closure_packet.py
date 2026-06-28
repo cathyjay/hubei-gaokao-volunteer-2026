@@ -577,7 +577,7 @@ def main():
         "field_writeback_allowed_count": 0,
         "policy": {
             "scope": "第一闭环批次只纳入C0/C1/C7官网辅证任务和EXEC-01/02/03 P0字段任务。",
-            "manual_compression": "205条明细任务压缩到36个页列、32个PDF页，按页列集中核验。",
+            "manual_compression": f"{len(detail_rows)}条明细任务压缩到{len(page_side_rows)}个页列、{len({row.get('来源页码') for row in detail_rows})}个PDF页，按页列集中核验。",
             "official_boundary": "第19期PDF原页和湖北官方系统/省招办计划仍是字段事实闭环条件；高校官网不能替代湖北官方计划。",
             "no_finalization": "本批次不确认任何字段值，不自动写回主表，不生成学校专业建议。"
         },

@@ -3,12 +3,12 @@
   "generated_by": "build_issue19_p0_evidence_execution_packets.py",
   "source_closure_tasks": "data/working/issue19-full-major-evidence-closure-tasks.csv",
   "output_table": "data/working/issue19-p0-evidence-execution-packets.csv",
-  "source_closure_task_count": 94935,
-  "p0_task_row_count": 6619,
-  "unique_p0_task_id_count": 6619,
-  "unique_source_closure_task_id_count": 6619,
+  "source_closure_task_count": 94936,
+  "p0_task_row_count": 6620,
+  "unique_p0_task_id_count": 6620,
+  "unique_source_closure_task_id_count": 6620,
   "unique_major_line_id_count": 5310,
-  "unique_packet_id_count": 2282,
+  "unique_packet_id_count": 2283,
   "unique_pdf_page_count": 231,
   "unique_school_count": 1056,
   "auto_upgrade_allowed_count": 0,
@@ -16,26 +16,26 @@
   "packet_type_counts": {
     "P0A-PDF原页结构阻断": 4047,
     "P0B-三方证据闭环": 2526,
-    "P0C-B0B1差异复核": 46
+    "P0C-B0B1差异复核": 47
   },
   "task_status_counts": {
     "pending_original_pdf_page_review": 3991,
     "pending_hubei_official_plan_review": 1263,
-    "pending_school_plan_source_search": 148,
+    "pending_school_plan_source_search": 147,
     "pending_school_plan_or_charter_review": 581,
     "has_school_plan_source_pending_crosscheck": 143,
     "has_d0_page_ocr_evidence_pending_original_pdf_review": 56,
     "has_partial_school_source_pending_followup": 346,
     "pending_b0_b1_unmatched_major_review": 28,
-    "school_source_conflict_pending_pdf_and_hubei_review": 4,
-    "pending_b0_b1_plan_conflict_review": 18,
+    "school_source_conflict_pending_pdf_and_hubei_review": 5,
+    "pending_b0_b1_plan_conflict_review": 19,
     "has_charter_or_rules_but_no_plan_detail": 41
   },
   "evidence_item_counts": {
     "PDF原页核验": 4047,
     "湖北官方系统/省招办计划核验": 1263,
     "高校官网/章程辅证": 1263,
-    "B0/B1官网冲突或未匹配复核": 46
+    "B0/B1官网冲突或未匹配复核": 47
   },
   "top_pdf_pages": [
     {
@@ -132,7 +132,7 @@
     },
     {
       "来源页码": "137",
-      "P0任务数": 58
+      "P0任务数": 59
     },
     {
       "来源页码": "151",

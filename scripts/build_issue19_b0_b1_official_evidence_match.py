@@ -42,6 +42,7 @@ SOURCE_FILES_BY_SCHOOL = {
     "山东工商学院": ["sdtbu-2026-hubei-physics-plan-extracted.csv"],
     "江苏理工学院": ["jsut-2026-hubei-physics-plan-extracted.csv"],
     "南宁学院": ["unn-2026-undergraduate-plan-page.html"],
+    "浙江工业大学": ["zjut-2026-hubei-physics-plan-extracted.csv"],
 }
 
 NORMALIZED_FIELDS = [
@@ -221,6 +222,7 @@ def normalize_major_name(value):
         "入工智能": "人工智能",
         "百动化": "自动化",
         "直动化": "自动化",
+        "生木": "土木",
         "士木": "土木",
         "工得": "工程",
         "浓车": "汽车",
@@ -446,6 +448,10 @@ def parse_extracted_pdf_csv(path, school_name):
             source_note_parts.append(f"页码：{item.get('页码', '')}")
         if item.get("PDF表格行号"):
             source_note_parts.append(f"PDF表格行号：{item.get('PDF表格行号', '')}")
+        if item.get("专业代码OCR"):
+            source_note_parts.append(f"专业代码OCR：{item.get('专业代码OCR', '')}")
+        if item.get("湖北格bbox_px"):
+            source_note_parts.append(f"湖北格bbox_px：{item.get('湖北格bbox_px', '')}")
         if item.get("系"):
             source_note_parts.append(f"系：{item.get('系', '')}")
         if item.get("总计划数"):
@@ -971,6 +977,11 @@ def build_match_rows(normalized_rows, detail_rows):
         else:
             match_status = "matched"
         plan_check = plan_status(detail, best)
+        source_status = (
+            "has_reusable_2026_hubei_plan_source"
+            if best
+            else detail["官网来源状态"]
+        )
         match_rows.append(
             {
                 "招生明细主表行ID": detail["招生明细主表行ID"],
@@ -993,7 +1004,7 @@ def build_match_rows(normalized_rows, detail_rows):
                 "专业风险类型": detail["专业风险类型"],
                 "机器专业接受度初判": detail["机器专业接受度初判"],
                 "调剂影响初判": detail["调剂影响初判"],
-                "官网来源状态": detail["官网来源状态"],
+                "官网来源状态": source_status,
                 "官网证据匹配状态": match_status,
                 "官网证据覆盖结论": coverage_conclusion(match_status, plan_check),
                 "最佳官网来源文件": best["官方来源文件"] if best else "",
@@ -1006,7 +1017,7 @@ def build_match_rows(normalized_rows, detail_rows):
                 "专业名称匹配方式": method,
                 "专业名称匹配分": str(score),
                 "计划数核验状态": plan_check,
-                "仍需核验": remaining_requirements(match_status, plan_check, detail["官网来源状态"]),
+                "仍需核验": remaining_requirements(match_status, plan_check, source_status),
             }
         )
     return match_rows

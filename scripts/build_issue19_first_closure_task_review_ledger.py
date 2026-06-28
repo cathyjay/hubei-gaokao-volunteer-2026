@@ -408,7 +408,7 @@ def build():
         "school_major_suggestion_allowed_count": 0,
         "official_plan_replacement_allowed_count": 0,
         "policy": {
-            "purpose": "把第一闭环205条任务逐条接到36个页列材料、公共高校来源文件SHA和三方核验状态。",
+            "purpose": f"把第一闭环{len(output_rows)}条任务逐条接到{len({row.get('页码版面键') for row in output_rows})}个页列材料、公共高校来源文件SHA和三方核验状态。",
             "public_boundary": "公开表只保存任务状态、公共来源文件SHA、证据编号和门禁，不保存字段读数、页图路径或OCR原文。",
             "no_finalization": "本账本不确认字段事实，不自动写回，不生成学校专业建议。",
         },

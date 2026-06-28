@@ -8,29 +8,29 @@
   "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
   "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
   "output_table": "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv",
-  "public_row_count": 205,
-  "unique_task_count": 205,
-  "unique_page_side_count": 36,
+  "public_row_count": 206,
+  "unique_task_count": 206,
+  "unique_page_side_count": 37,
   "unique_pdf_page_count": 32,
-  "auto_task_count": 104,
+  "auto_task_count": 105,
   "manual_task_count": 101,
   "task_source_type_counts": {
-    "自动官网辅证任务": 104,
+    "自动官网辅证任务": 105,
     "P0人工字段任务": 101
   },
   "page_side_priority_counts": {
-    "Q0-冲突页列第一批先核": 105,
+    "Q0-冲突页列第一批先核": 106,
     "Q2-官网未匹配或高校辅证页列先核": 38,
     "Q1-补缺或计划数偏大页列先核": 62
   },
   "auto_task_action_counts": {
     "C1-官网补缺候选但禁止自动写回": 55,
-    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C0-冲突先核PDF原页和湖北官方系统": 19,
     "C7-官网源未匹配专业需人工确认专业名": 31
   },
   "school_support_action_counts": {
     "C1-官网补缺候选但禁止自动写回": 110,
-    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C0-冲突先核PDF原页和湖北官方系统": 19,
     "C7-官网源未匹配专业需人工确认专业名": 31,
     "C2-强辅证抽检并等待湖北官方闭环": 4,
     "C4-已有部分来源需补结构化或补湖北行": 2,
@@ -46,14 +46,14 @@
     "再选科目": 19,
     "学费": 5
   },
-  "double_review_required_count": 90,
-  "pdf_required_count": 205,
-  "hubei_official_required_count": 205,
-  "school_support_required_count": 179,
-  "school_source_reference_row_count": 73,
-  "unique_school_source_file_count": 11,
+  "double_review_required_count": 91,
+  "pdf_required_count": 206,
+  "hubei_official_required_count": 206,
+  "school_support_required_count": 180,
+  "school_source_reference_row_count": 74,
+  "unique_school_source_file_count": 12,
   "school_source_file_missing_count": 0,
-  "auto_hint_allowed_count": 73,
+  "auto_hint_allowed_count": 74,
   "official_public_plan_page_can_finalize": false,
   "zspt_platform_can_finalize": false,
   "field_writeback_allowed_count": 0,
@@ -63,7 +63,7 @@
   "school_major_suggestion_allowed_count": 0,
   "official_plan_replacement_allowed_count": 0,
   "policy": {
-    "purpose": "把第一闭环205条任务逐条接到36个页列材料、公共高校来源文件SHA和三方核验状态。",
+    "purpose": "把第一闭环206条任务逐条接到37个页列材料、公共高校来源文件SHA和三方核验状态。",
     "public_boundary": "公开表只保存任务状态、公共来源文件SHA、证据编号和门禁，不保存字段读数、页图路径或OCR原文。",
     "no_finalization": "本账本不确认字段事实，不自动写回，不生成学校专业建议。"
   }

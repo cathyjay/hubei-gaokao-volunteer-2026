@@ -374,7 +374,7 @@ def build():
         "completion_status_counts": dict(Counter(row["页列完成状态"] for row in queue_rows)),
         "policy": {
             "boundary": "本队列只安排人工核验顺序和状态同步，不确认字段、不写回、不生成学校专业建议或志愿推荐。",
-            "minimum_manual_scope": "46个页列包；153条抽样明细；PDF原页和湖北官方侧均需闭环。",
+            "minimum_manual_scope": f"{len(queue_rows)}个页列包；{sum(as_int(row['页列抽样明细数']) for row in queue_rows)}条抽样明细；PDF原页和湖北官方侧均需闭环。",
         },
     }
     write_json(SUMMARY_OUTPUT, summary)

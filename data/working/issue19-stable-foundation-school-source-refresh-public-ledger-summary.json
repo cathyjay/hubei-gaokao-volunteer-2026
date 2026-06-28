@@ -11,7 +11,7 @@
   "input_files": [
     {
       "path": "data/working/issue19-stable-foundation-auto-official-crosscheck-workbench.csv",
-      "sha256": "c72ce06fb3946d4806bc3d95a5bc857fb7381b7f7d5037faa0056daf83f5d426",
+      "sha256": "e315a73c436a6744d2317fa44919aa08d3e4e8b19b97ff41d42a62f3530c33bf",
       "row_count": 854
     },
     {
@@ -26,45 +26,45 @@
   ],
   "output_table": "data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv",
   "private_workbench_generated": true,
-  "private_workbench_sha256": "3f5cf78445de879ed0f3d7c40ae42ff4522829e010b2ac73466b5804decd83dc",
+  "private_workbench_sha256": "4ebe6540644d42bb2d65dba5ce3808f28a1a5e766fe93a89aa01bdc1a728c922",
   "row_grain": "高校×高校侧辅证动作",
-  "public_row_count": 78,
-  "private_row_count": 78,
+  "public_row_count": 80,
+  "private_row_count": 80,
   "source_auto_workbench_row_count": 854,
-  "unique_public_ledger_id_count": 78,
+  "unique_public_ledger_id_count": 80,
   "unique_school_count": 36,
-  "unique_school_action_count": 78,
+  "unique_school_action_count": 80,
   "public_action_row_counts": {
-    "C0-冲突先核PDF原页和湖北官方系统": 6,
+    "C0-冲突先核PDF原页和湖北官方系统": 7,
     "C1-官网补缺候选但禁止自动写回": 8,
     "C7-官网源未匹配专业需人工确认专业名": 12,
     "C4-已有部分来源需补结构化或补湖北行": 22,
     "C3-字段辅证补充结构化后核原页": 1,
-    "C2-强辅证抽检并等待湖北官方闭环": 10,
+    "C2-强辅证抽检并等待湖北官方闭环": 11,
     "C6-继续搜索高校官网2026湖北计划源": 14,
     "C5-仅章程规则核特殊要求不能核计划数": 5
   },
   "public_batch_counts": {
-    "S0-PDF原页与湖北官方优先闭环": 14,
+    "S0-PDF原页与湖北官方优先闭环": 15,
     "S1-专业名匹配人工确认": 12,
     "S2-高校官网来源结构化刷新": 23,
-    "S3-强辅证分层抽检": 10,
+    "S3-强辅证分层抽检": 11,
     "S4-继续补高校官网计划源": 14,
     "S5-章程规则核特殊限制": 5
   },
   "public_task_type_counts": {
-    "计划数冲突回页核验": 6,
+    "计划数冲突回页核验": 7,
     "官网补缺候选回页核验": 8,
     "官网专业名未匹配人工确认": 12,
     "已有来源补结构化或补湖北物理行": 22,
     "字段辅证补结构化": 1,
-    "强辅证分层抽检": 10,
+    "强辅证分层抽检": 11,
     "继续搜索高校官网2026湖北计划": 14,
     "招生章程规则核验": 5
   },
   "public_file_type_counts": {
     "API/JSON": 9,
-    "结构化CSV": 6,
+    "结构化CSV": 8,
     "HTML": 7,
     "XLS/XLSX": 3,
     "未留存来源文件": 11,
@@ -73,27 +73,27 @@
     "章程或规则线索": 5
   },
   "major_action_counts": {
-    "C0-冲突先核PDF原页和湖北官方系统": 18,
+    "C0-冲突先核PDF原页和湖北官方系统": 19,
     "C1-官网补缺候选但禁止自动写回": 55,
     "C7-官网源未匹配专业需人工确认专业名": 31,
-    "C2-强辅证抽检并等待湖北官方闭环": 61,
+    "C2-强辅证抽检并等待湖北官方闭环": 66,
     "C3-字段辅证补充结构化后核原页": 19,
     "C4-已有部分来源需补结构化或补湖北行": 411,
     "C5-仅章程规则核特殊要求不能核计划数": 63,
-    "C6-继续搜索高校官网2026湖北计划源": 196
+    "C6-继续搜索高校官网2026湖北计划源": 190
   },
   "source_status_major_counts": {
-    "has_reusable_2026_hubei_plan_source": 196,
-    "has_partial_source_needs_followup": 428,
+    "has_reusable_2026_hubei_plan_source": 281,
+    "has_partial_source_needs_followup": 349,
     "charter_or_rules_only_no_plan": 63,
-    "needs_official_plan_source_search": 167
+    "needs_official_plan_source_search": 161
   },
-  "source_file_available_public_row_count": 25,
+  "source_file_available_public_row_count": 27,
   "source_url_available_public_row_count": 65,
-  "immediate_pdf_review_major_count": 104,
-  "sample_review_major_count": 61,
+  "immediate_pdf_review_major_count": 105,
+  "sample_review_major_count": 66,
   "structure_refresh_major_count": 430,
-  "source_search_major_count": 196,
+  "source_search_major_count": 190,
   "field_writeback_allowed_count": 0,
   "recommendation_basis_allowed_count": 0,
   "school_major_suggestion_allowed_count": 0,

@@ -9,22 +9,22 @@
   "inputs": [
     {
       "path": "data/working/issue19-admission-detail-master-workbench.csv",
-      "sha256": "de9d7801cf4eacbf7cc34dbd01d275a5f477fb3f9c5976463062093ff2087fea",
+      "sha256": "f0c203252be5baf2eb8eb4d7af3cf5f4790314edc4dadec8dceb9e477db57f1d",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-candidate-filter-prep-major-detail.csv",
-      "sha256": "fb9a551a672ad5a39ada1a78f024075c883cf6e1daa5362e912e42bffd2c397a",
+      "sha256": "e9a9d887ff782fa05dbb8e107619d8b24494bed07832b0a928acbf73a9fbbcb3",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-field-fact-closure-ledger.csv",
-      "sha256": "8e19f069c66a0815265d6800f1c6dea4176097cc7c8e01ee69925b2ae19df198",
+      "sha256": "8746c7e513e649ab31b273cab10827249c2b8f6101d67d64da88ebef40946ee5",
       "row_count": 13736
     },
     {
       "path": "data/working/issue19-major-evidence-level-routing.csv",
-      "sha256": "0110ed8ce58b32b6fd1731615d7937b92015b39cc977419a724e754ade8d9795",
+      "sha256": "3eb5d11214f7874058c0e81dac1dd387dd45227f70f1f2996bf5787b14ba00f2",
       "row_count": 13736
     },
     {
@@ -69,8 +69,8 @@
     "V5-无逐专业明细先补结构": 40
   },
   "group_review_layer_counts": {
-    "R1-P0整组先核": 1816,
-    "R2-P1页列集中核": 1265,
+    "R1-P0整组先核": 1817,
+    "R2-P1页列集中核": 1264,
     "R3-P2官网后人工确认": 110,
     "R4-P3低风险抽检": 98,
     "R0-无明细结构阻断": 40
@@ -80,8 +80,8 @@
   "group_preference_priority_count": 722,
   "group_city_extension_count": 0,
   "group_zero_detail_count": 40,
-  "p0_group_review_count": 1816,
-  "p1_group_review_count": 1265,
+  "p0_group_review_count": 1817,
+  "p1_group_review_count": 1264,
   "final_available_count": 0,
   "next_stage_available_count": 0,
   "recommendation_basis_allowed_count": 0,

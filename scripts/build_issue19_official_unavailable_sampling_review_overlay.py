@@ -736,7 +736,7 @@ def main():
         ),
         "policy": {
             "official_priority": "湖北官方系统或省招办计划仍是定稿源；高校侧证据只能作为辅证和抽检线索。",
-            "review_flow": "153条抽样执行明细先在本地Overlay完成PDF原页、湖北官方侧、高校辅证三方复核。",
+            "review_flow": f"{len(public_rows)}条抽样执行明细先在本地Overlay完成PDF原页、湖北官方侧、高校辅证三方复核。",
             "failure_escalation": "抽检失败时按执行明细中的同页列、同校或同组边界升级到100%人工核验。",
             "boundary": "本账本不确认字段、不写回、不生成学校专业建议或志愿推荐。",
         },

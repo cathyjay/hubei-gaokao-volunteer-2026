@@ -22,26 +22,26 @@
   "automatic_route_counts": {
     "A5-暂未搜索到高校官网源": 12882,
     "A2-已有部分高校来源需补结构化": 326,
-    "A1-已有高校官网结构化源可自动复跑比对": 298,
+    "A1-已有高校官网结构化源可自动复跑比对": 304,
     "A3-仅章程规则辅证不可核计划数": 63,
-    "A4-需继续自动搜索高校官网计划源": 167
+    "A4-需继续自动搜索高校官网计划源": 161
   },
   "manual_priority_counts": {
-    "P1-字段缺口和B0B1辅证优先核": 7952,
-    "P0-最终候选/冲突/结构强阻断先核": 5043,
+    "P1-字段缺口和B0B1辅证优先核": 7951,
+    "P0-最终候选/冲突/结构强阻断先核": 5044,
     "P2-家庭费用调剂与三方闭环核": 557,
     "P3-低风险抽检但非最终": 184
   },
   "manual_strength_counts": {
-    "H1-页列集中人工核验": 7952,
-    "H0-100%人工核验": 5043,
+    "H1-页列集中人工核验": 7951,
+    "H0-100%人工核验": 5044,
     "H2-自动官网核验后人工确认": 557,
     "H4-低风险抽检": 184
   },
-  "must_100_percent_manual_review_count": 5043,
+  "must_100_percent_manual_review_count": 5044,
   "low_risk_sampling_allowed_count": 184,
   "school_official_diff_hit_count": 854,
-  "reusable_school_auto_check_target_count": 624,
+  "reusable_school_auto_check_target_count": 630,
   "pdf_page_review_required_count": 13736,
   "hubei_official_review_required_count": 13736,
   "family_acceptance_review_required_count": 13736,

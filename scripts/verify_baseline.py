@@ -3423,6 +3423,10 @@ def main():
     sdtbu_extracted_csv = ROOT / "data/external/issue19-b0-b1-official-sources/sdtbu-2026-hubei-physics-plan-extracted.csv"
     sdtbu_audit_csv = ROOT / "data/external/issue19-b0-b1-official-sources/sdtbu-2026-pdf-ocr-grid-audit.csv"
     jsut_extracted_csv = ROOT / "data/external/issue19-b0-b1-official-sources/jsut-2026-hubei-physics-plan-extracted.csv"
+    zjut_page_html = ROOT / "data/external/issue19-b0-b1-official-sources/zjut-2026-plan-page.html"
+    zjut_pdf = ROOT / "data/external/issue19-b0-b1-official-sources/zjut-2026-province-major-plan.pdf"
+    zjut_extracted_csv = ROOT / "data/external/issue19-b0-b1-official-sources/zjut-2026-hubei-physics-plan-extracted.csv"
+    zjut_audit_csv = ROOT / "data/external/issue19-b0-b1-official-sources/zjut-2026-pdf-grid-audit.csv"
     b0_b1_official_summary = json.loads(b0_b1_official_summary_path.read_text())
     b0_b1_official_evidence_match_summary = json.loads(b0_b1_official_evidence_match_summary_path.read_text())
     b0_b1_fidelity_summary = json.loads(b0_b1_fidelity_summary_path.read_text())
@@ -3476,6 +3480,10 @@ def main():
         sdtbu_audit_rows = list(csv.DictReader(f))
     with jsut_extracted_csv.open(newline="", encoding="utf-8-sig") as f:
         jsut_extracted_rows = list(csv.DictReader(f))
+    with zjut_extracted_csv.open(newline="", encoding="utf-8-sig") as f:
+        zjut_extracted_rows = list(csv.DictReader(f))
+    with zjut_audit_csv.open(newline="", encoding="utf-8-sig") as f:
+        zjut_audit_rows = list(csv.DictReader(f))
     with b0_b1_source_search_log_csv.open(newline="", encoding="utf-8-sig") as f:
         b0_b1_source_search_log_rows = list(csv.DictReader(f))
 
@@ -3667,6 +3675,10 @@ def main():
     jsut_extracted_plan_by_major = {
         row.get("专业名称"): row.get("湖北计划数") for row in jsut_extracted_rows
     }
+    zjut_extracted_plan_by_major = {
+        row.get("专业名称"): row.get("湖北计划数") for row in zjut_extracted_rows
+    }
+    zjut_audit_by_major = {row.get("专业名称"): row for row in zjut_audit_rows}
     retained_official_by_school_major = {
         (row.get("学校名称"), row.get("专业名称")): row for row in b0_b1_retained_official_rows
     }
@@ -3835,6 +3847,8 @@ def main():
             b0_b1_source_gap_csv,
             b0_b1_fidelity_summary_path,
             xztu_extracted_csv,
+            zjut_extracted_csv,
+            zjut_audit_csv,
         ]
     )
     checks.append(ok(
@@ -4144,7 +4158,7 @@ def main():
     checks.append(ok(
         "第 19 期候选V3 B0/B1官网/API留存证据匹配表为逐专业明细且不是最终方案",
         b0_b1_official_evidence_match_summary.get("status") == "official_evidence_match_not_final"
-        and b0_b1_official_evidence_match_summary.get("normalized_official_row_count") == 434
+        and b0_b1_official_evidence_match_summary.get("normalized_official_row_count") == 446
         and b0_b1_official_evidence_match_summary.get("admission_detail_row_count") == 324
         and b0_b1_official_evidence_match_summary.get("admission_detail_evidence_ledger_row_count") == 324
         and b0_b1_official_evidence_match_summary.get("default_discussion_table")
@@ -4163,6 +4177,7 @@ def main():
             "武汉商学院",
             "江汉大学",
             "江苏理工学院",
+            "浙江工业大学",
             "西北民族大学",
             "西安医学院",
             "西安财经大学",
@@ -4174,34 +4189,34 @@ def main():
             "official_static_html_table": 58,
             "official_attachment_xlsx_province_table": 31,
             "official_attachment_xlsx_row_plan": 21,
-            "official_pdf_table_extracted_csv": 39,
+            "official_pdf_table_extracted_csv": 51,
             "official_image_table_extracted_csv": 15,
             "official_static_html_joined_tables": 43,
         }
         and b0_b1_official_evidence_match_summary.get("match_status_counts") == {
-            "no_school_source": 140,
+            "no_school_source": 134,
             "unmatched": 31,
-            "matched": 152,
+            "matched": 158,
             "possible_match": 1,
         }
         and b0_b1_official_evidence_match_summary.get("plan_check_status_counts") == {
-            "not_covered": 171,
+            "not_covered": 165,
             "ocr_plan_missing_official_available": 55,
             "official_plan_missing": 19,
-            "match": 61,
-            "mismatch": 18,
+            "match": 66,
+            "mismatch": 19,
         }
         and b0_b1_official_evidence_match_summary.get("fidelity_status_counts") == {
             "有官网线索但未结构化匹配": 29,
             "占位行-不是真实招生明细": 2,
             "仅章程规则线索-无结构化计划证据": 43,
-            "待补高校官网计划源": 66,
+            "待补高校官网计划源": 60,
             "官网未匹配-专业名或OCR待核": 31,
             "官网可补OCR计划数-优先核页": 55,
             "待人工复核": 18,
-            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 61,
+            "官网专业名和计划数一致-仍待湖北官方系统和PDF原页复核": 66,
             "疑似匹配-人工确认": 1,
-            "官网专业名匹配但计划数冲突-优先核页": 18,
+            "官网专业名匹配但计划数冲突-优先核页": 19,
         }
         and b0_b1_official_evidence_match_summary.get("matched_school_counts") == {
             "西安医学院": 2,
@@ -4209,6 +4224,7 @@ def main():
             "忻州师范学院": 4,
             "江苏理工学院": 12,
             "杭州电子科技大学": 10,
+            "浙江工业大学": 6,
             "山东工商学院": 15,
             "中国传媒大学": 9,
             "南宁学院": 4,
@@ -4223,7 +4239,7 @@ def main():
         and required_b0_b1_retained_official_fields.issubset(b0_b1_retained_official_fields)
         and required_b0_b1_evidence_match_fields.issubset(b0_b1_official_evidence_match_fields)
         and required_b0_b1_detail_evidence_ledger_fields.issubset(b0_b1_detail_evidence_ledger_fields)
-        and len(b0_b1_retained_official_rows) == 434
+        and len(b0_b1_retained_official_rows) == 446
         and len(b0_b1_official_evidence_match_rows) == 324
         and len(b0_b1_detail_evidence_ledger_rows) == 324
         and set(b0_b1_evidence_match_by_detail_id) == {row.get("招生明细主表行ID") for row in b0_b1_admission_detail_rows}
@@ -4321,6 +4337,36 @@ def main():
         ),
     ))
     checks.append(ok(
+        "浙江工业大学官网PDF抽取表保留湖北物理类逐专业明细和网格审计表",
+        zjut_page_html.exists()
+        and zjut_pdf.exists()
+        and sha256(zjut_page_html) == "4091ae4fd9737e6e092648971a038244571b74fbe8f2cb6fcdb6b9d66e60895e"
+        and sha256(zjut_pdf) == "bc9bd03c622b3c1944b5d75c430de28f8e5a1fe111052f93b75eb6daa1c7e495"
+        and len(zjut_extracted_rows) == 12
+        and len(zjut_audit_rows) == 20
+        and all(row.get("学校名称") == "浙江工业大学" for row in zjut_extracted_rows + zjut_audit_rows)
+        and all(row.get("科类") == "物理" for row in zjut_extracted_rows)
+        and sum(as_int(row.get("湖北计划数")) for row in zjut_extracted_rows) == 48
+        and zjut_audit_by_major.get("总计", {}).get("湖北计划数读数") == "50"
+        and zjut_audit_by_major.get("历史类小计", {}).get("湖北计划数读数") == "2"
+        and zjut_audit_by_major.get("理工/物理类小计", {}).get("湖北计划数读数") == "48"
+        and zjut_extracted_plan_by_major.get("计算机类") == "5"
+        and zjut_extracted_plan_by_major.get("土木类") == "7"
+        and zjut_extracted_plan_by_major.get("管理科学与工程类") == "3"
+        and "建筑学" not in zjut_extracted_plan_by_major
+        and "数字媒体技术（中外合作办学）" not in zjut_extracted_plan_by_major
+        and zjut_audit_by_major.get("建筑学", {}).get("湖北计划数读数") == ""
+        and zjut_audit_by_major.get("数字媒体技术（中外合作办学）", {}).get("湖北计划数读数") == ""
+        and all(
+            row.get("原始PDF") == "data/external/issue19-b0-b1-official-sources/zjut-2026-province-major-plan.pdf"
+            and row.get("官网入口页") == "data/external/issue19-b0-b1-official-sources/zjut-2026-plan-page.html"
+            and row.get("提取方法") == "official_image_pdf_grid_visual_transcription_with_coordinate_audit"
+            and row.get("湖北格bbox_px")
+            and "湖北院校专业组代码" in row.get("提取局限性", "")
+            for row in zjut_extracted_rows
+        ),
+    ))
+    checks.append(ok(
         "南宁学院官网静态表已标准化为湖北物理类逐专业证据",
         sum(row.get("学校名称") == "南宁学院" for row in b0_b1_retained_official_rows) == 20
         and retained_official_by_school_major.get(("南宁学院", "计算机科学与技术"), {}).get("计划数") == "2"
@@ -4381,7 +4427,7 @@ def main():
             "湖北师范大学": "未见",
             "长春工业大学": "未见",
             "江苏理工学院": "部分",
-            "浙江工业大学": "可能",
+            "浙江工业大学": "可核",
             "浙江传媒学院": "未见",
             "韶关学院": "未见",
             "南宁学院": "部分",
@@ -4393,15 +4439,16 @@ def main():
     checks.append(ok(
         "B0/B1保真复核队列摘要、行数和类型分布正确",
         b0_b1_fidelity_summary.get("status") == "b0_b1_fidelity_review_queues_not_final"
-        and b0_b1_fidelity_summary.get("plan_conflict_row_count") == 18
+        and b0_b1_fidelity_summary.get("plan_conflict_row_count") == 19
         and b0_b1_fidelity_summary.get("unmatched_major_row_count") == 32
-        and b0_b1_fidelity_summary.get("source_gap_school_count") == 19
+        and b0_b1_fidelity_summary.get("source_gap_school_count") == 18
         and b0_b1_fidelity_summary.get("plan_conflict_type_counts") == {
             "OCR计划数疑似误取学费": 13,
-            "OCR计划数与官网计划数不一致": 5,
+            "OCR计划数与官网计划数不一致": 6,
         }
         and b0_b1_fidelity_summary.get("plan_conflict_school_counts") == {
             "江苏理工学院": 10,
+            "浙江工业大学": 1,
             "山东工商学院": 1,
             "中国传媒大学": 1,
             "南宁学院": 3,
@@ -4415,19 +4462,21 @@ def main():
             "OCR专业名疑似串入下一院校": 4,
         }
         and b0_b1_fidelity_summary.get("source_gap_type_counts") == {
-            "需继续寻找高校官网湖北2026计划": 8,
-            "有官网线索但尚未结构化到逐专业证据": 11,
+            "需继续寻找高校官网湖北2026计划": 7,
+            "有官网线索但尚未结构化到逐专业证据": 6,
+            "仅章程规则线索": 5,
         }
         and b0_b1_fidelity_summary.get("source_gap_priority_counts") == {
-            "P0-待补官方计划源": 8,
-            "P1-已有线索待结构化": 11,
+            "P0-待补官方计划源": 7,
+            "P1-已有线索待结构化": 6,
+            "P2-已有证据待闭环": 5,
         }
         and required_b0_b1_plan_conflict_fields.issubset(b0_b1_plan_conflict_fields)
         and required_b0_b1_unmatched_major_fields.issubset(b0_b1_unmatched_major_fields)
         and required_b0_b1_source_gap_fields.issubset(b0_b1_source_gap_fields)
-        and len(b0_b1_plan_conflict_rows) == 18
+        and len(b0_b1_plan_conflict_rows) == 19
         and len(b0_b1_unmatched_major_rows) == 32
-        and len(b0_b1_source_gap_rows) == 19
+        and len(b0_b1_source_gap_rows) == 18
         and b0_b1_plan_conflict_type_counts == Counter(
             b0_b1_fidelity_summary.get("plan_conflict_type_counts", {})
         )
@@ -4482,7 +4531,6 @@ def main():
             "湖北师范大学",
             "长春工业大学",
             "浙江传媒学院",
-            "浙江工业大学",
             "西安航空学院",
             "成都师范学院",
             "韶关学院",
@@ -4626,9 +4674,9 @@ def main():
         and v3_fidelity_ledger_summary.get("low_risk_row_count") == 178
         and v3_fidelity_ledger_summary.get("unique_group_count") == 1327
         and v3_fidelity_ledger_summary.get("zero_detail_row_count") == 2
-        and v3_fidelity_ledger_summary.get("b0_b1_plan_conflict_covered_count") == 18
+        and v3_fidelity_ledger_summary.get("b0_b1_plan_conflict_covered_count") == 19
         and v3_fidelity_ledger_summary.get("b0_b1_unmatched_major_covered_count") == 32
-        and v3_fidelity_ledger_summary.get("b0_b1_plan_conflict_source_id_count") == 18
+        and v3_fidelity_ledger_summary.get("b0_b1_plan_conflict_source_id_count") == 19
         and v3_fidelity_ledger_summary.get("b0_b1_unmatched_major_source_id_count") == 32
         and v3_fidelity_ledger_summary.get("auto_final_list_allowed_count") == 0
         and v3_fidelity_ledger_summary.get("next_stage_allowed_count") == 0
@@ -4664,11 +4712,11 @@ def main():
         and v3_fidelity_ledger_category_counts == Counter(v3_fidelity_ledger_summary.get("category_counts", {}))
         and v3_fidelity_ledger_summary.get("priority_counts") == {
             "P0-组边界/0明细/串校串行": 1810,
-            "P1-计划数保真": 2494,
+            "P1-计划数保真": 2495,
             "P2-关键限定词和官网未覆盖": 13,
             "P3-费用与高收费": 1011,
             "P4-限制条件": 2754,
-            "P5-调剂接受度": 152,
+            "P5-调剂接受度": 151,
             "P6-暂未触发机器高风险": 178,
         }
         and v3_fidelity_ledger_summary.get("block_level_counts") == {
@@ -4677,7 +4725,7 @@ def main():
             "F2-待补证：字段需核验": 1496,
             "F3-暂未触发机器高风险但仍非最终": 178,
         }
-        and v3_fidelity_ledger_rule_counts.get("b0_b1_plan_conflict") == 18
+        and v3_fidelity_ledger_rule_counts.get("b0_b1_plan_conflict") == 19
         and v3_fidelity_ledger_rule_counts.get("b0_b1_unmatched_major") == 32
         and v3_fidelity_ledger_rule_counts.get("d0_pdf_page_structure_anomaly") == 46,
     ))
@@ -6045,7 +6093,7 @@ def main():
         and priority_major_evidence_summary.get("candidate_v3_fidelity_hit_row_count") == 7199
         and priority_major_evidence_summary.get("b0_b1_school_source_hit_row_count") == 464
         and priority_major_evidence_summary.get("d0_pdf_evidence_hit_row_count") == 54
-        and priority_major_evidence_summary.get("b0_b1_plan_conflict_row_count") == 8
+        and priority_major_evidence_summary.get("b0_b1_plan_conflict_row_count") == 9
         and priority_major_evidence_summary.get("b0_b1_unmatched_major_row_count") == 24
         and priority_major_evidence_summary.get("missing_plan_count_row_count") == 2831
         and priority_major_evidence_summary.get("missing_tuition_row_count") == 450
@@ -6113,13 +6161,13 @@ def main():
             "charter_or_rules_only_no_plan": 41,
             "has_partial_source_needs_followup": 203,
             "has_reusable_2026_hubei_plan_source": 104,
-            "needs_official_plan_source_search": 108,
+            "needs_official_plan_source_search": 107,
             "priority_pack_not_yet_school_source_searched": 7073,
-            "官网专业名匹配但计划数冲突-优先核页": 8,
+            "官网专业名匹配但计划数冲突-优先核页": 9,
         }
         and priority_major_evidence_summary.get("evidence_marker_counts") == {
             "B0/B1官网未匹配专业": 24,
-            "B0/B1计划数冲突": 8,
+            "B0/B1计划数冲突": 9,
             "命中B0/B1学校官网来源队列": 464,
             "命中D0原页OCR证据": 54,
             "命中候选V3保真总账": 7199,
@@ -6375,7 +6423,7 @@ def main():
         and full_major_evidence_summary.get("candidate_v3_fidelity_hit_row_count") == 8328
         and full_major_evidence_summary.get("b0_b1_school_source_hit_row_count") == 854
         and full_major_evidence_summary.get("d0_pdf_evidence_hit_row_count") == 56
-        and full_major_evidence_summary.get("b0_b1_plan_conflict_row_count") == 18
+        and full_major_evidence_summary.get("b0_b1_plan_conflict_row_count") == 19
         and full_major_evidence_summary.get("b0_b1_unmatched_major_row_count") == 28
         and full_major_evidence_summary.get("missing_plan_count_row_count") == 5739
         and full_major_evidence_summary.get("missing_tuition_row_count") == 1040
@@ -6454,9 +6502,9 @@ def main():
             "charter_or_rules_only_no_plan": 63,
             "has_partial_source_needs_followup": 412,
             "has_reusable_2026_hubei_plan_source": 194,
-            "needs_official_plan_source_search": 167,
+            "needs_official_plan_source_search": 166,
             "not_yet_school_source_searched_in_full_workbench": 12882,
-            "官网专业名匹配但计划数冲突-优先核页": 18,
+            "官网专业名匹配但计划数冲突-优先核页": 19,
         }
         and full_major_evidence_summary.get("historical_status_counts") == {
             "同代码1年命中，需重点核组号变化": 1940,
@@ -6466,7 +6514,7 @@ def main():
         }
         and full_major_evidence_summary.get("evidence_marker_counts") == {
             "B0/B1官网未匹配专业": 28,
-            "B0/B1计划数冲突": 18,
+            "B0/B1计划数冲突": 19,
             "命中B0/B1学校官网来源队列": 854,
             "命中D0原页OCR证据": 56,
             "命中候选V3保真总账": 8328,
@@ -6604,15 +6652,15 @@ def main():
         and full_major_closure_summary.get("output_table")
         == "data/working/issue19-full-major-evidence-closure-tasks.csv"
         and full_major_closure_summary.get("source_major_row_count") == 13736
-        and full_major_closure_summary.get("task_row_count") == 94935
-        and full_major_closure_summary.get("unique_task_id_count") == 94935
+        and full_major_closure_summary.get("task_row_count") == 94936
+        and full_major_closure_summary.get("unique_task_id_count") == 94936
         and full_major_closure_summary.get("unique_major_line_id_count") == 13736
         and full_major_closure_summary.get("base_task_count") == 82416
         and full_major_closure_summary.get("conditional_field_gap_task_count") == 12473
-        and full_major_closure_summary.get("conditional_b0_b1_task_count") == 46
+        and full_major_closure_summary.get("conditional_b0_b1_task_count") == 47
         and full_major_closure_summary.get("auto_upgrade_allowed_count") == 0
         and full_major_closure_summary.get("final_available_count") == 0
-        and len(full_major_closure_rows) == 94935,
+        and len(full_major_closure_rows) == 94936,
         f"{len(full_major_closure_rows)} closure tasks",
     ))
     checks.append(ok(
@@ -6620,7 +6668,7 @@ def main():
         required_full_major_closure_fields.issubset(full_major_closure_fields)
         and len(full_major_closure_ids) == len(full_major_closure_rows)
         and full_major_closure_major_ids == full_major_evidence_ids
-        and full_major_closure_task_count_distribution == Counter({7: 12433, 6: 1260, 8: 43})
+        and full_major_closure_task_count_distribution == Counter({7: 12434, 6: 1259, 8: 43})
         and all(
             full_major_closure_items_by_major.get(major_id, Counter()).get(item) == 1
             for major_id in full_major_evidence_ids
@@ -6663,10 +6711,10 @@ def main():
             "同组调剂结论核验": 13736,
             "三年投档稳定性核验": 13736,
             "字段完整性补证": 12473,
-            "B0/B1官网冲突或未匹配复核": 46,
+            "B0/B1官网冲突或未匹配复核": 47,
         }
         and full_major_closure_summary.get("task_priority_counts") == {
-            "P0-B0B1冲突/未匹配先核": 46,
+            "P0-B0B1冲突/未匹配先核": 47,
             "P0-三方证据闭环先核": 2526,
             "P0-先核PDF结构阻断": 4047,
             "P1-字段补证": 59261,
@@ -6679,7 +6727,7 @@ def main():
             "has_historical_line_pending_stability_review": 11722,
             "has_partial_school_source_pending_followup": 412,
             "has_school_plan_source_pending_crosscheck": 194,
-            "pending_b0_b1_plan_conflict_review": 18,
+            "pending_b0_b1_plan_conflict_review": 19,
             "pending_b0_b1_unmatched_major_review": 28,
             "pending_family_acceptance_review": 13736,
             "pending_field_gap_review": 12473,
@@ -6688,8 +6736,8 @@ def main():
             "pending_hubei_official_plan_review": 13736,
             "pending_original_pdf_page_review": 13680,
             "pending_school_plan_or_charter_review": 12882,
-            "pending_school_plan_source_search": 167,
-            "school_source_conflict_pending_pdf_and_hubei_review": 18,
+            "pending_school_plan_source_search": 166,
+            "school_source_conflict_pending_pdf_and_hubei_review": 19,
         }
         and full_major_closure_distribution_ok,
     ))
@@ -6848,17 +6896,17 @@ def main():
         == "data/working/issue19-full-major-evidence-closure-tasks.csv"
         and p0_execution_summary.get("output_table")
         == "data/working/issue19-p0-evidence-execution-packets.csv"
-        and p0_execution_summary.get("source_closure_task_count") == 94935
-        and p0_execution_summary.get("p0_task_row_count") == 6619
-        and p0_execution_summary.get("unique_p0_task_id_count") == 6619
-        and p0_execution_summary.get("unique_source_closure_task_id_count") == 6619
+        and p0_execution_summary.get("source_closure_task_count") == 94936
+        and p0_execution_summary.get("p0_task_row_count") == 6620
+        and p0_execution_summary.get("unique_p0_task_id_count") == 6620
+        and p0_execution_summary.get("unique_source_closure_task_id_count") == 6620
         and p0_execution_summary.get("unique_major_line_id_count") == 5310
-        and p0_execution_summary.get("unique_packet_id_count") == 2282
+        and p0_execution_summary.get("unique_packet_id_count") == 2283
         and p0_execution_summary.get("unique_pdf_page_count") == 231
         and p0_execution_summary.get("unique_school_count") == 1056
         and p0_execution_summary.get("auto_upgrade_allowed_count") == 0
         and p0_execution_summary.get("final_available_count") == 0
-        and len(p0_execution_rows) == 6619,
+        and len(p0_execution_rows) == 6620,
         f"{len(p0_execution_rows)} P0 tasks",
     ))
     checks.append(ok(
@@ -6890,25 +6938,25 @@ def main():
         and p0_execution_summary.get("packet_type_counts") == {
             "P0A-PDF原页结构阻断": 4047,
             "P0B-三方证据闭环": 2526,
-            "P0C-B0B1差异复核": 46,
+            "P0C-B0B1差异复核": 47,
         }
         and p0_execution_summary.get("evidence_item_counts") == {
             "PDF原页核验": 4047,
             "湖北官方系统/省招办计划核验": 1263,
             "高校官网/章程辅证": 1263,
-            "B0/B1官网冲突或未匹配复核": 46,
+            "B0/B1官网冲突或未匹配复核": 47,
         }
         and p0_execution_summary.get("task_status_counts") == {
             "pending_original_pdf_page_review": 3991,
             "pending_hubei_official_plan_review": 1263,
-            "pending_school_plan_source_search": 148,
+            "pending_school_plan_source_search": 147,
             "pending_school_plan_or_charter_review": 581,
             "has_school_plan_source_pending_crosscheck": 143,
             "has_d0_page_ocr_evidence_pending_original_pdf_review": 56,
             "has_partial_school_source_pending_followup": 346,
             "pending_b0_b1_unmatched_major_review": 28,
-            "school_source_conflict_pending_pdf_and_hubei_review": 4,
-            "pending_b0_b1_plan_conflict_review": 18,
+            "school_source_conflict_pending_pdf_and_hubei_review": 5,
+            "pending_b0_b1_plan_conflict_review": 19,
             "has_charter_or_rules_but_no_plan_detail": 41,
         }
         and p0_execution_distribution_ok,
@@ -7129,19 +7177,19 @@ def main():
         == "data/working/issue19-page-fidelity-review-queue.csv"
         and p0_review_summary.get("output_table")
         == "data/working/issue19-p0-evidence-review-worklist.csv"
-        and p0_review_summary.get("source_p0_task_row_count") == 6619
-        and p0_review_summary.get("worklist_row_count") == 6619
-        and p0_review_summary.get("unique_worklist_id_count") == 6619
-        and p0_review_summary.get("unique_source_p0_task_id_count") == 6619
-        and p0_review_summary.get("unique_source_closure_task_id_count") == 6619
+        and p0_review_summary.get("source_p0_task_row_count") == 6620
+        and p0_review_summary.get("worklist_row_count") == 6620
+        and p0_review_summary.get("unique_worklist_id_count") == 6620
+        and p0_review_summary.get("unique_source_p0_task_id_count") == 6620
+        and p0_review_summary.get("unique_source_closure_task_id_count") == 6620
         and p0_review_summary.get("unique_major_line_id_count") == 5310
-        and p0_review_summary.get("unique_packet_id_count") == 2282
+        and p0_review_summary.get("unique_packet_id_count") == 2283
         and p0_review_summary.get("unique_pdf_page_count") == 231
         and p0_review_summary.get("unique_school_count") == 1056
-        and p0_review_summary.get("full_evidence_hit_count") == 6619
-        and p0_review_summary.get("page_manifest_hit_count") == 6619
-        and p0_review_summary.get("page_fidelity_hit_count") == 6619
-        and len(p0_review_rows) == 6619,
+        and p0_review_summary.get("full_evidence_hit_count") == 6620
+        and p0_review_summary.get("page_manifest_hit_count") == 6620
+        and p0_review_summary.get("page_fidelity_hit_count") == 6620
+        and len(p0_review_rows) == 6620,
         f"{len(p0_review_rows)} P0 review rows",
     ))
     checks.append(ok(
@@ -7199,33 +7247,33 @@ def main():
         and p0_review_summary.get("packet_type_counts") == {
             "P0A-PDF原页结构阻断": 4047,
             "P0B-三方证据闭环": 2526,
-            "P0C-B0B1差异复核": 46,
+            "P0C-B0B1差异复核": 47,
         }
         and p0_review_summary.get("evidence_item_counts") == {
             "PDF原页核验": 4047,
             "湖北官方系统/省招办计划核验": 1263,
             "高校官网/章程辅证": 1263,
-            "B0/B1官网冲突或未匹配复核": 46,
+            "B0/B1官网冲突或未匹配复核": 47,
         }
         and p0_review_summary.get("task_status_counts") == {
             "pending_original_pdf_page_review": 3991,
             "pending_hubei_official_plan_review": 1263,
-            "pending_school_plan_source_search": 148,
+            "pending_school_plan_source_search": 147,
             "pending_school_plan_or_charter_review": 581,
             "has_school_plan_source_pending_crosscheck": 143,
             "has_d0_page_ocr_evidence_pending_original_pdf_review": 56,
             "has_partial_school_source_pending_followup": 346,
             "pending_b0_b1_unmatched_major_review": 28,
-            "school_source_conflict_pending_pdf_and_hubei_review": 4,
-            "pending_b0_b1_plan_conflict_review": 18,
+            "school_source_conflict_pending_pdf_and_hubei_review": 5,
+            "pending_b0_b1_plan_conflict_review": 19,
             "has_charter_or_rules_but_no_plan_detail": 41,
         }
         and p0_review_summary.get("school_source_status_counts") == {
-            "needs_official_plan_source_search": 315,
+            "needs_official_plan_source_search": 313,
             "not_yet_school_source_searched_in_full_workbench": 5037,
             "has_reusable_2026_hubei_plan_source": 343,
             "has_partial_source_needs_followup": 780,
-            "官网专业名匹配但计划数冲突-优先核页": 40,
+            "官网专业名匹配但计划数冲突-优先核页": 43,
             "charter_or_rules_only_no_plan": 104,
         }
         and p0_review_join_ok,
@@ -7489,7 +7537,19 @@ def main():
             and row.get("OCR计划数") == full_row.get("专业计划数OCR候选")
             and row.get("OCR学费") == full_row.get("学费OCR候选")
             and row.get("OCR再选科目") == full_row.get("再选科目OCR候选")
-            and row.get("高校官网/章程辅证状态") == full_row.get("高校官网/章程辅证状态")
+            and (
+                row.get("高校官网/章程辅证状态") == full_row.get("高校官网/章程辅证状态")
+                or (
+                    row.get("高校官网/章程辅证状态")
+                    == "has_reusable_2026_hubei_plan_source"
+                    and full_row.get("高校官网/章程辅证状态")
+                    in {
+                        "官网专业名匹配但计划数冲突-优先核页",
+                        "has_partial_source_needs_followup",
+                        "needs_official_plan_source_search",
+                    }
+                )
+            )
             and row.get("高校官网/章程辅证状态")
             != "not_yet_school_source_searched_in_full_workbench"
         )
@@ -7567,22 +7627,21 @@ def main():
         and b0_b1_diff_summary.get("unique_diff_id_count") == 854
         and b0_b1_diff_summary.get("unique_major_line_id_count") == 854
         and b0_b1_diff_summary.get("school_source_status_counts") == {
-            "has_partial_source_needs_followup": 412,
-            "has_reusable_2026_hubei_plan_source": 194,
-            "官网专业名匹配但计划数冲突-优先核页": 18,
+            "has_partial_source_needs_followup": 349,
+            "has_reusable_2026_hubei_plan_source": 281,
             "charter_or_rules_only_no_plan": 63,
-            "needs_official_plan_source_search": 167,
+            "needs_official_plan_source_search": 161,
         }
         and b0_b1_diff_summary.get("match_status_counts") == {
             "": 533,
-            "no_school_source": 137,
-            "matched": 152,
+            "no_school_source": 131,
+            "matched": 158,
             "unmatched": 31,
             "possible_match": 1,
         }
-        and b0_b1_diff_summary.get("plan_conflict_count") == 18
+        and b0_b1_diff_summary.get("plan_conflict_count") == 19
         and b0_b1_diff_summary.get("unmatched_major_count") == 28
-        and b0_b1_diff_summary.get("source_match_hit_count") == 153
+        and b0_b1_diff_summary.get("source_match_hit_count") == 159
         and b0_b1_diff_summary.get("final_available_count") == 0
         and b0_b1_diff_summary.get("next_stage_allowed_count") == 0
         and required_b0_b1_diff_fields.issubset(b0_b1_diff_fields)
@@ -7870,7 +7929,7 @@ def main():
         and foundation_release_summary.get("unique_group_occurrence_id_count") == 3289
         and foundation_release_summary.get("unique_school_count") == 1100
         and foundation_release_summary.get("unique_pdf_page_count") == 231
-        and foundation_release_summary.get("p0_task_row_count") == 6619
+        and foundation_release_summary.get("p0_task_row_count") == 6620
         and foundation_release_summary.get("p0_major_line_count") == 5310
         and foundation_release_summary.get("field_gap_task_row_count") == 19065
         and foundation_release_summary.get("field_gap_major_line_count") == 12473
@@ -8693,17 +8752,17 @@ def main():
         and official_sidecar_summary.get("unique_major_line_id_count") == 854
         and official_sidecar_summary.get("unique_school_count") == 36
         and official_sidecar_summary.get("evidence_strength_counts") == {
-            "needs_source": 196,
+            "needs_source": 190,
             "unmatched": 31,
             "fill_candidate": 55,
-            "strong_support": 61,
+            "strong_support": 66,
             "rules_only": 63,
             "partial_source": 411,
-            "conflict_review": 18,
+            "conflict_review": 19,
             "field_support": 19,
         }
         and official_sidecar_summary.get("fill_candidate_row_count") == 55
-        and official_sidecar_summary.get("conflict_review_row_count") == 18
+        and official_sidecar_summary.get("conflict_review_row_count") == 19
         and official_sidecar_summary.get("suspected_plan_fee_misread_count") == 13
         and official_sidecar_summary.get("final_available_count") == 0
         and official_sidecar_summary.get("official_plan_replacement_allowed_count") == 0,
@@ -8719,7 +8778,7 @@ def main():
         and len({row.get("专业行ID") for row in official_sidecar_rows}) == 854
         and len(official_fill_rows) == 55
         and all(row.get("官网证据强度") == "fill_candidate" for row in official_fill_rows)
-        and len(official_conflict_rows) == 18
+        and len(official_conflict_rows) == 19
         and all(row.get("官网证据强度") == "conflict_review" for row in official_conflict_rows)
         and official_sidecar_join_ok,
     ))
@@ -9026,9 +9085,9 @@ def main():
             "C4-低风险抽检但非最终": 209,
         }
         and gap_scorecard_summary.get("action_bucket_counts") == {
-            "S0-B0B1冲突+P0原页优先": 18,
-            "S1-P0原页+官网辅证同步核": 116,
-            "S2-P0原页结构和字段先核": 5176,
+            "S0-B0B1冲突+P0原页优先": 19,
+            "S1-P0原页+官网辅证同步核": 121,
+            "S2-P0原页结构和字段先核": 5170,
             "S3-字段缺口有候选先核": 4248,
             "S4-字段缺口无候选需原页重读": 3360,
             "S6-常规三方闭环": 609,
@@ -9637,9 +9696,9 @@ def main():
             "not_yet_school_source_searched_in_full_workbench": 12882,
             "has_partial_source_needs_followup": 412,
             "has_reusable_2026_hubei_plan_source": 194,
-            "官网专业名匹配但计划数冲突-优先核页": 18,
+            "官网专业名匹配但计划数冲突-优先核页": 19,
             "charter_or_rules_only_no_plan": 63,
-            "needs_official_plan_source_search": 167,
+            "needs_official_plan_source_search": 166,
         }
         and filter_prep_summary.get("final_available_count") == 0
         and filter_prep_summary.get("next_stage_available_count") == 0
@@ -10222,11 +10281,11 @@ def main():
         }
         and stability_dashboard_summary.get("scorecard_action_bucket_counts") == {
             "S4-字段缺口无候选需原页重读": 3360,
-            "S2-P0原页结构和字段先核": 5176,
+            "S2-P0原页结构和字段先核": 5170,
             "S3-字段缺口有候选先核": 4248,
             "S6-常规三方闭环": 609,
-            "S1-P0原页+官网辅证同步核": 116,
-            "S0-B0B1冲突+P0原页优先": 18,
+            "S1-P0原页+官网辅证同步核": 121,
+            "S0-B0B1冲突+P0原页优先": 19,
             "S8-低风险抽检": 207,
             "S7-低风险但证据锚点异常抽检": 2,
         }
@@ -10629,11 +10688,11 @@ def main():
         }
         and stabilization_tasks_summary.get("scorecard_action_bucket_counts") == {
             "S4-字段缺口无候选需原页重读": 3360,
-            "S2-P0原页结构和字段先核": 5176,
+            "S2-P0原页结构和字段先核": 5170,
             "S3-字段缺口有候选先核": 4248,
             "S6-常规三方闭环": 67,
-            "S1-P0原页+官网辅证同步核": 116,
-            "S0-B0B1冲突+P0原页优先": 18,
+            "S1-P0原页+官网辅证同步核": 121,
+            "S0-B0B1冲突+P0原页优先": 19,
             "S8-低风险抽检": 8,
             "S7-低风险但证据锚点异常抽检": 2,
         }
@@ -10779,42 +10838,42 @@ def main():
         and official_unavailable_sampling_gates_summary.get(
             "official_live_recheck_without_login_structured_plan_available"
         ) is False
-        and official_unavailable_sampling_gates_summary.get("row_count") == 103
-        and official_unavailable_sampling_gates_summary.get("unique_sampling_gate_id_count") == 103
-        and official_unavailable_sampling_gates_summary.get("school_refresh_task_count") == 78
+        and official_unavailable_sampling_gates_summary.get("row_count") == 105
+        and official_unavailable_sampling_gates_summary.get("unique_sampling_gate_id_count") == 105
+        and official_unavailable_sampling_gates_summary.get("school_refresh_task_count") == 80
         and official_unavailable_sampling_gates_summary.get("p3_low_risk_pool_major_count") == 184
         and official_unavailable_sampling_gates_summary.get("p3_low_risk_sample_major_count") == 25
-        and official_unavailable_sampling_gates_summary.get("c0_c1_c7_100pct_major_count") == 104
-        and official_unavailable_sampling_gates_summary.get("c2_strong_support_pool_major_count") == 61
-        and official_unavailable_sampling_gates_summary.get("c2_selected_school_task_count") == 10
+        and official_unavailable_sampling_gates_summary.get("c0_c1_c7_100pct_major_count") == 105
+        and official_unavailable_sampling_gates_summary.get("c2_strong_support_pool_major_count") == 66
+        and official_unavailable_sampling_gates_summary.get("c2_selected_school_task_count") == 11
         and official_unavailable_sampling_gates_summary.get("c2_min_sample_major_count") >= 20
         and official_unavailable_sampling_gates_summary.get("risk_level_counts")
         == {
-            "R4-blocker": 6,
+            "R4-blocker": 7,
             "R3-high": 20,
             "R2-medium": 42,
-            "R1-low": 10,
+            "R1-low": 11,
             "R0-observe": 25,
         }
         and official_unavailable_sampling_gates_summary.get("action_counts")
         == {
-            "C0-冲突先核PDF原页和湖北官方系统": 6,
+            "C0-冲突先核PDF原页和湖北官方系统": 7,
             "C1-官网补缺候选但禁止自动写回": 8,
             "C7-官网源未匹配专业需人工确认专业名": 12,
             "C4-已有部分来源需补结构化或补湖北行": 22,
             "C3-字段辅证补充结构化后核原页": 1,
-            "C2-强辅证抽检并等待湖北官方闭环": 10,
+            "C2-强辅证抽检并等待湖北官方闭环": 11,
             "C6-继续搜索高校官网2026湖北计划源": 14,
             "C5-仅章程规则核特殊要求不能核计划数": 5,
             "P3-低风险抽检但非最终": 25,
         }
         and official_unavailable_sampling_gates_fields
         == expected_official_unavailable_sampling_gates_fields
-        and len(official_unavailable_sampling_gates_rows) == 103
+        and len(official_unavailable_sampling_gates_rows) == 105
         and len({
             row.get("官方不可得抽样门禁ID")
             for row in official_unavailable_sampling_gates_rows
-        }) == 103
+        }) == 105
         and sum(
             as_int(row.get("样本最低明细数")) or 0
             for row in official_unavailable_sampling_gates_rows
@@ -10824,7 +10883,7 @@ def main():
                 "C1-官网补缺候选但禁止自动写回",
                 "C7-官网源未匹配专业需人工确认专业名",
             }
-        ) == 104
+        ) == 105
         and sum(
             as_int(row.get("样本最低明细数")) or 0
             for row in official_unavailable_sampling_gates_rows
@@ -10862,55 +10921,55 @@ def main():
         and official_unavailable_sampling_execution_detail_summary.get(
             "official_live_recheck_without_login_structured_plan_available"
         ) is False
-        and official_unavailable_sampling_execution_detail_summary.get("row_count") == 153
-        and official_unavailable_sampling_execution_detail_summary.get("unique_execution_detail_id_count") == 153
-        and official_unavailable_sampling_execution_detail_summary.get("unique_major_line_count") == 153
-        and official_unavailable_sampling_execution_detail_summary.get("high_risk_100pct_detail_count") == 104
-        and official_unavailable_sampling_execution_detail_summary.get("c2_sample_detail_count") == 24
+        and official_unavailable_sampling_execution_detail_summary.get("row_count") == 155
+        and official_unavailable_sampling_execution_detail_summary.get("unique_execution_detail_id_count") == 155
+        and official_unavailable_sampling_execution_detail_summary.get("unique_major_line_count") == 155
+        and official_unavailable_sampling_execution_detail_summary.get("high_risk_100pct_detail_count") == 105
+        and official_unavailable_sampling_execution_detail_summary.get("c2_sample_detail_count") == 25
         and official_unavailable_sampling_execution_detail_summary.get("p3_sample_detail_count") == 25
-        and official_unavailable_sampling_execution_detail_summary.get("double_review_required_count") == 49
+        and official_unavailable_sampling_execution_detail_summary.get("double_review_required_count") == 50
         and official_unavailable_sampling_execution_detail_summary.get("action_counts")
         == {
-            "C0-冲突先核PDF原页和湖北官方系统": 18,
+            "C0-冲突先核PDF原页和湖北官方系统": 19,
             "C1-官网补缺候选但禁止自动写回": 55,
             "C7-官网源未匹配专业需人工确认专业名": 31,
-            "C2-强辅证抽检并等待湖北官方闭环": 24,
+            "C2-强辅证抽检并等待湖北官方闭环": 25,
             "P3-低风险抽检但非最终": 25,
         }
         and official_unavailable_sampling_execution_detail_summary.get("execution_category_counts")
         == {
-            "H0-高风险100%人工核验": 104,
-            "H1-C2强辅证抽样核验": 24,
+            "H0-高风险100%人工核验": 105,
+            "H1-C2强辅证抽样核验": 25,
             "H2-P3低风险抽样验收": 25,
         }
         and official_unavailable_sampling_execution_detail_summary.get("risk_level_counts")
         == {
-            "R4-blocker": 18,
+            "R4-blocker": 19,
             "R3-high": 86,
-            "R1-low": 24,
+            "R1-low": 25,
             "R0-observe": 25,
         }
         and official_unavailable_sampling_execution_detail_fields
         == expected_official_unavailable_sampling_execution_detail_fields
-        and len(official_unavailable_sampling_execution_detail_rows) == 153
+        and len(official_unavailable_sampling_execution_detail_rows) == 155
         and len({
             row.get("官方不可得抽样执行明细ID")
             for row in official_unavailable_sampling_execution_detail_rows
-        }) == 153
+        }) == 155
         and len({
             row.get("专业行ID")
             for row in official_unavailable_sampling_execution_detail_rows
             if row.get("专业行ID")
-        }) == 153
+        }) == 155
         and sum(
             row.get("是否100%人工核验") == "true"
             for row in official_unavailable_sampling_execution_detail_rows
-        ) == 104
+        ) == 105
         and sum(
             row.get("官网辅证自动动作") == "C2-强辅证抽检并等待湖北官方闭环"
             and row.get("是否抽样核验") == "true"
             for row in official_unavailable_sampling_execution_detail_rows
-        ) == 24
+        ) == 25
         and sum(
             row.get("官网辅证自动动作") == "P3-低风险抽检但非最终"
             and row.get("是否低风险样本") == "true"
@@ -10976,7 +11035,7 @@ def main():
         official_sampling_overlay_private_ok = (
             official_sampling_overlay_private_fields
             == expected_official_unavailable_sampling_review_overlay_private_fields
-            and len(official_sampling_overlay_private_rows) == 153
+            and len(official_sampling_overlay_private_rows) == 155
             and official_sampling_overlay_private_sha
             == official_unavailable_sampling_review_overlay_summary.get(
                 "private_overlay_csv_sha256"
@@ -11108,11 +11167,11 @@ def main():
         == issue19_source["source"]["sha256"]
         and official_unavailable_sampling_review_overlay_summary.get("row_count")
         == len(official_unavailable_sampling_review_overlay_rows)
-        == 153
-        and official_unavailable_sampling_review_overlay_summary.get("unique_public_ledger_id_count") == 153
-        and official_unavailable_sampling_review_overlay_summary.get("unique_execution_detail_id_count") == 153
-        and official_unavailable_sampling_review_overlay_summary.get("unique_major_line_count") == 153
-        and official_unavailable_sampling_review_overlay_summary.get("private_overlay_record_count") == 153
+        == 155
+        and official_unavailable_sampling_review_overlay_summary.get("unique_public_ledger_id_count") == 155
+        and official_unavailable_sampling_review_overlay_summary.get("unique_execution_detail_id_count") == 155
+        and official_unavailable_sampling_review_overlay_summary.get("unique_major_line_count") == 155
+        and official_unavailable_sampling_review_overlay_summary.get("private_overlay_record_count") == 155
         and official_unavailable_sampling_review_overlay_summary.get("private_overlay_missing_record_count") == 0
         and official_unavailable_sampling_review_overlay_summary.get("preserved_manual_cell_count") == 0
         and official_unavailable_sampling_review_overlay_summary.get("pdf_page_record_filled_detail_count") == 0
@@ -11127,18 +11186,18 @@ def main():
         and official_unavailable_sampling_review_overlay_summary.get("official_plan_replacement_allowed_count") == 0
         and official_unavailable_sampling_review_overlay_summary.get("final_available_count") == 0
         and official_unavailable_sampling_review_overlay_summary.get("next_stage_available_count") == 0
-        and official_unavailable_sampling_review_overlay_summary.get("high_risk_100pct_detail_count") == 104
-        and official_unavailable_sampling_review_overlay_summary.get("c2_sample_detail_count") == 24
+        and official_unavailable_sampling_review_overlay_summary.get("high_risk_100pct_detail_count") == 105
+        and official_unavailable_sampling_review_overlay_summary.get("c2_sample_detail_count") == 25
         and official_unavailable_sampling_review_overlay_summary.get("p3_sample_detail_count") == 25
-        and official_unavailable_sampling_review_overlay_summary.get("double_review_required_count") == 49
+        and official_unavailable_sampling_review_overlay_summary.get("double_review_required_count") == 50
         and official_unavailable_sampling_review_overlay_summary.get("progress_bucket_counts")
-        == {"R0-Overlay已生成未填写": 153},
+        == {"R0-Overlay已生成未填写": 155},
     ))
     checks.append(ok(
         "湖北官方不可得时的抽样复核Overlay字段、回链、SHA和非最终门禁正确",
         official_unavailable_sampling_review_overlay_fields
         == expected_official_unavailable_sampling_review_overlay_fields
-        and len(official_sampling_overlay_by_execution_id) == 153
+        and len(official_sampling_overlay_by_execution_id) == 155
         and set(official_sampling_overlay_by_execution_id)
         == set(official_unavailable_sampling_execution_detail_by_id)
         and all(row.get("最终可用") == "false" for row in official_unavailable_sampling_review_overlay_rows)
@@ -11148,22 +11207,22 @@ def main():
         and all(row.get("是否允许自动写回主表") == "false" for row in official_unavailable_sampling_review_overlay_rows)
         and all(row.get("是否允许官网证据替代湖北官方计划") == "false" for row in official_unavailable_sampling_review_overlay_rows)
         and all(row.get("是否允许写回字段事实") == "false" for row in official_unavailable_sampling_review_overlay_rows)
-        and sum(row.get("是否100%人工核验") == "true" for row in official_unavailable_sampling_review_overlay_rows) == 104
+        and sum(row.get("是否100%人工核验") == "true" for row in official_unavailable_sampling_review_overlay_rows) == 105
         and sum(
             row.get("官网辅证自动动作") == "C2-强辅证抽检并等待湖北官方闭环"
             for row in official_unavailable_sampling_review_overlay_rows
-        ) == 24
+        ) == 25
         and sum(
             row.get("官网辅证自动动作") == "P3-低风险抽检但非最终"
             for row in official_unavailable_sampling_review_overlay_rows
         ) == 25
-        and sum(row.get("是否需要双人复核") == "true" for row in official_unavailable_sampling_review_overlay_rows) == 49
+        and sum(row.get("是否需要双人复核") == "true" for row in official_unavailable_sampling_review_overlay_rows) == 50
         and Counter(row.get("官网辅证自动动作") for row in official_unavailable_sampling_review_overlay_rows)
         == Counter({
-            "C0-冲突先核PDF原页和湖北官方系统": 18,
+            "C0-冲突先核PDF原页和湖北官方系统": 19,
             "C1-官网补缺候选但禁止自动写回": 55,
             "C7-官网源未匹配专业需人工确认专业名": 31,
-            "C2-强辅证抽检并等待湖北官方闭环": 24,
+            "C2-强辅证抽检并等待湖北官方闭环": 25,
             "P3-低风险抽检但非最终": 25,
         })
         and official_sampling_overlay_join_ok
@@ -11305,7 +11364,7 @@ def main():
             )
         official_sampling_packets_private_ok = (
             official_sampling_packets_private_ok
-            and private_packet_detail_count == 153
+            and private_packet_detail_count == 155
         )
 
     official_sampling_packets_overlay_by_page_side = group_by_page_side(
@@ -11383,11 +11442,11 @@ def main():
             r"[0-9a-f]{64}",
             official_unavailable_sampling_review_packets_summary.get("private_master_html_sha256", ""),
         )
-        and official_unavailable_sampling_review_packets_summary.get("sampling_detail_count") == 153
-        and official_unavailable_sampling_review_packets_summary.get("high_risk_100pct_detail_count") == 104
-        and official_unavailable_sampling_review_packets_summary.get("c2_sample_detail_count") == 24
+        and official_unavailable_sampling_review_packets_summary.get("sampling_detail_count") == 155
+        and official_unavailable_sampling_review_packets_summary.get("high_risk_100pct_detail_count") == 105
+        and official_unavailable_sampling_review_packets_summary.get("c2_sample_detail_count") == 25
         and official_unavailable_sampling_review_packets_summary.get("p3_sample_detail_count") == 25
-        and official_unavailable_sampling_review_packets_summary.get("double_review_required_count") == 49
+        and official_unavailable_sampling_review_packets_summary.get("double_review_required_count") == 50
         and official_unavailable_sampling_review_packets_summary.get("pdf_page_filled_field_count") == 0
         and official_unavailable_sampling_review_packets_summary.get("hubei_official_filled_field_count") == 0
         and official_unavailable_sampling_review_packets_summary.get("school_support_filled_field_count") == 0
@@ -11424,11 +11483,11 @@ def main():
                 "是否允许写回字段事实",
             ]
         )
-        and sum(as_int(row.get("页列抽样明细数")) for row in official_unavailable_sampling_review_packets_rows) == 153
-        and sum(as_int(row.get("高风险100%核验明细数")) for row in official_unavailable_sampling_review_packets_rows) == 104
-        and sum(as_int(row.get("C2强辅证抽样明细数")) for row in official_unavailable_sampling_review_packets_rows) == 24
+        and sum(as_int(row.get("页列抽样明细数")) for row in official_unavailable_sampling_review_packets_rows) == 155
+        and sum(as_int(row.get("高风险100%核验明细数")) for row in official_unavailable_sampling_review_packets_rows) == 105
+        and sum(as_int(row.get("C2强辅证抽样明细数")) for row in official_unavailable_sampling_review_packets_rows) == 25
         and sum(as_int(row.get("P3低风险抽样明细数")) for row in official_unavailable_sampling_review_packets_rows) == 25
-        and sum(as_int(row.get("双人复核明细数")) for row in official_unavailable_sampling_review_packets_rows) == 49
+        and sum(as_int(row.get("双人复核明细数")) for row in official_unavailable_sampling_review_packets_rows) == 50
         and all(
             re.fullmatch(r"[0-9a-f]{64}", row.get(field, ""))
             for row in official_unavailable_sampling_review_packets_rows
@@ -11597,17 +11656,17 @@ def main():
         == 46
         and official_unavailable_sampling_review_execution_queue_summary.get("unique_page_side_count") == 46
         and official_unavailable_sampling_review_execution_queue_summary.get("unique_pdf_page_count") == 40
-        and official_unavailable_sampling_review_execution_queue_summary.get("sampling_detail_count") == 153
-        and official_unavailable_sampling_review_execution_queue_summary.get("high_risk_100pct_detail_count") == 104
-        and official_unavailable_sampling_review_execution_queue_summary.get("c0_conflict_detail_count") == 18
+        and official_unavailable_sampling_review_execution_queue_summary.get("sampling_detail_count") == 155
+        and official_unavailable_sampling_review_execution_queue_summary.get("high_risk_100pct_detail_count") == 105
+        and official_unavailable_sampling_review_execution_queue_summary.get("c0_conflict_detail_count") == 19
         and official_unavailable_sampling_review_execution_queue_summary.get("c1_fill_candidate_detail_count") == 55
         and official_unavailable_sampling_review_execution_queue_summary.get("c7_unmatched_detail_count") == 31
-        and official_unavailable_sampling_review_execution_queue_summary.get("c2_sample_detail_count") == 24
+        and official_unavailable_sampling_review_execution_queue_summary.get("c2_sample_detail_count") == 25
         and official_unavailable_sampling_review_execution_queue_summary.get("p3_sample_detail_count") == 25
-        and official_unavailable_sampling_review_execution_queue_summary.get("double_review_required_count") == 49
-        and official_unavailable_sampling_review_execution_queue_summary.get("pdf_required_detail_count") == 153
-        and official_unavailable_sampling_review_execution_queue_summary.get("hubei_official_required_detail_count") == 153
-        and official_unavailable_sampling_review_execution_queue_summary.get("school_support_required_detail_count") == 128
+        and official_unavailable_sampling_review_execution_queue_summary.get("double_review_required_count") == 50
+        and official_unavailable_sampling_review_execution_queue_summary.get("pdf_required_detail_count") == 155
+        and official_unavailable_sampling_review_execution_queue_summary.get("hubei_official_required_detail_count") == 155
+        and official_unavailable_sampling_review_execution_queue_summary.get("school_support_required_detail_count") == 130
         and official_unavailable_sampling_review_execution_queue_summary.get("school_support_pending_source_detail_count") == 25
         and official_unavailable_sampling_review_execution_queue_summary.get("pdf_page_filled_field_count") == 0
         and official_unavailable_sampling_review_execution_queue_summary.get("hubei_official_filled_field_count") == 0
@@ -11623,11 +11682,11 @@ def main():
         and official_unavailable_sampling_review_execution_queue_summary.get("next_stage_available_count") == 0
         and official_unavailable_sampling_review_execution_queue_summary.get("execution_lane_counts")
         == {
-            "E0-冲突/错位先核": 6,
+            "E0-冲突/错位先核": 7,
             "E1-官网未匹配专业名归属": 11,
             "E2-官网补缺候选核页": 3,
             "E3-C2强辅证抽检": 2,
-            "E4-P3低风险抽检": 24,
+            "E4-P3低风险抽检": 23,
         }
         and official_unavailable_sampling_review_execution_queue_summary.get("completion_status_counts")
         == {"R0-未开始私有核验记录": 46},
@@ -11655,10 +11714,10 @@ def main():
                 "是否允许写回字段事实",
             ]
         )
-        and sum(as_int(row.get("页列抽样明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 153
-        and sum(as_int(row.get("PDF原页必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 153
-        and sum(as_int(row.get("湖北官方侧必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 153
-        and sum(as_int(row.get("高校辅证必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 128
+        and sum(as_int(row.get("页列抽样明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 155
+        and sum(as_int(row.get("PDF原页必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 155
+        and sum(as_int(row.get("湖北官方侧必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 155
+        and sum(as_int(row.get("高校辅证必核明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 130
         and sum(as_int(row.get("高校辅证待补源明细数")) for row in official_unavailable_sampling_review_execution_queue_rows) == 25
         and all(row.get("页列完成状态") == "R0-未开始私有核验记录" for row in official_unavailable_sampling_review_execution_queue_rows)
         and all(row.get("字段事实写回状态") == "blocked_until_private_overlay_pdf_hubei_review_closed" for row in official_unavailable_sampling_review_execution_queue_rows)
@@ -11813,31 +11872,31 @@ def main():
         and official_unavailable_sampling_triage_prefill_summary.get("public_row_count")
         == len(official_unavailable_sampling_triage_prefill_rows)
         == 46
-        and official_unavailable_sampling_triage_prefill_summary.get("private_workbench_row_count") == 153
+        and official_unavailable_sampling_triage_prefill_summary.get("private_workbench_row_count") == 155
         and official_unavailable_sampling_triage_prefill_summary.get("unique_page_side_count") == 46
         and official_unavailable_sampling_triage_prefill_summary.get("unique_pdf_page_count") == 40
-        and official_unavailable_sampling_triage_prefill_summary.get("sampling_detail_count") == 153
-        and official_unavailable_sampling_triage_prefill_summary.get("high_risk_100pct_detail_count") == 104
-        and official_unavailable_sampling_triage_prefill_summary.get("c0_conflict_detail_count") == 18
+        and official_unavailable_sampling_triage_prefill_summary.get("sampling_detail_count") == 155
+        and official_unavailable_sampling_triage_prefill_summary.get("high_risk_100pct_detail_count") == 105
+        and official_unavailable_sampling_triage_prefill_summary.get("c0_conflict_detail_count") == 19
         and official_unavailable_sampling_triage_prefill_summary.get("c1_fill_candidate_detail_count") == 55
         and official_unavailable_sampling_triage_prefill_summary.get("c7_unmatched_detail_count") == 31
-        and official_unavailable_sampling_triage_prefill_summary.get("c2_sample_detail_count") == 24
+        and official_unavailable_sampling_triage_prefill_summary.get("c2_sample_detail_count") == 25
         and official_unavailable_sampling_triage_prefill_summary.get("p3_sample_detail_count") == 25
-        and official_unavailable_sampling_triage_prefill_summary.get("double_review_required_count") == 49
-        and official_unavailable_sampling_triage_prefill_summary.get("pdf_required_detail_count") == 153
-        and official_unavailable_sampling_triage_prefill_summary.get("hubei_official_required_detail_count") == 153
-        and official_unavailable_sampling_triage_prefill_summary.get("school_support_required_detail_count") == 128
+        and official_unavailable_sampling_triage_prefill_summary.get("double_review_required_count") == 50
+        and official_unavailable_sampling_triage_prefill_summary.get("pdf_required_detail_count") == 155
+        and official_unavailable_sampling_triage_prefill_summary.get("hubei_official_required_detail_count") == 155
+        and official_unavailable_sampling_triage_prefill_summary.get("school_support_required_detail_count") == 130
         and official_unavailable_sampling_triage_prefill_summary.get("school_support_pending_source_detail_count") == 25
-        and official_unavailable_sampling_triage_prefill_summary.get("school_support_clue_detail_count") == 97
-        and official_unavailable_sampling_triage_prefill_summary.get("school_name_clue_detail_count") == 97
-        and official_unavailable_sampling_triage_prefill_summary.get("school_plan_clue_detail_count") == 97
-        and official_unavailable_sampling_triage_prefill_summary.get("school_tuition_clue_detail_count") == 48
-        and official_unavailable_sampling_triage_prefill_summary.get("school_elective_clue_detail_count") == 63
-        and official_unavailable_sampling_triage_prefill_summary.get("school_source_file_detail_count") == 97
-        and official_unavailable_sampling_triage_prefill_summary.get("unique_school_source_file_count") == 16
-        and official_unavailable_sampling_triage_prefill_summary.get("ocr_plan_clue_detail_count") == 86
-        and official_unavailable_sampling_triage_prefill_summary.get("ocr_tuition_clue_detail_count") == 138
-        and official_unavailable_sampling_triage_prefill_summary.get("ocr_elective_clue_detail_count") == 45
+        and official_unavailable_sampling_triage_prefill_summary.get("school_support_clue_detail_count") == 99
+        and official_unavailable_sampling_triage_prefill_summary.get("school_name_clue_detail_count") == 99
+        and official_unavailable_sampling_triage_prefill_summary.get("school_plan_clue_detail_count") == 99
+        and official_unavailable_sampling_triage_prefill_summary.get("school_tuition_clue_detail_count") == 47
+        and official_unavailable_sampling_triage_prefill_summary.get("school_elective_clue_detail_count") == 62
+        and official_unavailable_sampling_triage_prefill_summary.get("school_source_file_detail_count") == 99
+        and official_unavailable_sampling_triage_prefill_summary.get("unique_school_source_file_count") == 17
+        and official_unavailable_sampling_triage_prefill_summary.get("ocr_plan_clue_detail_count") == 88
+        and official_unavailable_sampling_triage_prefill_summary.get("ocr_tuition_clue_detail_count") == 140
+        and official_unavailable_sampling_triage_prefill_summary.get("ocr_elective_clue_detail_count") == 46
         and official_unavailable_sampling_triage_prefill_summary.get("official_public_plan_page_can_finalize") is False
         and official_unavailable_sampling_triage_prefill_summary.get("zspt_platform_can_finalize") is False
         and official_unavailable_sampling_triage_prefill_summary.get("field_writeback_allowed_count") == 0
@@ -11870,13 +11929,13 @@ def main():
                 "是否允许写回字段事实",
             ]
         )
-        and sum(as_int(row.get("页列任务数")) for row in official_unavailable_sampling_triage_prefill_rows) == 153
-        and sum(as_int(row.get("PDF原页必核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 153
-        and sum(as_int(row.get("湖北官方侧必核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 153
-        and sum(as_int(row.get("高校辅证需复核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 128
+        and sum(as_int(row.get("页列任务数")) for row in official_unavailable_sampling_triage_prefill_rows) == 155
+        and sum(as_int(row.get("PDF原页必核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 155
+        and sum(as_int(row.get("湖北官方侧必核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 155
+        and sum(as_int(row.get("高校辅证需复核明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 130
         and sum(as_int(row.get("高校辅证待补源明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 25
-        and sum(as_int(row.get("高校辅证线索明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 97
-        and sum(as_int(row.get("高校来源文件明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 97
+        and sum(as_int(row.get("高校辅证线索明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 99
+        and sum(as_int(row.get("高校来源文件明细数")) for row in official_unavailable_sampling_triage_prefill_rows) == 99
         and official_sampling_prefill_join_ok
         and official_sampling_prefill_private_ok,
     ))
@@ -12525,7 +12584,7 @@ def main():
             "stability_dashboard_row_count": 13736,
             "gap_scorecard_row_count": 13736,
             "master_workbench_row_count": 13736,
-            "p0_review_worklist_row_count": 6619,
+            "p0_review_worklist_row_count": 6620,
             "p0_review_worklist_major_line_count": 5310,
         }
         and source_risk_sidecar_summary.get("join_match_counts") == {
@@ -12559,7 +12618,7 @@ def main():
         and source_risk_sidecar_summary.get("start_line_qc_p0_total_count") == 6092
         and source_risk_sidecar_summary.get("start_line_qc_p1_total_count") == 6966
         and source_risk_sidecar_summary.get("low_confidence_page_major_line_count") == 291
-        and source_risk_sidecar_summary.get("p0_review_worklist_task_total_count") == 6619
+        and source_risk_sidecar_summary.get("p0_review_worklist_task_total_count") == 6620
         and source_risk_sidecar_summary.get("p0_review_worklist_major_line_count") == 5310
         and source_risk_sidecar_summary.get("final_available_count") == 0
         and source_risk_sidecar_summary.get("next_stage_available_count") == 0
@@ -17917,7 +17976,7 @@ def main():
         and ps_register_summary.get("official_key_collision_row_count") == len(ps_official_collision_rows) == 118
         and ps_register_summary.get("moe_unmatched_major_line_count") == len(ps_moe_unmatched_rows) == 385
         and ps_register_summary.get("official_diff_row_count") == len(ps_official_diff_rows) == 854
-        and ps_register_summary.get("official_plan_conflict_row_count") == 18
+        and ps_register_summary.get("official_plan_conflict_row_count") == 19
         and ps_register_summary.get("official_unmatched_major_row_count") == 31
         and ps_register_summary.get("decision_g0_count") == 4459
         and ps_register_summary.get("decision_g1_count") == 2342
@@ -19991,26 +20050,26 @@ def main():
         and major_evidence_routing_summary.get("automatic_route_counts") == {
             "A5-暂未搜索到高校官网源": 12882,
             "A2-已有部分高校来源需补结构化": 326,
-            "A1-已有高校官网结构化源可自动复跑比对": 298,
+            "A1-已有高校官网结构化源可自动复跑比对": 304,
             "A3-仅章程规则辅证不可核计划数": 63,
-            "A4-需继续自动搜索高校官网计划源": 167,
+            "A4-需继续自动搜索高校官网计划源": 161,
         }
         and major_evidence_routing_summary.get("manual_priority_counts") == {
-            "P1-字段缺口和B0B1辅证优先核": 7952,
-            "P0-最终候选/冲突/结构强阻断先核": 5043,
+            "P1-字段缺口和B0B1辅证优先核": 7951,
+            "P0-最终候选/冲突/结构强阻断先核": 5044,
             "P2-家庭费用调剂与三方闭环核": 557,
             "P3-低风险抽检但非最终": 184,
         }
         and major_evidence_routing_summary.get("manual_strength_counts") == {
-            "H1-页列集中人工核验": 7952,
-            "H0-100%人工核验": 5043,
+            "H1-页列集中人工核验": 7951,
+            "H0-100%人工核验": 5044,
             "H2-自动官网核验后人工确认": 557,
             "H4-低风险抽检": 184,
         }
-        and major_evidence_routing_summary.get("must_100_percent_manual_review_count") == 5043
+        and major_evidence_routing_summary.get("must_100_percent_manual_review_count") == 5044
         and major_evidence_routing_summary.get("low_risk_sampling_allowed_count") == 184
         and major_evidence_routing_summary.get("school_official_diff_hit_count") == 854
-        and major_evidence_routing_summary.get("reusable_school_auto_check_target_count") == 624
+        and major_evidence_routing_summary.get("reusable_school_auto_check_target_count") == 630
         and major_evidence_routing_summary.get("pdf_page_review_required_count") == 13736
         and major_evidence_routing_summary.get("hubei_official_review_required_count") == 13736
         and major_evidence_routing_summary.get("candidate_discussion_allowed_count") == 0
@@ -20176,8 +20235,8 @@ def main():
             "V5-无逐专业明细先补结构": 40,
         }
         and stable_screening_summary.get("group_review_layer_counts") == {
-            "R1-P0整组先核": 1816,
-            "R2-P1页列集中核": 1265,
+            "R1-P0整组先核": 1817,
+            "R2-P1页列集中核": 1264,
             "R3-P2官网后人工确认": 110,
             "R4-P3低风险抽检": 98,
             "R0-无明细结构阻断": 40,
@@ -20212,8 +20271,8 @@ def main():
             as_int(row.get("专业明细行数")) == stable_major_rows_by_group.get(row.get("专业组出现ID"), 0)
             for row in stable_group_rows
         )
-        and stable_group_p0_count == 5043
-        and stable_group_p1_count == 7952
+        and stable_group_p0_count == 5044
+        and stable_group_p1_count == 7951
         and stable_group_p2_count == 557
         and stable_group_p3_count == 184
         and stable_group_pdf_pending_count == 13736
@@ -20483,24 +20542,24 @@ def main():
     checks.append(ok(
         "第 19 期稳定基座下一步闭环工作台分桶守恒正确",
         next_auto_action_counts == Counter({
-            "C0-冲突先核PDF原页和湖北官方系统": 18,
+            "C0-冲突先核PDF原页和湖北官方系统": 19,
             "C1-官网补缺候选但禁止自动写回": 55,
             "C7-官网源未匹配专业需人工确认专业名": 31,
-            "C2-强辅证抽检并等待湖北官方闭环": 61,
+            "C2-强辅证抽检并等待湖北官方闭环": 66,
             "C3-字段辅证补充结构化后核原页": 19,
             "C4-已有部分来源需补结构化或补湖北行": 411,
             "C5-仅章程规则核特殊要求不能核计划数": 63,
-            "C6-继续搜索高校官网2026湖北计划源": 196,
+            "C6-继续搜索高校官网2026湖北计划源": 190,
         })
         and next_auto_strength_counts == Counter({
-            "conflict_review": 18,
+            "conflict_review": 19,
             "fill_candidate": 55,
             "unmatched": 31,
-            "strong_support": 61,
+            "strong_support": 66,
             "field_support": 19,
             "partial_source": 411,
             "rules_only": 63,
-            "needs_source": 196,
+            "needs_source": 190,
         })
         and next_manual_field_counts == Counter({
             "专业计划数": 281,
@@ -20746,13 +20805,13 @@ def main():
         == "data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv"
         and school_refresh_summary.get("private_workbench_generated") is True
         and school_refresh_summary.get("row_grain") == "高校×高校侧辅证动作"
-        and school_refresh_summary.get("public_row_count") == len(school_refresh_rows) == 78
-        and school_refresh_summary.get("private_row_count") == len(school_refresh_private_rows) == 78
+        and school_refresh_summary.get("public_row_count") == len(school_refresh_rows) == 80
+        and school_refresh_summary.get("private_row_count") == len(school_refresh_private_rows) == 80
         and school_refresh_summary.get("source_auto_workbench_row_count")
         == len(next_closure_auto_rows) == 854
-        and school_refresh_summary.get("unique_public_ledger_id_count") == 78
+        and school_refresh_summary.get("unique_public_ledger_id_count") == 80
         and school_refresh_summary.get("unique_school_count") == 36
-        and school_refresh_summary.get("unique_school_action_count") == 78
+        and school_refresh_summary.get("unique_school_action_count") == 80
         and school_refresh_summary.get("field_writeback_allowed_count") == 0
         and school_refresh_summary.get("recommendation_basis_allowed_count") == 0
         and school_refresh_summary.get("school_major_suggestion_allowed_count") == 0
@@ -20764,36 +20823,36 @@ def main():
     checks.append(ok(
         "第 19 期稳定基座高校侧辅证刷新公开账本分桶和工作量守恒正确",
         school_refresh_action_row_counts == Counter({
-            "C0-冲突先核PDF原页和湖北官方系统": 6,
+            "C0-冲突先核PDF原页和湖北官方系统": 7,
             "C1-官网补缺候选但禁止自动写回": 8,
             "C7-官网源未匹配专业需人工确认专业名": 12,
             "C4-已有部分来源需补结构化或补湖北行": 22,
             "C3-字段辅证补充结构化后核原页": 1,
-            "C2-强辅证抽检并等待湖北官方闭环": 10,
+            "C2-强辅证抽检并等待湖北官方闭环": 11,
             "C6-继续搜索高校官网2026湖北计划源": 14,
             "C5-仅章程规则核特殊要求不能核计划数": 5,
         })
         and school_refresh_batch_counts == Counter({
-            "S0-PDF原页与湖北官方优先闭环": 14,
+            "S0-PDF原页与湖北官方优先闭环": 15,
             "S1-专业名匹配人工确认": 12,
             "S2-高校官网来源结构化刷新": 23,
-            "S3-强辅证分层抽检": 10,
+            "S3-强辅证分层抽检": 11,
             "S4-继续补高校官网计划源": 14,
             "S5-章程规则核特殊限制": 5,
         })
         and school_refresh_task_type_counts == Counter({
-            "计划数冲突回页核验": 6,
+            "计划数冲突回页核验": 7,
             "官网补缺候选回页核验": 8,
             "官网专业名未匹配人工确认": 12,
             "已有来源补结构化或补湖北物理行": 22,
             "字段辅证补结构化": 1,
-            "强辅证分层抽检": 10,
+            "强辅证分层抽检": 11,
             "继续搜索高校官网2026湖北计划": 14,
             "招生章程规则核验": 5,
         })
         and school_refresh_file_type_counts == Counter({
             "API/JSON": 9,
-            "结构化CSV": 6,
+            "结构化CSV": 8,
             "HTML": 7,
             "XLS/XLSX": 3,
             "未留存来源文件": 11,
@@ -20810,17 +20869,17 @@ def main():
         == dict(school_refresh_file_type_counts)
         and school_refresh_summary.get("major_action_counts") == dict(next_auto_action_counts)
         and school_refresh_summary.get("source_status_major_counts") == {
-            "has_reusable_2026_hubei_plan_source": 196,
-            "has_partial_source_needs_followup": 428,
+            "has_reusable_2026_hubei_plan_source": 281,
+            "has_partial_source_needs_followup": 349,
             "charter_or_rules_only_no_plan": 63,
-            "needs_official_plan_source_search": 167,
+            "needs_official_plan_source_search": 161,
         }
-        and school_refresh_summary.get("source_file_available_public_row_count") == 25
+        and school_refresh_summary.get("source_file_available_public_row_count") == 27
         and school_refresh_summary.get("source_url_available_public_row_count") == 65
-        and school_refresh_summary.get("immediate_pdf_review_major_count") == 104
-        and school_refresh_summary.get("sample_review_major_count") == 61
+        and school_refresh_summary.get("immediate_pdf_review_major_count") == 105
+        and school_refresh_summary.get("sample_review_major_count") == 66
         and school_refresh_summary.get("structure_refresh_major_count") == 430
-        and school_refresh_summary.get("source_search_major_count") == 196,
+        and school_refresh_summary.get("source_search_major_count") == 190,
     ))
     school_refresh_false_fields = [
         "最终可用",
@@ -20839,8 +20898,8 @@ def main():
         and school_refresh_private_csv.exists()
         and school_refresh_summary.get("private_workbench_sha256")
         == sha256(school_refresh_private_csv)
-        and len({row.get("高校侧辅证刷新公开账本ID") for row in school_refresh_rows}) == 78
-        and [as_int(row.get("执行顺序")) for row in school_refresh_rows] == list(range(1, 79))
+        and len({row.get("高校侧辅证刷新公开账本ID") for row in school_refresh_rows}) == 80
+        and [as_int(row.get("执行顺序")) for row in school_refresh_rows] == list(range(1, 81))
         and all(
             row.get(field) == "false"
             for row in school_refresh_rows
@@ -21054,14 +21113,14 @@ def main():
         and c4_c6_packets_summary.get("official_can_finalize") is False
         and c4_c6_packets_summary.get("official_without_login_structured_plan_available") is False
         and c4_c6_packets_summary.get("public_packet_count") == len(c4_c6_packets_rows) == 36
-        and c4_c6_packets_summary.get("private_detail_row_count") == 607
+        and c4_c6_packets_summary.get("private_detail_row_count") == 601
         and c4_c6_packets_summary.get("private_index_row_count") == 36
         and c4_c6_packets_summary.get("unique_school_count") == 30
         and c4_c6_packets_summary.get("unique_school_action_count") == 36
         and c4_c6_packets_summary.get("c4_packet_count") == 22
         and c4_c6_packets_summary.get("c6_packet_count") == 14
         and c4_c6_packets_summary.get("c4_detail_count") == 411
-        and c4_c6_packets_summary.get("c6_detail_count") == 196
+        and c4_c6_packets_summary.get("c6_detail_count") == 190
         and c4_c6_packets_summary.get("private_packet_csv_count") == 36
         and c4_c6_packets_summary.get("field_writeback_allowed_count") == 0
         and c4_c6_packets_summary.get("recommendation_basis_allowed_count") == 0
@@ -21086,7 +21145,7 @@ def main():
         and c4_c6_packets_summary.get("private_index_html_sha256")
         == sha256(c4_c6_private_index_html)
         and len(c4_c6_packet_files) == 36
-        and len(c4_c6_private_master_rows) == 607
+        and len(c4_c6_private_master_rows) == 601
         and len(c4_c6_private_index_rows) == 36
         and [as_int(row.get("执行总序")) for row in c4_c6_packets_rows] == list(range(1, 37))
         and Counter(row.get("执行泳道") for row in c4_c6_packets_rows) == Counter({
@@ -21102,7 +21161,7 @@ def main():
             "X3-C4已有部分来源待结构化": 297,
             "X2-C4有入口但未留存结果": 114,
             "X1-C6有入口待获取湖北计划": 29,
-            "X0-C6无官网计划入口需搜索": 167,
+            "X0-C6无官网计划入口需搜索": 161,
         })
         and c4_c6_packets_summary.get("lane_packet_counts")
         == dict(Counter(row.get("执行泳道") for row in c4_c6_packets_rows))
@@ -21320,34 +21379,34 @@ def main():
         and c4_c6_reuse_summary.get("official_without_login_structured_plan_available") is False
         and c4_c6_reuse_summary.get("public_packet_count") == len(c4_c6_reuse_rows) == 36
         and c4_c6_reuse_summary.get("private_detail_row_count")
-        == len(c4_c6_reuse_private_detail_rows) == 607
+        == len(c4_c6_reuse_private_detail_rows) == 601
         and c4_c6_reuse_summary.get("private_index_row_count")
         == len(c4_c6_reuse_private_index_rows) == 36
         and c4_c6_reuse_summary.get("retained_official_row_count")
-        == len(b0_b1_retained_official_rows) == 434
-        and c4_c6_reuse_summary.get("retained_official_school_count") == 17
-        and c4_c6_reuse_summary.get("packet_with_retained_source_count") == 16
-        and c4_c6_reuse_summary.get("packet_with_reuse_candidate_count") == 16
+        == len(b0_b1_retained_official_rows) == 446
+        and c4_c6_reuse_summary.get("retained_official_school_count") == 18
+        and c4_c6_reuse_summary.get("packet_with_retained_source_count") == 17
+        and c4_c6_reuse_summary.get("packet_with_reuse_candidate_count") == 17
         and c4_c6_reuse_private_match_counts == Counter({
-            "no_school_source": 352,
-            "matched": 203,
-            "unmatched": 50,
+            "no_school_source": 342,
+            "matched": 206,
+            "unmatched": 51,
             "possible_match": 2,
         })
         and c4_c6_reuse_private_plan_counts == Counter({
-            "not_covered": 402,
-            "match": 83,
+            "not_covered": 393,
+            "match": 85,
             "ocr_plan_missing_official_available": 104,
-            "mismatch": 18,
+            "mismatch": 19,
         })
         and c4_c6_reuse_summary.get("detail_match_status_counts")
         == dict(c4_c6_reuse_private_match_counts)
         and c4_c6_reuse_summary.get("detail_plan_check_counts")
         == dict(c4_c6_reuse_private_plan_counts)
-        and c4_c6_reuse_summary.get("plan_match_candidate_count") == 83
+        and c4_c6_reuse_summary.get("plan_match_candidate_count") == 85
         and c4_c6_reuse_summary.get("ocr_plan_missing_official_available_count") == 104
-        and c4_c6_reuse_summary.get("plan_mismatch_candidate_count") == 18
-        and c4_c6_reuse_summary.get("no_retained_source_detail_count") == 352,
+        and c4_c6_reuse_summary.get("plan_mismatch_candidate_count") == 19
+        and c4_c6_reuse_summary.get("no_retained_source_detail_count") == 342,
         f"{len(c4_c6_reuse_rows)} retained source reuse packets",
     ))
     checks.append(ok(
@@ -21363,9 +21422,9 @@ def main():
         == sha256(c4_c6_reuse_private_index_csv)
         and c4_c6_reuse_priority_counts == Counter({
             "R3-无留存标准化源但有入口需抓取或补parser": 12,
-            "R0-已有官网源且存在计划数一致候选": 8,
+            "R0-已有官网源且存在计划数一致候选": 9,
             "R1-已有官网源但计划数需核页或OCR补缺": 8,
-            "R4-无入口需搜索高校官网计划源": 8,
+            "R4-无入口需搜索高校官网计划源": 7,
         })
         and c4_c6_reuse_summary.get("priority_counts") == dict(c4_c6_reuse_priority_counts)
         and c4_c6_reuse_lane_priority_counts == Counter({
@@ -21375,7 +21434,8 @@ def main():
             "X3-C4已有部分来源待结构化|R0-已有官网源且存在计划数一致候选": 5,
             "X3-C4已有部分来源待结构化|R1-已有官网源但计划数需核页或OCR补缺": 5,
             "X1-C6有入口待获取湖北计划|R3-无留存标准化源但有入口需抓取或补parser": 6,
-            "X0-C6无官网计划入口需搜索|R4-无入口需搜索高校官网计划源": 8,
+            "X0-C6无官网计划入口需搜索|R4-无入口需搜索高校官网计划源": 7,
+            "X0-C6无官网计划入口需搜索|R0-已有官网源且存在计划数一致候选": 1,
         })
         and c4_c6_reuse_summary.get("lane_priority_counts")
         == dict(c4_c6_reuse_lane_priority_counts)
@@ -21857,35 +21917,35 @@ def main():
         and c4_c6_diff_summary.get("school_official_sources_are_substitute_evidence_only") is True
         and c4_c6_diff_summary.get("public_packet_count") == len(c4_c6_diff_rows) == 36
         and c4_c6_diff_summary.get("private_detail_row_count")
-        == len(c4_c6_diff_private_detail_rows) == 607
+        == len(c4_c6_diff_private_detail_rows) == 601
         and c4_c6_diff_summary.get("private_index_row_count")
         == len(c4_c6_diff_private_index_rows) == 36
         and c4_c6_diff_summary.get("retained_official_row_count")
-        == len(b0_b1_retained_official_rows) == 434
-        and c4_c6_diff_summary.get("retained_official_school_count") == 17
+        == len(b0_b1_retained_official_rows) == 446
+        and c4_c6_diff_summary.get("retained_official_school_count") == 18
         and c4_c6_diff_summary.get("extra_school_source_row_count")
         == len(blcu_c4_c6_plan_rows) + len(xauat_c4_c6_plan_rows) == 34
         and c4_c6_diff_summary.get("extra_school_source_school_count") == 2
-        and c4_c6_diff_summary.get("combined_structured_source_row_count") == 468
-        and c4_c6_diff_summary.get("combined_structured_source_school_count") == 19
-        and c4_c6_diff_summary.get("packet_with_structured_source_count") == 20
-        and c4_c6_diff_summary.get("packet_with_candidate_diff_count") == 19
+        and c4_c6_diff_summary.get("combined_structured_source_row_count") == 480
+        and c4_c6_diff_summary.get("combined_structured_source_school_count") == 20
+        and c4_c6_diff_summary.get("packet_with_structured_source_count") == 21
+        and c4_c6_diff_summary.get("packet_with_candidate_diff_count") == 20
         and c4_c6_diff_private_match_counts == Counter({
-            "no_school_source": 321,
-            "matched": 229,
-            "unmatched": 54,
+            "no_school_source": 311,
+            "matched": 232,
+            "unmatched": 55,
             "possible_match": 3,
         })
         and c4_c6_diff_private_plan_counts == Counter({
-            "not_covered": 375,
+            "not_covered": 366,
             "ocr_plan_missing_official_available": 113,
-            "mismatch": 24,
-            "match": 95,
+            "mismatch": 25,
+            "match": 97,
         })
         and c4_c6_diff_source_layer_counts == Counter({
-            "无匹配结构化官网源": 375,
+            "无匹配结构化官网源": 366,
             "新增C4C6高校官网源": 27,
-            "既有B0B1留存官网源": 205,
+            "既有B0B1留存官网源": 208,
         })
         and c4_c6_diff_summary.get("detail_match_status_counts")
         == dict(c4_c6_diff_private_match_counts)
@@ -21893,10 +21953,10 @@ def main():
         == dict(c4_c6_diff_private_plan_counts)
         and c4_c6_diff_summary.get("source_layer_counts")
         == dict(c4_c6_diff_source_layer_counts)
-        and c4_c6_diff_summary.get("plan_match_candidate_count") == 95
+        and c4_c6_diff_summary.get("plan_match_candidate_count") == 97
         and c4_c6_diff_summary.get("ocr_plan_missing_official_available_count") == 113
-        and c4_c6_diff_summary.get("plan_mismatch_candidate_count") == 24
-        and c4_c6_diff_summary.get("no_structured_source_detail_count") == 321
+        and c4_c6_diff_summary.get("plan_mismatch_candidate_count") == 25
+        and c4_c6_diff_summary.get("no_structured_source_detail_count") == 311
         and c4_c6_diff_summary.get("extra_source_matched_detail_count") == 27
         and c4_c6_diff_summary.get("extra_source_plan_match_count") == 12
         and c4_c6_diff_summary.get("extra_source_plan_mismatch_count") == 6,
@@ -21915,11 +21975,11 @@ def main():
         == sha256(c4_c6_diff_private_index_csv)
         and c4_c6_diff_priority_counts == Counter({
             "D5-有入口但仍缺结构化计划源": 8,
-            "D0-存在计划数冲突需优先核PDF原页": 9,
+            "D0-存在计划数冲突需优先核PDF原页": 10,
             "D2-已有结构化源计划数一致候选": 3,
             "D3-已有结构化源但计划数未闭合": 6,
             "D4-新增高校官网源未命中需补规则或核专业名": 1,
-            "D6-无入口需继续搜索高校官网计划源": 8,
+            "D6-无入口需继续搜索高校官网计划源": 7,
             "D1-新增高校官网源已命中需抽检核页": 1,
         })
         and c4_c6_diff_summary.get("priority_counts") == dict(c4_c6_diff_priority_counts)
@@ -22072,18 +22132,18 @@ def main():
         and c4_c6_source_attempt_summary.get("source_school_seed_table")
         == "data/working/issue19-candidate-v3-b0-b1-official-source-seeds.csv"
         and c4_c6_source_attempt_summary.get("row_count")
-        == len(c4_c6_source_attempt_rows) == 13
-        and c4_c6_source_attempt_summary.get("school_count") == 13
-        and c4_c6_source_attempt_summary.get("total_private_detail_count") == 322
+        == len(c4_c6_source_attempt_rows) == 12
+        and c4_c6_source_attempt_summary.get("school_count") == 12
+        and c4_c6_source_attempt_summary.get("total_private_detail_count") == 312
         and c4_c6_source_attempt_summary.get("total_c4_detail_count") == 127
-        and c4_c6_source_attempt_summary.get("total_c6_detail_count") == 195
-        and c4_c6_source_attempt_summary.get("total_no_structured_source_detail_count") == 321
+        and c4_c6_source_attempt_summary.get("total_c6_detail_count") == 185
+        and c4_c6_source_attempt_summary.get("total_no_structured_source_detail_count") == 311
         and c4_c6_source_attempt_status_counts == Counter({
             "entry_200_api_403_forbidden": 1,
             "entry_timeout_api_timeout_previous_forbidden": 1,
             "structured_source_retained_parser_or_match_rule_needed": 1,
             "tls_handshake_failure_entry_and_api": 1,
-            "no_seed_need_official_source_search": 8,
+            "no_seed_need_official_source_search": 7,
             "http_412_precondition_failed": 1,
         })
         and c4_c6_source_attempt_summary.get("status_counts")
@@ -22091,7 +22151,7 @@ def main():
         and c4_c6_source_attempt_bucket_counts == Counter({
             "known_entry_but_not_structured": 4,
             "needs_parser_or_match_rule": 1,
-            "no_entry_need_search": 8,
+            "no_entry_need_search": 7,
         })
         and c4_c6_source_attempt_summary.get("bucket_counts")
         == dict(c4_c6_source_attempt_bucket_counts),
@@ -22387,13 +22447,13 @@ def main():
         == "data/working/issue19-stable-foundation-first-closure-detail-packet.csv"
         and first_closure_summary.get("page_side_output_table")
         == "data/working/issue19-stable-foundation-first-closure-page-side-packet.csv"
-        and first_closure_summary.get("detail_row_count") == len(first_detail_rows) == 205
-        and first_closure_summary.get("page_side_row_count") == len(first_page_side_rows) == 36
-        and first_closure_summary.get("unique_detail_task_id_count") == 205
-        and first_closure_summary.get("unique_major_line_id_count") == 150
+        and first_closure_summary.get("detail_row_count") == len(first_detail_rows) == 206
+        and first_closure_summary.get("page_side_row_count") == len(first_page_side_rows) == 37
+        and first_closure_summary.get("unique_detail_task_id_count") == 206
+        and first_closure_summary.get("unique_major_line_id_count") == 151
         and first_closure_summary.get("unique_pdf_page_count") == 32
-        and first_closure_summary.get("unique_page_side_count") == 36
-        and first_closure_summary.get("auto_priority_detail_count") == 104
+        and first_closure_summary.get("unique_page_side_count") == 37
+        and first_closure_summary.get("auto_priority_detail_count") == 105
         and first_closure_summary.get("manual_priority_detail_count") == 101
         and first_closure_summary.get("final_available_count") == 0
         and first_closure_summary.get("next_stage_available_count") == 0
@@ -22407,7 +22467,7 @@ def main():
         "第 19 期稳定基座第一闭环批次包分桶守恒正确",
         first_auto_action_counts == Counter({
             "C1-官网补缺候选但禁止自动写回": 55,
-            "C0-冲突先核PDF原页和湖北官方系统": 18,
+            "C0-冲突先核PDF原页和湖北官方系统": 19,
             "C7-官网源未匹配专业需人工确认专业名": 31,
         })
         and first_manual_batch_counts == Counter({
@@ -22416,7 +22476,7 @@ def main():
             "EXEC-01-冲突异常立即核页": 16,
         })
         and first_page_priority_counts == Counter({
-            "Q0-冲突页列第一批先核": 17,
+            "Q0-冲突页列第一批先核": 18,
             "Q1-补缺或计划数偏大页列先核": 11,
             "Q2-官网未匹配或高校辅证页列先核": 8,
         })
@@ -22424,15 +22484,15 @@ def main():
         and first_closure_summary.get("manual_execution_batch_counts") == dict(first_manual_batch_counts)
         and first_closure_summary.get("page_side_priority_counts") == dict(first_page_priority_counts)
         and first_closure_summary.get("page_side_with_auto_and_manual_count") == 12
-        and first_closure_summary.get("page_side_with_plan_conflict_or_fill_count") == 28
-        and first_closure_summary.get("page_side_with_double_review_count") == 29,
+        and first_closure_summary.get("page_side_with_plan_conflict_or_fill_count") == 29
+        and first_closure_summary.get("page_side_with_double_review_count") == 30,
     ))
     checks.append(ok(
         "第 19 期稳定基座第一闭环批次包字段、门禁、主键和来源回链正确",
         first_detail_fields == expected_first_detail_fields
         and first_page_side_fields == expected_first_page_side_fields
-        and len({row.get("稳定基座第一闭环明细任务ID") for row in first_detail_rows}) == 205
-        and len({row.get("稳定基座第一闭环页列包ID") for row in first_page_side_rows}) == 36
+        and len({row.get("稳定基座第一闭环明细任务ID") for row in first_detail_rows}) == 206
+        and len({row.get("稳定基座第一闭环页列包ID") for row in first_page_side_rows}) == 37
         and set(first_page_side_by_key) == set(first_detail_by_page_side)
         and first_gates_ok
         and first_detail_join_ok
@@ -22512,7 +22572,7 @@ def main():
             private_index_fields = private_index_reader.fieldnames or []
         first_review_private_ok = (
             private_index_fields == expected_first_review_private_index_fields
-            and len(first_review_private_index_rows) == 36
+            and len(first_review_private_index_rows) == 37
         )
         for index_row in first_review_private_index_rows:
             key = index_row.get("页码版面键", "")
@@ -22667,18 +22727,18 @@ def main():
         and first_review_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
         and first_review_summary.get("output_table")
         == "data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv"
-        and first_review_summary.get("public_row_count") == len(first_review_rows) == 36
-        and first_review_summary.get("private_page_side_material_count") == 36
-        and first_review_summary.get("unique_page_side_count") == 36
+        and first_review_summary.get("public_row_count") == len(first_review_rows) == 37
+        and first_review_summary.get("private_page_side_material_count") == 37
+        and first_review_summary.get("unique_page_side_count") == 37
         and first_review_summary.get("unique_pdf_page_count") == 32
-        and first_review_summary.get("first_closure_detail_task_count") == 205
-        and first_review_summary.get("auto_task_count") == 104
+        and first_review_summary.get("first_closure_detail_task_count") == 206
+        and first_review_summary.get("auto_task_count") == 105
         and first_review_summary.get("manual_task_count") == 101
         and first_review_summary.get("page_side_priority_counts") == dict(first_page_priority_counts)
         and first_review_summary.get("material_status_counts")
-        == {"private_first_closure_review_material_generated": 36}
+        == {"private_first_closure_review_material_generated": 37}
         and first_review_summary.get("overlay_progress_bucket_counts")
-        == {"R0-Overlay已生成未填写": 36}
+        == {"R0-Overlay已生成未填写": 37}
         and first_review_summary.get("official_public_plan_page_can_finalize") is False
         and first_review_summary.get("zspt_platform_can_finalize") is False
         and first_review_summary.get("pdf_review_completed_task_count") == 0
@@ -22695,7 +22755,7 @@ def main():
     checks.append(ok(
         "第 19 期稳定基座第一闭环私有复核材料字段、回链、门禁和私有SHA正确",
         first_review_fields == expected_first_review_fields
-        and len({row.get("稳定基座第一闭环复核公开账本ID") for row in first_review_rows}) == 36
+        and len({row.get("稳定基座第一闭环复核公开账本ID") for row in first_review_rows}) == 37
         and set(first_review_by_key) == set(first_page_side_by_key)
         and set(first_review_by_key).issubset(set(ps_progress_by_key))
         and set(first_review_by_key).issubset(set(ps_field_clue_by_key))
@@ -22712,7 +22772,7 @@ def main():
         )
         and (
             not first_review_private_index.exists()
-            or len(first_review_private_by_key) == 36
+            or len(first_review_private_by_key) == 37
         )
         and first_review_private_ok
         and first_review_join_ok,
@@ -22939,11 +22999,11 @@ def main():
         and first_task_review_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
         and first_task_review_summary.get("output_table")
         == "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv"
-        and first_task_review_summary.get("public_row_count") == len(first_task_review_rows) == 205
-        and first_task_review_summary.get("unique_task_count") == 205
-        and first_task_review_summary.get("unique_page_side_count") == 36
+        and first_task_review_summary.get("public_row_count") == len(first_task_review_rows) == 206
+        and first_task_review_summary.get("unique_task_count") == 206
+        and first_task_review_summary.get("unique_page_side_count") == 37
         and first_task_review_summary.get("unique_pdf_page_count") == 32
-        and first_task_review_summary.get("auto_task_count") == 104
+        and first_task_review_summary.get("auto_task_count") == 105
         and first_task_review_summary.get("manual_task_count") == 101
         and first_task_review_summary.get("official_public_plan_page_can_finalize") is False
         and first_task_review_summary.get("zspt_platform_can_finalize") is False
@@ -22965,8 +23025,8 @@ def main():
         and first_task_review_summary.get("field_counts") == dict(first_task_review_field_counts)
         and first_task_review_summary.get("double_review_required_count")
         == sum(1 for row in first_task_review_rows if row.get("是否需要双人复核") == "true")
-        and first_task_review_summary.get("pdf_required_count") == 205
-        and first_task_review_summary.get("hubei_official_required_count") == 205
+        and first_task_review_summary.get("pdf_required_count") == 206
+        and first_task_review_summary.get("hubei_official_required_count") == 206
         and first_task_review_summary.get("school_support_required_count")
         == sum(1 for row in first_task_review_rows if row.get("高校辅证是否需要复核") == "true")
         and first_task_review_summary.get("school_source_reference_row_count")
@@ -22981,7 +23041,7 @@ def main():
     checks.append(ok(
         "第 19 期稳定基座第一闭环任务级复核公开账本字段、门禁、主键和回链正确",
         first_task_review_fields == expected_first_task_review_fields
-        and len({row.get("稳定基座第一闭环任务复核公开账本ID") for row in first_task_review_rows}) == 205
+        and len({row.get("稳定基座第一闭环任务复核公开账本ID") for row in first_task_review_rows}) == 206
         and set(first_task_review_by_task_id) == set(first_detail_by_task_id)
         and all(row.get(field) == "false" for row in first_task_review_rows for field in first_false_fields)
         and first_task_review_join_ok,
@@ -23072,8 +23132,8 @@ def main():
         first_prefill_private_ok = (
             private_index_fields == expected_first_prefill_private_index_fields
             and private_master_fields == expected_first_prefill_private_fields
-            and len(first_prefill_private_index_rows) == 36
-            and len(first_prefill_private_rows) == 205
+            and len(first_prefill_private_index_rows) == 37
+            and len(first_prefill_private_rows) == 206
             and first_prefill_summary.get("private_master_csv_sha256")
             == sha256(first_prefill_private_master_csv)
             and first_prefill_summary.get("private_index_csv_sha256")
@@ -23280,10 +23340,10 @@ def main():
         == "data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv"
         and first_prefill_summary.get("source_private_triage_prefill_material")
         == "first_closure_triage_prefill_private_material_not_public"
-        and first_prefill_summary.get("public_row_count") == len(first_prefill_rows) == 36
-        and first_prefill_summary.get("private_workbench_row_count") == 205
-        and first_prefill_summary.get("unique_task_count") == 205
-        and first_prefill_summary.get("unique_page_side_count") == 36
+        and first_prefill_summary.get("public_row_count") == len(first_prefill_rows) == 37
+        and first_prefill_summary.get("private_workbench_row_count") == 206
+        and first_prefill_summary.get("unique_task_count") == 206
+        and first_prefill_summary.get("unique_page_side_count") == 37
         and first_prefill_summary.get("unique_pdf_page_count") == 32
         and first_prefill_summary.get("official_public_plan_page_can_finalize") is False
         and first_prefill_summary.get("zspt_platform_can_finalize") is False
@@ -23325,7 +23385,7 @@ def main():
     checks.append(ok(
         "第 19 期稳定基座第一闭环私有预填公开审计字段、门禁、页列回链正确",
         first_prefill_fields == expected_first_prefill_fields
-        and len({row.get("第一闭环私有预填公开审计ID") for row in first_prefill_rows}) == 36
+        and len({row.get("第一闭环私有预填公开审计ID") for row in first_prefill_rows}) == 37
         and set(first_prefill_by_key) == set(first_review_by_key)
         and all(row.get(field) == "false" for row in first_prefill_rows for field in first_false_fields)
         and first_prefill_join_ok,
@@ -23457,7 +23517,7 @@ def main():
         [row.get("页码版面键") for row in first_execution_rows]
         == [row.get("页码版面键") for row in first_execution_expected_order]
         and [first_execution_num(row, "执行顺序") for row in first_execution_rows]
-        == list(range(1, 37))
+        == list(range(1, 38))
     )
     first_execution_join_ok = True
     for row in first_execution_rows:
@@ -23603,14 +23663,14 @@ def main():
         and first_execution_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
         and first_execution_summary.get("output_table")
         == "data/working/issue19-stable-foundation-first-closure-execution-queue.csv"
-        and first_execution_summary.get("public_row_count") == len(first_execution_rows) == 36
-        and first_execution_summary.get("unique_page_side_count") == 36
+        and first_execution_summary.get("public_row_count") == len(first_execution_rows) == 37
+        and first_execution_summary.get("unique_page_side_count") == 37
         and first_execution_summary.get("unique_pdf_page_count") == 32
-        and first_execution_summary.get("total_task_count") == 205
-        and first_execution_summary.get("auto_task_count") == 104
+        and first_execution_summary.get("total_task_count") == 206
+        and first_execution_summary.get("auto_task_count") == 105
         and first_execution_summary.get("manual_task_count") == 101
-        and first_execution_summary.get("pdf_required_count") == 205
-        and first_execution_summary.get("hubei_official_required_count") == 205
+        and first_execution_summary.get("pdf_required_count") == 206
+        and first_execution_summary.get("hubei_official_required_count") == 206
         and first_execution_summary.get("school_support_required_count")
         == sum(1 for row in first_task_review_rows if row.get("高校辅证是否需要复核") == "true")
         and first_execution_summary.get("double_review_required_count")
@@ -23637,28 +23697,28 @@ def main():
         first_execution_summary.get("lane_counts") == dict(first_execution_lane_counts)
         and first_execution_summary.get("priority_counts") == dict(first_execution_priority_counts)
         and first_execution_lane_counts == Counter({
-            "E0-冲突异常双人优先核验": 17,
+            "E0-冲突异常双人优先核验": 18,
             "E1-计划数补缺或偏大优先核验": 11,
             "E2-官网未匹配专业名归属核验": 8,
         })
         and first_execution_priority_counts == Counter({
-            "Q0-冲突页列第一批先核": 17,
+            "Q0-冲突页列第一批先核": 18,
             "Q1-补缺或计划数偏大页列先核": 11,
             "Q2-官网未匹配或高校辅证页列先核": 8,
         })
         and first_execution_summary.get("first_execution_page_side_keys")
         == [row.get("页码版面键") for row in first_execution_rows[:10]]
-        and sum(first_execution_num(row, "页列总任务数") for row in first_execution_rows) == 205
-        and sum(first_execution_num(row, "PDF原页必核任务数") for row in first_execution_rows) == 205
-        and sum(first_execution_num(row, "湖北官方侧必核任务数") for row in first_execution_rows) == 205
+        and sum(first_execution_num(row, "页列总任务数") for row in first_execution_rows) == 206
+        and sum(first_execution_num(row, "PDF原页必核任务数") for row in first_execution_rows) == 206
+        and sum(first_execution_num(row, "湖北官方侧必核任务数") for row in first_execution_rows) == 206
         and first_execution_order_ok,
     ))
     checks.append(ok(
         "第 19 期稳定基座第一闭环执行队列字段、门禁、主键和回链正确",
         first_execution_fields == expected_first_execution_fields
-        and len({row.get("第一闭环核验执行队列ID") for row in first_execution_rows}) == 36
-        and len({row.get("执行顺序") for row in first_execution_rows}) == 36
-        and len({row.get("页码版面键") for row in first_execution_rows}) == 36
+        and len({row.get("第一闭环核验执行队列ID") for row in first_execution_rows}) == 37
+        and len({row.get("执行顺序") for row in first_execution_rows}) == 37
+        and len({row.get("页码版面键") for row in first_execution_rows}) == 37
         and set(first_execution_by_key) == set(first_page_side_by_key)
         and set(first_execution_by_key) == set(first_review_by_key)
         and set(first_execution_by_key) == set(first_prefill_by_key)
@@ -23948,12 +24008,12 @@ def main():
         and first_pdf_ocr_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
         and first_pdf_ocr_summary.get("output_table")
         == "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv"
-        and first_pdf_ocr_summary.get("public_row_count") == len(first_pdf_ocr_rows) == 205
-        and first_pdf_ocr_summary.get("unique_task_count") == 205
-        and first_pdf_ocr_summary.get("unique_page_side_count") == 36
+        and first_pdf_ocr_summary.get("public_row_count") == len(first_pdf_ocr_rows) == 206
+        and first_pdf_ocr_summary.get("unique_task_count") == 206
+        and first_pdf_ocr_summary.get("unique_page_side_count") == 37
         and first_pdf_ocr_summary.get("unique_pdf_page_count") == 32
-        and first_pdf_ocr_summary.get("pdf_required_count") == 205
-        and first_pdf_ocr_summary.get("hubei_official_required_count") == 205
+        and first_pdf_ocr_summary.get("pdf_required_count") == 206
+        and first_pdf_ocr_summary.get("hubei_official_required_count") == 206
         and first_pdf_ocr_summary.get("auto_private_record_write_allowed_count") == 0
         and first_pdf_ocr_summary.get("field_writeback_allowed_count") == 0
         and first_pdf_ocr_summary.get("final_available_count") == 0
@@ -23987,12 +24047,12 @@ def main():
         and first_pdf_ocr_summary.get("private_pdf_ocr_candidate_workbench_sha256")
         == sha256(first_pdf_ocr_private_csv)
         and first_pdf_ocr_private_fields == expected_first_pdf_ocr_private_fields
-        and len(first_pdf_ocr_private_rows) == 205,
+        and len(first_pdf_ocr_private_rows) == 206,
     ))
     checks.append(ok(
         "第 19 期稳定基座第一闭环PDF OCR候选公开审计字段、门禁和回链正确",
         first_pdf_ocr_fields == expected_first_pdf_ocr_fields
-        and len({row.get("第一闭环PDFOCR候选公开审计ID") for row in first_pdf_ocr_rows}) == 205
+        and len({row.get("第一闭环PDFOCR候选公开审计ID") for row in first_pdf_ocr_rows}) == 206
         and set(first_pdf_ocr_private_by_task_id) == set(first_task_review_by_task_id)
         and all(row.get(field) == "false" for row in first_pdf_ocr_rows for field in first_false_fields)
         and first_pdf_ocr_join_ok,
@@ -24139,21 +24199,21 @@ def main():
         and first_page_candidate_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
         and first_page_candidate_summary.get("output_table")
         == "data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv"
-        and first_page_candidate_summary.get("public_row_count") == len(first_page_candidate_rows) == 36
-        and first_page_candidate_summary.get("unique_page_side_count") == 36
+        and first_page_candidate_summary.get("public_row_count") == len(first_page_candidate_rows) == 37
+        and first_page_candidate_summary.get("unique_page_side_count") == 37
         and first_page_candidate_summary.get("unique_pdf_page_count") == 32
-        and first_page_candidate_summary.get("total_task_count") == 205
-        and first_page_candidate_summary.get("pdf_ocr_candidate_task_count") == 102
+        and first_page_candidate_summary.get("total_task_count") == 206
+        and first_page_candidate_summary.get("pdf_ocr_candidate_task_count") == 103
         and first_page_candidate_summary.get("no_pdf_ocr_manual_image_task_count") == 103
-        and first_page_candidate_summary.get("pdf_school_conflict_task_count") == 25
-        and first_page_candidate_summary.get("p0_conflict_task_count") == 25
+        and first_page_candidate_summary.get("pdf_school_conflict_task_count") == 26
+        and first_page_candidate_summary.get("p0_conflict_task_count") == 26
         and first_page_candidate_summary.get("p1_missing_pdf_ocr_task_count") == 138
         and first_page_candidate_summary.get("p2_consistent_official_task_count") == 13
         and first_page_candidate_summary.get("p3_candidate_confirm_task_count") == 29
-        and first_page_candidate_summary.get("direct_image_review_required_count") == 128
-        and first_page_candidate_summary.get("double_review_required_count") == 90
-        and first_page_candidate_summary.get("pdf_required_count") == 205
-        and first_page_candidate_summary.get("hubei_official_required_count") == 205
+        and first_page_candidate_summary.get("direct_image_review_required_count") == 129
+        and first_page_candidate_summary.get("double_review_required_count") == 91
+        and first_page_candidate_summary.get("pdf_required_count") == 206
+        and first_page_candidate_summary.get("hubei_official_required_count") == 206
         and first_page_candidate_summary.get("field_writeback_allowed_count") == 0
         and first_page_candidate_summary.get("final_available_count") == 0
         and first_page_candidate_summary.get("next_stage_available_count") == 0
@@ -24163,7 +24223,7 @@ def main():
     checks.append(ok(
         "第 19 期稳定基座第一闭环页列候选看板字段、门禁和回链正确",
         first_page_candidate_fields == expected_first_page_candidate_fields
-        and len({row.get("第一闭环页列候选看板ID") for row in first_page_candidate_rows}) == 36
+        and len({row.get("第一闭环页列候选看板ID") for row in first_page_candidate_rows}) == 37
         and [row.get("页码版面键") for row in first_page_candidate_rows]
         == first_page_candidate_summary.get("first_execution_page_side_keys")
         + [row.get("页码版面键") for row in first_page_candidate_rows[10:]]
@@ -24265,20 +24325,20 @@ def main():
         and first_machine_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
         and first_machine_summary.get("output_table")
         == "data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv"
-        and first_machine_summary.get("public_row_count") == len(first_machine_rows) == 205
-        and first_machine_summary.get("private_row_count") == len(first_machine_private_rows) == 205
-        and first_machine_summary.get("unique_task_count") == 205
-        and first_machine_summary.get("unique_page_side_count") == 36
+        and first_machine_summary.get("public_row_count") == len(first_machine_rows) == 206
+        and first_machine_summary.get("private_row_count") == len(first_machine_private_rows) == 206
+        and first_machine_summary.get("unique_task_count") == 206
+        and first_machine_summary.get("unique_page_side_count") == 37
         and first_machine_summary.get("unique_pdf_page_count") == 32
         and first_machine_summary.get("original_missing_pdf_ocr_task_count") == 103
         and first_machine_summary.get("machine_coordinate_candidate_task_count") == 49
         and first_machine_summary.get("upgraded_from_missing_to_machine_candidate_count") == 49
         and first_machine_summary.get("remaining_missing_after_machine_coordinate_count") == 54
         and first_machine_summary.get("machine_candidate_field_counts") == {"学费": 5, "专业计划数": 44}
-        and first_machine_summary.get("direct_image_review_remaining_count") == 79
-        and first_machine_summary.get("double_review_required_count") == 90
-        and first_machine_summary.get("pdf_required_count") == 205
-        and first_machine_summary.get("hubei_official_required_count") == 205
+        and first_machine_summary.get("direct_image_review_remaining_count") == 80
+        and first_machine_summary.get("double_review_required_count") == 91
+        and first_machine_summary.get("pdf_required_count") == 206
+        and first_machine_summary.get("hubei_official_required_count") == 206
         and first_machine_summary.get("auto_private_record_write_allowed_count") == 0
         and first_machine_summary.get("machine_auto_writeback_allowed_count") == 0
         and first_machine_summary.get("machine_auto_prefill_allowed_count") == 0
@@ -24306,7 +24366,7 @@ def main():
         == sha256(first_machine_private_csv)
         and first_machine_fields == expected_first_machine_fields
         and first_machine_private_fields == expected_first_machine_private_fields
-        and len({row.get("第一闭环机器坐标候选公开审计ID") for row in first_machine_rows}) == 205
+        and len({row.get("第一闭环机器坐标候选公开审计ID") for row in first_machine_rows}) == 206
         and all(row.get(field) == "false" for row in first_machine_rows for field in first_false_fields)
         and all(row.get("机器坐标是否允许自动写回主表") == "false" for row in first_machine_rows)
         and all(row.get("机器坐标是否允许自动回填候选") == "false" for row in first_machine_rows)
@@ -24496,52 +24556,52 @@ def main():
         and first_field_confirm_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
         and first_field_confirm_summary.get("output_table")
         == "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv"
-        and first_field_confirm_summary.get("row_count") == len(first_field_confirm_rows) == 205
+        and first_field_confirm_summary.get("row_count") == len(first_field_confirm_rows) == 206
         and first_field_confirm_summary.get("private_field_confirmation_workbench_generated") is True
-        and first_field_confirm_summary.get("unique_public_ledger_id_count") == 205
-        and first_field_confirm_summary.get("unique_first_closure_task_id_count") == 205
-        and first_field_confirm_summary.get("unique_pdf_ocr_audit_id_count") == 205
-        and first_field_confirm_summary.get("unique_machine_coordinate_audit_id_count") == 205
-        and first_field_confirm_summary.get("unique_page_side_count") == 36
+        and first_field_confirm_summary.get("unique_public_ledger_id_count") == 206
+        and first_field_confirm_summary.get("unique_first_closure_task_id_count") == 206
+        and first_field_confirm_summary.get("unique_pdf_ocr_audit_id_count") == 206
+        and first_field_confirm_summary.get("unique_machine_coordinate_audit_id_count") == 206
+        and first_field_confirm_summary.get("unique_page_side_count") == 37
         and first_field_confirm_summary.get("unique_pdf_page_count") == 32
         and first_field_confirm_summary.get("task_source_type_counts")
-        == {"自动官网辅证任务": 104, "P0人工字段任务": 101}
+        == {"自动官网辅证任务": 105, "P0人工字段任务": 101}
         and first_field_confirm_summary.get("manual_review_lane_counts")
         == {
-            "F0-PDFOCR与高校辅证冲突双人核页": 25,
+            "F0-PDFOCR与高校辅证冲突双人核页": 26,
             "F1-机器坐标候选辅助核页": 49,
             "F2-PDFOCR候选人工确认": 77,
             "F4-无候选人工看图": 54,
         }
         and first_field_confirm_summary.get("manual_review_mode_counts")
-        == {"双人复核": 25, "单人初核加抽检": 126, "人工看图": 54}
+        == {"双人复核": 26, "单人初核加抽检": 126, "人工看图": 54}
         and first_field_confirm_summary.get("combined_hint_bucket_counts")
         == {
-            "H0-PDFOCR与高校辅证冲突": 25,
+            "H0-PDFOCR与高校辅证冲突": 26,
             "H1-原缺PDFOCR但有机器坐标候选": 49,
             "H2-已有PDFOCR候选": 77,
             "H4-无候选需人工看图": 54,
         }
         and first_field_confirm_summary.get("pdf_private_record_status_counts")
-        == {"pending_private_pdf_reading": 205}
+        == {"pending_private_pdf_reading": 206}
         and first_field_confirm_summary.get("hubei_private_record_status_counts")
-        == {"pending_private_hubei_reading": 205}
+        == {"pending_private_hubei_reading": 206}
         and first_field_confirm_summary.get("school_private_record_status_counts")
-        == {"pending_private_school_reading": 179, "not_applicable_no_school_field_clue": 26}
+        == {"pending_private_school_reading": 180, "not_applicable_no_school_field_clue": 26}
         and first_field_confirm_summary.get("double_review_status_counts")
-        == {"pending_double_review": 90, "double_review_not_required": 115}
+        == {"pending_double_review": 91, "double_review_not_required": 115}
         and first_field_confirm_summary.get("three_way_public_status_counts")
-        == {"pending_private_three_way_field_confirmation": 205}
+        == {"pending_private_three_way_field_confirmation": 206}
         and first_field_confirm_summary.get("field_writeback_review_status_counts")
-        == {"blocked_until_required_private_readings_complete": 205}
-        and first_field_confirm_summary.get("pdf_ocr_hint_task_count") == 102
+        == {"blocked_until_required_private_readings_complete": 206}
+        and first_field_confirm_summary.get("pdf_ocr_hint_task_count") == 103
         and first_field_confirm_summary.get("machine_coordinate_hint_task_count") == 49
-        and first_field_confirm_summary.get("school_hint_task_count") == 73
-        and first_field_confirm_summary.get("direct_image_review_required_count") == 79
-        and first_field_confirm_summary.get("double_review_required_count") == 90
-        and first_field_confirm_summary.get("pdf_manual_review_pending_count") == 205
-        and first_field_confirm_summary.get("hubei_official_review_pending_count") == 205
-        and first_field_confirm_summary.get("three_way_closure_pending_count") == 205
+        and first_field_confirm_summary.get("school_hint_task_count") == 74
+        and first_field_confirm_summary.get("direct_image_review_required_count") == 80
+        and first_field_confirm_summary.get("double_review_required_count") == 91
+        and first_field_confirm_summary.get("pdf_manual_review_pending_count") == 206
+        and first_field_confirm_summary.get("hubei_official_review_pending_count") == 206
+        and first_field_confirm_summary.get("three_way_closure_pending_count") == 206
         and first_field_confirm_summary.get("field_writeback_ready_count") == 0
         and first_field_confirm_summary.get("field_conflict_blocked_count") == 0
         and first_field_confirm_summary.get("final_available_count") == 0
@@ -24559,9 +24619,9 @@ def main():
         and first_field_confirm_private_csv.exists()
         and first_field_confirm_summary.get("private_field_confirmation_workbench_sha256")
         == sha256(first_field_confirm_private_csv)
-        and len(first_field_confirm_private_rows) == 205
-        and len({row.get("第一闭环字段确认公开账本ID") for row in first_field_confirm_rows}) == 205
-        and len({row.get("稳定基座第一闭环明细任务ID") for row in first_field_confirm_rows}) == 205
+        and len(first_field_confirm_private_rows) == 206
+        and len({row.get("第一闭环字段确认公开账本ID") for row in first_field_confirm_rows}) == 206
+        and len({row.get("稳定基座第一闭环明细任务ID") for row in first_field_confirm_rows}) == 206
         and {row.get("稳定基座第一闭环明细任务ID") for row in first_field_confirm_rows}
         == set(first_task_review_by_task_id)
         and {row.get("第一闭环PDFOCR候选公开审计ID") for row in first_field_confirm_rows}
@@ -24569,7 +24629,7 @@ def main():
         and {row.get("第一闭环机器坐标候选公开审计ID") for row in first_field_confirm_rows}
         == {row.get("第一闭环机器坐标候选公开审计ID") for row in first_machine_rows}
         and [as_int(row.get("字段确认公开账本总序")) for row in first_field_confirm_rows]
-        == list(range(1, 206))
+        == list(range(1, 207))
         and all(row.get(field) == "false" for row in first_field_confirm_rows for field in first_false_fields)
         and all(row.get("是否允许写回字段事实") == "false" for row in first_field_confirm_rows)
         and all(row.get("是否允许作为志愿推荐依据") == "false" for row in first_field_confirm_rows)

@@ -647,7 +647,7 @@ def main():
         "school_major_suggestion_allowed_count": 0,
         "official_plan_replacement_allowed_count": 0,
         "policy": {
-            "purpose": "把第一闭环36个页列接到既有页图、OCR、全量页列底座和Overlay，方便优先人工核页。",
+            "purpose": f"把第一闭环{len(public_rows)}个页列接到既有页图、OCR、全量页列底座和Overlay，方便优先人工核页。",
             "public_boundary": "公开表只保存状态、计数和SHA；私有HTML/CSV保留页图、OCR行和待核明细。",
             "no_finalization": "本材料包不确认字段事实，不自动写回，不生成学校专业建议。"
         },

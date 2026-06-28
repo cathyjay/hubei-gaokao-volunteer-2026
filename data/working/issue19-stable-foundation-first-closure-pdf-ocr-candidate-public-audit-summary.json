@@ -11,52 +11,52 @@
   "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
   "output_table": "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv",
   "source_private_pdf_ocr_candidate_workbench": "first_closure_pdf_ocr_candidate_private_workbench_not_public",
-  "public_row_count": 205,
-  "unique_task_count": 205,
-  "unique_page_side_count": 36,
+  "public_row_count": 206,
+  "unique_task_count": 206,
+  "unique_page_side_count": 37,
   "unique_pdf_page_count": 32,
   "candidate_record_status_counts": {
-    "private_pdf_ocr_candidate_seeded": 102,
+    "private_pdf_ocr_candidate_seeded": 103,
     "private_pdf_ocr_candidate_unavailable_needs_manual_image_review": 103
   },
   "candidate_review_bucket_counts": {
-    "P0-候选冲突优先核PDF原页": 25,
+    "P0-候选冲突优先核PDF原页": 26,
     "P3-有候选但需人工确认": 29,
     "P1-缺PDFOCR候选需人工看图": 138,
     "P2-候选一致仍需官方闭环": 13
   },
   "candidate_relation_bucket_counts": {
-    "R0-PDFOCR与高校辅证存在冲突": 25,
+    "R0-PDFOCR与高校辅证存在冲突": 26,
     "R3-仅PDFOCR候选待人工核页": 29,
     "R5-无候选需人工看图": 103,
     "R1-PDFOCR与高校辅证存在一致字段": 13,
     "R2-高校有线索但PDFOCR缺候选": 35
   },
   "execution_lane_counts": {
-    "E0-冲突异常双人优先核验": 105,
+    "E0-冲突异常双人优先核验": 106,
     "E1-计划数补缺或偏大优先核验": 62,
     "E2-官网未匹配专业名归属核验": 38
   },
   "page_side_priority_counts": {
-    "Q0-冲突页列第一批先核": 105,
+    "Q0-冲突页列第一批先核": 106,
     "Q1-补缺或计划数偏大页列先核": 62,
     "Q2-官网未匹配或高校辅证页列先核": 38
   },
   "task_source_type_counts": {
-    "自动官网辅证任务": 104,
+    "自动官网辅证任务": 105,
     "P0人工字段任务": 101
   },
-  "pdf_ocr_candidate_task_count": 102,
-  "school_candidate_task_count": 73,
-  "comparable_field_task_count": 38,
+  "pdf_ocr_candidate_task_count": 103,
+  "school_candidate_task_count": 74,
+  "comparable_field_task_count": 39,
   "matched_field_task_count": 23,
-  "conflict_field_task_count": 25,
+  "conflict_field_task_count": 26,
   "missing_pdf_ocr_with_school_task_count": 67,
-  "direct_image_review_required_count": 128,
-  "double_review_required_count": 90,
-  "pdf_required_count": 205,
-  "hubei_official_required_count": 205,
-  "school_support_required_count": 179,
+  "direct_image_review_required_count": 129,
+  "double_review_required_count": 91,
+  "pdf_required_count": 206,
+  "hubei_official_required_count": 206,
+  "school_support_required_count": 180,
   "auto_private_record_write_allowed_count": 0,
   "field_writeback_allowed_count": 0,
   "final_available_count": 0,
@@ -65,5 +65,5 @@
   "school_major_suggestion_allowed_count": 0,
   "official_plan_replacement_allowed_count": 0,
   "public_boundary": "公开表只保存候选存在性、关系桶、计数、证据编号和门禁；候选明细只在私有工作台。",
-  "private_pdf_ocr_candidate_workbench_sha256": "ebe9a929aa5327d814cf6c1fbf177f8dfd41fb51f57f1642ffdd773a22548525"
+  "private_pdf_ocr_candidate_workbench_sha256": "d2230365d8383d4a72959422f86f72b4c03611bba2897ce539e98e7c7dc1cfb7"
 }

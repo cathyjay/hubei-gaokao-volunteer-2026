@@ -10,7 +10,7 @@
   "source_field_task_count": 41208,
   "private_batch_review_asset_count": 19,
   "private_master_html_sha256": "50f4bbcfa3148ba0ade1ec5af632975ced06f889ee0da38152b7edca8a44a9b3",
-  "private_index_csv_sha256": "496d356eb535cd6f4f394c1d434328581050261fcfa68a3c301b13b889c6f298",
+  "private_index_csv_sha256": "9050476880917090dfbc99877ce70c2c335bd260fad1531cd057fefeab75db5b",
   "batch_status_counts": {
     "R0-未开始页列底座核验": 19
   },
