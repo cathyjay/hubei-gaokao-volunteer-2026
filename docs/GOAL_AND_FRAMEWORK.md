@@ -45,6 +45,8 @@
 
 新增的 `data/working/issue19-stable-foundation-school-source-refresh-public-ledger.csv` 是高校侧辅证刷新账本：把 854 条 B0/B1 高校官网辅证按 `高校×高校侧辅证动作` 聚合成 80 条任务，覆盖 36 所学校。它用于自动复跑或补结构化高校官网/API/XLSX/PDF/图片来源，并把 C0/C1/C7 必核项、C2 抽检项、C4/C6 补结构化和补源项分开；抽检失败时升级同页列、同校或同专业组人工核验。该账本仍只是 double check 和低人工量派单层，不替代湖北官方侧和第 19 期原页。
 
+新增的 `data/working/issue19-school-source-status-snapshot-public-ledger.csv` 是高校官网辅证状态快照：它把 80 条高校侧辅证机会任务、36 所学校、C4/C6 补结构化/补源包、已有结构化高校源、live 补源记录和最终门禁统一到一张公开状态账本。当前 44 条 P0 立即处理、18 条 P1 高收益自动补源、13 条 P2 常规自动补源或抽检、5 条 P3 留存；所有 80 条仍同时阻断 PDF 原页核验、湖北官方侧核验和字段写回。它只告诉我们“哪些学校和任务下一步可以自动推进或需要人工核 PDF 原页”，不能把高校官网线索、API 线索或 live 探针结果当成最终招生计划事实。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 是第一批执行入口：把最高优先级的 206 条明细任务集中到 37 个页列，先核冲突、补缺、官网未匹配和高校辅证字段线索。它只压缩人工工作量和安排核验顺序，不改变“湖北官方计划和 PDF 原页闭环前不得定案”的原则。
 
 配套的 `data/working/issue19-stable-foundation-first-closure-review-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-review-summary.json` 已把这 37 个页列接入私有复核页面和公开状态机。公开层只同步任务数、私有材料 SHA、回链和门禁；当前 37 个页列全部还是 `R0-Overlay已生成未填写`，所以它只是第一闭环的执行承接材料，不是字段核准表或志愿建议表。
