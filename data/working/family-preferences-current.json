@@ -1,0 +1,113 @@
+{
+  "last_updated": "2026-06-28",
+  "preference_version": "current_round2_updated_preferences_20260628",
+  "privacy_note": "本文件只记录可公开的家庭偏好、体检决策摘要和候选讨论线索，不保存任何直接身份标识、截图或完整体检明细。",
+  "relationship_to_previous_versions": {
+    "family-preferences.json": "历史 V0 输入，保留用于复现早期家庭底线筛选表，不直接覆盖。",
+    "family-preferences-expanded-2026-06-28.json": "7 万预算和中外合作专项场景输入。",
+    "round2_exports": "当前偏好已落入 issue19-round2-updated-preferences 系列导出。"
+  },
+  "school_attribute": {
+    "preferred": ["公办本科"],
+    "special_discussion": ["学校层次或专业明显更优的中外合作项目"],
+    "not_regular_options": ["民办本科", "独立学院", "职业本科"],
+    "note": "民办、独立学院、职业本科仍不作为常规选择；如保底压力不足或确有明显优势，再单独讨论。"
+  },
+  "budget": {
+    "ordinary_public_preference": "普通公办学费优先，普通主线按正常学费处理。",
+    "ordinary_public_reference_upper_limit_yuan": 15000,
+    "cooperation_or_high_fee_special_upper_limit_yuan": 70000,
+    "note": "中外合作/高收费只作为专项讨论，不自动进入主方案；必须核培养模式、证书、校区、出国要求、总费用和调剂风险。"
+  },
+  "major_preference": {
+    "current_understanding": "多数专业仍在了解；当前清单用于召回和讨论，不等于最终接受。",
+    "main_research_directions": [
+      "数字媒体技术",
+      "计算机类相关专业",
+      "计算机科学与技术",
+      "软件工程",
+      "人工智能",
+      "信息网络工程/网络工程/信息安全",
+      "电子科技/电子信息/通信工程",
+      "机械自动化/智能制造/机器人工程",
+      "师范类专业",
+      "环境工程/环境科学",
+      "农业相关",
+      "工商管理/旅游管理"
+    ],
+    "special_research_directions": [
+      "医学影像技术",
+      "医学检验技术",
+      "康复治疗等医技方向"
+    ],
+    "pause_or_exclude_for_main_plan": [
+      "临床医学",
+      "口腔医学",
+      "中医学/针灸推拿/中西医临床",
+      "麻醉学/儿科学/精神医学等医学主线",
+      "护理类/助产",
+      "动物医学/兽医/动物科学等动物相关方向"
+    ],
+    "ai_resilience_note": "外部曾建议兽医、护理类可能有长期需求且短期不易被 AI 替代；最新家庭反馈认为二者可能仍不能纳入，因此本轮暂不进入主线或专项候选池，只保留为曾讨论过的暂停方向。",
+    "teacher_attitude": "可以了解",
+    "decision_principle": "完整院校专业组内所有可能录取或调剂专业都必须可接受；不能只看想填的 6 个专业。"
+  },
+  "city_preference_order": ["成都", "西安", "武汉", "北京"],
+  "physical_constraints_public_summary": {
+    "color_vision": "色觉相关检查正常。",
+    "corrected_visual_acuity": {
+      "right": "4.80",
+      "left": "4.80"
+    },
+    "myopia_lens_diopter": {
+      "right": "-275",
+      "left": "-325"
+    },
+    "general_exam_summary": "其他体检项目从截图看基本正常；公开仓库不保存完整体检明细。",
+    "decision_note": "当前没有因色觉直接阻断农学、医技等专项了解方向的公开摘要线索；护理和动物医学/兽医本轮暂不纳入。医学、农学、公安、军校、航海、飞行等方向仍必须逐校核招生章程和官方体检指导。"
+  },
+  "candidate_project_watchlist": [
+    {
+      "school": "西安建筑科技大学",
+      "major_or_group_hint": "环境科学/环境工程方向",
+      "project_type": "普通或专项待核",
+      "why_consider": "西安城市偏好，外部建议认为可冲。",
+      "verification_status": "待核",
+      "risk_notes": "需核 2026 湖北物理类招生专业组、计划数、学费、校区、组内调剂专业和近三年波动。"
+    },
+    {
+      "school": "贵州大学",
+      "major_or_group_hint": "旅游相关中外合作",
+      "project_type": "211/中外合作专项",
+      "tuition_yuan_per_year_hint": 22000,
+      "why_consider": "211 和低费中外合作专项观察。",
+      "verification_status": "待核",
+      "risk_notes": "需核是否面向湖北物理类招生、学费、培养模式、证书、出国要求、是否只录有专业志愿考生和调剂风险。"
+    },
+    {
+      "school": "北京农学院",
+      "major_or_group_hint": "04 组农业资源与环境中外合作/3+1",
+      "project_type": "北京/农业/中外合作专项",
+      "tuition_yuan_per_year_hint": 28000,
+      "why_consider": "北京城市偏好，农业资源与环境方向可专项了解。",
+      "verification_status": "待核",
+      "risk_notes": "截图费用为国内约 2.8 万线索，需核官方计划、国内外阶段费用、证书、3+1 出国要求和调剂范围。"
+    },
+    {
+      "school": "厦门大学嘉庚学院",
+      "major_or_group_hint": "06/07 组",
+      "project_type": "独立学院/保底专项观察",
+      "why_consider": "外部建议列为保底线索。",
+      "verification_status": "待核",
+      "risk_notes": "必须明确民办/独立学院属性、费用、校区、专业组内专业和是否只在保底不足时讨论。"
+    },
+    {
+      "school": "辽宁工程技术大学",
+      "major_or_group_hint": "具体专业组待核",
+      "project_type": "公办普通专项观察",
+      "why_consider": "外部建议列为重要备选，需先了解学校。",
+      "verification_status": "待核",
+      "risk_notes": "需核具体专业组、专业方向、城市校区、历史投档线和调剂可接受性。"
+    }
+  ]
+}

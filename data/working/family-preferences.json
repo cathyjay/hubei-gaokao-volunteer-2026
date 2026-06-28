@@ -1,5 +1,6 @@
 {
   "last_updated": "2026-06-26",
+  "status_note": "历史 V0 家庭偏好输入，保留用于复现早期家庭底线筛选表；当前口径见 data/working/family-preferences-current.json。",
   "school_attribute": {
     "preferred": ["公办本科"],
     "not_regular_options": ["民办本科", "独立学院", "职业本科"],

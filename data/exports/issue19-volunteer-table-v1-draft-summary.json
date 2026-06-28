@@ -1,0 +1,62 @@
+{
+  "status": "issue19_volunteer_table_v1_draft_ready",
+  "generated_by": "build_issue19_volunteer_table_v1_draft.py",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "usage_boundary": "本科普通批院校专业组草表，只用于家庭讨论和二次核验，不作为定稿依据。",
+  "fixed_inputs": {
+    "省份": "湖北",
+    "年份": 2026,
+    "类别": "普通类首选物理",
+    "总分": 515,
+    "累计位次": 91723,
+    "等位分": {
+      "2025": 494,
+      "2024": 497,
+      "2023": 481
+    },
+    "主线": "公办普通学费优先，不学医"
+  },
+  "official_rule_basis": [
+    "本科普通批可填45个院校专业组志愿。",
+    "每个院校专业组志愿内可选不超过6个专业及是否服从专业调剂。",
+    "平行志愿按分数优先、遵循志愿顺序检索。"
+  ],
+  "main_table": "data/exports/issue19-volunteer-table-v1-draft-main.csv",
+  "major_choices": "data/exports/issue19-volunteer-table-v1-draft-major-choices.csv",
+  "discussion_batches": "data/exports/issue19-volunteer-table-v1-discussion-batches.csv",
+  "special_options": "data/exports/issue19-volunteer-table-v1-special-options.csv",
+  "workbook": "data/exports/issue19-volunteer-table-v1-draft.xlsx",
+  "candidate_source": "round2-updated-preferences",
+  "main_group_count": 45,
+  "major_choice_row_count": 460,
+  "discussion_batch_count": 4,
+  "special_option_count": 22,
+  "gradient_counts": {
+    "冲刺待补历史": 6,
+    "冲刺": 9,
+    "稳冲": 15,
+    "稳妥": 10,
+    "保底": 5
+  },
+  "discussion_batch_counts": {
+    "B1-冲刺和城市观察批": 15,
+    "B2-稳冲主线批": 15,
+    "B3-稳妥和保底批": 15
+  },
+  "risk_attention_counts": {
+    "保底组数量": 5,
+    "冲刺待补历史组数量": 6
+  },
+  "gate": {
+    "all_main_rows_not_final_basis": true,
+    "all_main_rows_enter_main_draft": true,
+    "special_options_separate": true
+  },
+  "must_verify": [
+    "第19期原页或纸质原页",
+    "湖北官方系统或省招办计划",
+    "高校招生章程",
+    "完整院校专业组和调剂范围",
+    "6个专业顺序、计划数、学费、选科、校区、语种/单科/体检限制"
+  ]
+}

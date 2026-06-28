@@ -53,6 +53,8 @@
 - `docs/DATA_BROWSER_AND_VERIFICATION.md`：结构化数据浏览入口、Excel 工作簿、快速核验抽样和升级规则。
 - `docs/ROUND1_CANDIDATE_SELECTION.md`：第一轮候选专业组选择、精选 80、优先城市观察和家庭讨论动作。
 - `docs/PERSONAL_FIT_CANDIDATES_V1.md`：结合 515 分、91723 位次、家庭偏好和 7 万专项口径生成的个人适配候选讨论池。
+- `docs/ROUND2_UPDATED_PREFERENCES.md`：纳入最新体检摘要、护理/动物医学/兽医暂不纳入、医技/康复低优先级专项了解和新增专业方向后的第二轮候选池。
+- `docs/VOLUNTEER_TABLE_V1_REVIEW_PLAN.md`：本科普通批 45 个院校专业组草表 V1 的分批讨论和二次核验计划。
 - `docs/CANDIDATE_POOL_V1.md`：第一版可讨论候选池，全部待 2026 计划核验。
 - `docs/SCHOOL_CROSSCHECK_SOURCES.md`：高校官网招生计划交叉校验来源。
 - `docs/DECISIONS.md`：每天的决策日志。
@@ -72,6 +74,8 @@
 - 稳定数据基座浏览：`data/exports/issue19-stable-foundation-browser.xlsx`。用于看第 19 期全量结构化底座、专业组、逐专业明细、观察池和快速核验抽样。
 - 7 万预算中外合作专项：`data/exports/issue19-expanded-budget-coop-scenario.xlsx`。用于讨论中外合作/高收费项目是否值得作为花钱换机会的专项线；当前覆盖 853 个专业组、2330 条专业明细，其中预算内中外合作/高收费可讨论 1706 条、预算内高学费可讨论 259 条、费用待核 234 条、超过 70000 元预算 131 条。
 - 个人适配候选 V1：`data/exports/issue19-personal-fit-v1.xlsx`。用于结合考生分数、位次、家庭偏好、普通主线和 7 万专项口径看本轮适合继续讨论的院校专业组；当前 45 个专业组、267 条完整组内专业明细，其中 34 个进入或谨慎进入讨论。
+- 第二轮更新偏好候选：`data/exports/issue19-round2-updated-preferences.xlsx`。用于纳入最新体检摘要、护理/动物医学/兽医暂不纳入、医技/康复低优先级专项了解和新增专业方向；当前主线精选 100 个专业组、专项精选 80 个专业组、点名观察 15 条记录，全部仍为讨论池。
+- 本科普通批志愿草表 V1：`data/exports/issue19-volunteer-table-v1-draft.xlsx`。基于第二轮更新偏好候选生成，用于把 45 个院校专业组、460 条专业选择明细拆成冲刺、稳冲、稳妥和保底、高费专项批次，逐组讨论 6 个专业草案、完整组内调剂、原页核验和章程核验；全部行仍为讨论草案，不作为定稿依据。
 
 这些工作簿都不是最终志愿方案。进入家庭讨论或最终排序前，仍必须核第 19 期原页、湖北官方系统或省招办计划、高校官网/章程、完整专业组和调剂风险。
 
@@ -154,6 +158,8 @@ python3 scripts/build_issue19_stable_foundation_v0_status.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export_issue19_expanded_budget_coop_scenario.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round1_candidate_selection.py
 /Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_personal_fit_v1.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_round2_updated_preferences.py
+/Users/cathy07/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/build_issue19_volunteer_table_v1_draft.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
 python3 scripts/build_issue19_school_source_opportunity_queue.py

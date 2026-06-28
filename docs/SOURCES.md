@@ -181,7 +181,15 @@
 - `data/derived/hubei-2024-physics-toudang-parsed.csv`：2024 投档线解析行，2800 条数据。
 - `data/derived/hubei-2023-physics-toudang-parsed.csv`：2023 投档线解析行，2874 条数据。
 - `data/derived/initial-city-pool-2023-2025.tsv`：按初始城市关键词生成的初筛池，不是最终志愿表。
-- `data/working/family-preferences.json`：当前家庭偏好和筛选底线。
+- `data/working/family-preferences.json`：历史 V0 家庭偏好和筛选底线，用于复现早期家庭底线筛选表；当前口径不要覆盖该文件。
+- `data/working/family-preferences-current.json`：2026-06-28 后的当前家庭偏好、体检公开摘要、护理/动物医学/兽医暂不纳入、医技/康复专项了解口径和点名项目待核清单。
+- `data/working/family-preferences-expanded-2026-06-28.json`：7 万预算、中外合作和特殊专项讨论口径；已同步当前护理/动物医学/兽医暂不纳入、医技/康复专项了解线索。
+- `data/exports/issue19-round2-updated-preferences.xlsx`：第二轮更新偏好候选工作簿，含主线精选、医技/康复/农业/环境低优先级专项、点名学校观察、优先城市观察和组内明细。
+- `data/exports/issue19-round2-updated-preferences-main-shortlist-groups.csv`：第二轮主线精选 100 个专业组；公办普通学费线索，临床/口腔/中医等暂缓方向不进主线，护理/动物医学/兽医暂不纳入，医技/康复不混入主线。
+- `data/exports/issue19-round2-updated-preferences-health-agri-special-groups.csv`：第二轮医技/康复、农业、环境相关专项了解专业组；护理和动物医学/兽医不进入本轮专项候选。
+- `data/exports/issue19-round2-updated-preferences-specific-watchlist.csv`：第二轮点名学校观察清单，包含西安建筑科技大学、贵州大学、北京农学院、厦门大学嘉庚学院、辽宁工程技术大学等待核线索。
+- `data/exports/issue19-round2-updated-preferences-summary.json`：第二轮更新偏好候选池摘要、规模、方向统计和非定稿边界。
+- `scripts/build_issue19_round2_updated_preferences.py`：根据稳定底座和当前家庭偏好生成第二轮候选池；只做讨论池和核验队列，不生成定稿志愿。
 - `data/working/2026-admission-plan-source-status.json`：2026 招生计划来源状态。
 - `data/working/issue19-official-public-entry-status.json`：第 19 期底座相关官方公开入口状态快照，记录湖北教育考试网计划页/索引页 SHA、平台无登录 401 探针和当前不能直接定稿的边界。
 - `data/working/issue19-official-public-entry-live-recheck.json`：第 19 期底座相关官方公开入口活体复查结果，记录当前公开入口 SHA 是否与留存一致、无登录接口是否仍返回 401，以及当前不能自动取得湖北官方结构化计划的边界。

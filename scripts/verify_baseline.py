@@ -274,10 +274,15 @@ def main():
     ))
 
     family_preferences = json.loads((ROOT / "data/working/family-preferences.json").read_text())
+    current_family_preferences = json.loads(
+        (ROOT / "data/working/family-preferences-current.json").read_text()
+    )
     major_preference = family_preferences["major_preference"]
     budget_preference = family_preferences["budget"]
+    current_major_preference = current_family_preferences["major_preference"]
+    current_physical_summary = current_family_preferences["physical_constraints_public_summary"]
     checks.append(ok(
-        "家庭偏好已记录不学医",
+        "历史 V0 家庭偏好已记录不学医",
         {"医学类", "护理类"}.issubset(set(major_preference.get("rejected_directions", []))),
     ))
     checks.append(ok(
@@ -287,6 +292,34 @@ def main():
     checks.append(ok(
         "家庭费用上限已记录为 15000 元/年",
         budget_preference.get("annual_upper_limit_yuan") == 15000,
+    ))
+    checks.append(ok(
+        "当前家庭偏好已记录专项了解和体检公开摘要",
+        current_family_preferences.get("preference_version") == "current_round2_updated_preferences_20260628"
+        and "医学影像技术" in current_major_preference.get("special_research_directions", [])
+        and "动物医学/兽医/动物科学等动物相关方向" in current_major_preference.get("pause_or_exclude_for_main_plan", [])
+        and "护理类/助产" in current_major_preference.get("pause_or_exclude_for_main_plan", [])
+        and "临床医学" in current_major_preference.get("pause_or_exclude_for_main_plan", [])
+        and current_physical_summary.get("color_vision") == "色觉相关检查正常。"
+        and current_physical_summary.get("corrected_visual_acuity", {}).get("right") == "4.80"
+        and current_physical_summary.get("corrected_visual_acuity", {}).get("left") == "4.80"
+        and current_physical_summary.get("myopia_lens_diopter", {}).get("right") == "-275"
+        and current_physical_summary.get("myopia_lens_diopter", {}).get("left") == "-325"
+        and len(current_family_preferences.get("candidate_project_watchlist", [])) == 5,
+    ))
+    current_family_text = (ROOT / "data/working/family-preferences-current.json").read_text(
+        encoding="utf-8"
+    )
+    checks.append(ok(
+        "当前家庭偏好公开文件不含身份信息和截图路径",
+        "/Users/" not in current_family_text
+        and "身份证" not in current_family_text
+        and "准考证" not in current_family_text
+        and "报名号" not in current_family_text
+        and "考生号" not in current_family_text
+        and "姓名" not in current_family_text
+        and ".png" not in current_family_text
+        and ".jpg" not in current_family_text,
     ))
 
     school_crosscheck_files = [
@@ -25540,6 +25573,142 @@ def main():
         and not any(token in round1_public_text for token in shared_forbidden_tokens),
     ))
 
+    round2_script = ROOT / "scripts/build_issue19_round2_updated_preferences.py"
+    round2_summary_path = ROOT / "data/exports/issue19-round2-updated-preferences-summary.json"
+    round2_workbook_path = ROOT / "data/exports/issue19-round2-updated-preferences.xlsx"
+    round2_groups_csv = ROOT / "data/exports/issue19-round2-updated-preferences-candidate-groups.csv"
+    round2_main_csv = ROOT / "data/exports/issue19-round2-updated-preferences-main-shortlist-groups.csv"
+    round2_special_csv = ROOT / "data/exports/issue19-round2-updated-preferences-health-agri-special-groups.csv"
+    round2_city_csv = ROOT / "data/exports/issue19-round2-updated-preferences-priority-city-watchlist.csv"
+    round2_specific_csv = ROOT / "data/exports/issue19-round2-updated-preferences-specific-watchlist.csv"
+    round2_main_majors_csv = ROOT / "data/exports/issue19-round2-updated-preferences-main-shortlist-majors.csv"
+    round2_special_majors_csv = ROOT / "data/exports/issue19-round2-updated-preferences-special-majors.csv"
+    round2_summary = json.loads(round2_summary_path.read_text())
+    with round2_groups_csv.open(newline="", encoding="utf-8-sig") as f:
+        round2_group_reader = csv.DictReader(f)
+        round2_group_rows = list(round2_group_reader)
+        round2_group_fields = round2_group_reader.fieldnames or []
+    with round2_main_csv.open(newline="", encoding="utf-8-sig") as f:
+        round2_main_rows = list(csv.DictReader(f))
+    with round2_special_csv.open(newline="", encoding="utf-8-sig") as f:
+        round2_special_rows = list(csv.DictReader(f))
+    with round2_city_csv.open(newline="", encoding="utf-8-sig") as f:
+        round2_city_rows = list(csv.DictReader(f))
+    with round2_specific_csv.open(newline="", encoding="utf-8-sig") as f:
+        round2_specific_rows = list(csv.DictReader(f))
+    with round2_main_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        round2_main_major_reader = csv.DictReader(f)
+        round2_main_major_rows = list(round2_main_major_reader)
+        round2_main_major_fields = round2_main_major_reader.fieldnames or []
+    with round2_special_majors_csv.open(newline="", encoding="utf-8-sig") as f:
+        round2_special_major_reader = csv.DictReader(f)
+        round2_special_major_rows = list(round2_special_major_reader)
+        round2_special_major_fields = round2_special_major_reader.fieldnames or []
+    expected_round2_group_fields = script_list_constant(round2_script, "GROUP_FIELDS")
+    expected_round2_major_fields = script_list_constant(round2_script, "MAJOR_FIELDS")
+    round2_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            round2_summary_path,
+            round2_groups_csv,
+            round2_main_csv,
+            round2_special_csv,
+            round2_city_csv,
+            round2_specific_csv,
+            round2_main_majors_csv,
+            round2_special_majors_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期第二轮更新偏好候选池摘要、规模和工作簿正确",
+        round2_summary.get("status") == "issue19_round2_updated_preferences_ready"
+        and round2_summary.get("generated_by") == "build_issue19_round2_updated_preferences.py"
+        and round2_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and round2_summary.get("candidate_group_rows") == len(round2_group_rows) == 1483
+        and round2_summary.get("main_pool_rows_before_shortlist") == 1212
+        and round2_summary.get("main_shortlist_group_rows") == len(round2_main_rows) == 100
+        and round2_summary.get("special_pool_rows_before_shortlist") == 262
+        and round2_summary.get("special_group_rows") == len(round2_special_rows) == 80
+        and round2_summary.get("priority_city_watchlist_rows") == len(round2_city_rows) == 154
+        and round2_summary.get("specific_watchlist_rows") == len(round2_specific_rows) == 15
+        and round2_summary.get("main_shortlist_major_rows") == len(round2_main_major_rows) == 926
+        and round2_summary.get("special_major_rows") == len(round2_special_major_rows) == 724
+        and round2_summary.get("workbook") == "data/exports/issue19-round2-updated-preferences.xlsx"
+        and round2_workbook_path.exists()
+        and round2_workbook_path.stat().st_size > 1_000_000,
+        f"{len(round2_main_rows)} main, {len(round2_special_rows)} special",
+    ))
+    checks.append(ok(
+        "第 19 期第二轮更新偏好字段、主线门禁和专项口径正确",
+        round2_group_fields == expected_round2_group_fields
+        and round2_main_major_fields == expected_round2_major_fields
+        and round2_special_major_fields == expected_round2_major_fields
+        and {row.get("是否可作为定稿依据") for row in round2_group_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round2_main_major_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in round2_special_major_rows} == {"false"}
+        and all(row.get("高收费或超预算专业数") == "0" for row in round2_main_rows)
+        and all(row.get("临床口腔中医暂缓专业数") == "0" for row in round2_main_rows)
+        and all(row.get("医技护理康复专业数") == "0" for row in round2_main_rows)
+        and all(row.get("护理助产专业数") == "0" for row in round2_main_rows)
+        and all(row.get("动物医学兽医专业数") == "0" for row in round2_main_rows)
+        and all(as_int(row.get("护理助产专业数")) == 0 for row in round2_special_rows)
+        and all(as_int(row.get("动物医学兽医专业数")) == 0 for row in round2_special_rows)
+        and any(as_int(row.get("医技护理康复专业数")) > 0 for row in round2_special_rows)
+        and any(as_int(row.get("环境工程科学专业数")) > 0 for row in round2_special_rows)
+        and any(row.get("重点观察标签") for row in round2_specific_rows)
+        and {
+            row.get("专业组出现ID", "")
+            for row in round2_main_major_rows
+        }.issubset({row.get("专业组出现ID", "") for row in round2_main_rows})
+        and {
+            row.get("专业组出现ID", "")
+            for row in round2_special_major_rows
+        }.issubset({row.get("专业组出现ID", "") for row in round2_special_rows + round2_specific_rows}),
+    ))
+    checks.append(ok(
+        "第 19 期第二轮更新偏好方向统计正确",
+        round2_summary.get("direction_group_counts", {}).get("护理助产专业数") == 111
+        and round2_summary.get("direction_major_counts", {}).get("护理助产专业数") == 120
+        and round2_summary.get("direction_group_counts", {}).get("动物医学兽医专业数") == 52
+        and round2_summary.get("direction_major_counts", {}).get("动物医学兽医专业数") == 84
+        and round2_summary.get("direction_group_counts", {}).get("医技护理康复专业数") == 249
+        and round2_summary.get("direction_major_counts", {}).get("医技护理康复专业数") == 341
+        and round2_summary.get("direction_group_counts", {}).get("计算机AI软件专业数") == 1040,
+    ))
+    checks.append(ok(
+        "第 19 期第二轮更新偏好公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in round2_public_text
+        and "/home/" not in round2_public_text
+        and "/var/folders/" not in round2_public_text
+        and "/private/" not in round2_public_text
+        and "private/" not in round2_public_text
+        and "private\\" not in round2_public_text
+        and "ocr-runs" not in round2_public_text
+        and "rendered-pages" not in round2_public_text
+        and "file://" not in round2_public_text
+        and "Authorization" not in round2_public_text
+        and "Bearer " not in round2_public_text
+        and "Cookie" not in round2_public_text
+        and "Set-Cookie" not in round2_public_text
+        and "access_token" not in round2_public_text
+        and "refresh_token" not in round2_public_text
+        and "password" not in round2_public_text
+        and "secret" not in round2_public_text
+        and "api_key" not in round2_public_text
+        and "身份证" not in round2_public_text
+        and "准考证" not in round2_public_text
+        and "报名号" not in round2_public_text
+        and "序列号" not in round2_public_text
+        and "手机号" not in round2_public_text
+        and "已确认" not in round2_public_text
+        and "已核准" not in round2_public_text
+        and "最终推荐" not in round2_public_text
+        and "最终方案" not in round2_public_text
+        and "可填报" not in round2_public_text
+        and "可排序" not in round2_public_text
+        and not any(token in round2_public_text for token in shared_forbidden_tokens),
+    ))
+
     personal_fit_script = ROOT / "scripts/build_issue19_personal_fit_v1.py"
     personal_fit_summary_path = ROOT / "data/exports/issue19-personal-fit-v1-summary.json"
     personal_fit_workbook_path = ROOT / "data/exports/issue19-personal-fit-v1.xlsx"
@@ -25641,6 +25810,184 @@ def main():
         and "可填报" not in personal_fit_public_text
         and "可排序" not in personal_fit_public_text
         and not any(token in personal_fit_public_text for token in shared_forbidden_tokens),
+    ))
+
+    volunteer_table_script = ROOT / "scripts/build_issue19_volunteer_table_v1_draft.py"
+    volunteer_summary_path = ROOT / "data/exports/issue19-volunteer-table-v1-draft-summary.json"
+    volunteer_workbook_path = ROOT / "data/exports/issue19-volunteer-table-v1-draft.xlsx"
+    volunteer_main_csv = ROOT / "data/exports/issue19-volunteer-table-v1-draft-main.csv"
+    volunteer_major_csv = ROOT / "data/exports/issue19-volunteer-table-v1-draft-major-choices.csv"
+    volunteer_discussion_csv = ROOT / "data/exports/issue19-volunteer-table-v1-discussion-batches.csv"
+    volunteer_special_csv = ROOT / "data/exports/issue19-volunteer-table-v1-special-options.csv"
+    volunteer_summary = json.loads(volunteer_summary_path.read_text())
+    with volunteer_main_csv.open(newline="", encoding="utf-8-sig") as f:
+        volunteer_main_reader = csv.DictReader(f)
+        volunteer_main_rows = list(volunteer_main_reader)
+        volunteer_main_fields = volunteer_main_reader.fieldnames or []
+    with volunteer_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        volunteer_major_reader = csv.DictReader(f)
+        volunteer_major_rows = list(volunteer_major_reader)
+        volunteer_major_fields = volunteer_major_reader.fieldnames or []
+    with volunteer_discussion_csv.open(newline="", encoding="utf-8-sig") as f:
+        volunteer_discussion_reader = csv.DictReader(f)
+        volunteer_discussion_rows = list(volunteer_discussion_reader)
+        volunteer_discussion_fields = volunteer_discussion_reader.fieldnames or []
+    with volunteer_special_csv.open(newline="", encoding="utf-8-sig") as f:
+        volunteer_special_reader = csv.DictReader(f)
+        volunteer_special_rows = list(volunteer_special_reader)
+        volunteer_special_fields = volunteer_special_reader.fieldnames or []
+    expected_volunteer_main_fields = script_list_constant(volunteer_table_script, "MAIN_FIELDS")
+    expected_volunteer_major_fields = script_list_constant(volunteer_table_script, "MAJOR_FIELDS")
+    expected_volunteer_discussion_fields = script_list_constant(volunteer_table_script, "DISCUSSION_FIELDS")
+    expected_volunteer_special_fields = script_list_constant(volunteer_table_script, "SPECIAL_FIELDS")
+    volunteer_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            volunteer_summary_path,
+            volunteer_main_csv,
+            volunteer_major_csv,
+            volunteer_discussion_csv,
+            volunteer_special_csv,
+        ]
+    )
+    volunteer_group_ids = {
+        row.get("专业组出现ID", "")
+        for row in volunteer_main_rows
+        if row.get("专业组出现ID", "")
+    }
+    volunteer_major_group_ids = {
+        row.get("专业组出现ID", "")
+        for row in volunteer_major_rows
+        if row.get("专业组出现ID", "")
+    }
+    volunteer_main_codes = {
+        row.get("院校专业组代码OCR规范化", "")
+        for row in volunteer_main_rows
+        if row.get("院校专业组代码OCR规范化", "")
+    }
+    volunteer_special_codes = {
+        row.get("院校专业组代码OCR规范化", "")
+        for row in volunteer_special_rows
+        if row.get("院校专业组代码OCR规范化", "")
+    }
+    selected_major_counts = Counter()
+    selected_rank_ok = True
+    for row in volunteer_major_rows:
+        if row.get("是否建议填入6专业") == "true":
+            key = row.get("专业组出现ID", "")
+            selected_major_counts[key] += 1
+            selected_rank_ok = selected_rank_ok and row.get("专业选择顺位", "") in {"1", "2", "3", "4", "5", "6"}
+    checks.append(ok(
+        "第 19 期本科普通批志愿草表 V1 摘要、规模和工作簿正确",
+        volunteer_summary.get("status") == "issue19_volunteer_table_v1_draft_ready"
+        and volunteer_summary.get("generated_by") == "build_issue19_volunteer_table_v1_draft.py"
+        and volunteer_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and volunteer_summary.get("fixed_inputs", {}).get("总分") == 515
+        and volunteer_summary.get("fixed_inputs", {}).get("累计位次") == 91723
+        and volunteer_summary.get("fixed_inputs", {}).get("等位分", {}).get("2025") == 494
+        and volunteer_summary.get("fixed_inputs", {}).get("等位分", {}).get("2024") == 497
+        and volunteer_summary.get("fixed_inputs", {}).get("等位分", {}).get("2023") == 481
+        and "不作为定稿依据" in volunteer_summary.get("usage_boundary", "")
+        and len(volunteer_summary.get("official_rule_basis", [])) == 3
+        and len(volunteer_summary.get("must_verify", [])) == 5
+        and volunteer_summary.get("candidate_source") == "round2-updated-preferences"
+        and volunteer_summary.get("main_group_count") == len(volunteer_main_rows) == 45
+        and volunteer_summary.get("major_choice_row_count") == len(volunteer_major_rows) == 460
+        and volunteer_summary.get("discussion_batch_count") == len(volunteer_discussion_rows) == 4
+        and volunteer_summary.get("special_option_count") == len(volunteer_special_rows) == 22
+        and volunteer_summary.get("workbook") == "data/exports/issue19-volunteer-table-v1-draft.xlsx"
+        and volunteer_workbook_path.exists()
+        and volunteer_workbook_path.stat().st_size > 50_000,
+        f"{len(volunteer_main_rows)} groups, {len(volunteer_major_rows)} majors, {len(volunteer_special_rows)} special",
+    ))
+    checks.append(ok(
+        "第 19 期本科普通批志愿草表 V1 字段、批次、分层和门禁正确",
+        volunteer_main_fields == expected_volunteer_main_fields
+        and volunteer_major_fields == expected_volunteer_major_fields
+        and volunteer_discussion_fields == expected_volunteer_discussion_fields
+        and volunteer_special_fields == expected_volunteer_special_fields
+        and [as_int(row.get("志愿序号")) for row in volunteer_main_rows] == list(range(1, 46))
+        and volunteer_summary.get("gradient_counts") == {
+            "冲刺待补历史": 6,
+            "冲刺": 9,
+            "稳冲": 15,
+            "稳妥": 10,
+            "保底": 5,
+        }
+        and volunteer_summary.get("discussion_batch_counts") == {
+            "B1-冲刺和城市观察批": 15,
+            "B2-稳冲主线批": 15,
+            "B3-稳妥和保底批": 15,
+        }
+        and volunteer_summary.get("risk_attention_counts") == {
+            "保底组数量": 5,
+            "冲刺待补历史组数量": 6,
+        }
+        and volunteer_summary.get("gate", {}).get("all_main_rows_not_final_basis") is True
+        and volunteer_summary.get("gate", {}).get("all_main_rows_enter_main_draft") is True
+        and volunteer_summary.get("gate", {}).get("special_options_separate") is True
+        and {row.get("是否进入主草表") for row in volunteer_main_rows} == {"true"}
+        and {row.get("是否可作为定稿依据") for row in volunteer_main_rows} == {"false"}
+        and {row.get("是否可作为定稿依据") for row in volunteer_special_rows} == {"false"}
+        and Counter(row.get("讨论批次", "") for row in volunteer_main_rows) == Counter({
+            "B1-冲刺和城市观察批": 15,
+            "B2-稳冲主线批": 15,
+            "B3-稳妥和保底批": 15,
+        }),
+    ))
+    checks.append(ok(
+        "第 19 期本科普通批志愿草表 V1 专业明细、主键和专项隔离正确",
+        len(volunteer_group_ids) == 45
+        and volunteer_group_ids.issubset(volunteer_major_group_ids)
+        and all(1 <= count <= 6 for count in selected_major_counts.values())
+        and selected_rank_ok
+        and selected_major_counts.keys() == volunteer_group_ids
+        and volunteer_main_codes.isdisjoint(volunteer_special_codes)
+        and {row.get("家庭底线属性动作") for row in volunteer_main_rows} == {"继续核公办普通学费-非民办线索"}
+        and {row.get("公办民办机器线索") for row in volunteer_main_rows} == {"非民办线索-教育部名单未备注民办"}
+        and {
+            row.get("院校专业组代码OCR规范化")
+            for row in volunteer_main_rows[:15]
+        }.issuperset({"K15306", "C12815", "K46706", "F11702", "H89207"})
+        and {
+            row.get("院校专业组代码OCR规范化")
+            for row in volunteer_main_rows[30:]
+        }.issuperset({"C13107", "C13908", "K78401", "F30805", "K75703", "C15108"}),
+    ))
+    checks.append(ok(
+        "第 19 期本科普通批志愿草表 V1 公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in volunteer_public_text
+        and "/home/" not in volunteer_public_text
+        and "/var/folders/" not in volunteer_public_text
+        and "/private/" not in volunteer_public_text
+        and "private/" not in volunteer_public_text
+        and "private\\" not in volunteer_public_text
+        and "ocr-runs" not in volunteer_public_text
+        and "rendered-pages" not in volunteer_public_text
+        and "file://" not in volunteer_public_text
+        and "Authorization" not in volunteer_public_text
+        and "Bearer " not in volunteer_public_text
+        and "Cookie" not in volunteer_public_text
+        and "Set-Cookie" not in volunteer_public_text
+        and "access_token" not in volunteer_public_text
+        and "refresh_token" not in volunteer_public_text
+        and "password" not in volunteer_public_text
+        and "secret" not in volunteer_public_text
+        and "api_key" not in volunteer_public_text
+        and "身份证" not in volunteer_public_text
+        and "准考证" not in volunteer_public_text
+        and "报名号" not in volunteer_public_text
+        and "序列号" not in volunteer_public_text
+        and "手机号" not in volunteer_public_text
+        and "人工读数" not in volunteer_public_text
+        and "已确认" not in volunteer_public_text
+        and "已核准" not in volunteer_public_text
+        and "最终候选" not in volunteer_public_text
+        and "最终推荐" not in volunteer_public_text
+        and "最终方案" not in volunteer_public_text
+        and "可填报" not in volunteer_public_text
+        and "可排序" not in volunteer_public_text
+        and not any(token in volunteer_public_text for token in shared_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())

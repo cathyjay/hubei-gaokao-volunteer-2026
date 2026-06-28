@@ -2,7 +2,7 @@
   "last_updated": "2026-06-28",
   "scenario_id": "expanded_budget_coop_and_special_tracks_20260628",
   "privacy_note": "本文件只记录可公开的家庭偏好和筛选口径，不保存直接身份信息、体检截图或体检明细。",
-  "relationship_to_v0_baseline": "稳定数据基座 V0 仍作为原始结构化和核验底座；本文件用于在 V0 之上新增 7 万预算、中外合作可讨论和军事院校专项探索场景。",
+  "relationship_to_v0_baseline": "稳定数据基座 V0 仍作为原始结构化和核验底座；本文件用于在 V0 之上新增 7 万预算、中外合作可讨论、军事院校专项探索和最新专业专项了解场景。当前完整家庭口径见 data/working/family-preferences-current.json。",
   "school_attribute": {
     "preferred": ["公办本科", "学校层次或专业明显更优的中外合作项目"],
     "not_regular_options": ["民办本科", "独立学院", "职业本科"],
@@ -41,14 +41,17 @@
       "师范类专业",
       "农业相关",
       "工商管理",
-      "环境工程"
+      "环境工程",
+      "环境科学"
     ],
     "external_suggestion_pending_directions": [
       "医学影像",
       "医学检验"
     ],
-    "rejected_directions": ["医学类", "护理类"],
-    "medical_related_exception_note": "医学影像、医学检验来自外部截图建议，但与既有“不学医”底线冲突，暂列待确认例外；未再次确认前不进入主方案。",
+    "pause_or_exclude_for_main_plan": ["临床医学", "口腔医学", "中医学/针灸推拿/中西医临床", "麻醉学/儿科学/精神医学等医学主线", "护理类/助产", "动物医学/兽医/动物科学等动物接触强相关方向"],
+    "special_research_directions": ["医学影像技术", "医学检验技术", "康复治疗等医技方向"],
+    "medical_related_exception_note": "临床医学、口腔医学、中医等医学主线暂缓；护理和动物医学/兽医本轮暂不纳入；医学影像、医学检验、康复治疗等医技方向只作为专项了解，不自动进入普通主线。",
+    "ai_resilience_note": "外部曾建议兽医、护理类可能有长期需求且短期不易被 AI 替代；最新家庭反馈认为二者可能仍不能纳入，因此本轮暂不进入主线或专项候选池。",
     "teacher_attitude": "可以了解",
     "other_directions": "待了解",
     "decision_principle": "专业组内所有专业可接受优先于城市偏好；中外合作项目必须额外核验费用和培养模式。"
@@ -72,7 +75,50 @@
   },
   "physical_constraints_public_summary": {
     "color_vision": "体检截图显示色觉相关检查正常；公开仓库不保存体检明细。",
-    "myopia": "有近视，军校、公安、航海、飞行、医学及其他限报专业必须按官方体检标准逐项核验。",
+    "corrected_visual_acuity": {
+      "right": "4.80",
+      "left": "4.80"
+    },
+    "myopia_lens_diopter": {
+      "right": "-275",
+      "left": "-325"
+    },
+    "myopia": "有近视，军校、公安、航海、飞行、医学、农学、护理、动物医学/兽医及其他限报专业必须按官方体检标准和招生章程逐项核验。",
+    "general_exam_summary": "其他体检项目从截图看基本正常；公开仓库不保存完整体检明细。",
     "medical_details_storage": "体检明细只保存在 git 忽略的本地私有目录，不进入公开仓库。"
-  }
+  },
+  "candidate_project_watchlist": [
+    {
+      "school": "西安建筑科技大学",
+      "major_or_group_hint": "环境科学/环境工程方向",
+      "project_type": "普通或专项待核",
+      "verification_status": "待核"
+    },
+    {
+      "school": "贵州大学",
+      "major_or_group_hint": "旅游相关中外合作",
+      "project_type": "211/中外合作专项",
+      "tuition_yuan_per_year_hint": 22000,
+      "verification_status": "待核"
+    },
+    {
+      "school": "北京农学院",
+      "major_or_group_hint": "04 组农业资源与环境中外合作/3+1",
+      "project_type": "北京/农业/中外合作专项",
+      "tuition_yuan_per_year_hint": 28000,
+      "verification_status": "待核"
+    },
+    {
+      "school": "厦门大学嘉庚学院",
+      "major_or_group_hint": "06/07 组",
+      "project_type": "独立学院/保底专项观察",
+      "verification_status": "待核"
+    },
+    {
+      "school": "辽宁工程技术大学",
+      "major_or_group_hint": "具体专业组待核",
+      "project_type": "公办普通专项观察",
+      "verification_status": "待核"
+    }
+  ]
 }
