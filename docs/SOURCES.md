@@ -506,6 +506,9 @@
 - `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv`：第一闭环 W0/B0 最小人工复核包，10 行；一行对应一个 B0 冲突优先 `PDF页码×版面列`，把同页 275 个待核事实先压成 87 个核心事实的包级执行入口。
 - `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-items-public-ledger.csv`：第一闭环 W0/B0 最小人工复核明细，87 行；覆盖专业组边界 10、明确冲突字段 68、专业名归属 9，并逐项回链到第一闭环事实核验包明细。
 - `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-summary.json`：W0/B0 最小人工复核摘要；记录 10 个包、87 个核心事实、188 个同页伴生待核事实、35 个涉及任务，PDF 原页和湖北官方侧仍全部待核，字段写回和最终门禁全部为 0。
+- `data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-packets-public-audit.csv`：第一闭环 W0/B0 执行预填包公开审计，10 行；把 10 个页列包接到私有页列 CSV、页图、OCR 文本和核心事实集合 SHA，公开层只保存状态、计数和哈希。
+- `data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-items-public-audit.csv`：第一闭环 W0/B0 执行预填明细公开审计，87 行；一行对应一个核心事实，回链到最小人工复核明细、下一步动作矩阵、字段确认账本、PDFOCR 候选和机器坐标候选，并保存私有预填记录 SHA。
+- `data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-summary.json`：W0/B0 执行预填审计摘要；记录 10 个页列私有 CSV、87 条私有预填记录、PDFOCR/机器坐标/高校辅证线索计数，字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -649,6 +652,7 @@
 - `scripts/build_issue19_first_closure_fact_scope_gap_ledger.py`：读取第一闭环字段事实账本、下一步动作矩阵、页列动作汇总和证据状态报告，生成 439 行事实范围缺口账本；用于把字段事实、专业名归属和专业组边界三类待闭环事实放到同一个公开状态层，不确认字段事实。
 - `scripts/build_issue19_first_closure_fact_verification_packets.py`：读取事实范围缺口账本、下一步动作矩阵、页列动作汇总、公开证据地图和页列证据汇总，生成 37 个页列核验包和 439 个包内事实项；用于安排人工核页、双人复核和并行处理顺序，不确认字段事实。
 - `scripts/build_issue19_first_closure_w0_b0_minimal_manual_checklist.py`：读取第一闭环事实核验包、包内事实明细和 B0 冲突页列核验状态，生成 10 个 W0/B0 最小人工复核包和 87 个核心事实项；用于先核专业组边界、明确冲突字段和专业名归属，不确认字段事实。
+- `scripts/build_issue19_first_closure_w0_b0_execution_prefill_audit.py`：读取 W0/B0 最小人工复核包、B0 冲突页列状态、公开证据地图、下一步动作矩阵、字段确认账本、PDFOCR/机器坐标候选和 Git 忽略的私有工作台，生成 10 行执行预填包审计、87 行执行预填明细审计和本地私有页列 CSV；用于人工打开私有材料核 PDF 原页，不确认字段事实。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。

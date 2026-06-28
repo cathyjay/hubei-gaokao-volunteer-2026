@@ -28404,6 +28404,419 @@ def main():
         and not any(token in first_w0_b0_minimal_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_w0_b0_execution_script = (
+        ROOT / "scripts/build_issue19_first_closure_w0_b0_execution_prefill_audit.py"
+    )
+    first_w0_b0_execution_packets_csv = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-packets-public-audit.csv"
+    )
+    first_w0_b0_execution_items_csv = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-items-public-audit.csv"
+    )
+    first_w0_b0_execution_summary_path = (
+        ROOT
+        / "data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-summary.json"
+    )
+    first_w0_b0_execution_private_master = (
+        ROOT
+        / "private/review-assets/issue19-w0-b0-minimal-execution-prefill/w0-b0-minimal-private-prefill.csv"
+    )
+    first_w0_b0_execution_private_index = (
+        ROOT
+        / "private/review-assets/issue19-w0-b0-minimal-execution-prefill/w0-b0-minimal-private-index.csv"
+    )
+    first_w0_b0_execution_summary = json.loads(first_w0_b0_execution_summary_path.read_text())
+    with first_w0_b0_execution_packets_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_w0_b0_execution_packet_reader = csv.DictReader(f)
+        first_w0_b0_execution_packet_rows = list(first_w0_b0_execution_packet_reader)
+        first_w0_b0_execution_packet_fields = first_w0_b0_execution_packet_reader.fieldnames or []
+    with first_w0_b0_execution_items_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_w0_b0_execution_item_reader = csv.DictReader(f)
+        first_w0_b0_execution_item_rows = list(first_w0_b0_execution_item_reader)
+        first_w0_b0_execution_item_fields = first_w0_b0_execution_item_reader.fieldnames or []
+    with first_w0_b0_execution_private_master.open(newline="", encoding="utf-8-sig") as f:
+        first_w0_b0_execution_private_reader = csv.DictReader(f)
+        first_w0_b0_execution_private_rows = list(first_w0_b0_execution_private_reader)
+        first_w0_b0_execution_private_fields = first_w0_b0_execution_private_reader.fieldnames or []
+    with first_w0_b0_execution_private_index.open(newline="", encoding="utf-8-sig") as f:
+        first_w0_b0_execution_private_index_reader = csv.DictReader(f)
+        first_w0_b0_execution_private_index_rows = list(first_w0_b0_execution_private_index_reader)
+        first_w0_b0_execution_private_index_fields = first_w0_b0_execution_private_index_reader.fieldnames or []
+    expected_first_w0_b0_execution_packet_fields = script_runtime_constant(
+        first_w0_b0_execution_script,
+        "PUBLIC_PACKET_FIELDS",
+    )
+    expected_first_w0_b0_execution_item_fields = script_runtime_constant(
+        first_w0_b0_execution_script,
+        "PUBLIC_ITEM_FIELDS",
+    )
+    expected_first_w0_b0_execution_private_fields = script_runtime_constant(
+        first_w0_b0_execution_script,
+        "PRIVATE_FIELDS",
+    )
+    expected_first_w0_b0_execution_private_index_fields = script_runtime_constant(
+        first_w0_b0_execution_script,
+        "PRIVATE_INDEX_FIELDS",
+    )
+
+    def first_w0_b0_execution_row_sha(row, fields):
+        text = "\n".join(f"{field}={row.get(field, '')}" for field in fields)
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+    first_w0_b0_execution_packet_by_id = {
+        row.get("W0B0执行预填包公开审计ID", ""): row
+        for row in first_w0_b0_execution_packet_rows
+    }
+    first_w0_b0_execution_packet_by_key = {
+        row.get("页码版面键", ""): row for row in first_w0_b0_execution_packet_rows
+    }
+    first_w0_b0_execution_items_by_packet = defaultdict(list)
+    first_w0_b0_execution_items_by_key = defaultdict(list)
+    for row in first_w0_b0_execution_item_rows:
+        first_w0_b0_execution_items_by_packet[
+            row.get("W0B0执行预填包公开审计ID", "")
+        ].append(row)
+        first_w0_b0_execution_items_by_key[row.get("页码版面键", "")].append(row)
+    first_w0_b0_execution_private_by_item = {
+        row.get("W0B0执行预填明细公开审计ID", ""): row
+        for row in first_w0_b0_execution_private_rows
+    }
+    first_w0_b0_execution_private_index_by_key = {
+        row.get("页码版面键", ""): row for row in first_w0_b0_execution_private_index_rows
+    }
+    first_w0_b0_execution_minimal_item_by_id = {
+        row.get("W0B0最小人工复核明细ID", ""): row
+        for row in first_w0_b0_minimal_item_rows
+    }
+    first_w0_b0_execution_private_sha_ok = True
+    for row in first_w0_b0_execution_item_rows:
+        private_row = first_w0_b0_execution_private_by_item.get(
+            row.get("W0B0执行预填明细公开审计ID", ""),
+            {},
+        )
+        first_w0_b0_execution_private_sha_ok = (
+            first_w0_b0_execution_private_sha_ok
+            and bool(private_row)
+            and row.get("私有预填记录SHA256")
+            == first_w0_b0_execution_row_sha(
+                private_row,
+                expected_first_w0_b0_execution_private_fields,
+            )
+        )
+    first_w0_b0_execution_private_index_sha_ok = True
+    for row in first_w0_b0_execution_private_index_rows:
+        page_csv = ROOT / "private" / row.get("私有页列CSV相对路径", "")
+        image = ROOT / "private" / row.get("私有页图相对路径", "")
+        text = ROOT / "private" / row.get("私有OCR文本相对路径", "")
+        first_w0_b0_execution_private_index_sha_ok = (
+            first_w0_b0_execution_private_index_sha_ok
+            and page_csv.exists()
+            and row.get("私有页列CSV_SHA256") == sha256(page_csv)
+            and image.exists()
+            and row.get("私有页图_SHA256") == sha256(image)
+            and text.exists()
+            and row.get("私有OCR文本_SHA256") == sha256(text)
+        )
+    first_w0_b0_execution_packet_join_ok = True
+    for row in first_w0_b0_execution_packet_rows:
+        page_key = row.get("页码版面键", "")
+        minimal_packet = first_w0_b0_minimal_packet_by_key.get(page_key, {})
+        b0_row = first_w0_b0_source_b0_by_key.get(page_key, {})
+        private_index = first_w0_b0_execution_private_index_by_key.get(page_key, {})
+        items = first_w0_b0_execution_items_by_key.get(page_key, [])
+        expected_packet_id = stable_id_sha256(
+            "W0B0EXEPKT",
+            [minimal_packet.get("W0B0最小人工复核包ID", ""), page_key],
+        )
+        first_w0_b0_execution_packet_join_ok = (
+            first_w0_b0_execution_packet_join_ok
+            and bool(minimal_packet)
+            and bool(b0_row)
+            and bool(private_index)
+            and bool(items)
+            and row.get("W0B0执行预填包公开审计ID") == expected_packet_id
+            and row.get("来源W0B0最小人工复核包")
+            == "data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv"
+            and row.get("来源W0B0最小人工复核明细")
+            == "data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-items-public-ledger.csv"
+            and row.get("来源B0冲突页列核验状态")
+            == "data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv"
+            and row.get("来源第一闭环公开证据地图")
+            == "data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_w0_b0_execution_prefill_audit_packets"
+            and row.get("W0B0最小人工复核包ID") == minimal_packet.get("W0B0最小人工复核包ID")
+            and row.get("B0冲突页列核验状态ID") == b0_row.get("B0冲突页列核验状态ID")
+            and row.get("最小人工复核事实数") == minimal_packet.get("最小人工复核事实数")
+            and row.get("执行预填明细数") == str(len(items))
+            and row.get("专业组边界事实数") == str(sum(item.get("事实域") == "专业组边界" for item in items))
+            and row.get("明确冲突字段事实数") == str(sum(item.get("事实域") == "字段事实" for item in items))
+            and row.get("专业名归属事实数") == str(sum(item.get("事实域") == "专业名归属" for item in items))
+            and row.get("专业计划数字段事实数") == str(sum(item.get("事实类型") == "字段事实-专业计划数" for item in items))
+            and row.get("学费字段事实数") == str(sum(item.get("事实类型") == "字段事实-学费" for item in items))
+            and row.get("再选科目字段事实数") == str(sum(item.get("事实类型") == "字段事实-再选科目" for item in items))
+            and row.get("任务回连事实数") == str(sum(bool(item.get("稳定基座第一闭环明细任务ID", "")) for item in items))
+            and row.get("字段确认回连事实数") == str(sum(bool(item.get("第一闭环字段确认公开账本ID", "")) for item in items))
+            and row.get("PDFOCR提示事实数") == str(sum(item.get("是否有PDFOCR提示") == "true" for item in items))
+            and row.get("机器坐标提示事实数") == str(sum(item.get("是否有机器坐标提示") == "true" for item in items))
+            and row.get("高校辅证线索事实数") == str(sum(item.get("是否有高校辅证线索") == "true" for item in items))
+            and row.get("PDFOCR与高校冲突事实数") == str(sum(item.get("是否存在PDFOCR与高校冲突") == "true" for item in items))
+            and row.get("需人工看图事实数") == str(sum(item.get("是否需要人工直接看图") == "true" for item in items))
+            and row.get("需双人复核事实数") == str(sum(item.get("是否需要双人复核") == "true" for item in items))
+            and row.get("私有页图存在") == "true"
+            and row.get("私有OCR文本存在") == "true"
+            and row.get("私有页列CSV_SHA256") == private_index.get("私有页列CSV_SHA256")
+            and row.get("私有页图_SHA256") == private_index.get("私有页图_SHA256")
+            and row.get("私有OCR文本_SHA256") == private_index.get("私有OCR文本_SHA256")
+            and row.get("事实集合SHA256")
+            == first_pipe_sha256_values([item.get("W0B0最小人工复核明细ID", "") for item in items])
+            and row.get("任务ID集合SHA256")
+            == first_pipe_sha256_values([item.get("稳定基座第一闭环明细任务ID", "") for item in items])
+            and row.get("专业行ID集合SHA256")
+            == first_pipe_sha256_values([item.get("专业行ID", "") for item in items])
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(row.get(field) == "false" for field in first_false_fields)
+        )
+    first_w0_b0_execution_item_join_ok = True
+    for row in first_w0_b0_execution_item_rows:
+        minimal_item = first_w0_b0_execution_minimal_item_by_id.get(
+            row.get("W0B0最小人工复核明细ID", ""),
+            {},
+        )
+        expected_packet_id = stable_id_sha256(
+            "W0B0EXEPKT",
+            [row.get("W0B0最小人工复核包ID", ""), row.get("页码版面键", "")],
+        )
+        first_w0_b0_execution_item_join_ok = (
+            first_w0_b0_execution_item_join_ok
+            and bool(minimal_item)
+            and row.get("W0B0执行预填明细公开审计ID")
+            == stable_id_sha256(
+                "W0B0EXEITEM",
+                [
+                    row.get("W0B0最小人工复核明细ID", ""),
+                    row.get("稳定基座第一闭环明细任务ID", ""),
+                ],
+            )
+            and row.get("W0B0执行预填包公开审计ID") == expected_packet_id
+            and expected_packet_id in first_w0_b0_execution_packet_by_id
+            and row.get("来源W0B0最小人工复核明细")
+            == "data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-items-public-ledger.csv"
+            and row.get("来源第一闭环下一步动作矩阵")
+            == "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv"
+            and row.get("来源第一闭环字段确认公开账本")
+            == "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv"
+            and row.get("来源第一闭环PDFOCR候选公开审计")
+            == "data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv"
+            and row.get("来源第一闭环机器坐标候选公开审计")
+            == "data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_w0_b0_execution_prefill_audit_items"
+            and row.get("第一闭环事实核验包明细ID")
+            == minimal_item.get("第一闭环事实核验包明细ID")
+            and row.get("第一闭环事实范围缺口公开账本ID")
+            == minimal_item.get("第一闭环事实范围缺口公开账本ID")
+            and row.get("第一闭环字段事实公开账本ID")
+            == minimal_item.get("第一闭环字段事实公开账本ID")
+            and row.get("稳定基座第一闭环明细任务ID")
+            == minimal_item.get("稳定基座第一闭环明细任务ID")
+            and row.get("专业行ID") == minimal_item.get("专业行ID")
+            and row.get("专业组出现ID") == minimal_item.get("专业组出现ID")
+            and row.get("院校代码") == minimal_item.get("院校代码")
+            and row.get("事实域") == minimal_item.get("事实域")
+            and row.get("事实类型") == minimal_item.get("事实类型")
+            and row.get("事实粒度") == minimal_item.get("事实粒度")
+            and row.get("字段名") == minimal_item.get("字段名")
+            and row.get("最小复核类型") == minimal_item.get("最小复核类型")
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("三方字段一致性状态") == "pending_three_way_closure"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and row.get("私有预填记录状态")
+            == "private_prefill_seeded_pending_manual_review"
+            and all(row.get(field) == "false" for field in first_false_fields)
+        )
+    first_w0_b0_execution_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_w0_b0_execution_summary_path,
+            first_w0_b0_execution_packets_csv,
+            first_w0_b0_execution_items_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期第一闭环 W0/B0 执行预填审计摘要、私有材料哈希和门禁正确",
+        first_w0_b0_execution_summary.get("status")
+        == "issue19_stable_foundation_first_closure_w0_b0_execution_prefill_audit_ready_not_final"
+        and first_w0_b0_execution_summary.get("generated_by")
+        == "build_issue19_first_closure_w0_b0_execution_prefill_audit.py"
+        and first_w0_b0_execution_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and first_w0_b0_execution_summary.get("packet_output_table")
+        == "data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-packets-public-audit.csv"
+        and first_w0_b0_execution_summary.get("item_output_table")
+        == "data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-items-public-audit.csv"
+        and first_w0_b0_execution_summary.get("private_prefill_workbench")
+        == "w0_b0_minimal_private_prefill_not_public"
+        and first_w0_b0_execution_summary.get("packet_row_count")
+        == len(first_w0_b0_execution_packet_rows) == 10
+        and first_w0_b0_execution_summary.get("item_row_count")
+        == len(first_w0_b0_execution_item_rows) == 87
+        and first_w0_b0_execution_summary.get("private_prefill_row_count")
+        == len(first_w0_b0_execution_private_rows) == 87
+        and first_w0_b0_execution_summary.get("private_page_side_csv_count")
+        == len(first_w0_b0_execution_private_index_rows) == 10
+        and first_w0_b0_execution_summary.get("private_master_csv_sha256")
+        == sha256(first_w0_b0_execution_private_master)
+        and first_w0_b0_execution_summary.get("private_index_csv_sha256")
+        == sha256(first_w0_b0_execution_private_index)
+        and first_w0_b0_execution_summary.get("unique_page_side_count") == 10
+        and first_w0_b0_execution_summary.get("task_backed_item_count") == 77
+        and first_w0_b0_execution_summary.get("field_confirmation_join_count") == 77
+        and first_w0_b0_execution_summary.get("pdfocr_hint_item_count") == 87
+        and first_w0_b0_execution_summary.get("machine_hint_item_count") == 4
+        and first_w0_b0_execution_summary.get("school_side_hint_item_count") == 78
+        and first_w0_b0_execution_summary.get("pdfocr_school_conflict_item_count") == 68
+        and first_w0_b0_execution_summary.get("manual_image_required_item_count") == 75
+        and first_w0_b0_execution_summary.get("double_review_required_item_count") == 57
+        and first_w0_b0_execution_summary.get("private_page_image_found_count") == 10
+        and first_w0_b0_execution_summary.get("private_page_text_found_count") == 10
+        and first_w0_b0_execution_summary.get("review_type_counts")
+        == {
+            "M0-先核专业组边界": 10,
+            "M1-双人核明确冲突字段": 68,
+            "M2-核专业名归属": 9,
+        }
+        and first_w0_b0_execution_summary.get("fact_type_counts")
+        == {
+            "专业组边界事实": 10,
+            "字段事实-专业计划数": 26,
+            "字段事实-再选科目": 16,
+            "字段事实-学费": 26,
+            "专业名归属事实": 9,
+        }
+        and first_w0_b0_execution_summary.get("field_writeback_ready_count") == 0
+        and first_w0_b0_execution_summary.get("recommendation_basis_allowed_count") == 0
+        and first_w0_b0_execution_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_w0_b0_execution_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_w0_b0_execution_summary.get("final_available_count") == 0,
+        f"{len(first_w0_b0_execution_item_rows)} execution prefill facts",
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环 W0/B0 执行预填审计字段、ID、来源回链和私有预填一致",
+        first_w0_b0_execution_packet_fields == expected_first_w0_b0_execution_packet_fields
+        and first_w0_b0_execution_item_fields == expected_first_w0_b0_execution_item_fields
+        and first_w0_b0_execution_private_fields == expected_first_w0_b0_execution_private_fields
+        and first_w0_b0_execution_private_index_fields
+        == expected_first_w0_b0_execution_private_index_fields
+        and set(first_w0_b0_execution_packet_by_key)
+        == set(first_w0_b0_minimal_packet_by_key)
+        == {"135-left", "199-left", "209-right", "169-right", "018-left", "037-left", "137-right", "056-left", "226-left", "226-right"}
+        and len({row.get("W0B0执行预填包公开审计ID") for row in first_w0_b0_execution_packet_rows}) == 10
+        and len({row.get("W0B0执行预填明细公开审计ID") for row in first_w0_b0_execution_item_rows}) == 87
+        and len({row.get("W0B0私有预填记录ID") for row in first_w0_b0_execution_private_rows}) == 87
+        and [as_int(row.get("执行预填包序号")) for row in first_w0_b0_execution_packet_rows]
+        == list(range(1, 11))
+        and [as_int(row.get("执行预填明细序号")) for row in first_w0_b0_execution_item_rows]
+        == list(range(1, 88))
+        and sum(csv_int(row, "执行预填明细数") for row in first_w0_b0_execution_packet_rows) == 87
+        and sum(csv_int(row, "专业组边界事实数") for row in first_w0_b0_execution_packet_rows) == 10
+        and sum(csv_int(row, "明确冲突字段事实数") for row in first_w0_b0_execution_packet_rows) == 68
+        and sum(csv_int(row, "专业名归属事实数") for row in first_w0_b0_execution_packet_rows) == 9
+        and sum(csv_int(row, "专业计划数字段事实数") for row in first_w0_b0_execution_packet_rows) == 26
+        and sum(csv_int(row, "学费字段事实数") for row in first_w0_b0_execution_packet_rows) == 26
+        and sum(csv_int(row, "再选科目字段事实数") for row in first_w0_b0_execution_packet_rows) == 16
+        and sum(csv_int(row, "任务回连事实数") for row in first_w0_b0_execution_packet_rows) == 77
+        and sum(csv_int(row, "字段确认回连事实数") for row in first_w0_b0_execution_packet_rows) == 77
+        and sum(csv_int(row, "PDFOCR提示事实数") for row in first_w0_b0_execution_packet_rows) == 87
+        and sum(csv_int(row, "机器坐标提示事实数") for row in first_w0_b0_execution_packet_rows) == 4
+        and sum(csv_int(row, "高校辅证线索事实数") for row in first_w0_b0_execution_packet_rows) == 78
+        and sum(csv_int(row, "PDFOCR与高校冲突事实数") for row in first_w0_b0_execution_packet_rows) == 68
+        and sum(csv_int(row, "需人工看图事实数") for row in first_w0_b0_execution_packet_rows) == 75
+        and sum(csv_int(row, "需双人复核事实数") for row in first_w0_b0_execution_packet_rows) == 57
+        and Counter(row.get("最小复核类型", "") for row in first_w0_b0_execution_item_rows)
+        == Counter({"M0-先核专业组边界": 10, "M1-双人核明确冲突字段": 68, "M2-核专业名归属": 9})
+        and Counter(row.get("事实类型", "") for row in first_w0_b0_execution_item_rows)
+        == Counter({"专业组边界事实": 10, "字段事实-专业计划数": 26, "字段事实-再选科目": 16, "字段事实-学费": 26, "专业名归属事实": 9})
+        and all(row.get("PDF原页核页状态") == "pending_pdf_page_review" for row in first_w0_b0_execution_packet_rows)
+        and all(row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_plan_review" for row in first_w0_b0_execution_packet_rows)
+        and all(row.get("字段事实写回状态") == "blocked_until_pdf_hubei_school_three_way_closure" for row in first_w0_b0_execution_packet_rows)
+        and all(row.get("私有预填记录状态") == "private_prefill_seeded_pending_manual_review" for row in first_w0_b0_execution_item_rows)
+        and all(row.get(field) == "false" for row in first_w0_b0_execution_packet_rows for field in first_false_fields)
+        and all(row.get(field) == "false" for row in first_w0_b0_execution_item_rows for field in first_false_fields)
+        and all(row.get("来源W0B0私有预填材料") == "w0_b0_minimal_private_prefill_not_public" for row in first_w0_b0_execution_packet_rows)
+        and all(row.get("来源W0B0私有预填材料") == "w0_b0_minimal_private_prefill_not_public" for row in first_w0_b0_execution_item_rows)
+        and first_w0_b0_execution_packet_join_ok
+        and first_w0_b0_execution_item_join_ok
+        and first_w0_b0_execution_private_sha_ok
+        and first_w0_b0_execution_private_index_sha_ok,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环 W0/B0 执行预填审计公开文件不含私有路径、字段值、登录态和最终误导结论",
+        "/Users/" not in first_w0_b0_execution_public_text
+        and "/home/" not in first_w0_b0_execution_public_text
+        and "/var/folders/" not in first_w0_b0_execution_public_text
+        and "/private/" not in first_w0_b0_execution_public_text
+        and "private/" not in first_w0_b0_execution_public_text
+        and "private\\" not in first_w0_b0_execution_public_text
+        and "ocr-runs" not in first_w0_b0_execution_public_text
+        and "rendered-pages" not in first_w0_b0_execution_public_text
+        and "file://" not in first_w0_b0_execution_public_text
+        and ".png" not in first_w0_b0_execution_public_text
+        and ".jpg" not in first_w0_b0_execution_public_text
+        and ".jpeg" not in first_w0_b0_execution_public_text
+        and ".webp" not in first_w0_b0_execution_public_text
+        and ".tif" not in first_w0_b0_execution_public_text
+        and ".tiff" not in first_w0_b0_execution_public_text
+        and ".heic" not in first_w0_b0_execution_public_text
+        and "Authorization" not in first_w0_b0_execution_public_text
+        and "Bearer " not in first_w0_b0_execution_public_text
+        and "Cookie" not in first_w0_b0_execution_public_text
+        and "Set-Cookie" not in first_w0_b0_execution_public_text
+        and "access_token" not in first_w0_b0_execution_public_text
+        and "refresh_token" not in first_w0_b0_execution_public_text
+        and "password" not in first_w0_b0_execution_public_text
+        and "secret" not in first_w0_b0_execution_public_text
+        and "api_key" not in first_w0_b0_execution_public_text
+        and "身份证" not in first_w0_b0_execution_public_text
+        and "准考证" not in first_w0_b0_execution_public_text
+        and "报名号" not in first_w0_b0_execution_public_text
+        and "序列号" not in first_w0_b0_execution_public_text
+        and "手机号" not in first_w0_b0_execution_public_text
+        and "院校名称" not in first_w0_b0_execution_public_text
+        and "专业名称" not in first_w0_b0_execution_public_text
+        and "专业代号" not in first_w0_b0_execution_public_text
+        and "院校专业组" not in first_w0_b0_execution_public_text
+        and "OCR行文本" not in first_w0_b0_execution_public_text
+        and "OCR原文" not in first_w0_b0_execution_public_text
+        and "候选值" not in first_w0_b0_execution_public_text
+        and "字段确认值" not in first_w0_b0_execution_public_text
+        and "人工读数" not in first_w0_b0_execution_public_text
+        and "PDF原页人工读数" not in first_w0_b0_execution_public_text
+        and "湖北官方字段值" not in first_w0_b0_execution_public_text
+        and "高校官网或招生章程字段值" not in first_w0_b0_execution_public_text
+        and "复核备注" not in first_w0_b0_execution_public_text
+        and "已确认" not in first_w0_b0_execution_public_text
+        and "已核准" not in first_w0_b0_execution_public_text
+        and "最终推荐" not in first_w0_b0_execution_public_text
+        and "最终方案" not in first_w0_b0_execution_public_text
+        and "可填报" not in first_w0_b0_execution_public_text
+        and "可排序" not in first_w0_b0_execution_public_text
+        and not any(token in first_w0_b0_execution_public_text for token in shared_forbidden_tokens),
+    ))
+
     first_b0_conflict_summary_path = (
         ROOT
         / "data/working/issue19-stable-foundation-first-closure-b0-conflict-status-summary.json"

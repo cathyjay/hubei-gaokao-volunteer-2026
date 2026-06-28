@@ -95,6 +95,8 @@
 
 新增的 `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv` 是 W0/B0 最小人工复核包。它把 B0 冲突优先的 275 个同页待核事实先压成 87 个核心事实、10 个页列和 35 个任务：专业组边界 10、明确冲突字段 68、专业名归属 9；剩余 188 个同页伴生事实继续待闭环。它的作用是先处理最容易影响底座结构的串组、字段冲突和专业归属问题，仍不确认字段事实、不写回主表、不进入志愿推荐。
 
+新增的 `data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-packets-public-audit.csv` 是 W0/B0 执行预填公开审计包。它把 87 个核心事实接到本地私有预填材料：10 个页列 CSV、87 条私有预填记录、10 个原页图 SHA 和 10 个 OCR 文本 SHA；公开层只保存 ID、状态、计数和哈希。它让下一步人工复核可以直接按页列打开私有材料核 PDF 原页，但仍不确认任何计划数、学费、选科、专业名或专业组边界，不写回主表、不进入志愿推荐。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。
