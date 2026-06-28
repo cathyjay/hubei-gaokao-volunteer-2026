@@ -45,13 +45,30 @@
       "可接受": 147,
       "待核后判断": 44
     },
+    "group_transfer_decision_counts": {
+      "可讨论服从调剂": 44,
+      "待核后再判断": 11
+    },
+    "group_transfer_status_counts": {
+      "可进入调剂讨论，但需确认勉强接受专业是否真能接受": 44,
+      "存在待核后判断专业，需先核限制/字段再判断调剂": 11
+    },
+    "major_six_discussion_counts": {
+      "false": 311,
+      "true": 147
+    },
+    "major_transfer_impact_counts": {
+      "可作为调剂容忍项，但必须由家庭确认是否真的能接受。": 267,
+      "可作为6专业或调剂可接受项，仍需原页、湖北官方侧和章程闭环。": 147,
+      "限制、费用或字段未闭环前，不能判断是否可接受调剂。": 44
+    },
     "group_count_target_40_to_60_met": true
   },
   "hashes": {
     "page_pack_sha16": "e0197da1883f248b",
     "action_pack_sha16": "8b88e1c60ff1a931",
     "task_pack_sha16": "1df532699091f5ad",
-    "group_review_sha16": "5f319e7106ed3ea0",
-    "major_review_sha16": "5d897d85bf56db1f"
+    "group_review_sha16": "6cdabdac5d9bed3b",
+    "major_review_sha16": "e80939f4be338327"
   }
 }

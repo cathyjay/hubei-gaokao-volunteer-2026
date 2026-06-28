@@ -87,11 +87,12 @@
 - Round4 重点核验55组：`data/exports/issue19-round4-priority-focus55.xlsx`。把 Round4 优先 120 组压缩为 55 组重点核验入口、65 组暂缓，并展开 458 条完整组内专业；用于先看压缩理由、核验成本、调剂风险和家庭最小动作，全部仍为 `not_final`。
 - 第四轮 5 万内中外合作/高收费专项：`data/exports/issue19-round4-50k-coop-city-gradient.xlsx`。Round4 平行专项入口，允许公办中外合作/国际合作/高收费项目单独讨论；主表 21 个 H1-H4 专业组，H0 38 组、H5 51 组、费用待核或超 5 万 165 组均单列附录。
 - 字段闭环与重点核验 V1：`data/exports/issue19-closure-and-shortlist-v1.xlsx`。当前新增推进入口，把第一闭环 37 个页列、206 条逐任务、36 所学校 80 个高校官网辅证动作、2026-06-29 live 补源尝试、Round4 55 个重点核验组和 458 条完整组内专业明细放在同一工作簿；全部仍为核验入口，不作为定稿依据。
-- 下一轮闭环与家庭讨论 V1：`data/exports/issue19-next-closure-family-review-v1.xlsx`。当前推进数据基座的优先执行入口，把 37 个页列继续拆成 64 个小核验包，并把 55 个重点专业组按家庭讨论、先核页、先核限制、先核费用分层；全部仍为 `not_final`，字段写回、推荐依据和最终可用计数均为 0。
+- 下一轮闭环与家庭讨论 V1：`data/exports/issue19-next-closure-family-review-v1.xlsx`。当前推进数据基座的优先执行入口，把 37 个页列继续拆成 64 个小核验包，并把 55 个重点专业组按家庭讨论、先核页、先核限制、先核费用分层；`05_重点组完整专业` 已增加家庭可选项、6 专业讨论候选和服从调剂影响列，全部仍为 `not_final`，字段写回、推荐依据和最终可用计数均为 0。
 - 数据基座下一批执行 V1：`data/exports/issue19-data-foundation-next-execution-v1.xlsx`。当前新增执行入口，聚焦 P0 冲突 10 包/26 任务、高校官网辅证 next20 和 55 组调剂风险；用于继续推进字段事实闭环，不确认字段事实，不作为最终志愿方案。
 - P0 top3 私有复核包公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`、`data/working/issue19-p0-top3-field-review-public-ledger.csv` 和 `data/working/issue19-p0-top3-review-packet-summary.json`。把 `135-left`、`199-left`、`209-right` 这 3 个最高优先 P0 冲突包落成 15 条本地私有核验任务，并拆成 36 个逐字段核验单元；公开层只保存计数、状态、关系桶和 SHA，原页图、OCR 文本、候选值和人工读数留在 Git 忽略目录。
 - 第一闭环 B0 冲突页列核验状态：`data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-b0-conflict-status-summary.json`。把 10 个 B0 页列、132 条同页任务和 26 条明确 PDFOCR 与高校辅证冲突任务单独抽出，标记 P0/P1/P3 核验优先级、字段类型、同页 B0/B1 计划数冲突专项口径和三方待核门禁；全部仍为 `not_final`，不得作为字段事实或志愿推荐依据。
 - 第一闭环证据状态报告：`data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv`、`data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv` 和 `data/working/issue19-stable-foundation-first-closure-evidence-status-summary.json`。把 206 条第一闭环任务和 37 个页列按 PDF 原页、OCR 提示、机器坐标、高校辅证、冲突状态和写回门禁合成同一公开状态层；全部仍为待核状态，不保存字段值或人工读数。
+- 第一闭环公开证据地图：`data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv` 和 `data/working/issue19-stable-foundation-first-closure-public-evidence-map-summary.json`。把 37 个页列压缩成更适合沟通的一张表，逐页列展示 PDF 原页、PDFOCR、机器坐标、高校辅证、湖北官方侧、冲突和双人复核计数；不展示学校专业明细、字段读数或私有材料。
 - 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 高校官网辅证状态快照：`data/working/issue19-school-source-status-snapshot-public-ledger.csv` 和 `data/working/issue19-school-source-status-snapshot-summary.json`。由 `scripts/build_issue19_school_source_status_snapshot.py` 生成，把 36 所学校、80 条高校侧辅证机会任务、C4/C6 补结构化/补源包、live 补源记录和最终门禁放到同一张公开状态账本；它只用于安排自动补源、生成 diff、压缩人工核验范围，不能作为字段事实、学校专业建议或志愿推荐依据。
 - 高校官网辅证自动执行批次：`data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 和 `data/working/issue19-school-source-auto-execution-batches-summary.json`。由 `scripts/build_issue19_school_source_auto_execution_batches.py` 生成，在状态快照基础上把 80 条任务拆成 7 条推进泳道：冲突回页 17、补缺回页 8、专业名归属 12、补结构化 18、继续补计划网源 8、章程规则 16、留存观察 1；全部仍禁止字段写回、推荐和最终使用。
@@ -207,6 +208,7 @@ python3 scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.p
 python3 scripts/build_issue19_first_closure_field_confirmation_workbench.py
 python3 scripts/build_issue19_first_closure_field_status_dashboard.py
 python3 scripts/build_issue19_first_closure_evidence_status_report.py
+python3 scripts/build_issue19_first_closure_public_evidence_map.py
 python3 scripts/build_issue19_first_closure_b0_conflict_status.py
 python3 scripts/build_issue19_next_closure_family_review_v1.py
 python3 scripts/build_issue19_p0_top3_review_packet.py
@@ -320,6 +322,8 @@ C4/C6 结构化候选 diff：`data/working/issue19-c4-c6-structured-candidate-di
 第一闭环字段状态看板：`data/working/issue19-stable-foundation-first-closure-field-status-dashboard.csv` 和 `data/working/issue19-stable-foundation-first-closure-field-status-dashboard-summary.json` 把上述 206 条字段确认任务重新压缩到 37 个 `PDF页码×版面列`。当前主阻断为：10 个页列先核 PDFOCR 与高校辅证冲突，4 个页列缺 PDFOCR 候选需人工看图，17 个页列可用机器坐标辅助核页，6 个页列按 PDFOCR 候选人工确认；拆字段计数为专业计划数 170、学费 105、再选科目 77、待人工判定字段 2。该看板只公开页列级状态、计数、集合 SHA 和门禁，不保存字段明细、候选明细、院校专业明细或私有路径；字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
 
 第一闭环证据状态报告：`data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv`、`data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv` 和 `data/working/issue19-stable-foundation-first-closure-evidence-status-summary.json` 把 206 条任务级状态和 37 个页列级状态并排合成一个公开入口。当前 PDFOCR 提示 103 条、机器坐标提示 49 条、高校辅证线索 74 条、PDFOCR 与高校辅证冲突 26 条、PDFOCR 无候选 103 条，其中真正无候选需人工看图 54 条；直接看图 80 条、双人复核 91 条。该报告只公开状态桶、计数、ID、SHA 和下一步动作，不公开字段值、OCR 原文、学校专业明细、人工记录或私有路径；PDF 原页、湖北官方侧、高校辅证和三方闭环全部完成前，字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
+
+第一闭环公开证据地图：`data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv` 是更适合快速沟通的页列级视图，一行一个 `来源页码×版面列`。它保留 37 行、206 条任务、32 个 PDF 页的守恒关系，并显示 26 条 PDFOCR 与高校辅证冲突、103 条 PDFOCR 提示、103 条无 PDFOCR 候选、49 条机器坐标提示、74 条高校辅证线索和 91 条双人复核任务；仍不确认任何字段事实。
 
 第一闭环 B0 冲突页列核验状态：`data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-b0-conflict-status-summary.json` 把字段状态看板中的 10 个 B0 页列进一步单独抽出。当前 10 个页列覆盖 132 条同页任务，其中 26 条是明确 PDFOCR 与高校辅证冲突，106 条是同页伴生待闭环任务；B0 冲突字段类型为计划数 26、学费 26、再选科目 16。该表同时区分全局 B0/B1 计划数冲突专项 19 条和落在 B0 页列内的 18 条，防止把统计口径混用。公开层只保存页列级计数、字段类型、证据编号、状态桶和集合 SHA，不保存学校专业明细、字段候选值、OCR 原文、人工读数或私有路径；字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
 

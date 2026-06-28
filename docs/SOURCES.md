@@ -200,7 +200,7 @@
    - 55 个重点组讨论入口：`data/exports/issue19-next-closure-family-review-v1-priority55-group-review.csv`
    - 458 条完整组内专业明细：`data/exports/issue19-next-closure-family-review-v1-priority55-major-review.csv`
    - 输入来源：字段闭环与重点核验 V1 的第一闭环页列、第一闭环逐任务、第一闭环字段确认公开账本、55 个重点专业组和完整组内专业明细。
-   - 当前结论：37 个第一闭环页列被拆成 64 个小核验包；55 个重点专业组被分成优先家庭讨论、先核限制、先核页、先看调剂和先核费用；458 条专业明细只作家庭接受度和调剂风险讨论入口。
+   - 当前结论：37 个第一闭环页列被拆成 64 个小核验包；55 个重点专业组被分成优先家庭讨论、先核限制、先核页、先看调剂和先核费用；458 条专业明细只作家庭接受度和调剂风险讨论入口，其中 147 条机器建议进入 6 专业讨论，44 个专业组可讨论服从调剂，11 个专业组需先核限制/字段后再判断调剂。
    - 限制：该入口不新增官方事实，不保存私有读数，不确认计划数、学费、选科或组边界；所有字段写回、推荐依据和最终可用计数仍为 0。
 
 13. 数据基座下一批执行工作台 V1
@@ -481,6 +481,8 @@
 - `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit-summary.json`：第一闭环机器坐标候选摘要；记录原缺 PDF OCR 候选 103 条、机器坐标可补候选 49 条、剩余缺候选 54 条、字段分布为专业计划数 44 条和学费 5 条。私有机器坐标候选工作台 SHA 保存在摘要中，字段明细只在 Git 忽略目录。
 - `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv`：第一闭环字段确认公开账本，206 行；一行对应一条第一闭环任务，把任务级复核账本、PDF OCR 候选、机器坐标候选、页列候选看板和私有字段确认工作台接到同一个公开状态机。公开层只保存核验泳道、候选提示状态、PDF 原页/湖北官方/高校辅证私有记录状态、双人复核状态、三方一致性公开状态和非最终门禁，不保存任何候选值或人工字段值。
 - `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger-summary.json`：第一闭环字段确认摘要；记录 206 条任务、37 个页列、32 个 PDF 页、PDF OCR 提示 103 条、机器坐标提示 49 条、高校辅证线索 74 条、直接看图 80 条、双人复核 91 条，以及 PDF 原页和湖北官方侧记录均待完成。字段写回、推荐依据、学校专业建议和最终可用仍全部为 0；私有字段确认工作台 SHA 保存在摘要中，具体读数只在 Git 忽略目录。
+- `data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv`：第一闭环公开证据地图，37 行；一行对应一个第一闭环 `PDF页码×版面列`，把 206 条任务压缩成页列级证据状态，公开显示 PDF/PDFOCR、机器坐标、高校辅证、湖北官方侧、冲突、直接看图、双人复核和阻断类型计数。该表不公开学校专业明细、候选值、人工读数、识别正文、私有路径或最终结论，只用于向家庭说明当前卡点在哪里。
+- `data/working/issue19-stable-foundation-first-closure-public-evidence-map-summary.json`：第一闭环公开证据地图摘要；记录 37 个页列、206 条任务、32 个 PDF 页，E0/E1/E2 分布 18/11/8，PDFOCR 提示 103 条、无 PDFOCR 候选 103 条、机器坐标提示 49 条、高校侧公共来源任务 74 条、冲突 26 条、直接看图 80 条、双人复核 91 条，以及字段写回、推荐依据、学校专业建议和最终可用全部为 0。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -617,6 +619,7 @@
 - `scripts/build_issue19_first_closure_pdf_ocr_candidate_audit.py`：读取第一闭环执行队列、任务级复核公开账本、私有复核材料和私有预填工作台，生成 206 行 PDF OCR 候选公开审计和 Git 忽略的私有候选工作台；公开输出只保存状态桶和计数，候选明细不能自动写回人工记录。
 - `scripts/build_issue19_first_closure_page_side_candidate_dashboard.py`：读取第一闭环执行队列和 PDF OCR 候选公开审计，生成 37 行页列候选看板；用于把任务级候选状态聚合成页列级核验动作，不确认字段事实。
 - `scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py`：读取第一闭环 PDF OCR 候选公开/私有工作台和 P0 字段机器坐标候选表，生成 206 行机器坐标候选公开审计和 Git 忽略的私有候选工作台；用于把部分缺 PDF OCR 候选任务转成机器坐标候选待人工核页，不能自动写回字段或替代湖北官方计划。
+- `scripts/build_issue19_first_closure_public_evidence_map.py`：读取第一闭环页列证据状态汇总、任务复核公开账本、私有预填公开审计和官方入口状态，生成 37 行页列级公开证据地图；用于说明每个页列卡在 PDF/PDFOCR、机器坐标、高校辅证、湖北官方侧、冲突或双人复核哪一步，不确认字段事实。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。

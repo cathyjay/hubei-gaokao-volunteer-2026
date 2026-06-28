@@ -148,8 +148,12 @@ GROUP_REVIEW_FIELDS = [
     "农林园艺提示数",
     "字段缺口专业数",
     "100%核验专业数",
+    "建议放入6专业讨论专业数",
+    "可服从调剂初判",
+    "组内调剂判断状态",
     "调剂风险摘要",
     "家庭先决策问题",
+    "家庭逐专业填写说明",
     "入选理由",
     "下一步核验动作",
     "是否可作为定稿依据",
@@ -170,8 +174,14 @@ MAJOR_REVIEW_FIELDS = [
     "专业代号",
     "专业名称及备注",
     "机器家庭接受度建议",
+    "家庭可选项提示",
     "家庭最终接受度待填",
+    "家庭最终接受度可填值",
+    "是否建议放入6专业讨论",
+    "建议6专业理由",
     "调剂风险提示",
+    "服从调剂影响",
+    "组内调剂判断状态",
     "家庭要回答的问题",
     "专业偏好方向",
     "专业角色判断",
@@ -200,7 +210,7 @@ def read_csv(path):
 
 def write_csv(path, fields, rows):
     with path.open("w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fields)
+        writer = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for row in rows:
             writer.writerow({field: row.get(field, "") for field in fields})
@@ -431,6 +441,76 @@ def major_acceptance(row):
     return "待家庭判断"
 
 
+def family_option(row):
+    acceptance = major_acceptance(row)
+    if acceptance in {"可接受", "勉强接受", "不能接受", "待核后判断"}:
+        return acceptance
+    return "待家庭确认"
+
+
+def recommend_for_six(row):
+    if major_acceptance(row) != "可接受":
+        return False
+    role = row.get("专业角色判断", "")
+    preference = row.get("专业偏好方向", "")
+    direction = row.get("第四轮方向标签", "")
+    return bool(preference or "主线偏好" in role or direction)
+
+
+def six_reason(row):
+    if not recommend_for_six(row):
+        if major_acceptance(row) == "勉强接受":
+            return "可作为调剂容忍项，暂不优先放入6专业。"
+        if major_acceptance(row) == "待核后判断":
+            return "限制、字段或费用核清前不放入6专业。"
+        if major_acceptance(row) == "不能接受":
+            return "触发家庭底线或高风险，不放入6专业。"
+        return "待家庭确认后再判断。"
+    preference = row.get("专业偏好方向", "")
+    if preference:
+        return f"命中当前偏好方向：{preference}。"
+    role = row.get("专业角色判断", "")
+    return role or "机器初判为可接受专业。"
+
+
+def transfer_impact(row):
+    acceptance = major_acceptance(row)
+    if acceptance == "不能接受":
+        return "若该专业在组内且可能调剂到，服从调剂暂不安全；需整组暂缓或确认不服从风险。"
+    if acceptance == "待核后判断":
+        return "限制、费用或字段未闭环前，不能判断是否可接受调剂。"
+    if acceptance == "勉强接受":
+        return "可作为调剂容忍项，但必须由家庭确认是否真的能接受。"
+    if acceptance == "可接受":
+        return "可作为6专业或调剂可接受项，仍需原页、湖北官方侧和章程闭环。"
+    return "待家庭确认。"
+
+
+def group_transfer_status(accept_counter):
+    if accept_counter.get("不能接受", 0):
+        return "存在不能接受专业，服从调剂暂不安全"
+    if accept_counter.get("待核后判断", 0) or accept_counter.get("待家庭判断", 0):
+        return "存在待核后判断专业，需先核限制/字段再判断调剂"
+    if accept_counter.get("勉强接受", 0):
+        return "可进入调剂讨论，但需确认勉强接受专业是否真能接受"
+    if accept_counter.get("可接受", 0):
+        return "组内初判可讨论服从调剂，仍需三方核验"
+    return "缺少可判断专业，暂不讨论服从调剂"
+
+
+def group_adjustment_hint(accept_counter):
+    status = group_transfer_status(accept_counter)
+    if status.startswith("存在不能接受"):
+        return "暂不建议服从调剂"
+    if status.startswith("存在待核"):
+        return "待核后再判断"
+    if status.startswith("可进入"):
+        return "可讨论服从调剂"
+    if status.startswith("组内初判"):
+        return "可讨论服从调剂"
+    return "待家庭确认"
+
+
 def has_medical(name):
     keywords = ["临床医学", "口腔医学", "护理", "药学", "中医学", "医学影像", "医学检验", "康复治疗", "动物医学", "兽医"]
     return any(keyword in name for keyword in keywords)
@@ -572,6 +652,7 @@ def build_family_outputs(group_rows, major_rows):
         agri_count = sum(1 for row in majors if is_agri(row.get("专业名称及备注", "")))
         field_gap_count = sum(1 for row in majors if row.get("字段缺口字段", ""))
         full_review_count = sum(1 for row in majors if yes(row.get("是否必须100%人工核验", "")) or row.get("人工核验强度", "").startswith("H0"))
+        recommend_six_count = sum(1 for row in majors if recommend_for_six(row))
 
         family_questions = []
         if accept_counter.get("勉强接受", 0):
@@ -610,8 +691,12 @@ def build_family_outputs(group_rows, major_rows):
                 "农林园艺提示数": agri_count,
                 "字段缺口专业数": field_gap_count,
                 "100%核验专业数": full_review_count,
+                "建议放入6专业讨论专业数": recommend_six_count,
+                "可服从调剂初判": group_adjustment_hint(accept_counter),
+                "组内调剂判断状态": group_transfer_status(accept_counter),
                 "调剂风险摘要": compact_counter(risk_counter),
                 "家庭先决策问题": "；".join(family_questions) or "直接逐专业标记可接受/勉强接受/不能接受",
+                "家庭逐专业填写说明": "逐专业只填：可接受、勉强接受、不能接受、待核后判断；全组无不能接受且待核项闭环后，才讨论服从调剂。",
                 "入选理由": group.get("入选或暂缓理由", ""),
                 "下一步核验动作": group.get("下一步核验动作", ""),
                 "是否可作为定稿依据": "false",
@@ -635,8 +720,14 @@ def build_family_outputs(group_rows, major_rows):
                     "专业代号": major.get("专业代号", ""),
                     "专业名称及备注": major.get("专业名称及备注", ""),
                     "机器家庭接受度建议": major_acceptance(major),
+                    "家庭可选项提示": family_option(major),
                     "家庭最终接受度待填": "待家庭确认",
+                    "家庭最终接受度可填值": "可接受/勉强接受/不能接受/待核后判断",
+                    "是否建议放入6专业讨论": "true" if recommend_for_six(major) else "false",
+                    "建议6专业理由": six_reason(major),
                     "调剂风险提示": major.get("调剂风险初判V1", ""),
+                    "服从调剂影响": transfer_impact(major),
+                    "组内调剂判断状态": group_transfer_status(accept_counter),
                     "家庭要回答的问题": family_question(major),
                     "专业偏好方向": major.get("专业偏好方向", ""),
                     "专业角色判断": major.get("专业角色判断", ""),
@@ -719,6 +810,10 @@ def main():
     status_counts = Counter(row["下一轮建议状态"] for row in group_review)
     page_batch_counts = Counter(row["人工核验批次"] for row in page_pack)
     major_accept_counts = Counter(row["机器家庭接受度建议"] for row in major_review)
+    group_transfer_counts = Counter(row["可服从调剂初判"] for row in group_review)
+    group_transfer_status_counts = Counter(row["组内调剂判断状态"] for row in group_review)
+    major_six_discussion_counts = Counter(row["是否建议放入6专业讨论"] for row in major_review)
+    major_transfer_impact_counts = Counter(row["服从调剂影响"] for row in major_review)
     summary = {
         "status": "issue19_next_closure_family_review_v1_ready_not_final",
         "generated_by": Path(__file__).name,
@@ -747,6 +842,10 @@ def main():
             "major_detail_count": len(major_review),
             "next_status_counts": dict(status_counts),
             "major_acceptance_counts": dict(major_accept_counts),
+            "group_transfer_decision_counts": dict(group_transfer_counts),
+            "group_transfer_status_counts": dict(group_transfer_status_counts),
+            "major_six_discussion_counts": dict(major_six_discussion_counts),
+            "major_transfer_impact_counts": dict(major_transfer_impact_counts),
             "group_count_target_40_to_60_met": 40 <= len(group_review) <= 60,
         },
         "hashes": {

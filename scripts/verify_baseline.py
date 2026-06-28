@@ -20826,6 +20826,143 @@ def main():
         and not any(token in next_closure_public_text for token in shared_forbidden_tokens),
     ))
 
+    next_family_script = ROOT / "scripts/build_issue19_next_closure_family_review_v1.py"
+    next_family_summary_path = ROOT / "data/exports/issue19-next-closure-family-review-v1-summary.json"
+    next_family_workbook_path = ROOT / "data/exports/issue19-next-closure-family-review-v1.xlsx"
+    next_family_page_csv = ROOT / "data/exports/issue19-next-closure-family-review-v1-first-closure-page-pack.csv"
+    next_family_action_csv = ROOT / "data/exports/issue19-next-closure-family-review-v1-first-closure-action-pack.csv"
+    next_family_task_csv = ROOT / "data/exports/issue19-next-closure-family-review-v1-first-closure-task-status.csv"
+    next_family_group_csv = ROOT / "data/exports/issue19-next-closure-family-review-v1-priority55-group-review.csv"
+    next_family_major_csv = ROOT / "data/exports/issue19-next-closure-family-review-v1-priority55-major-review.csv"
+    next_family_summary = json.loads(next_family_summary_path.read_text())
+    with next_family_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_family_page_reader = csv.DictReader(f)
+        next_family_page_rows = list(next_family_page_reader)
+        next_family_page_fields = next_family_page_reader.fieldnames or []
+    with next_family_action_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_family_action_reader = csv.DictReader(f)
+        next_family_action_rows = list(next_family_action_reader)
+        next_family_action_fields = next_family_action_reader.fieldnames or []
+    with next_family_task_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_family_task_reader = csv.DictReader(f)
+        next_family_task_rows = list(next_family_task_reader)
+        next_family_task_fields = next_family_task_reader.fieldnames or []
+    with next_family_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_family_group_reader = csv.DictReader(f)
+        next_family_group_rows = list(next_family_group_reader)
+        next_family_group_fields = next_family_group_reader.fieldnames or []
+    with next_family_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        next_family_major_reader = csv.DictReader(f)
+        next_family_major_rows = list(next_family_major_reader)
+        next_family_major_fields = next_family_major_reader.fieldnames or []
+    expected_next_family_page_fields = script_runtime_constant(next_family_script, "PAGE_PACK_FIELDS")
+    expected_next_family_action_fields = script_runtime_constant(next_family_script, "ACTION_PACK_FIELDS")
+    expected_next_family_task_fields = script_runtime_constant(next_family_script, "TASK_PACK_FIELDS")
+    expected_next_family_group_fields = script_runtime_constant(next_family_script, "GROUP_REVIEW_FIELDS")
+    expected_next_family_major_fields = script_runtime_constant(next_family_script, "MAJOR_REVIEW_FIELDS")
+    next_family_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            next_family_summary_path,
+            next_family_page_csv,
+            next_family_action_csv,
+            next_family_task_csv,
+            next_family_group_csv,
+            next_family_major_csv,
+        ]
+    )
+    next_family_major_accept_counts = Counter(row.get("机器家庭接受度建议") for row in next_family_major_rows)
+    next_family_major_option_counts = Counter(row.get("家庭可选项提示") for row in next_family_major_rows)
+    next_family_group_transfer_counts = Counter(row.get("可服从调剂初判") for row in next_family_group_rows)
+    next_family_group_status_counts = Counter(row.get("组内调剂判断状态") for row in next_family_group_rows)
+    next_family_major_six_counts = Counter(row.get("是否建议放入6专业讨论") for row in next_family_major_rows)
+    next_family_major_transfer_counts = Counter(row.get("服从调剂影响") for row in next_family_major_rows)
+    checks.append(ok(
+        "第 19 期下一轮闭环与家庭讨论 V1 摘要、规模和工作簿正确",
+        next_family_summary.get("status") == "issue19_next_closure_family_review_v1_ready_not_final"
+        and next_family_summary.get("generated_by") == "build_issue19_next_closure_family_review_v1.py"
+        and next_family_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and next_family_summary.get("first_closure", {}).get("page_side_count") == len(next_family_page_rows) == 37
+        and next_family_summary.get("first_closure", {}).get("action_package_count") == len(next_family_action_rows) == 64
+        and next_family_summary.get("first_closure", {}).get("task_count") == len(next_family_task_rows) == 206
+        and next_family_summary.get("first_closure", {}).get("field_writeback_ready_count") == 0
+        and next_family_summary.get("first_closure", {}).get("recommendation_basis_allowed_count") == 0
+        and next_family_summary.get("family_review", {}).get("group_count") == len(next_family_group_rows) == 55
+        and next_family_summary.get("family_review", {}).get("major_detail_count") == len(next_family_major_rows) == 458
+        and next_family_summary.get("family_review", {}).get("group_count_target_40_to_60_met") is True
+        and next_family_workbook_path.exists()
+        and next_family_workbook_path.stat().st_size > 180_000,
+        f"{len(next_family_group_rows)} groups, {len(next_family_major_rows)} majors",
+    ))
+    checks.append(ok(
+        "第 19 期下一轮闭环与家庭讨论 V1 字段、接受度和调剂讨论口径正确",
+        next_family_page_fields == expected_next_family_page_fields
+        and next_family_action_fields == expected_next_family_action_fields
+        and next_family_task_fields == expected_next_family_task_fields
+        and next_family_group_fields == expected_next_family_group_fields
+        and next_family_major_fields == expected_next_family_major_fields
+        and next_family_major_accept_counts == Counter({"勉强接受": 267, "可接受": 147, "待核后判断": 44})
+        and next_family_major_option_counts == next_family_major_accept_counts
+        and next_family_group_transfer_counts == Counter({"可讨论服从调剂": 44, "待核后再判断": 11})
+        and next_family_group_status_counts == Counter({
+            "可进入调剂讨论，但需确认勉强接受专业是否真能接受": 44,
+            "存在待核后判断专业，需先核限制/字段再判断调剂": 11,
+        })
+        and next_family_major_six_counts == Counter({"false": 311, "true": 147})
+        and next_family_major_transfer_counts == Counter({
+            "可作为调剂容忍项，但必须由家庭确认是否真的能接受。": 267,
+            "可作为6专业或调剂可接受项，仍需原页、湖北官方侧和章程闭环。": 147,
+            "限制、费用或字段未闭环前，不能判断是否可接受调剂。": 44,
+        })
+        and next_family_summary.get("family_review", {}).get("major_acceptance_counts")
+        == dict(next_family_major_accept_counts)
+        and next_family_summary.get("family_review", {}).get("group_transfer_decision_counts")
+        == dict(next_family_group_transfer_counts)
+        and next_family_summary.get("family_review", {}).get("group_transfer_status_counts")
+        == dict(next_family_group_status_counts)
+        and next_family_summary.get("family_review", {}).get("major_six_discussion_counts")
+        == dict(next_family_major_six_counts)
+        and next_family_summary.get("family_review", {}).get("major_transfer_impact_counts")
+        == dict(next_family_major_transfer_counts)
+        and all(row.get("是否可作为定稿依据") == "false" for row in next_family_group_rows)
+        and {row.get("家庭最终接受度待填") for row in next_family_major_rows} == {"待家庭确认"}
+        and {row.get("家庭最终接受度可填值") for row in next_family_major_rows}
+        == {"可接受/勉强接受/不能接受/待核后判断"}
+        and sum(csv_int(row, "建议放入6专业讨论专业数") for row in next_family_group_rows) == 147,
+    ))
+    checks.append(ok(
+        "第 19 期下一轮闭环与家庭讨论 V1 公开文件不含私有路径、登录态、身份信息和已定案误导结论",
+        "/Users/" not in next_family_public_text
+        and "/home/" not in next_family_public_text
+        and "/var/folders/" not in next_family_public_text
+        and "/private/" not in next_family_public_text
+        and "private/" not in next_family_public_text
+        and "private\\" not in next_family_public_text
+        and "ocr-runs" not in next_family_public_text
+        and "rendered-pages" not in next_family_public_text
+        and ".png" not in next_family_public_text
+        and ".jpg" not in next_family_public_text
+        and ".jpeg" not in next_family_public_text
+        and ".webp" not in next_family_public_text
+        and ".tif" not in next_family_public_text
+        and ".tiff" not in next_family_public_text
+        and ".heic" not in next_family_public_text
+        and "Authorization" not in next_family_public_text
+        and "Bearer " not in next_family_public_text
+        and "Cookie" not in next_family_public_text
+        and "身份证" not in next_family_public_text
+        and "准考证" not in next_family_public_text
+        and "报名号" not in next_family_public_text
+        and "序列号" not in next_family_public_text
+        and "已确认" not in next_family_public_text
+        and "已核准" not in next_family_public_text
+        and "最终推荐" not in next_family_public_text
+        and "最终方案" not in next_family_public_text
+        and "可填报" not in next_family_public_text
+        and "可排序" not in next_family_public_text
+        and not any(token in next_family_public_text for token in shared_forbidden_tokens),
+    ))
+
     next_execution_script = ROOT / "scripts/build_issue19_data_foundation_next_execution_v1.py"
     next_execution_summary_path = ROOT / "data/exports/issue19-data-foundation-next-execution-v1-summary.json"
     next_execution_workbook_path = ROOT / "data/exports/issue19-data-foundation-next-execution-v1.xlsx"
@@ -26683,6 +26820,134 @@ def main():
         and "可填报" not in first_evidence_public_text
         and "可排序" not in first_evidence_public_text
         and not any(token in first_evidence_public_text for token in shared_forbidden_tokens),
+    ))
+
+    first_evidence_map_script = ROOT / "scripts/build_issue19_first_closure_public_evidence_map.py"
+    first_evidence_map_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv"
+    )
+    first_evidence_map_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-public-evidence-map-summary.json"
+    )
+    first_evidence_map_summary = json.loads(first_evidence_map_summary_path.read_text())
+    with first_evidence_map_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_evidence_map_reader = csv.DictReader(f)
+        first_evidence_map_rows = list(first_evidence_map_reader)
+        first_evidence_map_fields = first_evidence_map_reader.fieldnames or []
+    expected_first_evidence_map_fields = script_runtime_constant(
+        first_evidence_map_script, "OUTPUT_FIELDS"
+    )
+    first_evidence_map_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_evidence_map_csv, first_evidence_map_summary_path]
+    )
+    first_evidence_map_by_key = {
+        row.get("页码版面键", ""): row for row in first_evidence_map_rows
+    }
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环公开证据地图摘要、规模和门禁正确",
+        first_evidence_map_summary.get("status")
+        == "issue19_stable_foundation_first_closure_public_evidence_map_not_final"
+        and first_evidence_map_summary.get("generated_by")
+        == "build_issue19_first_closure_public_evidence_map.py"
+        and first_evidence_map_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_evidence_map_summary.get("row_count") == len(first_evidence_map_rows) == 37
+        and first_evidence_map_summary.get("task_count") == 206
+        and first_evidence_map_summary.get("unique_pdf_page_count") == 32
+        and first_evidence_map_summary.get("pdf_pending_task_count") == 206
+        and first_evidence_map_summary.get("hubei_official_pending_task_count") == 206
+        and first_evidence_map_summary.get("pdf_ocr_hint_task_count") == 103
+        and first_evidence_map_summary.get("pdf_ocr_no_candidate_task_count") == 103
+        and first_evidence_map_summary.get("machine_coordinate_hint_task_count") == 49
+        and first_evidence_map_summary.get("school_support_hint_task_count") == 74
+        and first_evidence_map_summary.get("public_school_source_file_task_count") == 74
+        and first_evidence_map_summary.get("public_school_source_unique_sha_count") == 12
+        and first_evidence_map_summary.get("pdf_school_conflict_task_count") == 26
+        and first_evidence_map_summary.get("direct_image_review_required_count") == 80
+        and first_evidence_map_summary.get("double_review_required_count") == 91
+        and first_evidence_map_summary.get("official_public_plan_page_can_finalize") is False
+        and first_evidence_map_summary.get("zspt_platform_can_finalize") is False
+        and first_evidence_map_summary.get("field_writeback_ready_count") == 0
+        and first_evidence_map_summary.get("field_writeback_blocked_task_count") == 206
+        and first_evidence_map_summary.get("final_available_count") == 0
+        and first_evidence_map_summary.get("recommendation_basis_allowed_count") == 0,
+        f"{len(first_evidence_map_rows)} page-side map rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环公开证据地图字段、聚合和回链正确",
+        first_evidence_map_fields == expected_first_evidence_map_fields
+        and set(first_evidence_map_by_key) == set(first_evidence_page_by_key)
+        and sum(csv_int(row, "页列任务数") for row in first_evidence_map_rows) == 206
+        and sum(csv_int(row, "自动官网辅证任务数") for row in first_evidence_map_rows) == 105
+        and sum(csv_int(row, "P0人工字段任务数") for row in first_evidence_map_rows) == 101
+        and sum(csv_int(row, "专业计划数字段任务数") for row in first_evidence_map_rows) == 170
+        and sum(csv_int(row, "学费字段任务数") for row in first_evidence_map_rows) == 105
+        and sum(csv_int(row, "再选科目字段任务数") for row in first_evidence_map_rows) == 77
+        and sum(csv_int(row, "PDF原页待核任务数") for row in first_evidence_map_rows) == 206
+        and sum(csv_int(row, "湖北官方侧待核任务数") for row in first_evidence_map_rows) == 206
+        and sum(csv_int(row, "PDFOCR提示任务数") for row in first_evidence_map_rows) == 103
+        and sum(csv_int(row, "PDFOCR无候选任务数") for row in first_evidence_map_rows) == 103
+        and sum(csv_int(row, "机器坐标提示任务数") for row in first_evidence_map_rows) == 49
+        and sum(csv_int(row, "高校辅证线索任务数") for row in first_evidence_map_rows) == 74
+        and sum(csv_int(row, "高校辅证待核任务数") for row in first_evidence_map_rows) == 180
+        and sum(csv_int(row, "公共高校来源文件任务数") for row in first_evidence_map_rows) == 74
+        and sum(csv_int(row, "PDFOCR与高校辅证冲突任务数") for row in first_evidence_map_rows) == 26
+        and sum(csv_int(row, "高校有线索但PDFOCR缺候选任务数") for row in first_evidence_map_rows) == 35
+        and sum(csv_int(row, "仅PDFOCR候选待人工核页任务数") for row in first_evidence_map_rows) == 29
+        and sum(csv_int(row, "需要人工直接看图任务数") for row in first_evidence_map_rows) == 80
+        and sum(csv_int(row, "需要双人复核任务数") for row in first_evidence_map_rows) == 91
+        and sum(csv_int(row, "字段事实写回阻断任务数") for row in first_evidence_map_rows) == 206
+        and sum(csv_int(row, "字段事实写回可进入任务数") for row in first_evidence_map_rows) == 0
+        and {row.get("官方公开计划页可定稿") for row in first_evidence_map_rows} == {"false"}
+        and {row.get("数智平台可定稿") for row in first_evidence_map_rows} == {"false"}
+        and all(row.get(field) == "false" for row in first_evidence_map_rows for field in first_false_fields),
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座第一闭环公开证据地图不含学校专业明细、字段值、私有路径和最终误导结论",
+        "/Users/" not in first_evidence_map_public_text
+        and "/home/" not in first_evidence_map_public_text
+        and "/var/folders/" not in first_evidence_map_public_text
+        and "/private/" not in first_evidence_map_public_text
+        and "private/" not in first_evidence_map_public_text
+        and "private\\" not in first_evidence_map_public_text
+        and "ocr-runs" not in first_evidence_map_public_text
+        and "rendered-pages" not in first_evidence_map_public_text
+        and "file://" not in first_evidence_map_public_text
+        and ".png" not in first_evidence_map_public_text
+        and ".jpg" not in first_evidence_map_public_text
+        and ".jpeg" not in first_evidence_map_public_text
+        and ".webp" not in first_evidence_map_public_text
+        and ".tif" not in first_evidence_map_public_text
+        and ".tiff" not in first_evidence_map_public_text
+        and ".heic" not in first_evidence_map_public_text
+        and "Authorization" not in first_evidence_map_public_text
+        and "Bearer " not in first_evidence_map_public_text
+        and "Cookie" not in first_evidence_map_public_text
+        and "Set-Cookie" not in first_evidence_map_public_text
+        and "access_token" not in first_evidence_map_public_text
+        and "refresh_token" not in first_evidence_map_public_text
+        and "password" not in first_evidence_map_public_text
+        and "secret" not in first_evidence_map_public_text
+        and "api_key" not in first_evidence_map_public_text
+        and "身份证" not in first_evidence_map_public_text
+        and "准考证" not in first_evidence_map_public_text
+        and "报名号" not in first_evidence_map_public_text
+        and "序列号" not in first_evidence_map_public_text
+        and "手机号" not in first_evidence_map_public_text
+        and "院校名称" not in first_evidence_map_public_text
+        and "专业名称" not in first_evidence_map_public_text
+        and "专业代号" not in first_evidence_map_public_text
+        and "院校专业组" not in first_evidence_map_public_text
+        and "候选值" not in first_evidence_map_public_text
+        and "字段确认值" not in first_evidence_map_public_text
+        and "人工读数" not in first_evidence_map_public_text
+        and "已确认" not in first_evidence_map_public_text
+        and "已核准" not in first_evidence_map_public_text
+        and "最终推荐" not in first_evidence_map_public_text
+        and "最终方案" not in first_evidence_map_public_text
+        and "可填报" not in first_evidence_map_public_text
+        and "可排序" not in first_evidence_map_public_text
+        and not any(token in first_evidence_map_public_text for token in shared_forbidden_tokens),
     ))
 
     first_b0_conflict_summary_path = (

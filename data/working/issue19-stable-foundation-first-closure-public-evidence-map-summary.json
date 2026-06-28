@@ -1,0 +1,50 @@
+{
+  "status": "issue19_stable_foundation_first_closure_public_evidence_map_not_final",
+  "generated_by": "build_issue19_first_closure_public_evidence_map.py",
+  "source_page_summary": "data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv",
+  "source_task_review": "data/working/issue19-stable-foundation-first-closure-task-review-public-ledger.csv",
+  "source_prefill_audit": "data/working/issue19-stable-foundation-first-closure-triage-prefill-public-audit.csv",
+  "source_official_public_entry_status": "data/working/issue19-official-public-entry-status.json",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_csv": "data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv",
+  "row_grain": "PDF页码×版面列",
+  "row_count": 37,
+  "task_count": 206,
+  "unique_pdf_page_count": 32,
+  "lane_counts": {
+    "E0-冲突异常双人优先核验": 18,
+    "E1-计划数补缺或偏大优先核验": 11,
+    "E2-官网未匹配专业名归属核验": 8
+  },
+  "priority_counts": {
+    "Q0-冲突页列第一批先核": 18,
+    "Q1-补缺或计划数偏大页列先核": 11,
+    "Q2-官网未匹配或高校辅证页列先核": 8
+  },
+  "main_blocker_counts": {
+    "B0-PDFOCR与高校辅证冲突": 10,
+    "B2-机器坐标候选辅助核页": 17,
+    "B1-缺PDFOCR候选需人工看图": 4,
+    "B3-仅PDFOCR候选待人工确认": 6
+  },
+  "pdf_pending_task_count": 206,
+  "hubei_official_pending_task_count": 206,
+  "pdf_ocr_hint_task_count": 103,
+  "pdf_ocr_no_candidate_task_count": 103,
+  "machine_coordinate_hint_task_count": 49,
+  "school_support_hint_task_count": 74,
+  "public_school_source_file_task_count": 74,
+  "public_school_source_unique_sha_count": 12,
+  "pdf_school_conflict_task_count": 26,
+  "direct_image_review_required_count": 80,
+  "double_review_required_count": 91,
+  "official_public_plan_page_can_finalize": false,
+  "zspt_platform_can_finalize": false,
+  "field_writeback_ready_count": 0,
+  "field_writeback_blocked_task_count": 206,
+  "final_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "public_boundary": "公开证据地图只保存37个页列的状态桶和计数，不保存学校专业明细、字段读数、识别正文、截图、人工记录或私有路径。",
+  "next_use": "用于向家庭解释第一闭环每个页列卡在PDF/OCR/高校辅证/湖北官方/冲突的哪一步，不能作为字段事实或志愿推荐依据。"
+}
