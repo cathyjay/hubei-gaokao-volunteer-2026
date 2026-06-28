@@ -22566,6 +22566,197 @@ def main():
         and not any(token in school_source_exec_public_text for token in shared_forbidden_tokens),
     ))
 
+    school_source_reconcile_summary_path = (
+        ROOT / "data/working/issue19-school-source-latest-reconciliation-summary.json"
+    )
+    school_source_reconcile_csv = (
+        ROOT / "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv"
+    )
+    school_source_reconcile_summary = json.loads(school_source_reconcile_summary_path.read_text())
+    with school_source_reconcile_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_source_reconcile_reader = csv.DictReader(f)
+        school_source_reconcile_rows = list(school_source_reconcile_reader)
+        school_source_reconcile_fields = school_source_reconcile_reader.fieldnames or []
+    expected_school_source_reconcile_fields = script_runtime_constant(
+        ROOT / "scripts/build_issue19_school_source_latest_reconciliation.py",
+        "FIELDS",
+    )
+    school_source_exec_by_id = {
+        row.get("高校官网辅证自动执行批次ID", ""): row for row in school_source_exec_rows
+    }
+    school_source_reconcile_join_ok = True
+    for row in school_source_reconcile_rows:
+        exec_row = school_source_exec_by_id.get(row.get("原自动执行批次ID", ""), {})
+        school_source_reconcile_join_ok = (
+            school_source_reconcile_join_ok
+            and bool(exec_row)
+            and row.get("来源高校官网辅证自动执行批次")
+            == "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv"
+            and row.get("来源高校官网辅证状态快照")
+            == "data/working/issue19-school-source-status-snapshot-public-ledger.csv"
+            and row.get("来源next20官网源探测账本")
+            == "data/working/issue19-school-source-next20-official-probe-public-ledger.csv"
+            and row.get("来源live补源账本")
+            == "data/working/issue19-school-source-live-20260629-ledger.csv"
+            and row.get("来源C4C6复用审计账本")
+            == "data/working/issue19-c4-c6-retained-source-reuse-public-ledger.csv"
+            and row.get("来源C4C6结构化候选diff账本")
+            == "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv"
+            and row.get("来源C4C6补源尝试账本")
+            == "data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_school_source_latest_reconciliation_public_ledger"
+            and row.get("院校代码") == exec_row.get("院校代码")
+            and row.get("院校名称公开") == exec_row.get("院校名称公开")
+            and row.get("原自动执行泳道") == exec_row.get("自动执行泳道")
+            and row.get("原官网辅证自动动作") == exec_row.get("官网辅证自动动作")
+            and row.get("原官网来源状态") == exec_row.get("官网来源状态")
+            and row.get("原最新自动探针状态") == exec_row.get("最新自动探针状态")
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(row.get(field) == "false" for field in school_source_opportunity_false_fields)
+        )
+    school_source_reconcile_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_source_reconcile_summary_path, school_source_reconcile_csv]
+    )
+    checks.append(ok(
+        "第 19 期高校源最新证据对齐账本摘要、规模和分布正确",
+        school_source_reconcile_summary.get("status")
+        == "issue19_school_source_latest_reconciliation_ready_not_final"
+        and school_source_reconcile_summary.get("generated_by")
+        == "build_issue19_school_source_latest_reconciliation.py"
+        and school_source_reconcile_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and school_source_reconcile_summary.get("output_csv")
+        == "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv"
+        and school_source_reconcile_summary.get("row_count")
+        == len(school_source_reconcile_rows)
+        == len(school_source_exec_rows)
+        == 80
+        and school_source_reconcile_summary.get("unique_school_count") == 36
+        and school_source_reconcile_summary.get("auto_lane_counts")
+        == {
+            "A0-冲突回页和官方侧核验": 17,
+            "A1-官网补缺线索回页核验": 8,
+            "A2-专业名匹配规则或人工确认": 12,
+            "A3-补结构化或解析公开来源": 18,
+            "A4-继续搜索高校计划网源": 8,
+            "A5-章程规则核验": 16,
+            "A7-留存观察": 1,
+        }
+        and school_source_reconcile_summary.get("latest_evidence_level_counts")
+        == {
+            "L3-已有湖北物理结构化或候选diff线索": 60,
+            "L1-有入口或探针记录但未取得湖北物理结构化明细": 12,
+            "L0-暂无可复用高校侧计划源": 8,
+        }
+        and school_source_reconcile_summary.get("progress_against_auto_counts")
+        == {
+            "P3-A4已推进到结构化或diff线索": 4,
+            "P0-A4仍需继续补源": 4,
+            "P1-保持原执行泳道": 24,
+            "P2-原任务已有高校侧来源继续回页": 30,
+            "P3-A3已有diff或湖北物理结构化线索": 9,
+            "P0-A3公开来源不足仍需补源": 9,
+        }
+        and school_source_reconcile_summary.get("source_next20_row_count") == 20
+        and school_source_reconcile_summary.get("source_live_record_count") == 8
+        and school_source_reconcile_summary.get("source_live_structured_record_count") == 1
+        and school_source_reconcile_summary.get("source_c4c6_diff_row_count") == 36
+        and school_source_reconcile_summary.get("source_c4c6_candidate_diff_detail_count") == 240
+        and school_source_reconcile_summary.get("a4_rows_with_latest_structured_or_diff") == 4
+        and school_source_reconcile_summary.get("a4_rows_still_need_source") == 4
+        and school_source_reconcile_summary.get("field_writeback_ready_count") == 0
+        and school_source_reconcile_summary.get("recommendation_basis_allowed_count") == 0
+        and school_source_reconcile_summary.get("school_major_suggestion_allowed_count") == 0
+        and school_source_reconcile_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_source_reconcile_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期高校源最新证据对齐账本字段、回链和门禁正确",
+        school_source_reconcile_fields == expected_school_source_reconcile_fields
+        and len({row.get("高校源最新对齐ID") for row in school_source_reconcile_rows}) == 80
+        and {row.get("原自动执行批次ID") for row in school_source_reconcile_rows}
+        == {row.get("高校官网辅证自动执行批次ID") for row in school_source_exec_rows}
+        and school_source_reconcile_join_ok
+        and sum(
+            1
+            for row in school_source_reconcile_rows
+            if row.get("原自动执行泳道") == "A4-继续搜索高校计划网源"
+            and row.get("相对原自动账本推进状态") == "P3-A4已推进到结构化或diff线索"
+        )
+        == 4
+        and sum(
+            1
+            for row in school_source_reconcile_rows
+            if row.get("原自动执行泳道") == "A4-继续搜索高校计划网源"
+            and row.get("相对原自动账本推进状态") == "P0-A4仍需继续补源"
+        )
+        == 4
+        and all(
+            row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许写回字段事实") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            for row in school_source_reconcile_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期高校源最新证据对齐公开文件不含私有路径、字段记录、登录态和最终误导结论",
+        "/Users/" not in school_source_reconcile_public_text
+        and "/home/" not in school_source_reconcile_public_text
+        and "/var/folders/" not in school_source_reconcile_public_text
+        and "/private/" not in school_source_reconcile_public_text
+        and "private/" not in school_source_reconcile_public_text
+        and "private\\" not in school_source_reconcile_public_text
+        and "file://" not in school_source_reconcile_public_text
+        and ".png" not in school_source_reconcile_public_text
+        and ".jpg" not in school_source_reconcile_public_text
+        and ".jpeg" not in school_source_reconcile_public_text
+        and ".webp" not in school_source_reconcile_public_text
+        and ".tif" not in school_source_reconcile_public_text
+        and ".tiff" not in school_source_reconcile_public_text
+        and ".heic" not in school_source_reconcile_public_text
+        and "Authorization" not in school_source_reconcile_public_text
+        and "Bearer " not in school_source_reconcile_public_text
+        and "Cookie" not in school_source_reconcile_public_text
+        and "Set-Cookie" not in school_source_reconcile_public_text
+        and "access_token" not in school_source_reconcile_public_text
+        and "refresh_token" not in school_source_reconcile_public_text
+        and "password" not in school_source_reconcile_public_text
+        and "secret" not in school_source_reconcile_public_text
+        and "api_key" not in school_source_reconcile_public_text
+        and "身份证" not in school_source_reconcile_public_text
+        and "准考证" not in school_source_reconcile_public_text
+        and "报名号" not in school_source_reconcile_public_text
+        and "序列号" not in school_source_reconcile_public_text
+        and "手机号" not in school_source_reconcile_public_text
+        and "OCR行文本" not in school_source_reconcile_public_text
+        and "OCR原文" not in school_source_reconcile_public_text
+        and "候选值" not in school_source_reconcile_public_text
+        and "人工读数" not in school_source_reconcile_public_text
+        and "字段确认值" not in school_source_reconcile_public_text
+        and "PDF原页人工读数" not in school_source_reconcile_public_text
+        and "湖北官方字段值" not in school_source_reconcile_public_text
+        and "高校官网或招生章程字段值" not in school_source_reconcile_public_text
+        and "已确认" not in school_source_reconcile_public_text
+        and "已核准" not in school_source_reconcile_public_text
+        and "最终推荐" not in school_source_reconcile_public_text
+        and "最终方案" not in school_source_reconcile_public_text
+        and "可填报" not in school_source_reconcile_public_text
+        and "可排序" not in school_source_reconcile_public_text
+        and "K48704" not in school_source_reconcile_public_text
+        and not any(token in school_source_reconcile_public_text for token in shared_forbidden_tokens),
+    ))
+
     c4_c6_packets_summary_path = (
         ROOT / "data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json"
     )

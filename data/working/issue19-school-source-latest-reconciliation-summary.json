@@ -1,0 +1,57 @@
+{
+  "status": "issue19_school_source_latest_reconciliation_ready_not_final",
+  "generated_by": "build_issue19_school_source_latest_reconciliation.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_csv": "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv",
+  "row_count": 80,
+  "unique_school_count": 36,
+  "auto_lane_counts": {
+    "A4-继续搜索高校计划网源": 8,
+    "A0-冲突回页和官方侧核验": 17,
+    "A1-官网补缺线索回页核验": 8,
+    "A2-专业名匹配规则或人工确认": 12,
+    "A3-补结构化或解析公开来源": 18,
+    "A5-章程规则核验": 16,
+    "A7-留存观察": 1
+  },
+  "source_status_counts": {
+    "needs_official_plan_source_search": 8,
+    "has_partial_source_needs_followup": 29,
+    "has_reusable_2026_hubei_plan_source": 38,
+    "charter_or_rules_only_no_plan": 5
+  },
+  "latest_evidence_level_counts": {
+    "L3-已有湖北物理结构化或候选diff线索": 60,
+    "L1-有入口或探针记录但未取得湖北物理结构化明细": 12,
+    "L0-暂无可复用高校侧计划源": 8
+  },
+  "progress_against_auto_counts": {
+    "P3-A4已推进到结构化或diff线索": 4,
+    "P0-A4仍需继续补源": 4,
+    "P1-保持原执行泳道": 24,
+    "P2-原任务已有高校侧来源继续回页": 30,
+    "P3-A3已有diff或湖北物理结构化线索": 9,
+    "P0-A3公开来源不足仍需补源": 9
+  },
+  "source_next20_row_count": 20,
+  "source_next20_structured_hubei_physics_row_count": 389,
+  "source_live_record_count": 8,
+  "source_live_structured_record_count": 1,
+  "source_c4c6_diff_row_count": 36,
+  "source_c4c6_candidate_diff_detail_count": 240,
+  "row_linked_next20_task_count": 49,
+  "row_linked_next20_structured_hubei_physics_row_count": 1079,
+  "row_linked_live_source_record_count": 11,
+  "row_linked_live_structured_record_count": 1,
+  "row_linked_c4c6_diff_package_count": 84,
+  "row_linked_c4c6_candidate_diff_detail_count": 714,
+  "a4_rows_with_latest_structured_or_diff": 4,
+  "a4_rows_still_need_source": 4,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该表只做高校侧公开证据状态对齐，不能替代第19期PDF原页、湖北官方系统或省招办计划，不确认字段事实。"
+}

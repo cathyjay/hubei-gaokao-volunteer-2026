@@ -192,3 +192,7 @@
 - 增强下一轮闭环与家庭讨论 V1：`scripts/build_issue19_next_closure_family_review_v1.py` 继续生成 `data/exports/issue19-next-closure-family-review-v1.xlsx`，在 55 组、458 条完整组内专业上新增家庭可选项、6 专业讨论候选、服从调剂影响和组内调剂判断状态。当前 147 条专业建议进入 6 专业讨论，44 组可讨论服从调剂，11 组待核后再判断；全部仍为家庭讨论和核验排序，不作为定稿依据。
 - 新增第一闭环公开证据地图：`scripts/build_issue19_first_closure_public_evidence_map.py` 生成 `data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv` 和 summary，把 37 个页列、206 条任务、32 个 PDF 页压缩为页列级证据状态；当前 E0/E1/E2 为 18/11/8，PDFOCR 提示 103 条、机器坐标提示 49 条、高校侧公共来源任务 74 条、冲突 26 条、直接看图 80 条、双人复核 91 条。该表只用于解释卡点和安排核验，不公开学校专业明细、候选值、人工读数或最终结论，字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
 - 记录本轮官网补源边界：长春工业大学、成都师范学院、韶关学院尚未取得可自动结构化的 2026 湖北物理逐专业计划源；浙江传媒学院只有官方查询或 PDF 入口线索，仍未自动确认湖北物理行。上述结果不能升级为字段事实，只作为后续人工核验和继续补源提示。
+
+## 2026-06-29
+
+- 新增高校官网最新证据对齐账本：`scripts/build_issue19_school_source_latest_reconciliation.py` 生成 `data/working/issue19-school-source-latest-reconciliation-public-ledger.csv` 和 summary，将 80 条高校侧辅证自动执行任务同 next20、live 补源、C4/C6 复用、C4/C6 结构化候选 diff 和补源尝试逐行对齐。当前 60 条已有湖北物理结构化或候选 diff 线索、12 条只有入口或探针记录、8 条暂无可复用高校侧计划源；A4 继续补源任务中 4 条已推进到结构化或 diff 线索、4 条仍需补源。该账本只用于 double check、自动补源排队和人工核验压缩，不确认字段事实、不允许字段写回、不替代第 19 期 PDF 原页或湖北官方系统。
