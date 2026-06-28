@@ -1,0 +1,57 @@
+{
+  "status": "issue19_next_closure_family_review_v1_ready_not_final",
+  "generated_by": "build_issue19_next_closure_family_review_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "usage_boundary": "用于第一闭环人工核验和55组家庭讨论准备；不确认字段事实，不作为最终志愿方案。",
+  "outputs": {
+    "workbook": "data/exports/issue19-next-closure-family-review-v1.xlsx",
+    "first_closure_page_pack": "data/exports/issue19-next-closure-family-review-v1-first-closure-page-pack.csv",
+    "first_closure_action_pack": "data/exports/issue19-next-closure-family-review-v1-first-closure-action-pack.csv",
+    "first_closure_task_status": "data/exports/issue19-next-closure-family-review-v1-first-closure-task-status.csv",
+    "priority55_group_review": "data/exports/issue19-next-closure-family-review-v1-priority55-group-review.csv",
+    "priority55_major_review": "data/exports/issue19-next-closure-family-review-v1-priority55-major-review.csv"
+  },
+  "first_closure": {
+    "page_side_count": 37,
+    "action_package_count": 64,
+    "task_count": 206,
+    "page_batch_counts": {
+      "B1-E0冲突异常双人核页": 18,
+      "B2-E1计划数补缺或偏大核页": 11,
+      "B3-E2官网未匹配归属核页": 8
+    },
+    "action_package_counts": {
+      "P0候选冲突": 10,
+      "P1缺候选或需看图": 35,
+      "P3候选需人工确认": 16,
+      "P2候选一致但未闭环": 3
+    },
+    "field_writeback_ready_count": 0,
+    "recommendation_basis_allowed_count": 0
+  },
+  "family_review": {
+    "group_count": 55,
+    "major_detail_count": 458,
+    "next_status_counts": {
+      "优先家庭讨论": 27,
+      "先核限制后讨论": 11,
+      "先核页后讨论": 14,
+      "可讨论但先看调剂": 2,
+      "先核费用后讨论": 1
+    },
+    "major_acceptance_counts": {
+      "勉强接受": 267,
+      "可接受": 147,
+      "待核后判断": 44
+    },
+    "group_count_target_40_to_60_met": true
+  },
+  "hashes": {
+    "page_pack_sha16": "e0197da1883f248b",
+    "action_pack_sha16": "8b88e1c60ff1a931",
+    "task_pack_sha16": "1df532699091f5ad",
+    "group_review_sha16": "5f319e7106ed3ea0",
+    "major_review_sha16": "5d897d85bf56db1f"
+  }
+}

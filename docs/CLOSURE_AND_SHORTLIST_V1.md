@@ -17,6 +17,12 @@
 
 - `data/exports/issue19-closure-and-shortlist-v1.xlsx`
 
+后续执行入口：
+
+- `data/exports/issue19-next-closure-family-review-v1.xlsx`
+
+说明：`issue19-closure-and-shortlist-v1.xlsx` 是来源汇总入口；`issue19-next-closure-family-review-v1.xlsx` 在它的基础上继续把 37 个页列拆成 64 个小核验包，并把 55 个重点专业组整理成家庭讨论和下一步核验入口。
+
 对应 CSV：
 
 - `data/exports/issue19-closure-and-shortlist-v1-first-closure-page-sides.csv`
@@ -91,7 +97,7 @@
 
 ## 下一步
 
-1. 先核第一闭环 E0 页列：PDF OCR 与高校辅证冲突、需要双人复核的页列。
+1. 先按 `issue19-next-closure-family-review-v1.xlsx` 的 `02_第一闭环64小包` 推进 P0 候选冲突包：PDF OCR 与高校辅证冲突、需要双人复核的任务优先。
 2. 对 55 个重点组，家庭先看完整组内专业，标出可接受、勉强接受、不能接受。
 3. 对家庭保留的组，再做 100% 原页、湖北官方侧、官网/章程、专业组边界和调剂范围核验。
 4. 西安航空学院 K487 作为补缺样板继续核原页：重点看专业代号、计划数、学费、K48704 是否串入 K488 西安医学院。
