@@ -58,6 +58,11 @@ def stable_id(prefix, parts):
     return f"{prefix}-{hashlib.sha1(text.encode('utf-8')).hexdigest()[:16]}"
 
 
+def stable_id_sha256(prefix, parts):
+    text = "|".join(str(part) for part in parts)
+    return f"{prefix}-{hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]}"
+
+
 def counter_text(counter):
     return "；".join(f"{key}:{value}" for key, value in sorted(counter.items())) if counter else ""
 
@@ -27011,6 +27016,388 @@ def main():
         and "可填报" not in first_evidence_public_text
         and "可排序" not in first_evidence_public_text
         and not any(token in first_evidence_public_text for token in shared_forbidden_tokens),
+    ))
+
+    first_next_action_script = ROOT / "scripts/build_issue19_first_closure_next_action_matrix.py"
+    first_next_action_task_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv"
+    )
+    first_next_action_page_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-next-action-page-summary.csv"
+    )
+    first_next_action_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-next-action-summary.json"
+    )
+    first_next_action_summary = json.loads(first_next_action_summary_path.read_text())
+    with first_next_action_task_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_next_action_task_reader = csv.DictReader(f)
+        first_next_action_task_rows = list(first_next_action_task_reader)
+        first_next_action_task_fields = first_next_action_task_reader.fieldnames or []
+    with first_next_action_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_next_action_page_reader = csv.DictReader(f)
+        first_next_action_page_rows = list(first_next_action_page_reader)
+        first_next_action_page_fields = first_next_action_page_reader.fieldnames or []
+    expected_first_next_action_task_fields = script_runtime_constant(
+        first_next_action_script,
+        "TASK_FIELDS",
+    )
+    expected_first_next_action_page_fields = script_runtime_constant(
+        first_next_action_script,
+        "PAGE_FIELDS",
+    )
+    first_next_action_by_task_id = {
+        row.get("稳定基座第一闭环明细任务ID", ""): row
+        for row in first_next_action_task_rows
+    }
+    first_next_action_by_page_key = {
+        row.get("页码版面键", ""): row for row in first_next_action_page_rows
+    }
+    first_next_action_task_join_ok = True
+    for row in first_next_action_task_rows:
+        task_id = row.get("稳定基座第一闭环明细任务ID", "")
+        evidence_row = first_evidence_task_by_task_id.get(task_id, {})
+        first_next_action_task_join_ok = (
+            first_next_action_task_join_ok
+            and bool(evidence_row)
+            and row.get("第一闭环下一步动作ID")
+            == stable_id_sha256(
+                "FIRSTNEXT",
+                [
+                    task_id,
+                    row.get("第一闭环证据状态公开账本ID", ""),
+                ],
+            )
+            and row.get("来源第一闭环证据状态账本")
+            == "data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv"
+            and row.get("来源第一闭环页列证据汇总")
+            == "data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv"
+            and row.get("来源高校源最新证据对齐账本")
+            == "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv"
+            and row.get("来源第一闭环64小包")
+            == "data/exports/issue19-next-closure-family-review-v1-first-closure-action-pack.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_stable_foundation_first_closure_next_action_matrix"
+            and row.get("主表粒度") == "第一闭环明细任务"
+            and row.get("稳定基座第一闭环页列包ID")
+            == evidence_row.get("稳定基座第一闭环页列包ID")
+            and row.get("页码版面键") == evidence_row.get("页码版面键")
+            and row.get("专业行ID") == evidence_row.get("专业行ID")
+            and row.get("任务来源类型") == evidence_row.get("任务来源类型")
+            and row.get("字段名") == evidence_row.get("字段名")
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(row.get(field) == "false" for field in first_false_fields)
+        )
+    first_next_action_page_join_ok = True
+    for row in first_next_action_page_rows:
+        page_key = row.get("页码版面键", "")
+        page_source = first_evidence_page_by_key.get(page_key, {})
+        first_next_action_page_join_ok = (
+            first_next_action_page_join_ok
+            and bool(page_source)
+            and row.get("第一闭环页列下一步动作ID")
+            == stable_id_sha256(
+                "FIRSTNEXTPAGE",
+                [
+                    page_source.get("稳定基座第一闭环页列包ID", ""),
+                    page_key,
+                ],
+            )
+            and row.get("来源第一闭环下一步动作矩阵")
+            == "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv"
+            and row.get("来源第一闭环页列证据汇总")
+            == "data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv"
+            and row.get("来源第一闭环64小包")
+            == "data/exports/issue19-next-closure-family-review-v1-first-closure-action-pack.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_stable_foundation_first_closure_next_action_matrix_page_summary"
+            and row.get("稳定基座第一闭环页列包ID")
+            == page_source.get("稳定基座第一闭环页列包ID")
+            and row.get("动作矩阵任务数") == page_source.get("页列任务数")
+            and row.get("PDF原页待核任务数") == page_source.get("PDF原页待核任务数")
+            and row.get("湖北官方侧待核任务数") == page_source.get("湖北官方侧待核任务数")
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(row.get(field) == "false" for field in first_false_fields)
+        )
+    first_next_action_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_next_action_summary_path,
+            first_next_action_task_csv,
+            first_next_action_page_csv,
+        ]
+    )
+    checks.append(ok(
+        "第 19 期第一闭环下一步动作矩阵摘要、规模和分布正确",
+        first_next_action_summary.get("status")
+        == "issue19_stable_foundation_first_closure_next_action_matrix_ready_not_final"
+        and first_next_action_summary.get("generated_by")
+        == "build_issue19_first_closure_next_action_matrix.py"
+        and first_next_action_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and first_next_action_summary.get("task_row_count")
+        == len(first_next_action_task_rows) == 206
+        and first_next_action_summary.get("page_side_row_count")
+        == len(first_next_action_page_rows) == 37
+        and first_next_action_summary.get("unique_task_count") == 206
+        and first_next_action_summary.get("unique_page_side_count") == 37
+        and first_next_action_summary.get("task_source_type_counts")
+        == {"自动官网辅证任务": 105, "P0人工字段任务": 101}
+        and first_next_action_summary.get("next_action_level_counts")
+        == {
+            "N0-先双人核PDF原页冲突": 26,
+            "N1-高校补缺线索回PDF原页": 35,
+            "N2-机器坐标辅助核PDF原页": 49,
+            "N3-无稳定候选人工看图": 54,
+            "N4-PDFOCR候选人工确认": 29,
+            "N5-多源一致仍待湖北官方侧": 13,
+        }
+        and first_next_action_summary.get("school_source_availability_counts")
+        == {
+            "S0-同校暂无可复用高校侧计划源": 19,
+            "S3-同校已有结构化或diff线索可作核页提示": 163,
+            "SNA-同校不在80条高校源任务内": 24,
+        }
+        and first_next_action_summary.get("pdf_pending_task_count") == 206
+        and first_next_action_summary.get("hubei_official_pending_task_count") == 206
+        and first_next_action_summary.get("double_review_required_count") == 91
+        and first_next_action_summary.get("direct_image_review_required_count") == 80
+        and first_next_action_summary.get("with_school_source_l3_or_diff_task_count") == 163
+        and first_next_action_summary.get("with_school_source_l0_task_count") == 19
+        and first_next_action_summary.get("action_pack_linked_page_count") == 37
+        and first_next_action_summary.get("action_pack_linked_task_count") == 206
+        and first_next_action_summary.get("field_writeback_ready_count") == 0
+        and first_next_action_summary.get("recommendation_basis_allowed_count") == 0
+        and first_next_action_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_next_action_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_next_action_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环下一步动作矩阵字段、回链和门禁正确",
+        first_next_action_task_fields == expected_first_next_action_task_fields
+        and first_next_action_page_fields == expected_first_next_action_page_fields
+        and set(first_next_action_by_task_id) == set(first_evidence_task_by_task_id)
+        and set(first_next_action_by_page_key) == set(first_evidence_page_by_key)
+        and sum(csv_int(row, "动作矩阵任务数") for row in first_next_action_page_rows) == 206
+        and sum(csv_int(row, "N0冲突双人核页任务数") for row in first_next_action_page_rows) == 26
+        and sum(csv_int(row, "N1高校补缺回页任务数") for row in first_next_action_page_rows) == 35
+        and sum(csv_int(row, "N2机器坐标辅助核页任务数") for row in first_next_action_page_rows) == 49
+        and sum(csv_int(row, "N3无候选人工看图任务数") for row in first_next_action_page_rows) == 54
+        and sum(csv_int(row, "N4PDFOCR候选确认任务数") for row in first_next_action_page_rows) == 29
+        and sum(csv_int(row, "N5多源一致待官核任务数") for row in first_next_action_page_rows) == 13
+        and sum(csv_int(row, "PDF原页待核任务数") for row in first_next_action_page_rows) == 206
+        and sum(csv_int(row, "湖北官方侧待核任务数") for row in first_next_action_page_rows) == 206
+        and sum(csv_int(row, "高校辅证线索任务数") for row in first_next_action_page_rows) == 74
+        and all(row.get(field) == "false" for row in first_next_action_task_rows for field in first_false_fields)
+        and all(row.get(field) == "false" for row in first_next_action_page_rows for field in first_false_fields)
+        and first_next_action_task_join_ok
+        and first_next_action_page_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环下一步动作矩阵公开文件不含私有路径、字段记录、登录态和最终误导结论",
+        "/Users/" not in first_next_action_public_text
+        and "/home/" not in first_next_action_public_text
+        and "/var/folders/" not in first_next_action_public_text
+        and "/private/" not in first_next_action_public_text
+        and "private/" not in first_next_action_public_text
+        and "private\\" not in first_next_action_public_text
+        and "ocr-runs" not in first_next_action_public_text
+        and "rendered-pages" not in first_next_action_public_text
+        and "file://" not in first_next_action_public_text
+        and ".png" not in first_next_action_public_text
+        and ".jpg" not in first_next_action_public_text
+        and ".jpeg" not in first_next_action_public_text
+        and ".webp" not in first_next_action_public_text
+        and ".tif" not in first_next_action_public_text
+        and ".tiff" not in first_next_action_public_text
+        and ".heic" not in first_next_action_public_text
+        and "Authorization" not in first_next_action_public_text
+        and "Bearer " not in first_next_action_public_text
+        and "Cookie" not in first_next_action_public_text
+        and "Set-Cookie" not in first_next_action_public_text
+        and "access_token" not in first_next_action_public_text
+        and "refresh_token" not in first_next_action_public_text
+        and "password" not in first_next_action_public_text
+        and "secret" not in first_next_action_public_text
+        and "api_key" not in first_next_action_public_text
+        and "身份证" not in first_next_action_public_text
+        and "准考证" not in first_next_action_public_text
+        and "报名号" not in first_next_action_public_text
+        and "序列号" not in first_next_action_public_text
+        and "手机号" not in first_next_action_public_text
+        and "院校名称" not in first_next_action_public_text
+        and "专业名称" not in first_next_action_public_text
+        and "专业代号" not in first_next_action_public_text
+        and "院校专业组" not in first_next_action_public_text
+        and "候选值" not in first_next_action_public_text
+        and "字段确认值" not in first_next_action_public_text
+        and "人工读数" not in first_next_action_public_text
+        and "已确认" not in first_next_action_public_text
+        and "已核准" not in first_next_action_public_text
+        and "最终推荐" not in first_next_action_public_text
+        and "最终方案" not in first_next_action_public_text
+        and "可填报" not in first_next_action_public_text
+        and "可排序" not in first_next_action_public_text
+        and not any(token in first_next_action_public_text for token in shared_forbidden_tokens),
+    ))
+
+    first_field_fact_script = ROOT / "scripts/build_issue19_first_closure_field_fact_public_ledger.py"
+    first_field_fact_csv = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-field-fact-public-ledger.csv"
+    )
+    first_field_fact_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-field-fact-summary.json"
+    )
+    first_field_fact_summary = json.loads(first_field_fact_summary_path.read_text())
+    with first_field_fact_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_field_fact_reader = csv.DictReader(f)
+        first_field_fact_rows = list(first_field_fact_reader)
+        first_field_fact_fields = first_field_fact_reader.fieldnames or []
+    expected_first_field_fact_fields = script_runtime_constant(
+        first_field_fact_script,
+        "FIELDS",
+    )
+    first_field_fact_pairs = {
+        (row.get("稳定基座第一闭环明细任务ID", ""), row.get("字段名", ""))
+        for row in first_field_fact_rows
+    }
+    expected_first_field_fact_pairs = {
+        (row.get("稳定基座第一闭环明细任务ID", ""), field_name)
+        for row in first_field_confirm_rows
+        for field_name in row.get("字段名", "").split("；")
+        if field_name
+    }
+    first_field_fact_task_ids = {
+        row.get("稳定基座第一闭环明细任务ID", "") for row in first_field_fact_rows
+    }
+    first_p0_top3_private_field_csv = (
+        ROOT / "private/review-assets/issue19-p0-top3-review-packet/p0-top3-private-field-review.csv"
+    )
+    with first_p0_top3_private_field_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_p0_top3_private_field_rows = list(csv.DictReader(f))
+    first_p0_top3_pairs = {
+        (row.get("第一闭环任务ID", ""), row.get("字段名", ""))
+        for row in first_p0_top3_private_field_rows
+    }
+    first_field_fact_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_field_fact_csv, first_field_fact_summary_path]
+    )
+    checks.append(ok(
+        "第 19 期第一闭环字段事实公开账本摘要、规模和字段分布正确",
+        first_field_fact_summary.get("status")
+        == "issue19_stable_foundation_first_closure_field_fact_public_ledger_ready_not_final"
+        and first_field_fact_summary.get("generated_by")
+        == "build_issue19_first_closure_field_fact_public_ledger.py"
+        and first_field_fact_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_field_fact_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-first-closure-field-fact-public-ledger.csv"
+        and first_field_fact_summary.get("row_count") == len(first_field_fact_rows) == 354
+        and first_field_fact_summary.get("unique_task_count") == 206
+        and first_field_fact_summary.get("unique_task_field_count") == 354
+        and first_field_fact_summary.get("field_counts")
+        == {"专业计划数": 170, "学费": 105, "再选科目": 77, "待人工判定字段": 2}
+        and first_field_fact_summary.get("field_fact_closure_status_counts")
+        == {"F0-字段记录未填写": 354}
+        and first_field_fact_summary.get("p0_top3_field_count") == 36
+        and first_field_fact_summary.get("b0_conflict_page_field_count") == 256
+        and first_field_fact_summary.get("double_review_required_field_count") == 119
+        and first_field_fact_summary.get("manual_image_required_field_count") == 122
+        and first_field_fact_summary.get("pdf_pending_field_count") == 354
+        and first_field_fact_summary.get("hubei_pending_field_count") == 354
+        and first_field_fact_summary.get("school_pending_field_count") == 328
+        and first_field_fact_summary.get("three_way_pending_field_count") == 354
+        and first_field_fact_summary.get("field_value_sha_present_count") == 0
+        and first_field_fact_summary.get("field_writeback_ready_count") == 0
+        and first_field_fact_summary.get("recommendation_basis_allowed_count") == 0
+        and first_field_fact_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_field_fact_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_field_fact_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环字段事实公开账本字段、回链和门禁正确",
+        first_field_fact_fields == expected_first_field_fact_fields
+        and first_field_fact_pairs == expected_first_field_fact_pairs
+        and first_field_fact_task_ids == set(first_field_confirm_by_task_id)
+        and first_p0_top3_pairs.issubset(first_field_fact_pairs)
+        and len({row.get("第一闭环字段事实公开账本ID") for row in first_field_fact_rows}) == 354
+        and all(
+            row.get("第一闭环字段事实公开账本ID")
+            == stable_id_sha256(
+                "FIRSTFACT",
+                [
+                    row.get("稳定基座第一闭环明细任务ID", ""),
+                    row.get("第一闭环字段确认公开账本ID", ""),
+                    row.get("字段名", ""),
+                ],
+            )
+            for row in first_field_fact_rows
+        )
+        and all(row.get("PDF原页记录状态") == "pending_private_pdf_reading" for row in first_field_fact_rows)
+        and all(row.get("湖北官方记录状态") == "pending_private_hubei_reading" for row in first_field_fact_rows)
+        and all(row.get("三方一致性状态") == "pending_private_three_way_field_confirmation" for row in first_field_fact_rows)
+        and all(row.get("字段事实闭环状态") == "F0-字段记录未填写" for row in first_field_fact_rows)
+        and all(row.get("字段事实值集合SHA256") == "" for row in first_field_fact_rows)
+        and all(row.get("字段事实写回状态") == "blocked_until_pdf_hubei_school_three_way_closure" for row in first_field_fact_rows)
+        and all(row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement" for row in first_field_fact_rows)
+        and all(row.get(field) == "false" for row in first_field_fact_rows for field in first_false_fields)
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环字段事实公开账本不含私有路径、字段值、登录态和最终误导结论",
+        "/Users/" not in first_field_fact_public_text
+        and "/home/" not in first_field_fact_public_text
+        and "/var/folders/" not in first_field_fact_public_text
+        and "/private/" not in first_field_fact_public_text
+        and "private/" not in first_field_fact_public_text
+        and "private\\" not in first_field_fact_public_text
+        and "ocr-runs" not in first_field_fact_public_text
+        and "rendered-pages" not in first_field_fact_public_text
+        and "file://" not in first_field_fact_public_text
+        and ".png" not in first_field_fact_public_text
+        and ".jpg" not in first_field_fact_public_text
+        and ".jpeg" not in first_field_fact_public_text
+        and ".webp" not in first_field_fact_public_text
+        and ".tif" not in first_field_fact_public_text
+        and ".tiff" not in first_field_fact_public_text
+        and ".heic" not in first_field_fact_public_text
+        and "Authorization" not in first_field_fact_public_text
+        and "Bearer " not in first_field_fact_public_text
+        and "Cookie" not in first_field_fact_public_text
+        and "Set-Cookie" not in first_field_fact_public_text
+        and "access_token" not in first_field_fact_public_text
+        and "refresh_token" not in first_field_fact_public_text
+        and "password" not in first_field_fact_public_text
+        and "secret" not in first_field_fact_public_text
+        and "api_key" not in first_field_fact_public_text
+        and "身份证" not in first_field_fact_public_text
+        and "准考证" not in first_field_fact_public_text
+        and "报名号" not in first_field_fact_public_text
+        and "序列号" not in first_field_fact_public_text
+        and "手机号" not in first_field_fact_public_text
+        and "院校名称" not in first_field_fact_public_text
+        and "专业名称" not in first_field_fact_public_text
+        and "专业代号" not in first_field_fact_public_text
+        and "院校专业组" not in first_field_fact_public_text
+        and "候选值" not in first_field_fact_public_text
+        and "字段确认值" not in first_field_fact_public_text
+        and "人工读数" not in first_field_fact_public_text
+        and "PDF原页人工读数" not in first_field_fact_public_text
+        and "湖北官方字段值" not in first_field_fact_public_text
+        and "高校官网或招生章程字段值" not in first_field_fact_public_text
+        and "复核备注" not in first_field_fact_public_text
+        and "已确认" not in first_field_fact_public_text
+        and "已核准" not in first_field_fact_public_text
+        and "最终推荐" not in first_field_fact_public_text
+        and "最终方案" not in first_field_fact_public_text
+        and "可填报" not in first_field_fact_public_text
+        and "可排序" not in first_field_fact_public_text
+        and not any(token in first_field_fact_public_text for token in shared_forbidden_tokens),
     ))
 
     first_evidence_map_script = ROOT / "scripts/build_issue19_first_closure_public_evidence_map.py"

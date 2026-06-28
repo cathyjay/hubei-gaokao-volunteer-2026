@@ -1,0 +1,51 @@
+{
+  "status": "issue19_stable_foundation_first_closure_next_action_matrix_ready_not_final",
+  "generated_by": "build_issue19_first_closure_next_action_matrix.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_first_closure_evidence_status": "data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv",
+  "source_first_closure_page_summary": "data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv",
+  "source_school_source_latest_reconciliation": "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv",
+  "source_first_closure_action_pack": "data/exports/issue19-next-closure-family-review-v1-first-closure-action-pack.csv",
+  "output_task_matrix": "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv",
+  "output_page_summary": "data/working/issue19-stable-foundation-first-closure-next-action-page-summary.csv",
+  "task_row_count": 206,
+  "page_side_row_count": 37,
+  "unique_task_count": 206,
+  "unique_page_side_count": 37,
+  "task_source_type_counts": {
+    "自动官网辅证任务": 105,
+    "P0人工字段任务": 101
+  },
+  "next_action_level_counts": {
+    "N0-先双人核PDF原页冲突": 26,
+    "N2-机器坐标辅助核PDF原页": 49,
+    "N4-PDFOCR候选人工确认": 29,
+    "N5-多源一致仍待湖北官方侧": 13,
+    "N3-无稳定候选人工看图": 54,
+    "N1-高校补缺线索回PDF原页": 35
+  },
+  "school_source_availability_counts": {
+    "S3-同校已有结构化或diff线索可作核页提示": 163,
+    "SNA-同校不在80条高校源任务内": 24,
+    "S0-同校暂无可复用高校侧计划源": 19
+  },
+  "pdf_pending_task_count": 206,
+  "hubei_official_pending_task_count": 206,
+  "double_review_required_count": 91,
+  "direct_image_review_required_count": 80,
+  "with_school_source_l3_or_diff_task_count": 163,
+  "with_school_source_l1_task_count": 0,
+  "with_school_source_l0_task_count": 19,
+  "action_pack_linked_page_count": 37,
+  "action_pack_linked_task_count": 206,
+  "task_matrix_sha16": "2760517f07bcb43f",
+  "page_summary_sha16": "0ff6b7016386d881",
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该矩阵只安排第一闭环下一步动作，不确认计划数、学费、选科、专业名或专业组边界事实。"
+}

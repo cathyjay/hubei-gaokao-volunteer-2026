@@ -1,0 +1,62 @@
+{
+  "status": "issue19_stable_foundation_first_closure_field_fact_public_ledger_ready_not_final",
+  "generated_by": "build_issue19_first_closure_field_fact_public_ledger.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_first_closure_field_confirmation_public_ledger": "data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger.csv",
+  "source_first_closure_evidence_status": "data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv",
+  "source_first_closure_next_action_matrix": "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv",
+  "source_p0_top3_field_public_ledger": "data/working/issue19-p0-top3-field-review-public-ledger.csv",
+  "source_b0_conflict_status_public_ledger": "data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv",
+  "source_private_field_confirmation_workbench": "first_closure_field_confirmation_private_workbench_not_public",
+  "source_private_p0_top3_field_review": "p0_top3_private_field_review_not_public",
+  "output_table": "data/working/issue19-stable-foundation-first-closure-field-fact-public-ledger.csv",
+  "row_grain": "第一闭环任务×字段名",
+  "row_count": 354,
+  "unique_task_count": 206,
+  "unique_task_field_count": 354,
+  "field_counts": {
+    "专业计划数": 170,
+    "学费": 105,
+    "再选科目": 77,
+    "待人工判定字段": 2
+  },
+  "field_candidate_relation_counts": {
+    "R0-候选冲突": 16,
+    "R1-候选一致": 6,
+    "R3-仅高校辅证候选": 13,
+    "R2-仅PDFOCR候选": 1,
+    "R5-无候选需人工看图": 103,
+    "R3-仅PDFOCR候选待人工核页": 50,
+    "R1-PDFOCR与高校辅证存在一致字段": 37,
+    "R0-PDFOCR与高校辅证存在冲突": 32,
+    "R2-高校有线索但PDFOCR缺候选": 96
+  },
+  "field_fact_closure_status_counts": {
+    "F0-字段记录未填写": 354
+  },
+  "conflict_type_counts": {
+    "C0-字段候选冲突": 16,
+    "C0-PDFOCR与高校辅证冲突": 52,
+    "C2-机器坐标候选待核": 49,
+    "C4-常规待闭环": 146,
+    "C1-多源候选一致但待官方侧": 37,
+    "C3-无稳定候选需看图": 54
+  },
+  "p0_top3_field_count": 36,
+  "b0_conflict_page_field_count": 256,
+  "double_review_required_field_count": 119,
+  "manual_image_required_field_count": 122,
+  "pdf_pending_field_count": 354,
+  "hubei_pending_field_count": 354,
+  "school_pending_field_count": 328,
+  "three_way_pending_field_count": 354,
+  "field_value_sha_present_count": 0,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该公开账本只记录字段原子闭环进度，不公开字段明细值，不确认字段事实，不允许写回或推荐。"
+}

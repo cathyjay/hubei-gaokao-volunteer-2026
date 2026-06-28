@@ -493,6 +493,11 @@
 - `data/working/issue19-stable-foundation-first-closure-field-confirmation-public-ledger-summary.json`：第一闭环字段确认摘要；记录 206 条任务、37 个页列、32 个 PDF 页、PDF OCR 提示 103 条、机器坐标提示 49 条、高校辅证线索 74 条、直接看图 80 条、双人复核 91 条，以及 PDF 原页和湖北官方侧记录均待完成。字段写回、推荐依据、学校专业建议和最终可用仍全部为 0；私有字段确认工作台 SHA 保存在摘要中，具体读数只在 Git 忽略目录。
 - `data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv`：第一闭环公开证据地图，37 行；一行对应一个第一闭环 `PDF页码×版面列`，把 206 条任务压缩成页列级证据状态，公开显示 PDF/PDFOCR、机器坐标、高校辅证、湖北官方侧、冲突、直接看图、双人复核和阻断类型计数。该表不公开学校专业明细、候选值、人工读数、识别正文、私有路径或最终结论，只用于向家庭说明当前卡点在哪里。
 - `data/working/issue19-stable-foundation-first-closure-public-evidence-map-summary.json`：第一闭环公开证据地图摘要；记录 37 个页列、206 条任务、32 个 PDF 页，E0/E1/E2 分布 18/11/8，PDFOCR 提示 103 条、无 PDFOCR 候选 103 条、机器坐标提示 49 条、高校侧公共来源任务 74 条、冲突 26 条、直接看图 80 条、双人复核 91 条，以及字段写回、推荐依据、学校专业建议和最终可用全部为 0。
+- `data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv`：第一闭环下一步动作矩阵，206 行；一行对应一条第一闭环任务，把证据状态、64 个小核验包和同校高校源最新证据合并为 N0-N5 核验动作层级，用于安排先双人核冲突、补缺回页、机器坐标辅助核页、人工看图、PDFOCR 候选确认或等待湖北官方侧。
+- `data/working/issue19-stable-foundation-first-closure-next-action-page-summary.csv`：第一闭环下一步动作页列摘要，37 行；把 206 条动作矩阵任务压缩回 37 个 `PDF页码×版面列`，保留 N0-N5 分布、同校高校源可用性、关联 64 小包、页列主阻断和完成条件。
+- `data/working/issue19-stable-foundation-first-closure-next-action-summary.json`：第一闭环下一步动作摘要；记录 N0 26 条、N1 35 条、N2 49 条、N3 54 条、N4 29 条、N5 13 条，PDF 原页和湖北官方侧待核均为 206，字段写回、推荐依据、学校专业建议和最终可用全部为 0。
+- `data/working/issue19-stable-foundation-first-closure-field-fact-public-ledger.csv`：第一闭环字段事实公开账本，354 行；一行对应一个 `第一闭环任务ID×字段名`，把 206 条任务展开为专业计划数 170、学费 105、再选科目 77、待人工判定字段 2。公开层只保存字段名、状态、关系桶、ID 和 SHA，不保存字段明细值或人工记录。
+- `data/working/issue19-stable-foundation-first-closure-field-fact-summary.json`：第一闭环字段事实摘要；记录 354 个字段原子全部为 `F0-字段记录未填写`，P0 top3 重点字段 36 个、B0 冲突页列字段 256 个、双人复核字段 119 个、人工看图字段 122 个；字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
 - `data/working/issue19-moe-unmatched-school-resolution-major-detail.csv`：教育部未匹配校名逐专业解析表，385 行；把 49 个未匹配院校代码+校名下沉到受影响的专业明细，提供历史同代码校名候选、教育部相似校名候选和 OCR 规则修正候选。所有行 `机器能否自动替换校名=false`。
 - `data/working/issue19-moe-unmatched-school-resolution-summary.json`：未匹配校名解析摘要；记录历史同代码候选 281 条、教育部相似候选 232 条、OCR 规则修正候选 90 条、自动替换 0 条。该表只作核名派单，不写回最终校名。
 - `data/working/issue19-hubei-official-query-key-collision-ledger.csv`：湖北官方查询键碰撞清单，118 行；记录 59 个 `院校代码+专业组代码+专业代号` 不唯一的官方查询三元组，防止未来按非唯一键回填官方系统结果。
@@ -631,6 +636,8 @@
 - `scripts/build_issue19_first_closure_page_side_candidate_dashboard.py`：读取第一闭环执行队列和 PDF OCR 候选公开审计，生成 37 行页列候选看板；用于把任务级候选状态聚合成页列级核验动作，不确认字段事实。
 - `scripts/build_issue19_first_closure_machine_coordinate_candidate_audit.py`：读取第一闭环 PDF OCR 候选公开/私有工作台和 P0 字段机器坐标候选表，生成 206 行机器坐标候选公开审计和 Git 忽略的私有候选工作台；用于把部分缺 PDF OCR 候选任务转成机器坐标候选待人工核页，不能自动写回字段或替代湖北官方计划。
 - `scripts/build_issue19_first_closure_public_evidence_map.py`：读取第一闭环页列证据状态汇总、任务复核公开账本、私有预填公开审计和官方入口状态，生成 37 行页列级公开证据地图；用于说明每个页列卡在 PDF/PDFOCR、机器坐标、高校辅证、湖北官方侧、冲突或双人复核哪一步，不确认字段事实。
+- `scripts/build_issue19_first_closure_next_action_matrix.py`：读取第一闭环证据状态报告、页列汇总、高校源最新证据对齐账本和 64 个小核验包，生成 206 行下一步动作矩阵和 37 行页列摘要；用于把字段核验动作排成 N0-N5，不确认字段事实。
+- `scripts/build_issue19_first_closure_field_fact_public_ledger.py`：读取第一闭环字段确认公开账本、证据状态、下一步动作矩阵、P0 top3 字段账本、B0 冲突页列账本和 Git 忽略的私有字段工作台，生成 354 行字段原子公开账本；公开层只同步状态和 SHA，不公开字段明细值。
 - `scripts/build_issue19_field_fact_p0_reread_worklist.py`：生成 P0 字段原页重读工作清单，只抽取 K0 无候选字段任务，并补齐原始源证据、PDF 锚点和页级保真证据回连。
 - `scripts/build_issue19_field_fact_p0_reread_machine_candidates.py`：生成 P0 字段机器坐标候选表，从私有 OCR 窗口中按字段坐标规则抽取专业计划数、再选科目和学费候选；公开输出不包含私有路径、页图或 OCR 原文，所有候选仍必须人工核 PDF 原页并用湖北官方系统或省招办计划确认。
 - `scripts/build_issue19_field_fact_p0_closure_action_workbench.py`：生成 P0 字段闭环推进工作台，把机器候选分成快速候选核页、冲突候选核页和无候选重读批次，并预留 PDF 人工读数、湖北官方字段值和高校官网/章程辅证字段值。

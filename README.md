@@ -93,6 +93,8 @@
 - 第一闭环 B0 冲突页列核验状态：`data/working/issue19-stable-foundation-first-closure-b0-conflict-status-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-b0-conflict-status-summary.json`。把 10 个 B0 页列、132 条同页任务和 26 条明确 PDFOCR 与高校辅证冲突任务单独抽出，标记 P0/P1/P3 核验优先级、字段类型、同页 B0/B1 计划数冲突专项口径和三方待核门禁；全部仍为 `not_final`，不得作为字段事实或志愿推荐依据。
 - 第一闭环证据状态报告：`data/working/issue19-stable-foundation-first-closure-evidence-status-public-ledger.csv`、`data/working/issue19-stable-foundation-first-closure-evidence-status-page-side-summary.csv` 和 `data/working/issue19-stable-foundation-first-closure-evidence-status-summary.json`。把 206 条第一闭环任务和 37 个页列按 PDF 原页、OCR 提示、机器坐标、高校辅证、冲突状态和写回门禁合成同一公开状态层；全部仍为待核状态，不保存字段值或人工读数。
 - 第一闭环公开证据地图：`data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv` 和 `data/working/issue19-stable-foundation-first-closure-public-evidence-map-summary.json`。把 37 个页列压缩成更适合沟通的一张表，逐页列展示 PDF 原页、PDFOCR、机器坐标、高校辅证、湖北官方侧、冲突和双人复核计数；不展示学校专业明细、字段读数或私有材料。
+- 第一闭环下一步动作矩阵：`data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv`、`data/working/issue19-stable-foundation-first-closure-next-action-page-summary.csv` 和 `data/working/issue19-stable-foundation-first-closure-next-action-summary.json`。把 206 条任务、37 个页列和同校高校源最新证据对齐，明确 N0-N5 下一步核验动作；全部仍不确认字段事实。
+- 第一闭环字段事实公开账本：`data/working/issue19-stable-foundation-first-closure-field-fact-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-field-fact-summary.json`。把 206 条任务展开成 354 个字段原子：计划数 170、学费 105、再选科目 77、待人工判定字段 2；只公开字段闭环状态和 SHA，不公开字段明细值，不允许写回或推荐。
 - 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 高校官网辅证状态快照：`data/working/issue19-school-source-status-snapshot-public-ledger.csv` 和 `data/working/issue19-school-source-status-snapshot-summary.json`。由 `scripts/build_issue19_school_source_status_snapshot.py` 生成，把 36 所学校、80 条高校侧辅证机会任务、C4/C6 补结构化/补源包、live 补源记录和最终门禁放到同一张公开状态账本；它只用于安排自动补源、生成 diff、压缩人工核验范围，不能作为字段事实、学校专业建议或志愿推荐依据。
 - 高校官网辅证自动执行批次：`data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 和 `data/working/issue19-school-source-auto-execution-batches-summary.json`。由 `scripts/build_issue19_school_source_auto_execution_batches.py` 生成，在状态快照基础上把 80 条任务拆成 7 条推进泳道：冲突回页 17、补缺回页 8、专业名归属 12、补结构化 18、继续补计划网源 8、章程规则 16、留存观察 1；全部仍禁止字段写回、推荐和最终使用。
@@ -211,6 +213,8 @@ python3 scripts/build_issue19_first_closure_field_confirmation_workbench.py
 python3 scripts/build_issue19_first_closure_field_status_dashboard.py
 python3 scripts/build_issue19_first_closure_evidence_status_report.py
 python3 scripts/build_issue19_first_closure_public_evidence_map.py
+python3 scripts/build_issue19_first_closure_next_action_matrix.py
+python3 scripts/build_issue19_first_closure_field_fact_public_ledger.py
 python3 scripts/build_issue19_first_closure_b0_conflict_status.py
 python3 scripts/build_issue19_next_closure_family_review_v1.py
 python3 scripts/build_issue19_p0_top3_review_packet.py
