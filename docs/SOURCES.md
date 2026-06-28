@@ -176,14 +176,17 @@
 
 11. 2026-06-29 高校官网 live 补源尝试
    - 补源账本：`data/working/issue19-school-source-live-20260629-ledger.csv`
+   - 补源账本摘要：`data/working/issue19-school-source-live-20260629-ledger-summary.json`
    - 本地留存目录：`data/external/issue19-school-source-live-20260629/`
+   - 生成脚本：`scripts/build_issue19_school_source_live_20260629_ledger.py`
    - 有效新增源：西安航空学院官网 `2026年西安航空学院本科招生计划` 页面和高清 PDF。
    - 西安航空学院页面：`data/external/issue19-school-source-live-20260629/xaau-2026-undergraduate-plan-page.html`
    - 西安航空学院 PDF：`data/external/issue19-school-source-live-20260629/xaau-2026-province-major-plan.pdf`
    - 西安航空学院湖北物理/理工类抽取：`data/external/issue19-school-source-live-20260629/xaau-2026-hubei-physics-plan-extracted.csv`
    - 西安航空学院第 19 期对照：`data/working/issue19-school-source-live-20260629-xaau-crosscheck.csv`
    - 当前结论：西安航空学院官网 PDF 抽取到湖北物理/理工类 6 条、合计 15 人；第 19 期 K487 也有 6 条，但 OCR 计划数字段存在缺失或串读线索，特别是 K48704 自动化行疑似串入 K488 西安医学院。该源只能作为高校侧补缺候选，必须回看第 19 期原页和湖北官方侧后才能写回。
-   - 未取得湖北计划的尝试：长春工业大学官网招生计划栏目当前 2026 计划页仅见吉林省计划；武汉轻工大学官网入口为前端应用壳；湖北师范大学招生网普通抓取返回跳转登出页。
+   - 未取得湖北物理专业加人数明细的尝试：长春工业大学官网招生计划栏目当前 2026 计划页仅见吉林省计划；武汉轻工大学官网入口、招生计划入口和湖北考生提示入口均为前端应用壳；湖北师范大学招生网普通抓取返回跳转登出页，信息公开网仅取得 2026 本科招生章程；浙江传媒学院留存招生网首页和信息公开网招考信息页，未见 2026 湖北物理计划明细；成都师范学院留存招生工作入口，未见 2026 湖北物理计划明细；韶关学院招生域名 HTTPS 访问失败；江苏理工学院招生网可见官方 2026 省外计划微信文章入口，但当前环境未能读取微信正文。
+   - 新增入口留存：`cuz-zsw-home-20260629.html`、`cuz-xxgk-zkxx-20260629.html`、`cdnu-zsgz-entry-20260629.html`、`whpu-2026-plan-entry-shell.html`、`whpu-2026-hubei-fill-suggestion-shell.html`、`hbnu-2026-undergraduate-charter.html`、`jstu-zs-news-list-20260629.html`。
    - 限制：live 补源尝试只扩大 double check 覆盖，不替代湖北第 19 期、省招办计划或湖北官方系统。
 
 ## 派生数据说明

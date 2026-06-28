@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+import csv
+import json
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+WORKING = ROOT / "data/working"
+
+OUT_CSV = WORKING / "issue19-school-source-live-20260629-ledger.csv"
+OUT_SUMMARY = WORKING / "issue19-school-source-live-20260629-ledger-summary.json"
+
+FIELDNAMES = [
+    "抓取日期",
+    "院校代码",
+    "院校名称",
+    "机会队列类型",
+    "自动补源结论",
+    "官方来源URL",
+    "本地留存文件",
+    "结构化输出",
+    "湖北物理计划状态",
+    "保真边界",
+    "下一步",
+]
+
+
+ROWS = [
+    {
+        "抓取日期": "2026-06-29",
+        "院校代码": "K487",
+        "院校名称": "西安航空学院",
+        "机会队列类型": "O3-高收益缺源学校优先补源",
+        "自动补源结论": "已取得高校官网2026本科招生计划页和高清PDF",
+        "官方来源URL": "https://zb.xaau.edu.cn/info/1039/2831.htm",
+        "本地留存文件": "data/external/issue19-school-source-live-20260629/xaau-2026-undergraduate-plan-page.html；data/external/issue19-school-source-live-20260629/xaau-2026-province-major-plan.pdf",
+        "结构化输出": "data/external/issue19-school-source-live-20260629/xaau-2026-hubei-physics-plan-extracted.csv；data/working/issue19-school-source-live-20260629-xaau-crosscheck.csv",
+        "湖北物理计划状态": "官网PDF抽取湖北物理/理工类6条合计15人；第19期K487计划数字段均待原页核验",
+        "保真边界": "高校官网PDF只作double check和补缺线索；第19期原页和湖北官方侧未闭环前不可写回",
+        "下一步": "核第19期PDF原页中K487各组专业代号、计划数、学费、组边界；重点检查K48704自动化行是否串入K488西安医学院",
+    },
+    {
+        "抓取日期": "2026-06-29",
+        "院校代码": "F582",
+        "院校名称": "长春工业大学",
+        "机会队列类型": "O3-高收益缺源学校优先补源",
+        "自动补源结论": "官网招生计划栏目可访问但当前2026计划页仅见吉林省计划",
+        "官方来源URL": "https://bzkzs.ccut.edu.cn/zsxx/bzkzsxx/zsjh.htm",
+        "本地留存文件": "data/external/issue19-school-source-live-20260629/ccut-zsjh-list.html；data/external/issue19-school-source-live-20260629/ccut-2026-jilin-plan.html",
+        "结构化输出": "",
+        "湖北物理计划状态": "未取得2026湖北物理本科普通批计划",
+        "保真边界": "不能把吉林省计划或招生简章替代湖北招生计划",
+        "下一步": "继续搜索高校官网是否有分省总表、招生简章移动册或后续更新；若进入最终候选必须回第19期原页/湖北官方侧",
+    },
+    {
+        "抓取日期": "2026-06-29",
+        "院校代码": "C125",
+        "院校名称": "武汉轻工大学",
+        "机会队列类型": "O3-高收益缺源学校优先补源",
+        "自动补源结论": "官网入口和湖北考生提示入口均为前端应用壳；普通静态抓取未直接取得专业+人数明细",
+        "官方来源URL": "https://zsb.whpu.edu.cn/；https://zsb.whpu.edu.cn/page/detail/VFUSRX/178/11946/50727/8；https://zsb.whpu.edu.cn/page/detail/VFUSRX/178/11939/65999/8",
+        "本地留存文件": "data/external/issue19-school-source-live-20260629/whpu-zsb-app-shell.html；data/external/issue19-school-source-live-20260629/whpu-2026-plan-entry-shell.html；data/external/issue19-school-source-live-20260629/whpu-2026-hubei-fill-suggestion-shell.html",
+        "结构化输出": "",
+        "湖北物理计划状态": "未取得2026湖北物理本科普通批专业+人数明细；只确认存在官方H5入口线索",
+        "保真边界": "前端应用壳不可作为计划源；必须继续解析接口或改用原页/湖北官方侧核验",
+        "下一步": "优先用浏览器交互或解析H5接口；如不可得，最终候选逐项回第19期原页和湖北官方侧",
+    },
+    {
+        "抓取日期": "2026-06-29",
+        "院校代码": "C133",
+        "院校名称": "湖北师范大学",
+        "机会队列类型": "O3-高收益缺源学校优先补源",
+        "自动补源结论": "招生网普通抓取返回跳转登出页；信息公开网可取得2026本科招生章程但不含分省分专业计划",
+        "官方来源URL": "https://zsb.hbnu.edu.cn/；https://xxgk.hbnu.edu.cn/2026/0429/c3386a193786/page.htm；https://zhinengdayi.com/hbnu",
+        "本地留存文件": "data/external/issue19-school-source-live-20260629/hbnu-zsb-logout-shell.html；data/external/issue19-school-source-live-20260629/hbnu-2026-undergraduate-charter.html",
+        "结构化输出": "",
+        "湖北物理计划状态": "未取得2026湖北物理本科普通批计划；章程仅可核招生规则、信息发布入口和限制条款",
+        "保真边界": "章程不能替代分省分专业计划；必须继续找公开计划页或回原页/湖北官方侧",
+        "下一步": "继续搜索湖北师范大学招生计划公开页/API/PDF；进入最终候选时人工核原页和湖北官方侧",
+    },
+    {
+        "抓取日期": "2026-06-29",
+        "院校代码": "H026",
+        "院校名称": "浙江传媒学院",
+        "机会队列类型": "O3-高收益缺源学校优先补源",
+        "自动补源结论": "已留存招生网首页和信息公开网招考信息页；未找到2026湖北物理/理工专业+人数明细",
+        "官方来源URL": "https://zsw.cuz.edu.cn/；https://xxgk.cuz.edu.cn/xxgkml/zkxx.htm",
+        "本地留存文件": "data/external/issue19-school-source-live-20260629/cuz-zsw-home-20260629.html；data/external/issue19-school-source-live-20260629/cuz-xxgk-zkxx-20260629.html",
+        "结构化输出": "",
+        "湖北物理计划状态": "未取得2026湖北物理本科普通批计划；信息公开页当前主要可见2025/2024招考信息",
+        "保真边界": "入口和历史招考信息只能证明已查源，不能作为2026湖北计划明细辅证",
+        "下一步": "继续检索招生网动态接口、招生简章或后续分省计划；若进入候选，必须回第19期原页和湖北官方侧",
+    },
+    {
+        "抓取日期": "2026-06-29",
+        "院校代码": "K179",
+        "院校名称": "成都师范学院",
+        "机会队列类型": "O3-高收益缺源学校优先补源",
+        "自动补源结论": "已留存主站招生工作入口；未找到2026湖北物理专业+人数明细",
+        "官方来源URL": "https://www.cdnu.edu.cn/zjc/zsgz.htm；https://www.cdnu.edu.cn/",
+        "本地留存文件": "data/external/issue19-school-source-live-20260629/cdnu-zsgz-entry-20260629.html",
+        "结构化输出": "",
+        "湖北物理计划状态": "未取得2026湖北物理本科普通批计划",
+        "保真边界": "招生工作入口不能替代分省分专业招生计划",
+        "下一步": "用浏览器人工打开招生栏目或继续检索招生计划PDF/Excel/API；若进入候选，核第19期原页和湖北官方侧",
+    },
+    {
+        "抓取日期": "2026-06-29",
+        "院校代码": "H775",
+        "院校名称": "韶关学院",
+        "机会队列类型": "O3-高收益缺源学校优先补源",
+        "自动补源结论": "招生域名HTTPS访问失败；未找到可读的2026湖北计划官网页",
+        "官方来源URL": "https://zs.sgu.edu.cn/",
+        "本地留存文件": "",
+        "结构化输出": "",
+        "湖北物理计划状态": "未取得2026湖北物理本科普通批计划",
+        "保真边界": "不可访问入口不能作为计划辅证；只能记录查源失败",
+        "下一步": "改用浏览器、学校主站搜索或等待可访问；若进入候选，优先核第19期原页和湖北官方侧",
+    },
+    {
+        "抓取日期": "2026-06-29",
+        "院校代码": "F902",
+        "院校名称": "江苏理工学院",
+        "机会队列类型": "O0-冲突优先回页核验；O3-高收益缺源学校优先补源",
+        "自动补源结论": "招生网招生动态页可见官方发布的2026省外本科招生计划微信文章入口；当前环境未能读取微信正文明细",
+        "官方来源URL": "http://zs.jstu.edu.cn/5639/list.htm；https://mp.weixin.qq.com/s/-GH34DZnqSgWapAiTmokfg",
+        "本地留存文件": "data/external/issue19-school-source-live-20260629/jstu-zs-news-list-20260629.html",
+        "结构化输出": "",
+        "湖北物理计划状态": "招生网可证2026省外计划入口存在，但未自动取得湖北物理专业+人数明细",
+        "保真边界": "微信图文入口不能直接替代已结构化计划；必须人工打开/OCR或回第19期原页和湖北官方侧",
+        "下一步": "优先人工打开微信图文或截图OCR，重点核F902第19期计划数冲突和专业组边界",
+    },
+]
+
+
+def main():
+    with OUT_CSV.open("w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+        writer.writeheader()
+        writer.writerows(ROWS)
+
+    structured_rows = [row for row in ROWS if row["结构化输出"]]
+    summary = {
+        "status": "issue19_school_source_live_20260629_ledger_ready_not_final",
+        "row_count": len(ROWS),
+        "structured_output_row_count": len(structured_rows),
+        "structured_output_school_codes": [row["院校代码"] for row in structured_rows],
+        "no_hubei_physics_detail_row_count": len(ROWS) - len(structured_rows),
+        "usage_boundary": "高校官网源只用于double check、补缺线索和冲突发现；不得替代第19期原页、湖北官方系统或省招办计划。",
+        "output_table": str(OUT_CSV.relative_to(ROOT)),
+    }
+    OUT_SUMMARY.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {OUT_CSV}")
+    print(f"wrote {OUT_SUMMARY}")
+
+
+if __name__ == "__main__":
+    main()

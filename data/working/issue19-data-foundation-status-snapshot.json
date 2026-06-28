@@ -1,0 +1,120 @@
+{
+  "status": "issue19_data_foundation_status_snapshot_not_final",
+  "generated_date": "2026-06-29",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "usage_boundary": "用于回答数据基座推进状态、后续核验动作和人工协作范围；不确认字段事实，不生成最终志愿方案。",
+  "foundation": {
+    "source": "data/working/issue19-stable-foundation-v0-status-summary.json；data/exports/issue19-stable-foundation-*-browser.csv",
+    "school_count": 1103,
+    "group_count": 3329,
+    "major_detail_count": 13736,
+    "field_verification_task_count": 41208,
+    "pdf_page_count": 231,
+    "page_side_count": 462
+  },
+  "first_closure": {
+    "source": "data/exports/issue19-closure-and-shortlist-v1-summary.json；data/working/issue19-stable-foundation-first-closure-*-summary.json",
+    "page_side_count": 37,
+    "detail_task_count": 206,
+    "pdf_review_pending_count": 206,
+    "hubei_official_review_pending_count": 206,
+    "school_support_required_count": 180,
+    "double_review_required_count": 91,
+    "field_writeback_ready_count": 0,
+    "lane_counts": {
+      "E0-冲突异常双人优先核验": 18,
+      "E1-计划数补缺或偏大优先核验": 11,
+      "E2-官网未匹配专业名归属核验": 8
+    },
+    "manual_review_lane_counts": {
+      "F0-PDFOCR与高校辅证冲突双人核页": 26,
+      "F1-机器坐标候选辅助核页": 49,
+      "F2-PDFOCR候选人工确认": 77,
+      "F4-无候选人工看图": 54
+    },
+    "field_counts": {
+      "专业计划数；学费": 36,
+      "专业计划数；学费；再选科目": 55,
+      "学费": 12,
+      "专业计划数": 79,
+      "再选科目": 20,
+      "学费；再选科目": 2,
+      "待人工判定字段": 2
+    }
+  },
+  "school_source": {
+    "source": "data/exports/issue19-closure-and-shortlist-v1-summary.json；data/working/issue19-school-source-live-20260629-ledger.csv",
+    "task_count": 80,
+    "unique_school_count": 36,
+    "opportunity_type_counts": {
+      "O3-高收益缺源学校优先补源": 7,
+      "O0-冲突优先回页核验": 17,
+      "O1-官网补缺候选回页核验": 8,
+      "O2-官网专业名未匹配先补规则": 12,
+      "O5-已有来源补结构化": 10,
+      "O4-有入口但缺结构化源": 8,
+      "O7-强辅证抽检": 11,
+      "O6-继续搜索高校官网计划源": 2,
+      "O8-章程规则源只核限制": 5
+    },
+    "live_source_attempt_count": 8,
+    "live_structured_hubei_plan_school_count": 1,
+    "live_structured_hubei_plan_schools": [
+      {
+        "院校代码": "K487",
+        "院校名称": "西安航空学院",
+        "官方来源URL": "https://zb.xaau.edu.cn/info/1039/2831.htm",
+        "湖北物理计划状态": "官网PDF抽取湖北物理/理工类6条合计15人；第19期K487计划数字段均待原页核验"
+      }
+    ]
+  },
+  "round4_shortlist": {
+    "source": "data/exports/issue19-closure-and-shortlist-v1-summary.json",
+    "source_priority_group_count": 120,
+    "selected_group_count": 55,
+    "paused_group_count": 65,
+    "selected_major_detail_count": 458,
+    "gradient_counts": {
+      "保底观察": 1,
+      "稳妥观察": 24,
+      "稳冲观察": 18,
+      "冲刺观察": 12
+    },
+    "major_acceptance_counts": {
+      "可作为调剂了解-未命中偏好但暂未见硬排除": 267,
+      "优先了解-命中当前专业方向": 147,
+      "待核后判断-有体检/语种/单科/专项等限制": 44
+    }
+  },
+  "gates": {
+    "source": "data/exports/issue19-closure-and-shortlist-v1-summary.json",
+    "field_writeback_allowed_count": 0,
+    "recommendation_basis_allowed_count": 0,
+    "final_available_count": 0
+  },
+  "current_assessment": {
+    "what_is_solid": [
+      "第19期全量OCR结构化底稿已经可以浏览、筛选、回溯页码版面列。",
+      "专业组和逐专业明细已经能用于候选发现、风险分层和核验排队。",
+      "第一闭环已经压缩到37个页列、206条关键字段任务。"
+    ],
+    "what_is_not_solid": [
+      "计划数、学费、再选科目等字段尚未完成PDF原页和湖北官方侧闭环。",
+      "高校官网辅证只允许作为double check和冲突发现，不能替代湖北官方计划。",
+      "字段写回、志愿推荐依据和最终可用门禁当前均为0。"
+    ],
+    "assistant_can_continue": [
+      "继续自动搜索高校官网2026湖北物理招生计划源，并沉淀来源URL、留存文件、结构化抽取和冲突摘要。",
+      "继续把第一闭环队列拆成更小的人工核页批次，优先E0冲突、E1计划数补缺或偏大、E2官网未匹配。",
+      "继续为55个重点专业组展开完整专业、标记调剂风险和家庭接受度初判。",
+      "继续生成/更新Excel浏览表、公开状态账本、校验脚本和GitHub同步。"
+    ],
+    "user_needed": [
+      "在最终候选组收窄后，按我给出的页码版面键核第19期PDF或纸质原页。",
+      "能登录湖北官方系统时，对入围院校专业组逐项核专业代号、专业名称、计划数、学费、选科、备注和组边界。",
+      "对需要双人复核的冲突页列做第二遍确认，尤其是左右栏串读、计划数异常、官网与OCR不一致处。",
+      "继续补充家庭无法接受专业、预算、地域、读研/就业/师范意愿等决策偏好。"
+    ]
+  }
+}

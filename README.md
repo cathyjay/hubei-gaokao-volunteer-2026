@@ -50,6 +50,7 @@
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：第 19 期 OCR 样本学校与学校官网 double check 方案。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座、候选复核工作台和保真机制。
 - `docs/STABLE_FOUNDATION_V0_STATUS.md`：稳定数据基座 V0 状态，明确“可用于候选发现、不可用于定稿依据”的收口口径。
+- `docs/DATA_FOUNDATION_CURRENT_STATUS.md`：数据基座当前推进状态、剩余阻断、我可继续推进的事项和需要家庭配合的事项。
 - `docs/DATA_BROWSER_AND_VERIFICATION.md`：结构化数据浏览入口、Excel 工作簿、快速核验抽样和升级规则。
 - `docs/CLOSURE_AND_SHORTLIST_V1.md`：字段闭环与重点核验 V1，把第一闭环 37 个页列、206 条任务、80 个高校官网辅证动作、Round4 55 个重点核验组和完整组内专业合到一个入口。
 - `docs/ROUND1_CANDIDATE_SELECTION.md`：第一轮历史候选专业组选择、精选 80、历史优先城市观察和家庭讨论动作。
@@ -83,6 +84,7 @@
 - 第四轮城市冲稳保候选：`data/exports/issue19-round4-city-gradient.xlsx`。当前优先入口，直接从稳定底座、教育部学校属性表和三年投档线旁挂表重建；主表 328 个 H1-H4 专业组，优先讨论 120 组，H0 历史待补和 H5 高冲暂缓均单列附录。
 - 第四轮 5 万内中外合作/高收费专项：`data/exports/issue19-round4-50k-coop-city-gradient.xlsx`。Round4 平行专项入口，允许公办中外合作/国际合作/高收费项目单独讨论；主表 21 个 H1-H4 专业组，H0 38 组、H5 51 组、费用待核或超 5 万 165 组均单列附录。
 - 字段闭环与重点核验 V1：`data/exports/issue19-closure-and-shortlist-v1.xlsx`。当前新增推进入口，把第一闭环 37 个页列、206 条逐任务、36 所学校 80 个高校官网辅证动作、2026-06-29 live 补源尝试、Round4 55 个重点核验组和 458 条完整组内专业明细放在同一工作簿；全部仍为核验入口，不作为定稿依据。
+- 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 本科普通批志愿草表 V1：`data/exports/issue19-volunteer-table-v1-draft.xlsx`。基于第二轮更新偏好候选生成，用于把 45 个院校专业组、460 条专业选择明细拆成冲刺、稳冲、稳妥和保底、高费专项批次，逐组讨论 6 个专业草案、完整组内调剂、原页核验和章程核验；全部行仍为讨论草案，不作为定稿依据。
 
 这些工作簿都不是最终志愿方案。进入家庭讨论或最终排序前，仍必须核第 19 期原页、湖北官方系统或省招办计划、高校官网/章程、完整专业组和调剂风险。
@@ -127,6 +129,8 @@ python3 scripts/build_issue19_moe_school_attribute_major_detail.py
 python3 scripts/build_issue19_hubei_official_query_key_collision_ledger.py
 python3 scripts/build_issue19_foundation_stability_dashboard.py
 python3 scripts/build_issue19_foundation_stabilization_major_detail_tasks.py
+python3 scripts/build_issue19_school_source_live_20260629_ledger.py
+python3 scripts/build_issue19_data_foundation_status_snapshot.py
 python3 scripts/build_issue19_official_public_entry_status_snapshot.py
 python3 scripts/build_issue19_official_public_entry_live_recheck.py
 python3 scripts/build_issue19_official_unavailable_sampling_gates.py

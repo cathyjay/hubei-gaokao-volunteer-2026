@@ -1,0 +1,11 @@
+{
+  "status": "issue19_school_source_live_20260629_ledger_ready_not_final",
+  "row_count": 8,
+  "structured_output_row_count": 1,
+  "structured_output_school_codes": [
+    "K487"
+  ],
+  "no_hubei_physics_detail_row_count": 7,
+  "usage_boundary": "高校官网源只用于double check、补缺线索和冲突发现；不得替代第19期原页、湖北官方系统或省招办计划。",
+  "output_table": "data/working/issue19-school-source-live-20260629-ledger.csv"
+}

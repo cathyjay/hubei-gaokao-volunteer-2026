@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<title>首页</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<meta name="viewport" content="width=1440">
+<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge"/>
+<link rel="shortcut icon" href="/static/front/cuz/basic/images/change_doc/fun/logo.ico" type="image/x-icon">
+<link rel="stylesheet" href="/static/front/cuz/basic/css/cms.min.css"/>
+<style type="text/css">
+.page_index .sec_3{
+	background : none;
+}
+.page_index .sec_5{
+	background-image : none;
+}
+</style>
+<script type="text/javascript" src="/static/front/cuz/basic/js/j3.js"></script>
+<!--[if lt IE 9]>
+	<script type="text/javascript" src="/static/front/cuz/basic/js/html5shiv.js"></script>
+	<script type="text/javascript" src="/static/front/cuz/basic/js/j1.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="/static/front/cuz/basic/js/init.js"></script>
+<script type="text/javascript" src="/static/front/cuz/basic/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="/static/front/cuz/basic/js/jquery.placeholder.min.js"></script>
+<script type="text/javascript" src="/static/front/cuz/basic/js/artTemplate.js"></script>
+<script type="text/javascript" src="/static/front/cuz/basic/js/util.js"></script>
+<script type="text/javascript" src="/static/front/cuz/basic/js/tplt.js"></script>
+<script type="text/javascript" src="/static/front/cuz/basic/js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="/static/front/cuz/basic/css/plugs/swiper.css"/>
+	<script type="text/javascript" src="/static/front/cuz/basic/js/swiper.js"></script>
+	<script type="text/javascript" src="/static/front/cuz/basic/js/json2.js"></script>
+	<script type="text/javascript" src="/static/front/cuz/basic/plugins/ckplayer/ckplayer.min.js"></script>
+	<script type="text/javascript">
+		template.helper('toSub',function(html,len){
+			len = len||0;
+			len = parseInt(len);
+			var txt = $('<div/>').html(html).text();
+			if(txt.length < len){
+				return txt;
+			}else{
+				return txt.substring(0,len)+'...';
+			}
+		});
+		function newAjax(categoryId,tpltId,arr,newSize,cal){
+			var param = {
+				categoryId: categoryId,
+				pageSize: newSize
+			};
+			$.ajax({
+				url: $.url('f/newsCenter/ajax_category_article_list'),
+				async: false,
+				type: 'POST',
+				data: param,
+				success: function(res){
+					if(res.state == 1){
+						var category = $.out(res.data[0],'category');
+						var list = $.out(res.data[0],'contentList')||[];
+						tplt.draw(tpltId,{
+							category: category,
+							list: list
+						},arr);
+						if(cal){
+							cal(category,list);
+						}
+					}
+				}
+			});
+		}
+	</script>
+<!--网站首页设置成灰色
+<style type="text/css">
+html {
+filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
+-webkit-filter: grayscale(100%);}
+</style>
+-->
+</head>
+<body>
+	<div class="wrapper page_index">
+		<div id="headerPlace"></div>
+		<script type="text/html" id="header">
+			<div class="header">
+				<div class="l_con">
+					<div class="left">
+						<a class="logo" href="{{go_home()}}"></a>
+					</div>
+					<div class="right">
+						
+						<div class="menus">
+							<ul>
+								{{each categories as $nav}}
+									{{if $index < 7 }}
+										<li>
+											<a href="{{if isEmpty($nav.module)}}javascript:void(0);{{else}}{{$nav.url}}{{/if}}">{{$nav.name}}</a>
+											{{if !isEmpty($nav.childList)}}
+												<div class="subs">
+													<ul>
+														{{each $nav.childList as $subNav $ind}}
+															<li><a href="{{$subNav.url}}">{{$subNav.name}}</a></li>
+														{{/each}}
+													</ul>
+												</div>
+											{{/if}}
+										</li>
+									{{/if}}
+								{{/each}}
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
+		<script type="text/javascript">
+			window.fLinks = [];
+			window.university = {};
+			window.cdhlinks = [];
+			window.categories = [];
+			$.ajax({
+				url: $.url('f/newsCenter/ajax_get_category_and_link_list'),
+				async: false,
+				type: 'POST',
+				success: function(res){
+					if( res.state == 1 ){
+						categories = $.out(res,'data.categories')||[];
+						tplt.draw('header',{categories: categories});
+						window.fLinks = $.out(res,'data.links')||[];
+						window.university = $.out(res,'data.university')||{};
+						window.cdhlinks = $.out(res,'data.cdhlinks')||[];
+					}
+				}
+			});
+		</script>
+		<div id="onePlace"></div>
+		<script type="text/html" id="one">
+			{{if !isEmpty(list)}}
+				{{if list.length == 1}}
+					{{each list}}
+						<div class="banner">
+							<a class="bannerImg" href="{{out($value,'link','javascript:void(0);')}}">
+								<img src="{{out($value,'imageSrc','/static/front/cuz/basic/images/cms/index/banner1.png')}}"/>
+							</a>
+						</div>
+					{{/each}}
+				{{/if}}
+				{{if list.length > 1}}
+					<div class="swiper-container banner">
+						<ul class="swiper-wrapper">
+							{{each list}}
+								<li class="swiper-slide">
+									<a href="{{out($value,'link','javascript:void(0);')}}">
+										<img src="{{out($value,'imageSrc','/static/front/cuz/basic/images/cms/index/banner1.png')}}"/>
+									</a>
+								</li>
+							{{/each}}
+						</ul>
+						<div class="pagination"></div>
+					</div>
+				{{/if}}
+			{{/if}}
+		</script>
+
+		<script type="text/javascript">
+			$.ajax({
+				url: $.url('f/newsCenter/ajax_lbt_list'),
+				async: false,
+				type: 'POST',
+				data: {
+					category: 1
+				},
+				success: function(res){
+					if( res.state == 1 ){
+						var list = $.out(res,'data')||[];
+						tplt.draw('one',{ list: list });
+						oneAfter();
+					}
+				}
+			});
+			function oneAfter(){
+				$(function(){
+					var swiper = new Swiper('.banner.swiper-container', {
+						slidesPerView: 1,
+						loop: true,
+						autoplay: 5000
+					});
+				});
+			}
+		</script>
+		<div id="xgljPlace"></div>
+		<script type="text/html" id="xglj">
+			<div class="fun_menu">
+				<div class="container">
+					<ul>
+						{{each list}}
+							{{if $index < 4}}
+								<li class="l{{$index+1}}">
+									<a href="{{$value.url}}">
+										<span class="img"></span>
+										<span class="txt">{{$value.txt}}</span>
+									</a>
+								</li>
+							{{/if}}
+						{{/each}}
+					</ul>
+				</div>
+			</div>
+		</script>
+		<script type="text/javascript">
+			tplt.draw('xglj',{list: window._home.xglj});
+		</script>
+		<div id="tzggPlace"></div>
+		<script type="text/html" id="tzgg">
+			<div class="sec_3">
+				<div class="container">
+					<div class="m_tit">
+						<div class="tit_con">
+							<span class="ca">{{out(category,'name','通知公告');}}</span>
+							<span class="en">{{out(category,'ename','NOTICE');}}</span>
+						</div>
+						<a class="see_more" href="{{out(category,'url','javascript:void(0);')}}">更多&nbsp;></a>
+					</div>
+					<div class="con">
+						<ul class="list">
+							{{each list}}
+								{{if $index !=0 }}
+									<li>
+										<div class="tim">
+											<span class="date">{{dateFormate($value.releaseDate,'MM-dd')}}</span>
+											<span class="line"></span>
+											<span class="year">{{dateFormate($value.releaseDate,'yyyy')}}</span>
+										</div>
+										<div class="tit">
+											<a href="{{out($value,'url','javascript:void(0);')}}">
+												{{if $value.weight == '999'}}
+													{{toSub(out($value,'title','###'),32)}}
+													<div class="set_top"></div>
+												{{else}}
+													{{out($value,'title','###')}}
+												{{/if}}
+											</a>
+										</div>
+									</li>
+								{{/if}}
+							{{/each}}
+						</ul>
+						{{if !isEmpty(list)}}
+							<a href="{{out(list,'0.url','javascript:void(0);')}}" class="n_strong">
+								<div class="img">
+									<div style="background-image: url('{{out(list,'0.imageSrc','/static/front/cuz/basic/images/cms/index/img_1.png')}}');"></div>
+								</div>
+								<div class="n_con">
+									<div class="tit">
+										{{out(list,'0.title','###')}}
+									</div>
+									<div class="desc">
+										{{toSub(out(list,'0.description','###'),'39')}}
+									</div>
+									<div class="tim">
+										{{dateFormate(list[0].releaseDate,'yyyy-MM-dd')}}
+									</div>
+								</div>
+							</a>
+						{{/if}}
+					</div>
+				</div>
+			</div>
+		</script>
+		<script type="text/javascript">
+			newAjax(window._home.tzgg.categoryId,'tzgg','#tzggPlace',8);
+		</script>
+
+		<div class="sec_4">
+			<div class="container">
+				<div id="zszxPlace"></div>
+				<script type="text/html" id="zszx">
+					<div class="module_1">
+						<div class="m_tit">
+							<span class="ca">{{out(category,'name','招生资讯');}}</span>
+							<span class="en">{{out(category,'ename','NEWS');}}</span>
+							<a class="see_more" href="{{out(category,'url','javascript:void(0);')}}">更多&nbsp;></a>
+						</div>
+						<div class="con">
+							{{if !isEmpty(list)}}
+								<ul class="strong_list">
+									{{each list}}
+										{{if $index==0||$index==1}}
+											<li>
+												<a href="{{out($value,'url','javascript:void(0);')}}">
+													<div class="img">
+														<div style="background-image: url('{{out($value,'imageSrc','/static/front/cuz/basic/images/cms/index/img_' + ($index+2) +'.png')}}');"></div>
+													</div>
+													<div class="tit">
+														{{out($value,'title','###')}}
+													</div>
+													<div class="tim">
+														{{dateFormate($value.releaseDate,'yyyy-MM-dd')}}
+													</div>
+												</a>
+											</li>
+										{{/if}}
+									{{/each}}
+								</ul>
+							{{/if}}
+							<ul class="list">
+								{{each list}}
+									{{if $index!=0&&$index!=1}}
+										<li>
+											<a href="{{out($value,'url','javascript:void(0);')}}">
+												<span class="date">{{dateFormate($value.releaseDate,'MM-dd')}}</span>
+												<span class="tit">{{out($value,'title','###')}}</span>
+											</a>
+										</li>
+									{{/if}}
+								{{/each}}
+							</ul>
+						</div>
+					</div>
+				</script>
+				<script type="text/javascript">
+					newAjax(window._home.zszx.categoryId,'zszx','#zszxPlace',6);
+				</script>
+				<div id="bmxzPlace"></div>
+				<script type="text/html" id="bmxz">
+					<div class="module_2">
+						<div class="m_tit">
+							<span class="ca">{{out(category,'name','报名须知');}}</span>
+							<span class="en">{{out(category,'ename','NOTICE');}}</span>
+							<a class="see_more" href="{{out(category,'url','javascript:void(0);')}}">更多&nbsp;></a>
+						</div>
+						<div class="con">
+							<ul class="list">
+								{{each list}}
+									<li>
+										<div class="date">
+											<span class="day">{{dateFormate($value.releaseDate,'MM-dd')}}</span>
+											<span class="year">{{dateFormate($value.releaseDate,'yyyy')}}</span>
+										</div>
+										<div class="tit">
+											<a href="{{out($value,'url','javascript:void(0);')}}">
+												{{out($value,'title','###')}}
+											</a>
+										</div>
+									</li>
+								{{/each}}
+							</ul>
+						</div>
+					</div>
+				</script>
+				<script type="text/javascript">
+					newAjax(window._home.bmxz.categoryId,'bmxz','#bmxzPlace',6);
+				</script>
+			</div>
+		</div>
+
+		<div class="sec_5">
+			<div class="container">
+				<div id="zyfcPlace"></div>
+				<script type="text/html" id="zyfc">
+					<div class="module_3">
+						<div class="m_tit">
+							<span class="ca">{{out(category,'name','专业风采');}}</span>
+							<span class="en">{{out(category,'ename','SPECIALTY');}}</span>
+							<a class="see_more" href="{{out(category,'url','javascript:void(0);')}}">更多&nbsp;></a>
+						</div>
+						<div class="con">
+							<ul class="list">
+								{{each list}}
+									<li>
+										<a href="{{out($value,'url','javascript:void(0);')}}">
+											<div class="img">
+												<div style="background-image: url('{{out($value,'imageSrc','/static/front/cuz/basic/images/cms/index/img_'+($index+5)+'.png')}}');">
+													<i class="icon_play"></i>
+												</div>
+											</div>
+											<div class="right">
+												<div class="tit">
+													{{out($value,'title','###')}}
+												</div>
+												<div class="desc">
+													{{toSub(out($value,'description','###'),'50')}}
+												</div>
+												<div class="info">
+													<div class="ori">{{out($value,'publisher','招生办公室')}}</div>
+													<div class="tim">{{dateFormate($value.releaseDate,'yyyy-MM-dd')}}</div>
+												</div>
+											</div>
+										</a>
+									</li>
+								{{/each}}
+							</ul>
+						</div>
+					</div>
+				</script>
+				<script type="text/javascript">
+					newAjax(window._home.zyfc.categoryId,'zyfc','#zyfcPlace',2);
+				</script>
+				<div id="lqyzPlace"></div>
+				<script type="text/html" id="lqyz">
+					<div class="module_4">
+						<div class="m_tit">
+							<span class="ca">{{out(category,'name','录取原则');}}</span>
+							<span class="en">{{out(category,'ename','ADMISSION');}}</span>
+							<a class="see_more" href="{{out(category,'url','javascript:void(0);')}}">更多&nbsp;></a>
+						</div>
+						<div class="m_con">
+							<ul class="list">
+								{{each list}}
+									<li>
+										<div class="date">
+											<div class="day">{{dateFormate($value.releaseDate,'dd')}}</div>
+											<div class="year">{{dateFormate($value.releaseDate,'yyyy/MM')}}</div>
+										</div>
+										<div class="tit">
+											<a href="{{out($value,'url','javascript:void(0);')}}">
+												{{out($value,'title','###')}}
+											</a>
+										</div>
+									</li>
+								{{/each}}
+							</ul>
+						</div>
+					</div>
+				</script>
+				<script type="text/javascript">
+					newAjax(window._home.lqyz.categoryId,'lqyz','#lqyzPlace',5);
+				</script>
+			</div>
+		</div>
+		<div id="footerPlace"></div>
+<script type="text/html" id="footer">
+	<div class="footer">
+		<div class="info">
+			<div class="l_con">
+				<div class="chunk_1">
+					<div class="code1" style="width:100px;">
+						<div class="code_img" style="margin-left:5px;"></div>
+						<div class="txt" style="width:100px;">浙江传媒学院</div>
+						<div class="txt" style="margin-top:2px;width:100px;">本科招生公众号</div>
+						
+					</div>
+					<div class="code2">
+						<div class="code_img"></div>
+						<div class="txt">浙江传媒学院</div>
+					</div>
+				</div>
+				<div class="chunk_2">
+					<div class="tit">相关链接</div>
+					<div class="con" id="fLinksPlace">
+						<div class="list_1">
+							{{each fLinks}}
+								{{if $index < 6}}
+									<a href="{{$value.url}}">{{$value.title}}</a>
+								{{/if}}
+							{{/each}}
+						</div>
+					</div>
+				</div>
+				<div class="chunk_3">
+					<div class="tit">联系方式</div>
+					<div class="con">
+						<a href="javascript:void(0);">
+							<div class="logo"></div>
+						</a>
+						{{if !isEmpty(university.phone)}}
+							电话：
+							{{each university.phone}}
+								{{$value}}
+								{{if $index != university.phone.length-1}},{{/if}}
+							{{/each}}<br>
+						{{/if}}
+						{{if !isEmpty(university.fax)}}
+							传真：
+							{{each university.fax}}
+								{{$value}}
+								{{if $index != university.fax.length-1}},{{/if}}
+							{{/each}}<br>
+						{{/if}}
+						{{if !isEmpty(university.email)}}
+							邮箱：
+							{{each university.email}}
+								{{$value}}
+								{{if $index != university.email.length-1}},{{/if}}
+							{{/each}}<br>
+						{{/if}}
+						{{if !isEmpty(university.address)}}
+							{{each university.address}}
+								{{$value}}<br>
+							{{/each}}
+						{{/if}}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="bottom">
+			{{university.copyright}}
+		</div>
+	</div>
+</script>
+<script type="text/javascript">
+	tplt.draw('footer',{
+		fLinks: window.fLinks,
+		university: window.university
+	});
+</script>
+	</div>
+	<script type="text/javascript">
+		$(function(){
+			$('body').on('click','.sec_3 .tab_tit .item',function(){
+				if($(this).hasClass('active')){
+					return false;
+				}
+				$(this).parent().find('.active').removeClass('active');
+				var ind = $(this).addClass('active').index('.item');
+				$('.sec_3 .tab_page>li').hide().eq(ind).fadeIn();
+			});
+			$('.comp_video').each(function(){
+				var video = {
+					container: '#' + $(this).attr('id'), //容器的ID或className
+					variable: 'player', //播放函数名称
+					loop: false, //播放结束是否循环播放
+					autoplay: false,//是否自动播放
+					poster: $(this).data('poster'), //封面图片
+					video: [
+						[$(this).data('url'), 'video/mp4', '中文标清', 0]
+					]
+				};
+				var player = new ckplayer(video);
+			});
+		});
+	</script>
+</body>
