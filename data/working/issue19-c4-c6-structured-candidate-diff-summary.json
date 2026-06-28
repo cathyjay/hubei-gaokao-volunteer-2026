@@ -32,20 +32,20 @@
   "packet_with_candidate_diff_count": 20,
   "detail_match_status_counts": {
     "no_school_source": 311,
-    "matched": 232,
-    "unmatched": 55,
+    "matched": 237,
+    "unmatched": 50,
     "possible_match": 3
   },
   "detail_plan_check_counts": {
-    "not_covered": 366,
-    "ocr_plan_missing_official_available": 113,
+    "not_covered": 361,
+    "ocr_plan_missing_official_available": 114,
     "mismatch": 25,
-    "match": 97
+    "match": 101
   },
   "source_layer_counts": {
-    "无匹配结构化官网源": 366,
-    "新增C4C6高校官网源": 27,
-    "既有B0B1留存官网源": 208
+    "无匹配结构化官网源": 361,
+    "新增C4C6高校官网源": 28,
+    "既有B0B1留存官网源": 212
   },
   "priority_counts": {
     "D5-有入口但仍缺结构化计划源": 8,
@@ -70,15 +70,15 @@
     "X0-C6无官网计划入口需搜索|D0-存在计划数冲突需优先核PDF原页": 1,
     "X1-C6有入口待获取湖北计划|D1-新增高校官网源已命中需抽检核页": 1
   },
-  "plan_match_candidate_count": 97,
-  "ocr_plan_missing_official_available_count": 113,
+  "plan_match_candidate_count": 101,
+  "ocr_plan_missing_official_available_count": 114,
   "plan_mismatch_candidate_count": 25,
   "no_structured_source_detail_count": 311,
-  "extra_source_matched_detail_count": 27,
-  "extra_source_plan_match_count": 12,
+  "extra_source_matched_detail_count": 28,
+  "extra_source_plan_match_count": 13,
   "extra_source_plan_mismatch_count": 6,
-  "private_detail_csv_sha256": "7094e9c936c95933be1a7827a965f6ca4c6c4df9b508bca1fd1318bc45716075",
-  "private_index_csv_sha256": "d08e9dbbd2c8ecf479beac59aba4555b166c5b5839929eadd2cccd1a1d62c2c7",
+  "private_detail_csv_sha256": "d4e716b87b5b8268646eae6d12c5eba9f7e6fab33e800c13025fb2151521aa02",
+  "private_index_csv_sha256": "83095c1613c2eac166365d50c9c06d2e79923c58a2a16e7c0b29b72b88e74992",
   "field_writeback_allowed_count": 0,
   "recommendation_basis_allowed_count": 0,
   "school_major_suggestion_allowed_count": 0,

@@ -5,6 +5,7 @@ import json
 import re
 import zipfile
 from collections import Counter, defaultdict
+from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -217,6 +218,7 @@ def normalize_major_name(value):
     text = str(value or "")
     text = re.sub(r"[A-Z]\d{3}\s*[\u4e00-\u9fff（）()]+$", "", text)
     text = text.replace("院校专业组及专业代号", "")
+    text = text.replace("英（", "英语（")
     replacements = {
         "菩英": "菁英",
         "入工智能": "人工智能",
@@ -226,10 +228,17 @@ def normalize_major_name(value):
         "士木": "土木",
         "工得": "工程",
         "浓车": "汽车",
+        "汔车": "汽车",
         "项自": "项目",
         "南务": "商务",
         "國译": "翻译",
         "国译": "翻译",
+        "葵语": "英语",
+        "语盲": "语言",
+        "华学": "化学",
+        "顶测": "预测",
+        "准碩": "准确",
+        "益计": "会计",
         "〉": ")",
         "〈": "(",
     }
@@ -261,6 +270,26 @@ def missing_key_qualifiers(target, official_name):
         for qualifier in KEY_MAJOR_QUALIFIERS
         if qualifier in target and qualifier not in official_name
     ]
+
+
+def compact_for_similarity(value):
+    text = re.sub(r"(要求|高考|外语|单科|成绩|不得|低于|满分|语种|英语|法语)", "", value)
+    text = re.sub(r"(办学地点|校区|色弱|色盲|不予录取|各种颜色|导线|按键|信号灯|几何图形)", "", text)
+    text = re.sub(r"(国际注册|课程培训费|学费|转入|其他专业)", "", text)
+    return text
+
+
+def similarity_score(target, official_name):
+    target_compact = compact_for_similarity(target)
+    official_compact = compact_for_similarity(official_name)
+    if len(target_compact) < 4 or len(official_compact) < 4:
+        return 0
+    ratio = SequenceMatcher(None, target_compact, official_compact).ratio()
+    if ratio >= 0.92:
+        return 82
+    if ratio >= 0.86 and (target_compact[:2] == official_compact[:2]):
+        return 72
+    return 0
 
 
 def has_next_school_noise(text):
@@ -906,7 +935,13 @@ def best_match(detail, official_rows_by_school):
         elif len(target) >= 4 and target[:4] in official_name:
             score, method = 65, "prefix_possible_match"
         else:
-            score, method = 0, "unmatched"
+            fuzzy_score = similarity_score(target, official_name)
+            if fuzzy_score >= 80:
+                score, method = fuzzy_score, "fuzzy_ocr_similarity_match"
+            elif fuzzy_score >= 60:
+                score, method = fuzzy_score, "fuzzy_ocr_similarity_possible_match"
+            else:
+                score, method = 0, "unmatched"
         if score > best_score or (score == best_score and best and len(official_name) > len(normalize_major_name(best["专业名称"]))):
             best = official
             best_score = score

@@ -48,6 +48,7 @@
 - `docs/ISSUE19_PDF_EXTRACTION_PLAN.md`：第 19 期 PDF 私有留存、OCR 提取和数据保存方案。
 - `docs/ISSUE19_SAMPLE_DOUBLE_CHECK.md`：第 19 期 OCR 样本学校与学校官网 double check 方案。
 - `docs/ISSUE19_FULL_ADMISSION_PLAN_DRAFT.md`：第 19 期全量招生计划 OCR 底座、候选复核工作台和保真机制。
+- `docs/STABLE_FOUNDATION_V0_STATUS.md`：稳定数据基座 V0 状态，明确“可用于候选发现、不可用于定稿依据”的收口口径。
 - `docs/CANDIDATE_POOL_V1.md`：第一版可讨论候选池，全部待 2026 计划核验。
 - `docs/SCHOOL_CROSSCHECK_SOURCES.md`：高校官网招生计划交叉校验来源。
 - `docs/DECISIONS.md`：每天的决策日志。
@@ -135,6 +136,7 @@ python3 scripts/build_issue19_p0_immediate_page_execution_progress_ledger.py
 python3 scripts/build_issue19_major_evidence_level_routing.py
 python3 scripts/build_issue19_stable_foundation_screening_views.py
 python3 scripts/build_issue19_stable_foundation_group_readiness_bridge.py
+python3 scripts/build_issue19_stable_foundation_v0_status.py
 python3 scripts/build_issue19_stable_foundation_next_closure_workbench.py
 python3 scripts/build_issue19_stable_foundation_school_source_refresh_queue.py
 python3 scripts/build_issue19_school_source_opportunity_queue.py

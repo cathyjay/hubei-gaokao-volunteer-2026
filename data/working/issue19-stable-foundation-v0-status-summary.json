@@ -1,0 +1,43 @@
+{
+  "status": "issue19_stable_foundation_v0_candidate_discovery_ready_not_final",
+  "generated_by": "build_issue19_stable_foundation_v0_status.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output_table": "data/working/issue19-stable-foundation-v0-status.csv",
+  "row_count": 6,
+  "stable_foundation_v0_candidate_discovery_ready": true,
+  "stable_foundation_v0_final_recommendation_ready": false,
+  "full_ocr_major_rows": 13736,
+  "full_ocr_group_rows": 3329,
+  "full_ocr_school_rows": 1103,
+  "zero_detail_group_count": 40,
+  "machine_signal_major_count": 678,
+  "machine_observation_group_count": 1666,
+  "preference_group_count": 722,
+  "first_closure_task_count": 206,
+  "first_closure_page_side_count": 37,
+  "field_writeback_ready_count": 0,
+  "field_fact_manual_confirmed_field_count": 0,
+  "pdf_review_pending_count": 13736,
+  "hubei_official_review_pending_count": 13736,
+  "school_source_opportunity_count": 80,
+  "school_source_opportunity_school_count": 36,
+  "c4_c6_plan_match_candidate_count": 101,
+  "c4_c6_plan_mismatch_candidate_count": 25,
+  "final_available_count": 0,
+  "next_stage_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "release_decision": "V0可用于候选发现和排序核验优先级；不可用于定稿方案依据、字段写回或替代湖北官方计划。",
+  "fastest_path": [
+    "停止全库无限扩源，锁定V0用于候选发现。",
+    "按家庭偏好和分数排名筛出专业组观察池。",
+    "只对入围专业组做完整专业组、字段事实、调剂和章程限制100%核验。",
+    "志愿定稿方案必须在入围组核验完成后生成。"
+  ],
+  "hard_boundaries": {
+    "official_plan_replacement_allowed": false,
+    "field_writeback_allowed": false,
+    "recommendation_basis_allowed": false,
+    "school_major_suggestion_allowed": false
+  }
+}

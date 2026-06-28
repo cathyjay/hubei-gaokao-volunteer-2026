@@ -21162,7 +21162,7 @@ def main():
         == ["C125", "F582", "C133", "C108", "H026", "A197", "K486", "H945", "K465", "K753"]
         and school_source_opportunity_summary.get("total_involved_major_detail_count") == 854
         and school_source_opportunity_summary.get("total_c4c6_no_structured_source_detail_count") == 311
-        and school_source_opportunity_summary.get("total_c4c6_candidate_diff_detail_count") == 235
+        and school_source_opportunity_summary.get("total_c4c6_candidate_diff_detail_count") == 240
         and school_source_opportunity_summary.get("final_available_count") == 0
         and school_source_opportunity_summary.get("next_stage_available_count") == 0
         and school_source_opportunity_summary.get("recommendation_basis_allowed_count") == 0
@@ -22243,20 +22243,20 @@ def main():
         and c4_c6_diff_summary.get("packet_with_candidate_diff_count") == 20
         and c4_c6_diff_private_match_counts == Counter({
             "no_school_source": 311,
-            "matched": 232,
-            "unmatched": 55,
+            "matched": 237,
+            "unmatched": 50,
             "possible_match": 3,
         })
         and c4_c6_diff_private_plan_counts == Counter({
-            "not_covered": 366,
-            "ocr_plan_missing_official_available": 113,
+            "not_covered": 361,
+            "ocr_plan_missing_official_available": 114,
             "mismatch": 25,
-            "match": 97,
+            "match": 101,
         })
         and c4_c6_diff_source_layer_counts == Counter({
-            "无匹配结构化官网源": 366,
-            "新增C4C6高校官网源": 27,
-            "既有B0B1留存官网源": 208,
+            "无匹配结构化官网源": 361,
+            "新增C4C6高校官网源": 28,
+            "既有B0B1留存官网源": 212,
         })
         and c4_c6_diff_summary.get("detail_match_status_counts")
         == dict(c4_c6_diff_private_match_counts)
@@ -22264,12 +22264,12 @@ def main():
         == dict(c4_c6_diff_private_plan_counts)
         and c4_c6_diff_summary.get("source_layer_counts")
         == dict(c4_c6_diff_source_layer_counts)
-        and c4_c6_diff_summary.get("plan_match_candidate_count") == 97
-        and c4_c6_diff_summary.get("ocr_plan_missing_official_available_count") == 113
+        and c4_c6_diff_summary.get("plan_match_candidate_count") == 101
+        and c4_c6_diff_summary.get("ocr_plan_missing_official_available_count") == 114
         and c4_c6_diff_summary.get("plan_mismatch_candidate_count") == 25
         and c4_c6_diff_summary.get("no_structured_source_detail_count") == 311
-        and c4_c6_diff_summary.get("extra_source_matched_detail_count") == 27
-        and c4_c6_diff_summary.get("extra_source_plan_match_count") == 12
+        and c4_c6_diff_summary.get("extra_source_matched_detail_count") == 28
+        and c4_c6_diff_summary.get("extra_source_plan_match_count") == 13
         and c4_c6_diff_summary.get("extra_source_plan_mismatch_count") == 6,
         f"{len(c4_c6_diff_rows)} structured diff packets",
     ))
@@ -24997,6 +24997,157 @@ def main():
         and "可填报" not in first_field_confirm_public_text
         and "可排序" not in first_field_confirm_public_text
         and not any(token in first_field_confirm_public_text for token in shared_forbidden_tokens),
+    ))
+
+    stable_foundation_v0_summary_path = (
+        ROOT / "data/working/issue19-stable-foundation-v0-status-summary.json"
+    )
+    stable_foundation_v0_csv = ROOT / "data/working/issue19-stable-foundation-v0-status.csv"
+    stable_foundation_v0_summary = json.loads(stable_foundation_v0_summary_path.read_text())
+    with stable_foundation_v0_csv.open(newline="", encoding="utf-8-sig") as f:
+        stable_foundation_v0_reader = csv.DictReader(f)
+        stable_foundation_v0_rows = list(stable_foundation_v0_reader)
+        stable_foundation_v0_fields = stable_foundation_v0_reader.fieldnames or []
+    expected_stable_foundation_v0_fields = script_list_constant(
+        ROOT / "scripts/build_issue19_stable_foundation_v0_status.py",
+        "FIELDS",
+    )
+    stable_foundation_v0_by_layer = {
+        row.get("底座层级", ""): row for row in stable_foundation_v0_rows
+    }
+    stable_foundation_v0_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [stable_foundation_v0_summary_path, stable_foundation_v0_csv]
+    )
+    checks.append(ok(
+        "第 19 期稳定基座 V0 状态摘要、规模和发布口径正确",
+        stable_foundation_v0_summary.get("status")
+        == "issue19_stable_foundation_v0_candidate_discovery_ready_not_final"
+        and stable_foundation_v0_summary.get("generated_by")
+        == "build_issue19_stable_foundation_v0_status.py"
+        and stable_foundation_v0_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and stable_foundation_v0_summary.get("output_table")
+        == "data/working/issue19-stable-foundation-v0-status.csv"
+        and stable_foundation_v0_summary.get("row_count")
+        == len(stable_foundation_v0_rows) == 6
+        and stable_foundation_v0_summary.get("stable_foundation_v0_candidate_discovery_ready") is True
+        and stable_foundation_v0_summary.get("stable_foundation_v0_final_recommendation_ready") is False
+        and stable_foundation_v0_summary.get("full_ocr_major_rows")
+        == full_draft_summary["counts"]["OCR专业行数"] == 13736
+        and stable_foundation_v0_summary.get("full_ocr_group_rows")
+        == full_draft_summary["counts"]["OCR院校专业组数"] == 3329
+        and stable_foundation_v0_summary.get("full_ocr_school_rows")
+        == full_draft_summary["counts"]["OCR院校数"] == 1103
+        and stable_foundation_v0_summary.get("zero_detail_group_count")
+        == full_draft_summary["counts"]["无专业行专业组数"] == 40
+        and stable_foundation_v0_summary.get("machine_signal_major_count")
+        == stable_screening_summary.get("major_machine_signal_true_count") == 678
+        and stable_foundation_v0_summary.get("machine_observation_group_count")
+        == stable_screening_summary.get("group_machine_observation_pool_count") == 1666
+        and stable_foundation_v0_summary.get("preference_group_count")
+        == stable_screening_summary.get("group_preference_priority_count") == 722
+        and stable_foundation_v0_summary.get("first_closure_task_count")
+        == first_field_confirm_summary.get("row_count") == 206
+        and stable_foundation_v0_summary.get("first_closure_page_side_count")
+        == first_field_confirm_summary.get("unique_page_side_count") == 37
+        and stable_foundation_v0_summary.get("field_writeback_ready_count")
+        == first_field_confirm_summary.get("field_writeback_ready_count") == 0
+        and stable_foundation_v0_summary.get("field_fact_manual_confirmed_field_count")
+        == field_fact_summary.get("manual_confirmed_field_count") == 0
+        and stable_foundation_v0_summary.get("pdf_review_pending_count")
+        == field_fact_summary.get("pdf_review_pending_count") == 13736
+        and stable_foundation_v0_summary.get("hubei_official_review_pending_count")
+        == field_fact_summary.get("hubei_official_review_pending_count") == 13736
+        and stable_foundation_v0_summary.get("school_source_opportunity_count")
+        == school_source_opportunity_summary.get("row_count") == 80
+        and stable_foundation_v0_summary.get("school_source_opportunity_school_count")
+        == school_source_opportunity_summary.get("unique_school_count") == 36
+        and stable_foundation_v0_summary.get("c4_c6_plan_match_candidate_count")
+        == c4_c6_diff_summary.get("plan_match_candidate_count") == 101
+        and stable_foundation_v0_summary.get("c4_c6_plan_mismatch_candidate_count")
+        == c4_c6_diff_summary.get("plan_mismatch_candidate_count") == 25
+        and stable_foundation_v0_summary.get("final_available_count") == 0
+        and stable_foundation_v0_summary.get("next_stage_available_count") == 0
+        and stable_foundation_v0_summary.get("recommendation_basis_allowed_count") == 0
+        and stable_foundation_v0_summary.get("hard_boundaries")
+        == {
+            "official_plan_replacement_allowed": False,
+            "field_writeback_allowed": False,
+            "recommendation_basis_allowed": False,
+            "school_major_suggestion_allowed": False,
+        },
+        f"{len(stable_foundation_v0_rows)} V0 status rows",
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座 V0 六层状态和门禁正确",
+        stable_foundation_v0_fields == expected_stable_foundation_v0_fields
+        and [row.get("层级序号") for row in stable_foundation_v0_rows]
+        == ["1", "2", "3", "4", "5", "6"]
+        and stable_foundation_v0_by_layer.get("原始结构化层", {}).get("当前状态") == "完成V0"
+        and stable_foundation_v0_by_layer.get("血缘追溯与页列证据层", {}).get("当前状态") == "完成V0"
+        and stable_foundation_v0_by_layer.get("证据分层与筛选入口层", {}).get("当前状态") == "完成V0"
+        and stable_foundation_v0_by_layer.get("字段事实闭环层", {}).get("当前状态") == "未完成"
+        and stable_foundation_v0_by_layer.get("高校官网辅证层", {}).get("当前状态") == "进行中"
+        and stable_foundation_v0_by_layer.get("稳定基座V0发布结论", {}).get("当前状态")
+        == "可用于候选发现；不可用于定稿依据"
+        and all(
+            stable_foundation_v0_by_layer[layer].get("是否完成") == "true"
+            and stable_foundation_v0_by_layer[layer].get("是否可用于候选发现") == "true"
+            and stable_foundation_v0_by_layer[layer].get("是否可用于定稿依据") == "false"
+            for layer in ["原始结构化层", "血缘追溯与页列证据层", "证据分层与筛选入口层"]
+        )
+        and stable_foundation_v0_by_layer.get("字段事实闭环层", {}).get("是否完成") == "false"
+        and stable_foundation_v0_by_layer.get("字段事实闭环层", {}).get("是否可用于候选发现") == "limited"
+        and stable_foundation_v0_by_layer.get("字段事实闭环层", {}).get("是否可用于定稿依据")
+        == "false"
+        and stable_foundation_v0_by_layer.get("高校官网辅证层", {}).get("是否完成") == "false"
+        and stable_foundation_v0_by_layer.get("高校官网辅证层", {}).get("是否可用于候选发现")
+        == "true"
+        and stable_foundation_v0_by_layer.get("高校官网辅证层", {}).get("是否可用于定稿依据")
+        == "false"
+        and stable_foundation_v0_by_layer.get("稳定基座V0发布结论", {}).get("是否完成")
+        == "conditional"
+        and stable_foundation_v0_by_layer.get("稳定基座V0发布结论", {}).get("是否可用于候选发现")
+        == "true"
+        and stable_foundation_v0_by_layer.get("稳定基座V0发布结论", {}).get("是否可用于定稿依据")
+        == "false"
+        and "候选发现" in stable_foundation_v0_by_layer.get("稳定基座V0发布结论", {}).get("下一步最短动作", "")
+        and "不替代第19期PDF原页或湖北官方系统" in stable_foundation_v0_by_layer.get("高校官网辅证层", {}).get("保真边界", ""),
+    ))
+    checks.append(ok(
+        "第 19 期稳定基座 V0 公开文件不含私有路径、登录态、身份信息和最终误导结论",
+        "/Users/" not in stable_foundation_v0_public_text
+        and "/home/" not in stable_foundation_v0_public_text
+        and "/var/folders/" not in stable_foundation_v0_public_text
+        and "/private/" not in stable_foundation_v0_public_text
+        and "private/" not in stable_foundation_v0_public_text
+        and "private\\" not in stable_foundation_v0_public_text
+        and "ocr-runs" not in stable_foundation_v0_public_text
+        and "rendered-pages" not in stable_foundation_v0_public_text
+        and "file://" not in stable_foundation_v0_public_text
+        and "Authorization" not in stable_foundation_v0_public_text
+        and "Bearer " not in stable_foundation_v0_public_text
+        and "Cookie" not in stable_foundation_v0_public_text
+        and "Set-Cookie" not in stable_foundation_v0_public_text
+        and "access_token" not in stable_foundation_v0_public_text
+        and "refresh_token" not in stable_foundation_v0_public_text
+        and "password" not in stable_foundation_v0_public_text
+        and "secret" not in stable_foundation_v0_public_text
+        and "api_key" not in stable_foundation_v0_public_text
+        and "身份证" not in stable_foundation_v0_public_text
+        and "准考证" not in stable_foundation_v0_public_text
+        and "报名号" not in stable_foundation_v0_public_text
+        and "序列号" not in stable_foundation_v0_public_text
+        and "手机号" not in stable_foundation_v0_public_text
+        and "人工读数" not in stable_foundation_v0_public_text
+        and "已确认" not in stable_foundation_v0_public_text
+        and "已核准" not in stable_foundation_v0_public_text
+        and "最终推荐" not in stable_foundation_v0_public_text
+        and "最终方案" not in stable_foundation_v0_public_text
+        and "可填报" not in stable_foundation_v0_public_text
+        and "可排序" not in stable_foundation_v0_public_text
+        and not any(token in stable_foundation_v0_public_text for token in shared_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())

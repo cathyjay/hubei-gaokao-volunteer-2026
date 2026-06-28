@@ -25,7 +25,7 @@
     },
     {
       "path": "data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv",
-      "sha256": "9ff62f578f5a64b2b7e19b09c9ec48e573f0fd5d0fd10b3a187fd1059a9930c5",
+      "sha256": "c7a702cbe4f94ae19534903fb6459d37f568ce528a101b85a73c981f52838b9f",
       "row_count": 36
     },
     {
@@ -96,7 +96,7 @@
   ],
   "total_involved_major_detail_count": 854,
   "total_c4c6_no_structured_source_detail_count": 311,
-  "total_c4c6_candidate_diff_detail_count": 235,
+  "total_c4c6_candidate_diff_detail_count": 240,
   "final_available_count": 0,
   "next_stage_available_count": 0,
   "recommendation_basis_allowed_count": 0,
