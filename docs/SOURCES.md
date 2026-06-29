@@ -244,7 +244,15 @@
    - 当前结论：覆盖同一批 439 个事实范围、37 个页列和 206 条任务；当前 PDF 原页待补 439、湖北官方侧待补 439、三方闭环待补 439、高校辅证待补 201、冲突待处理 275、双人复核待完成 146、专业名归属待闭环 48、专业组边界待闭环 37；可进入私有写回评审、字段写回、推荐依据、官网替代湖北官方计划和最终可用全部为 0。
    - 限制：该账本只做事实准出门禁和缺口说明，不公开字段值、学校名称、专业名称、OCR 原文、私有路径或最终结论；不能作为志愿推荐依据。
 
-17. W0/B0 高校源桥接账本
+17. 第一闭环准出执行叠加表
+   - 生成脚本：`scripts/build_issue19_first_closure_resolution_execution_overlay_v1.py`
+   - 执行叠加表：`data/working/issue19-first-closure-resolution-execution-overlay-v1.csv`
+   - 公开摘要：`data/working/issue19-first-closure-resolution-execution-overlay-v1-summary.json`
+   - 输入来源：第一闭环执行队列、事实准出门禁账本、事实准出页列汇总、核验结果页列汇总和公开证据地图。
+   - 当前结论：覆盖同一批 37 个页列、206 条任务和 439 个事实范围；R0 W0/B0 冲突事实先闭环 10 个页列、R1 专业名归属事实先闭环 9 个页列、R2 双人复核事实先闭环 18 个页列；PDF 原页、湖北官方侧和三方闭环待补事实均为 439，字段写回、推荐依据、官网替代湖北官方计划和最终可用全部为 0。
+   - 限制：该表只把准出缺口叠加到执行顺序上，不确认字段事实、不公开字段值或学校专业明细、不替代湖北官方计划、不生成学校专业建议或最终志愿方案。
+
+18. W0/B0 高校源桥接账本
    - 生成脚本：`scripts/build_issue19_w0_b0_school_source_bridge.py`
    - 公开账本：`data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv`
    - 页列汇总：`data/working/issue19-w0-b0-school-source-bridge-page-summary.csv`
@@ -253,7 +261,7 @@
    - 当前结论：覆盖 87 个 W0/B0 核心事实、10 个页列、35 条任务、11 个院校代码；68 条字段事实已有高校源可作 double check 提示，19 条专业名归属或专业组边界必须先核 PDF 原页和湖北官方侧；7 条事实所在学校已有结构化接入候选。
    - 限制：该账本只公开高校源桥接状态、计数和 SHA，不公开字段值、人工记录、私有材料路径或最终结论；高校源只能作为定位、补缺或冲突提示，不替代第 19 期 PDF 原页和湖北官方计划。
 
-18. W0/B0 高校源字段回接队列
+19. W0/B0 高校源字段回接队列
    - 生成脚本：`scripts/build_issue19_w0_b0_school_source_field_backlink_queue.py`
    - 公开队列：`data/working/issue19-w0-b0-school-source-field-backlink-queue-public-ledger.csv`
    - 页列汇总：`data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv`
@@ -263,7 +271,7 @@
    - 当前结论：覆盖 68 条可 double check 的 W0/B0 字段事实、10 个页列、10 个院校代码、26 条任务；字段为专业计划数 26、学费 26、再选科目 16；回接泳道为 B1 结构化候选优先 5、B2 双人核页前回接 45、B2 普通冲突提示 18。
    - 限制：该队列只用于把高校源提示接入私有核验材料，不公开字段值、OCR 正文、人工记录或私有路径；所有行仍待 PDF 原页和湖北官方侧闭环，不允许字段写回、推荐或替代湖北官方计划。
 
-19. 高校官网 next20 官方源探测账本
+20. 高校官网 next20 官方源探测账本
    - 生成脚本：`scripts/build_issue19_school_source_next20_probe_ledger.py`
    - 智能答疑 API 留存脚本：`scripts/fetch_issue19_next20_zhinengdayi_official_sources.py`
    - 公开账本：`data/working/issue19-school-source-next20-official-probe-public-ledger.csv`
@@ -274,7 +282,7 @@
    - 当前结论：next20 共 20 个任务行、18 所学校；15 个任务行已有结构化高校侧辅证，覆盖 13 所学校；4 所学校仍需继续找 2026 湖北物理类分省分专业计划源或解析入口。
    - 限制：该账本只汇总高校侧官方源探测状态和公开计数，不公开逐专业字段值，不确认计划数、学费、选科或组边界，不允许字段写回。
 
-20. 高校官网最新证据对齐账本
+21. 高校官网最新证据对齐账本
    - 生成脚本：`scripts/build_issue19_school_source_latest_reconciliation.py`
    - 公开账本：`data/working/issue19-school-source-latest-reconciliation-public-ledger.csv`
    - 公开摘要：`data/working/issue19-school-source-latest-reconciliation-summary.json`
@@ -282,7 +290,7 @@
    - 当前结论：覆盖 80 条高校侧辅证自动执行任务、36 所学校；60 条已有湖北物理结构化或候选 diff 线索，12 条只有入口或探针记录，8 条暂无可复用高校侧计划源；A4 继续补源任务中 4 条已经推进到结构化或 diff 线索、4 条仍需补源。
    - 限制：该账本只做高校侧公开证据状态对齐，不能替代第 19 期 PDF 原页、湖北官方系统或省招办计划；不确认逐专业字段事实，不允许字段写回，不作为志愿推荐依据。
 
-21. 高校源缺口优先级清单
+22. 高校源缺口优先级清单
    - 生成脚本：`scripts/build_issue19_school_source_gap_priority_ledger.py`
    - 公开账本：`data/working/issue19-school-source-gap-priority-public-ledger.csv`
    - 公开摘要：`data/working/issue19-school-source-gap-priority-summary.json`
@@ -290,7 +298,7 @@
    - 当前结论：覆盖 80 条任务、36 所学校；按任务泳道分为冲突回页 17、OCR 补缺回页 8、专业名归属 12、补结构化 18、继续补源 8、章程规则 16、留存观察 1；执行优先级为先人工回页 37、自动补结构化或补源 26、规则抽检或留存 17。
    - 限制：该清单只排补源、结构化、核页和规则核验顺序；所有行仍需第 19 期 PDF 原页和湖北官方侧核验，不确认字段事实，不允许字段写回，不作为志愿推荐依据。
 
-22. 高校源 E0 人工回页桥接队列
+23. 高校源 E0 人工回页桥接队列
    - 生成脚本：`scripts/build_issue19_school_source_e0_manual_page_review_queue.py`
    - 公开账本：`data/working/issue19-school-source-e0-manual-page-review-queue-public-ledger.csv`
    - 公开摘要：`data/working/issue19-school-source-e0-manual-page-review-queue-summary.json`
@@ -298,7 +306,7 @@
    - 当前结论：覆盖 37 条 E0 人工先核回页任务、20 个院校代码；其中 35 条有同校第一闭环页列提示，2 条暂无同校页列提示；同校桥接提示合计关联 182 条第一闭环任务、17 个 PDF 页、22 个页列。
    - 限制：该队列只把 E0 高校侧任务接到同校页列提示，不能据此确认计划数、学费、选科、专业归属或专业组边界；所有行仍需第 19 期 PDF 原页和湖北官方侧核验。
 
-23. Round4 重点核验55组独立入口
+24. Round4 重点核验55组独立入口
    - 生成脚本：`scripts/build_issue19_round4_priority_focus55.py`
    - 工作簿：`data/exports/issue19-round4-priority-focus55.xlsx`
    - 摘要：`data/exports/issue19-round4-priority-focus55-summary.json`
@@ -309,7 +317,7 @@
    - 当前结论：从 Round4 优先 120 组压缩出 55 个重点核验组，另 65 组暂缓；55 组覆盖 48 所学校、458 条完整组内专业。
    - 限制：该入口只说明优先核验顺序、压缩理由、核验成本和调剂风险；不确认字段事实，不允许字段写回，不作为志愿推荐依据。
 
-24. P0 top3 私有复核包公开台账
+25. P0 top3 私有复核包公开台账
    - 生成脚本：`scripts/build_issue19_p0_top3_review_packet.py`
    - 公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`
    - 逐字段公开台账：`data/working/issue19-p0-top3-field-review-public-ledger.csv`
@@ -551,6 +559,8 @@
 - `data/working/issue19-stable-foundation-first-closure-triage-prefill-summary.json`：第一闭环私有预填摘要；记录 206 条私有任务行、37 个页列、74 条高校侧辅证候选线索、12 个公共高校来源文件和全部非最终门禁。该摘要只证明私有提示材料已生成，不确认字段事实。
 - `data/working/issue19-stable-foundation-first-closure-execution-queue.csv`：第一闭环核验执行队列，37 行；把页列按 E0 冲突异常双人优先、E1 计划数补缺或偏大、E2 官网未匹配专业名归属排序，只保存页列顺序、计数、证据编号、SHA、完成条件和阻断原因。
 - `data/working/issue19-stable-foundation-first-closure-execution-queue-summary.json`：第一闭环核验执行队列摘要；记录 37 个页列、206 条任务、E0/E1/E2 分布、Q0/Q1/Q2 分布、74 条公共高校来源文件任务、91 条双人复核任务和所有最终门禁为 0。该摘要不确认字段事实，不公开学校专业明细、候选值、人工读数、识别正文或私有路径。
+- `data/working/issue19-first-closure-resolution-execution-overlay-v1.csv`：第一闭环准出执行叠加表，37 行；按第一闭环执行顺序，把事实准出页列汇总、核验结果页列汇总和公开证据地图合并，展示每个页列仍缺的 PDF 原页、湖北官方侧、高校辅证、冲突处理、双人复核、三方闭环、专业名归属和专业组边界事实数。
+- `data/working/issue19-first-closure-resolution-execution-overlay-v1-summary.json`：第一闭环准出执行叠加摘要；记录 37 个页列、206 条任务、439 个事实范围，R0/R1/R2 波次为 10/9/18，所有自动闭环、字段写回、推荐依据、官网替代湖北官方计划、学校专业建议和最终可用门禁均为 0。
 - `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv`：第一闭环 PDF OCR 候选公开审计，206 行；一行对应一条第一闭环任务，只公开 PDF OCR 候选是否存在、与高校辅证的关系桶、候选字段计数、冲突计数、证据编号和非最终门禁，不公开候选值、学校专业明细、识别正文或私有路径。
 - `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json`：第一闭环 PDF OCR 候选摘要；记录 103 条任务已有 PDF OCR 候选、103 条需人工看图、26 条 PDF OCR 与高校辅证冲突、13 条存在一致字段但仍需官方闭环、自动写入私有记录 0 和全部非最终门禁。私有候选工作台 SHA 保存在摘要中，候选明细只在 Git 忽略目录。
 - `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv`：第一闭环页列候选看板，37 行；把 206 条第一闭环任务聚合为 37 个 `PDF页码×版面列`，公开每个页列的 PDF OCR 候选、缺候选、冲突、一致、直接看图、双人复核和下一步动作计数。
@@ -570,6 +580,9 @@
 - `data/working/issue19-stable-foundation-first-closure-fact-scope-gap-summary.json`：第一闭环事实范围缺口摘要；记录 439 个事实范围全部为 `F0-待原页与湖北官方侧闭环`，PDF 原页待核 439、湖北官方侧待核 439、双人复核事实 146、人工看图事实 152；字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
 - `data/working/issue19-first-closure-fact-gate-public-ledger.csv`：第一闭环事实准入门禁账本，439 行；一行对应一个待闭环事实范围，公开展示其是否允许进入下一阶段。当前全部为 `blocked_not_ready_for_next_stage`，不公开字段值、不确认事实。
 - `data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv`：第一闭环事实准出门禁账本，439 行；一行对应一个待闭环事实范围，公开展示进入私有写回评审前仍缺的 PDF 原页、湖北官方侧、高校辅证、冲突处理、双人复核、三方闭环、专业名归属和专业组边界证据。当前准出、写回、推荐和最终可用计数均为 0。
+- `data/working/issue19-first-closure-fact-resolution-gate-v1-page-summary.csv`：第一闭环事实准出页列汇总，37 行；按页列统计 439 个事实准出缺口，为准出执行叠加表提供页列级缺口来源。
+- `data/working/issue19-first-closure-fact-resolution-gate-v1-task-summary.csv`：第一闭环事实准出任务汇总，206 行；按第一闭环任务统计 402 个带任务事实，另有 37 个专业组边界事实只保留在事实主表和页列汇总中。
+- `data/working/issue19-first-closure-fact-resolution-gate-v1-summary.json`：第一闭环事实准出摘要；记录 439 个事实、37 个页列、206 个任务及 PDF 原页、湖北官方侧、三方闭环、冲突、双人复核、专业名归属和专业组边界待补计数。
 - `data/working/issue19-first-closure-fact-gate-page-summary.csv`：第一闭环事实准入页列汇总，37 行；按 `PDF页码×版面列` 守恒统计事实范围、W0/B0、B0 冲突、双人复核、人工看图和 PDF/湖北官方待核数量。
 - `data/working/issue19-first-closure-fact-gate-task-summary.csv`：第一闭环事实准入任务汇总，206 行；按第一闭环任务 ID 统计 402 个带任务事实，另有 37 个专业组边界事实在主表中无任务 ID。
 - `data/working/issue19-first-closure-fact-gate-summary.json`：第一闭环事实准入摘要；记录 439 个事实、37 个页列、206 个任务，W0/B0 87、可高校源 double check 68、B0 冲突 275、双人复核 146、人工看图 373；所有推荐、写回、官网替代湖北官方计划和最终门禁均为 0。
@@ -734,6 +747,7 @@
 - `scripts/build_issue19_first_closure_next_action_matrix.py`：读取第一闭环证据状态报告、页列汇总、高校源最新证据对齐账本和 64 个小核验包，生成 206 行下一步动作矩阵和 37 行页列摘要；用于把字段核验动作排成 N0-N5，不确认字段事实。
 - `scripts/build_issue19_first_closure_field_fact_public_ledger.py`：读取第一闭环字段确认公开账本、证据状态、下一步动作矩阵、P0 top3 字段账本、B0 冲突页列账本和 Git 忽略的私有字段工作台，生成 354 行字段原子公开账本；公开层只同步状态和 SHA，不公开字段明细值。
 - `scripts/build_issue19_first_closure_fact_scope_gap_ledger.py`：读取第一闭环字段事实账本、下一步动作矩阵、页列动作汇总和证据状态报告，生成 439 行事实范围缺口账本；用于把字段事实、专业名归属和专业组边界三类待闭环事实放到同一个公开状态层，不确认字段事实。
+- `scripts/build_issue19_first_closure_resolution_execution_overlay_v1.py`：读取第一闭环执行队列、事实准出门禁账本、事实准出页列汇总、核验结果页列汇总和公开证据地图，生成 37 行准出执行叠加表；用于把 439 个事实准出缺口压回页列执行顺序，安排下一轮补证闭环，不确认字段事实。
 - `scripts/build_issue19_first_closure_fact_verification_packets.py`：读取事实范围缺口账本、下一步动作矩阵、页列动作汇总、公开证据地图和页列证据汇总，生成 37 个页列核验包和 439 个包内事实项；用于安排人工核页、双人复核和并行处理顺序，不确认字段事实。
 - `scripts/build_issue19_first_closure_w0_b0_minimal_manual_checklist.py`：读取第一闭环事实核验包、包内事实明细和 B0 冲突页列核验状态，生成 10 个 W0/B0 最小人工复核包和 87 个核心事实项；用于先核专业组边界、明确冲突字段和专业名归属，不确认字段事实。
 - `scripts/build_issue19_first_closure_w0_b0_execution_prefill_audit.py`：读取 W0/B0 最小人工复核包、B0 冲突页列状态、公开证据地图、下一步动作矩阵、字段确认账本、PDFOCR/机器坐标候选和 Git 忽略的私有工作台，生成 10 行执行预填包审计、87 行执行预填明细审计和本地私有页列 CSV；用于人工打开私有材料核 PDF 原页，不确认字段事实。

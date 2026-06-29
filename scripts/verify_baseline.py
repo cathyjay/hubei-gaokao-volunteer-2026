@@ -31173,6 +31173,13 @@ def main():
     first_fact_resolution_csv = ROOT / "data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv"
     first_fact_resolution_page_csv = ROOT / "data/working/issue19-first-closure-fact-resolution-gate-v1-page-summary.csv"
     first_fact_resolution_task_csv = ROOT / "data/working/issue19-first-closure-fact-resolution-gate-v1-task-summary.csv"
+    first_resolution_overlay_script = ROOT / "scripts/build_issue19_first_closure_resolution_execution_overlay_v1.py"
+    first_resolution_overlay_summary_path = (
+        ROOT / "data/working/issue19-first-closure-resolution-execution-overlay-v1-summary.json"
+    )
+    first_resolution_overlay_csv = (
+        ROOT / "data/working/issue19-first-closure-resolution-execution-overlay-v1.csv"
+    )
     w0_b0_school_bridge_script = ROOT / "scripts/build_issue19_w0_b0_school_source_bridge.py"
     w0_b0_school_bridge_summary_path = ROOT / "data/working/issue19-w0-b0-school-source-bridge-summary.json"
     w0_b0_school_bridge_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv"
@@ -31193,6 +31200,7 @@ def main():
     first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
     first_fact_gate_summary = json.loads(first_fact_gate_summary_path.read_text())
     first_fact_resolution_summary = json.loads(first_fact_resolution_summary_path.read_text())
+    first_resolution_overlay_summary = json.loads(first_resolution_overlay_summary_path.read_text())
     w0_b0_school_bridge_summary = json.loads(w0_b0_school_bridge_summary_path.read_text())
     field_backlink_summary = json.loads(field_backlink_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -31275,6 +31283,10 @@ def main():
         first_fact_resolution_task_reader = csv.DictReader(f)
         first_fact_resolution_task_rows = list(first_fact_resolution_task_reader)
         first_fact_resolution_task_fields = first_fact_resolution_task_reader.fieldnames or []
+    with first_resolution_overlay_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_resolution_overlay_reader = csv.DictReader(f)
+        first_resolution_overlay_rows = list(first_resolution_overlay_reader)
+        first_resolution_overlay_fields = first_resolution_overlay_reader.fieldnames or []
     with w0_b0_school_bridge_csv.open(newline="", encoding="utf-8-sig") as f:
         w0_b0_school_bridge_reader = csv.DictReader(f)
         w0_b0_school_bridge_rows = list(w0_b0_school_bridge_reader)
@@ -31353,6 +31365,10 @@ def main():
             first_fact_resolution_page_csv,
             first_fact_resolution_task_csv,
         ]
+    )
+    first_resolution_overlay_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_resolution_overlay_summary_path, first_resolution_overlay_csv]
     )
     w0_b0_school_bridge_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -32222,6 +32238,251 @@ def main():
             for field in first_fact_resolution_false_fields
         )
         and not any(token in first_fact_resolution_public_text for token in first_fact_resolution_forbidden_tokens),
+    ))
+
+    first_resolution_overlay_false_fields = script_runtime_constant(
+        first_resolution_overlay_script, "FALSE_FIELDS"
+    )
+    first_resolution_overlay_forbidden_tokens = set(shared_forbidden_tokens)
+    first_resolution_overlay_forbidden_tokens.update(
+        script_runtime_constant(first_resolution_overlay_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    first_resolution_overlay_forbidden_tokens.update([
+        "院校名称",
+        "专业名称",
+        "专业代号",
+        "专业组代码",
+        "院校专业组代码",
+        "字段读数",
+        "字段OCR候选",
+        "字段人工确认",
+        "字段候选值集合",
+        "候选计划数",
+        "候选学费",
+        "候选选科",
+        "机器候选字段值",
+        "机器候选值集合",
+        "专业名称及备注",
+        "复核备注",
+        "一审记录",
+        "二审记录",
+        "复核结论",
+        "最终候选",
+        "最终推荐",
+        "最终方案",
+        "可填报",
+        "可排序",
+    ])
+    first_resolution_overlay_by_key = {
+        row.get("页码版面键", ""): row for row in first_resolution_overlay_rows
+    }
+    first_fact_resolution_page_by_key = {
+        row.get("页码版面键", ""): row for row in first_fact_resolution_page_rows
+    }
+    first_result_page_by_key = {row.get("页码版面键", ""): row for row in first_result_page_rows}
+    first_fact_resolution_rows_by_key = defaultdict(list)
+    for row in first_fact_resolution_rows:
+        first_fact_resolution_rows_by_key[row.get("页码版面键", "")].append(row)
+    first_resolution_overlay_join_ok = True
+    for row in first_resolution_overlay_rows:
+        key = row.get("页码版面键", "")
+        execution = first_execution_by_key.get(key, {})
+        page_summary = first_fact_resolution_page_by_key.get(key, {})
+        result_page = first_result_page_by_key.get(key, {})
+        evidence = first_evidence_map_by_key.get(key, {})
+        fact_group = first_fact_resolution_rows_by_key.get(key, [])
+        status_counter = Counter(
+            fact.get("事实准出状态", "") for fact in fact_group if fact.get("事实准出状态", "")
+        )
+        blocker_counter = Counter(
+            fact.get("事实准出阻断等级", "") for fact in fact_group if fact.get("事实准出阻断等级", "")
+        )
+        type_counter = Counter(
+            fact.get("事实类型", "") for fact in fact_group if fact.get("事实类型", "")
+        )
+        first_resolution_overlay_join_ok = (
+            first_resolution_overlay_join_ok
+            and bool(execution)
+            and bool(page_summary)
+            and bool(result_page)
+            and bool(evidence)
+            and bool(fact_group)
+            and row.get("第一闭环准出执行叠加ID")
+            == stable_id("FCRESEXEC", [issue19_source["source"]["sha256"], key])
+            and row.get("来源第一闭环执行队列")
+            == "data/working/issue19-stable-foundation-first-closure-execution-queue.csv"
+            and row.get("来源第一闭环事实准出门禁账本")
+            == "data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv"
+            and row.get("来源第一闭环事实准出页列汇总")
+            == "data/working/issue19-first-closure-fact-resolution-gate-v1-page-summary.csv"
+            and row.get("来源第一闭环核验结果页列汇总")
+            == "data/working/issue19-first-closure-verification-result-page-summary.csv"
+            and row.get("来源第一闭环公开证据地图")
+            == "data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_first_closure_resolution_execution_overlay_v1"
+            and row.get("主表粒度") == "PDF页码×版面列×事实准出执行叠加"
+            and row.get("任务粒度") == "页列执行队列×事实准出缺口×核验结果页列汇总"
+            and all(row.get(field) == "false" for field in first_resolution_overlay_false_fields)
+            and row.get("来源执行顺序") == execution.get("执行顺序")
+            and row.get("来源页码") == execution.get("来源页码") == page_summary.get("来源页码")
+            and row.get("版面列") == execution.get("版面列") == page_summary.get("版面列")
+            and row.get("执行泳道") == execution.get("执行泳道")
+            and row.get("第一闭环页列优先级") == execution.get("第一闭环页列优先级")
+            and csv_int(row, "页列任务数") == csv_int(execution, "页列总任务数")
+            and csv_int(row, "事实范围数") == csv_int(page_summary, "事实范围数") == len(fact_group)
+            and csv_int(row, "字段事实数") == csv_int(page_summary, "字段事实数")
+            and csv_int(row, "专业名归属事实数") == csv_int(page_summary, "专业名归属事实数")
+            and csv_int(row, "专业组边界事实数") == csv_int(page_summary, "专业组边界事实数")
+            and csv_int(row, "涉及任务数") == csv_int(page_summary, "涉及任务数")
+            and csv_int(row, "涉及院校代码数") == csv_int(page_summary, "涉及院校代码数")
+            and csv_int(row, "PDF待补事实数") == csv_int(page_summary, "PDF待补事实数")
+            and csv_int(row, "湖北官方待补事实数") == csv_int(page_summary, "湖北官方待补事实数")
+            and csv_int(row, "高校辅证待补事实数") == csv_int(page_summary, "高校辅证待补事实数")
+            and csv_int(row, "冲突待处理事实数") == csv_int(page_summary, "冲突待处理事实数")
+            and csv_int(row, "双人复核待完成事实数") == csv_int(page_summary, "双人复核待完成事实数")
+            and csv_int(row, "三方闭环待完成事实数") == csv_int(page_summary, "三方闭环待完成事实数")
+            and csv_int(row, "专业名归属待闭环事实数")
+            == csv_int(page_summary, "专业名归属待闭环事实数")
+            and csv_int(row, "专业组边界待闭环事实数")
+            == csv_int(page_summary, "专业组边界待闭环事实数")
+            and csv_int(row, "可进入私有写回评审事实数")
+            == csv_int(page_summary, "可进入私有写回评审事实数") == 0
+            and csv_int(row, "W0B0核心阻断事实数")
+            == status_counter.get("blocked_w0_b0_core_pdf_hubei", 0)
+            and csv_int(row, "B0同页伴生阻断事实数")
+            == status_counter.get("blocked_b0_companion_pdf_hubei", 0)
+            and csv_int(row, "结构事实阻断事实数")
+            == status_counter.get("blocked_structure_pdf_hubei", 0)
+            and csv_int(row, "双人复核阻断事实数")
+            == status_counter.get("blocked_double_review_pdf_hubei", 0)
+            and csv_int(row, "人工看图阻断事实数")
+            == status_counter.get("blocked_manual_image_pdf_hubei", 0)
+            and csv_int(row, "常规阻断事实数")
+            == status_counter.get("blocked_regular_pdf_hubei", 0)
+            and row.get("事实准出状态分布")
+            == "；".join(f"{name}×{count}" for name, count in sorted(status_counter.items()) if name)
+            and row.get("事实准出阻断等级分布")
+            == "；".join(f"{name}×{count}" for name, count in sorted(blocker_counter.items()) if name)
+            and row.get("事实类型分布")
+            == "；".join(f"{name}×{count}" for name, count in sorted(type_counter.items()) if name)
+            and row.get("事实集合SHA16") == page_summary.get("事实集合SHA16")
+            and row.get("任务集合SHA16") == page_summary.get("任务集合SHA16")
+            and row.get("院校代码集合SHA16") == page_summary.get("院校代码集合SHA16")
+            and row.get("是否仍需PDF原页") == "true"
+            and row.get("是否仍需湖北官方侧") == "true"
+            and row.get("是否可以自动闭环") == "false"
+            and "不得直接生成推荐" in row.get("准出完成条件", "")
+            and "公开层只同步状态和计数" in row.get("下一步", "")
+        )
+    checks.append(ok(
+        "第 19 期第一闭环准出执行叠加表摘要、规模和缺口守恒正确",
+        first_resolution_overlay_summary.get("status")
+        == "issue19_first_closure_resolution_execution_overlay_v1_not_final"
+        and first_resolution_overlay_summary.get("generated_by")
+        == "build_issue19_first_closure_resolution_execution_overlay_v1.py"
+        and first_resolution_overlay_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_resolution_overlay_summary.get("source_execution_queue")
+        == "data/working/issue19-stable-foundation-first-closure-execution-queue.csv"
+        and first_resolution_overlay_summary.get("source_fact_resolution")
+        == "data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv"
+        and first_resolution_overlay_summary.get("source_fact_resolution_page_summary")
+        == "data/working/issue19-first-closure-fact-resolution-gate-v1-page-summary.csv"
+        and first_resolution_overlay_summary.get("source_verification_result_page_summary")
+        == "data/working/issue19-first-closure-verification-result-page-summary.csv"
+        and first_resolution_overlay_summary.get("source_public_evidence_map")
+        == "data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv"
+        and first_resolution_overlay_summary.get("output_table")
+        == "data/working/issue19-first-closure-resolution-execution-overlay-v1.csv"
+        and first_resolution_overlay_summary.get("public_row_count") == len(first_resolution_overlay_rows) == 37
+        and first_resolution_overlay_summary.get("source_execution_row_count") == len(first_execution_rows) == 37
+        and first_resolution_overlay_summary.get("source_fact_resolution_row_count")
+        == len(first_fact_resolution_rows) == 439
+        and first_resolution_overlay_summary.get("source_fact_resolution_page_row_count")
+        == len(first_fact_resolution_page_rows) == 37
+        and first_resolution_overlay_summary.get("source_verification_result_page_row_count")
+        == len(first_result_page_rows) == 37
+        and first_resolution_overlay_summary.get("source_public_evidence_map_row_count")
+        == len(first_evidence_map_rows) == 37
+        and first_resolution_overlay_summary.get("unique_page_side_count") == 37
+        and first_resolution_overlay_summary.get("unique_pdf_page_count") == 32
+        and first_resolution_overlay_summary.get("total_task_count") == 206
+        and first_resolution_overlay_summary.get("fact_count") == 439
+        and first_resolution_overlay_summary.get("field_fact_count") == 354
+        and first_resolution_overlay_summary.get("major_assignment_fact_count") == 48
+        and first_resolution_overlay_summary.get("group_boundary_fact_count") == 37
+        and first_resolution_overlay_summary.get("missing_pdf_count")
+        == first_fact_resolution_summary.get("missing_pdf_count") == 439
+        and first_resolution_overlay_summary.get("missing_hubei_official_count")
+        == first_fact_resolution_summary.get("missing_hubei_official_count") == 439
+        and first_resolution_overlay_summary.get("missing_school_source_count")
+        == first_fact_resolution_summary.get("missing_school_source_count") == 201
+        and first_resolution_overlay_summary.get("missing_conflict_count")
+        == first_fact_resolution_summary.get("missing_conflict_count") == 275
+        and first_resolution_overlay_summary.get("missing_double_review_count")
+        == first_fact_resolution_summary.get("missing_double_review_count") == 146
+        and first_resolution_overlay_summary.get("missing_three_way_count")
+        == first_fact_resolution_summary.get("missing_three_way_count") == 439
+        and first_resolution_overlay_summary.get("missing_major_assignment_count")
+        == first_fact_resolution_summary.get("missing_major_assignment_count") == 48
+        and first_resolution_overlay_summary.get("missing_group_boundary_count")
+        == first_fact_resolution_summary.get("missing_group_boundary_count") == 37
+        and first_resolution_overlay_summary.get("private_writeback_review_ready_count") == 0
+        and first_resolution_overlay_summary.get("field_writeback_allowed_count") == 0
+        and first_resolution_overlay_summary.get("recommendation_basis_allowed_count") == 0
+        and first_resolution_overlay_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_resolution_overlay_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_resolution_overlay_summary.get("next_stage_allowed_count") == 0
+        and first_resolution_overlay_summary.get("final_available_count") == 0
+        and first_resolution_overlay_summary.get("auto_closure_allowed_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环准出执行叠加表顺序、回链和状态分布正确",
+        first_resolution_overlay_fields == script_runtime_constant(
+            first_resolution_overlay_script, "OVERLAY_FIELDS"
+        )
+        and len({row.get("第一闭环准出执行叠加ID", "") for row in first_resolution_overlay_rows}) == 37
+        and [as_int(row.get("叠加序号")) for row in first_resolution_overlay_rows] == list(range(1, 38))
+        and [row.get("页码版面键") for row in first_resolution_overlay_rows]
+        == [row.get("页码版面键") for row in first_execution_rows]
+        and [row.get("来源执行顺序") for row in first_resolution_overlay_rows]
+        == [row.get("执行顺序") for row in first_execution_rows]
+        and set(first_resolution_overlay_by_key) == set(first_execution_by_key)
+        and set(first_resolution_overlay_by_key) == set(first_fact_resolution_page_by_key)
+        and set(first_resolution_overlay_by_key) == set(first_result_page_by_key)
+        and set(first_resolution_overlay_by_key) == set(first_evidence_map_by_key)
+        and Counter(first_resolution_overlay_summary.get("lane_counts", {}))
+        == Counter({"E0-冲突异常双人优先核验": 18, "E1-计划数补缺或偏大优先核验": 11, "E2-官网未匹配专业名归属核验": 8})
+        and Counter(first_resolution_overlay_summary.get("closure_wave_counts", {}))
+        == Counter({"R0-W0B0冲突事实先闭环": 10, "R1-专业名归属事实先闭环": 9, "R2-双人复核事实先闭环": 18})
+        and Counter(first_resolution_overlay_summary.get("priority_counts", {}))
+        == Counter({"Q0-冲突页列第一批先核": 18, "Q1-补缺或计划数偏大页列先核": 11, "Q2-官网未匹配或高校辅证页列先核": 8})
+        and first_resolution_overlay_summary.get("first_overlay_page_side_keys")
+        == [row.get("页码版面键") for row in first_resolution_overlay_rows[:10]]
+        and sum(csv_int(row, "事实范围数") for row in first_resolution_overlay_rows) == 439
+        and sum(csv_int(row, "字段事实数") for row in first_resolution_overlay_rows) == 354
+        and sum(csv_int(row, "专业名归属事实数") for row in first_resolution_overlay_rows) == 48
+        and sum(csv_int(row, "专业组边界事实数") for row in first_resolution_overlay_rows) == 37
+        and sum(csv_int(row, "涉及任务数") for row in first_resolution_overlay_rows) == 206
+        and sum(csv_int(row, "W0B0核心阻断事实数") for row in first_resolution_overlay_rows) == 87
+        and sum(csv_int(row, "B0同页伴生阻断事实数") for row in first_resolution_overlay_rows) == 188
+        and sum(csv_int(row, "结构事实阻断事实数") for row in first_resolution_overlay_rows) == 66
+        and sum(csv_int(row, "双人复核阻断事实数") for row in first_resolution_overlay_rows) == 45
+        and sum(csv_int(row, "人工看图阻断事实数") for row in first_resolution_overlay_rows) == 4
+        and sum(csv_int(row, "常规阻断事实数") for row in first_resolution_overlay_rows) == 49
+        and first_resolution_overlay_join_ok,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环准出执行叠加表公开安全和非最终门禁正确",
+        all(
+            {row.get(field, "") for row in first_resolution_overlay_rows} == {"false"}
+            for field in first_resolution_overlay_false_fields
+        )
+        and not any(token in first_resolution_overlay_public_text for token in first_resolution_overlay_forbidden_tokens)
+        and "字段读数" not in first_resolution_overlay_public_text
+        and "最终推荐" not in first_resolution_overlay_public_text
+        and "可填报" not in first_resolution_overlay_public_text
+        and "字段明细值" in first_resolution_overlay_public_text,
     ))
 
     w0_b0_school_bridge_false_fields = script_runtime_constant(w0_b0_school_bridge_script, "FALSE_FIELDS")
