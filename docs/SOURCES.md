@@ -234,7 +234,17 @@
    - 当前结论：覆盖 439 个事实范围、37 个页列和 206 条任务；所有事实均为 `blocked_not_ready_for_next_stage`，其中 W0/B0 核心事实 87、可高校源 double check 字段事实 68、PDF/湖北官方先行事实 19、B0 冲突事实 275、双人复核 146、人工看图 373。
    - 限制：该账本是公开阻断总账，只判断能否进入下一阶段；不确认字段事实、不公开字段值、不替代湖北官方计划、不生成学校专业建议或最终志愿方案。
 
-16. W0/B0 高校源桥接账本
+16. 第一闭环事实准出门禁账本
+   - 生成脚本：`scripts/build_issue19_first_closure_fact_resolution_gate_v1.py`
+   - 准出门禁账本：`data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv`
+   - 页列汇总：`data/working/issue19-first-closure-fact-resolution-gate-v1-page-summary.csv`
+   - 任务汇总：`data/working/issue19-first-closure-fact-resolution-gate-v1-task-summary.csv`
+   - 公开摘要：`data/working/issue19-first-closure-fact-resolution-gate-v1-summary.json`
+   - 输入来源：第一闭环事实准入门禁账本、事实范围缺口账本、字段事实公开账本、核验结果看板、证据状态账本、下一步动作矩阵、P0 即时三方闭环账本、高校源最新对齐账本、W0/B0 高校源字段回接队列和湖北官方公开入口状态快照。
+   - 当前结论：覆盖同一批 439 个事实范围、37 个页列和 206 条任务；当前 PDF 原页待补 439、湖北官方侧待补 439、三方闭环待补 439、高校辅证待补 201、冲突待处理 275、双人复核待完成 146、专业名归属待闭环 48、专业组边界待闭环 37；可进入私有写回评审、字段写回、推荐依据、官网替代湖北官方计划和最终可用全部为 0。
+   - 限制：该账本只做事实准出门禁和缺口说明，不公开字段值、学校名称、专业名称、OCR 原文、私有路径或最终结论；不能作为志愿推荐依据。
+
+17. W0/B0 高校源桥接账本
    - 生成脚本：`scripts/build_issue19_w0_b0_school_source_bridge.py`
    - 公开账本：`data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv`
    - 页列汇总：`data/working/issue19-w0-b0-school-source-bridge-page-summary.csv`
@@ -243,7 +253,7 @@
    - 当前结论：覆盖 87 个 W0/B0 核心事实、10 个页列、35 条任务、11 个院校代码；68 条字段事实已有高校源可作 double check 提示，19 条专业名归属或专业组边界必须先核 PDF 原页和湖北官方侧；7 条事实所在学校已有结构化接入候选。
    - 限制：该账本只公开高校源桥接状态、计数和 SHA，不公开字段值、人工记录、私有材料路径或最终结论；高校源只能作为定位、补缺或冲突提示，不替代第 19 期 PDF 原页和湖北官方计划。
 
-17. W0/B0 高校源字段回接队列
+18. W0/B0 高校源字段回接队列
    - 生成脚本：`scripts/build_issue19_w0_b0_school_source_field_backlink_queue.py`
    - 公开队列：`data/working/issue19-w0-b0-school-source-field-backlink-queue-public-ledger.csv`
    - 页列汇总：`data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv`
@@ -253,7 +263,7 @@
    - 当前结论：覆盖 68 条可 double check 的 W0/B0 字段事实、10 个页列、10 个院校代码、26 条任务；字段为专业计划数 26、学费 26、再选科目 16；回接泳道为 B1 结构化候选优先 5、B2 双人核页前回接 45、B2 普通冲突提示 18。
    - 限制：该队列只用于把高校源提示接入私有核验材料，不公开字段值、OCR 正文、人工记录或私有路径；所有行仍待 PDF 原页和湖北官方侧闭环，不允许字段写回、推荐或替代湖北官方计划。
 
-18. 高校官网 next20 官方源探测账本
+19. 高校官网 next20 官方源探测账本
    - 生成脚本：`scripts/build_issue19_school_source_next20_probe_ledger.py`
    - 智能答疑 API 留存脚本：`scripts/fetch_issue19_next20_zhinengdayi_official_sources.py`
    - 公开账本：`data/working/issue19-school-source-next20-official-probe-public-ledger.csv`
@@ -264,7 +274,7 @@
    - 当前结论：next20 共 20 个任务行、18 所学校；15 个任务行已有结构化高校侧辅证，覆盖 13 所学校；4 所学校仍需继续找 2026 湖北物理类分省分专业计划源或解析入口。
    - 限制：该账本只汇总高校侧官方源探测状态和公开计数，不公开逐专业字段值，不确认计划数、学费、选科或组边界，不允许字段写回。
 
-19. 高校官网最新证据对齐账本
+20. 高校官网最新证据对齐账本
    - 生成脚本：`scripts/build_issue19_school_source_latest_reconciliation.py`
    - 公开账本：`data/working/issue19-school-source-latest-reconciliation-public-ledger.csv`
    - 公开摘要：`data/working/issue19-school-source-latest-reconciliation-summary.json`
@@ -272,7 +282,7 @@
    - 当前结论：覆盖 80 条高校侧辅证自动执行任务、36 所学校；60 条已有湖北物理结构化或候选 diff 线索，12 条只有入口或探针记录，8 条暂无可复用高校侧计划源；A4 继续补源任务中 4 条已经推进到结构化或 diff 线索、4 条仍需补源。
    - 限制：该账本只做高校侧公开证据状态对齐，不能替代第 19 期 PDF 原页、湖北官方系统或省招办计划；不确认逐专业字段事实，不允许字段写回，不作为志愿推荐依据。
 
-20. 高校源缺口优先级清单
+21. 高校源缺口优先级清单
    - 生成脚本：`scripts/build_issue19_school_source_gap_priority_ledger.py`
    - 公开账本：`data/working/issue19-school-source-gap-priority-public-ledger.csv`
    - 公开摘要：`data/working/issue19-school-source-gap-priority-summary.json`
@@ -280,7 +290,7 @@
    - 当前结论：覆盖 80 条任务、36 所学校；按任务泳道分为冲突回页 17、OCR 补缺回页 8、专业名归属 12、补结构化 18、继续补源 8、章程规则 16、留存观察 1；执行优先级为先人工回页 37、自动补结构化或补源 26、规则抽检或留存 17。
    - 限制：该清单只排补源、结构化、核页和规则核验顺序；所有行仍需第 19 期 PDF 原页和湖北官方侧核验，不确认字段事实，不允许字段写回，不作为志愿推荐依据。
 
-21. 高校源 E0 人工回页桥接队列
+22. 高校源 E0 人工回页桥接队列
    - 生成脚本：`scripts/build_issue19_school_source_e0_manual_page_review_queue.py`
    - 公开账本：`data/working/issue19-school-source-e0-manual-page-review-queue-public-ledger.csv`
    - 公开摘要：`data/working/issue19-school-source-e0-manual-page-review-queue-summary.json`
@@ -288,7 +298,7 @@
    - 当前结论：覆盖 37 条 E0 人工先核回页任务、20 个院校代码；其中 35 条有同校第一闭环页列提示，2 条暂无同校页列提示；同校桥接提示合计关联 182 条第一闭环任务、17 个 PDF 页、22 个页列。
    - 限制：该队列只把 E0 高校侧任务接到同校页列提示，不能据此确认计划数、学费、选科、专业归属或专业组边界；所有行仍需第 19 期 PDF 原页和湖北官方侧核验。
 
-22. Round4 重点核验55组独立入口
+23. Round4 重点核验55组独立入口
    - 生成脚本：`scripts/build_issue19_round4_priority_focus55.py`
    - 工作簿：`data/exports/issue19-round4-priority-focus55.xlsx`
    - 摘要：`data/exports/issue19-round4-priority-focus55-summary.json`
@@ -299,7 +309,7 @@
    - 当前结论：从 Round4 优先 120 组压缩出 55 个重点核验组，另 65 组暂缓；55 组覆盖 48 所学校、458 条完整组内专业。
    - 限制：该入口只说明优先核验顺序、压缩理由、核验成本和调剂风险；不确认字段事实，不允许字段写回，不作为志愿推荐依据。
 
-19. P0 top3 私有复核包公开台账
+24. P0 top3 私有复核包公开台账
    - 生成脚本：`scripts/build_issue19_p0_top3_review_packet.py`
    - 公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`
    - 逐字段公开台账：`data/working/issue19-p0-top3-field-review-public-ledger.csv`
@@ -559,6 +569,7 @@
 - `data/working/issue19-stable-foundation-first-closure-fact-scope-gap-public-ledger.csv`：第一闭环事实范围缺口账本，439 行；一行对应一个待闭环事实范围，把字段事实 354、专业名归属 48、专业组边界 37 放在同一公开状态层。公开层只保存 ID、页列、状态桶、计数和 SHA，不保存学校专业明细、字段明细值、识别正文或私有材料。
 - `data/working/issue19-stable-foundation-first-closure-fact-scope-gap-summary.json`：第一闭环事实范围缺口摘要；记录 439 个事实范围全部为 `F0-待原页与湖北官方侧闭环`，PDF 原页待核 439、湖北官方侧待核 439、双人复核事实 146、人工看图事实 152；字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
 - `data/working/issue19-first-closure-fact-gate-public-ledger.csv`：第一闭环事实准入门禁账本，439 行；一行对应一个待闭环事实范围，公开展示其是否允许进入下一阶段。当前全部为 `blocked_not_ready_for_next_stage`，不公开字段值、不确认事实。
+- `data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv`：第一闭环事实准出门禁账本，439 行；一行对应一个待闭环事实范围，公开展示进入私有写回评审前仍缺的 PDF 原页、湖北官方侧、高校辅证、冲突处理、双人复核、三方闭环、专业名归属和专业组边界证据。当前准出、写回、推荐和最终可用计数均为 0。
 - `data/working/issue19-first-closure-fact-gate-page-summary.csv`：第一闭环事实准入页列汇总，37 行；按 `PDF页码×版面列` 守恒统计事实范围、W0/B0、B0 冲突、双人复核、人工看图和 PDF/湖北官方待核数量。
 - `data/working/issue19-first-closure-fact-gate-task-summary.csv`：第一闭环事实准入任务汇总，206 行；按第一闭环任务 ID 统计 402 个带任务事实，另有 37 个专业组边界事实在主表中无任务 ID。
 - `data/working/issue19-first-closure-fact-gate-summary.json`：第一闭环事实准入摘要；记录 439 个事实、37 个页列、206 个任务，W0/B0 87、可高校源 double check 68、B0 冲突 275、双人复核 146、人工看图 373；所有推荐、写回、官网替代湖北官方计划和最终门禁均为 0。

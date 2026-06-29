@@ -31168,6 +31168,11 @@ def main():
     first_fact_gate_csv = ROOT / "data/working/issue19-first-closure-fact-gate-public-ledger.csv"
     first_fact_gate_page_csv = ROOT / "data/working/issue19-first-closure-fact-gate-page-summary.csv"
     first_fact_gate_task_csv = ROOT / "data/working/issue19-first-closure-fact-gate-task-summary.csv"
+    first_fact_resolution_script = ROOT / "scripts/build_issue19_first_closure_fact_resolution_gate_v1.py"
+    first_fact_resolution_summary_path = ROOT / "data/working/issue19-first-closure-fact-resolution-gate-v1-summary.json"
+    first_fact_resolution_csv = ROOT / "data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv"
+    first_fact_resolution_page_csv = ROOT / "data/working/issue19-first-closure-fact-resolution-gate-v1-page-summary.csv"
+    first_fact_resolution_task_csv = ROOT / "data/working/issue19-first-closure-fact-resolution-gate-v1-task-summary.csv"
     w0_b0_school_bridge_script = ROOT / "scripts/build_issue19_w0_b0_school_source_bridge.py"
     w0_b0_school_bridge_summary_path = ROOT / "data/working/issue19-w0-b0-school-source-bridge-summary.json"
     w0_b0_school_bridge_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv"
@@ -31187,6 +31192,7 @@ def main():
     family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
     first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
     first_fact_gate_summary = json.loads(first_fact_gate_summary_path.read_text())
+    first_fact_resolution_summary = json.loads(first_fact_resolution_summary_path.read_text())
     w0_b0_school_bridge_summary = json.loads(w0_b0_school_bridge_summary_path.read_text())
     field_backlink_summary = json.loads(field_backlink_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -31257,6 +31263,18 @@ def main():
         first_fact_gate_task_reader = csv.DictReader(f)
         first_fact_gate_task_rows = list(first_fact_gate_task_reader)
         first_fact_gate_task_fields = first_fact_gate_task_reader.fieldnames or []
+    with first_fact_resolution_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_fact_resolution_reader = csv.DictReader(f)
+        first_fact_resolution_rows = list(first_fact_resolution_reader)
+        first_fact_resolution_fields = first_fact_resolution_reader.fieldnames or []
+    with first_fact_resolution_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_fact_resolution_page_reader = csv.DictReader(f)
+        first_fact_resolution_page_rows = list(first_fact_resolution_page_reader)
+        first_fact_resolution_page_fields = first_fact_resolution_page_reader.fieldnames or []
+    with first_fact_resolution_task_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_fact_resolution_task_reader = csv.DictReader(f)
+        first_fact_resolution_task_rows = list(first_fact_resolution_task_reader)
+        first_fact_resolution_task_fields = first_fact_resolution_task_reader.fieldnames or []
     with w0_b0_school_bridge_csv.open(newline="", encoding="utf-8-sig") as f:
         w0_b0_school_bridge_reader = csv.DictReader(f)
         w0_b0_school_bridge_rows = list(w0_b0_school_bridge_reader)
@@ -31325,6 +31343,15 @@ def main():
             first_fact_gate_csv,
             first_fact_gate_page_csv,
             first_fact_gate_task_csv,
+        ]
+    )
+    first_fact_resolution_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_fact_resolution_summary_path,
+            first_fact_resolution_csv,
+            first_fact_resolution_page_csv,
+            first_fact_resolution_task_csv,
         ]
     )
     w0_b0_school_bridge_public_text = "\n".join(
@@ -32021,6 +32048,180 @@ def main():
             for field in first_fact_gate_false_fields
         )
         and not any(token in first_fact_gate_public_text for token in first_fact_gate_forbidden_tokens),
+    ))
+
+    first_fact_resolution_false_fields = script_runtime_constant(
+        first_fact_resolution_script, "FALSE_FIELDS"
+    )
+    first_fact_resolution_forbidden_tokens = set(shared_forbidden_tokens)
+    first_fact_resolution_forbidden_tokens.update(
+        script_runtime_constant(first_fact_resolution_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    first_fact_resolution_forbidden_tokens.update([
+        "院校名称",
+        "专业名称",
+        "专业代号",
+        "专业组代码",
+        "院校专业组代码",
+        "字段读数",
+        "字段OCR候选",
+        "字段人工确认",
+        "字段候选值集合",
+        "候选计划数",
+        "候选学费",
+        "候选选科",
+        "机器候选字段值",
+        "机器候选值集合",
+        "专业名称及备注",
+        "复核备注",
+        "一审记录",
+        "二审记录",
+        "复核结论",
+        "最终候选",
+        "最终推荐",
+        "最终方案",
+        "可填报",
+        "可排序",
+    ])
+    first_fact_resolution_fact_ids = {
+        row.get("第一闭环事实范围缺口公开账本ID", "")
+        for row in first_fact_resolution_rows
+    }
+    first_fact_resolution_task_ids = {
+        row.get("稳定基座第一闭环明细任务ID", "")
+        for row in first_fact_resolution_rows
+        if row.get("稳定基座第一闭环明细任务ID", "")
+    }
+    checks.append(ok(
+        "第 19 期第一闭环事实准出门禁账本摘要、规模和缺口计数正确",
+        first_fact_resolution_summary.get("status") == "issue19_first_closure_fact_resolution_gate_v1_ready_not_final"
+        and first_fact_resolution_summary.get("generated_by") == "build_issue19_first_closure_fact_resolution_gate_v1.py"
+        and first_fact_resolution_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_fact_resolution_summary.get("source_fact_gate") == str(first_fact_gate_csv.relative_to(ROOT))
+        and first_fact_resolution_summary.get("output") == str(first_fact_resolution_csv.relative_to(ROOT))
+        and first_fact_resolution_summary.get("page_output") == str(first_fact_resolution_page_csv.relative_to(ROOT))
+        and first_fact_resolution_summary.get("task_output") == str(first_fact_resolution_task_csv.relative_to(ROOT))
+        and first_fact_resolution_summary.get("fact_resolution_row_count") == len(first_fact_resolution_rows) == 439
+        and first_fact_resolution_summary.get("page_summary_row_count") == len(first_fact_resolution_page_rows) == 37
+        and first_fact_resolution_summary.get("task_summary_row_count") == len(first_fact_resolution_task_rows) == 206
+        and first_fact_resolution_summary.get("task_summary_fact_count") == 402
+        and first_fact_resolution_summary.get("task_absent_fact_count") == 37
+        and first_fact_resolution_summary.get("unique_fact_scope_count") == 439
+        and first_fact_resolution_summary.get("unique_page_side_count") == 37
+        and first_fact_resolution_summary.get("unique_task_count") == 206
+        and Counter(first_fact_resolution_summary.get("fact_domain_counts", {})) == Counter({
+            "字段事实": 354,
+            "专业名归属": 48,
+            "专业组边界": 37,
+        })
+        and Counter(first_fact_resolution_summary.get("fact_type_counts", {})) == Counter({
+            "字段事实-专业计划数": 170,
+            "字段事实-学费": 105,
+            "字段事实-再选科目": 77,
+            "字段事实-待人工判定字段": 2,
+            "专业名归属事实": 48,
+            "专业组边界事实": 37,
+        })
+        and Counter(first_fact_resolution_summary.get("field_category_counts", {})) == Counter({
+            "专业计划数": 170,
+            "学费": 105,
+            "再选科目": 77,
+            "待人工判定字段": 2,
+        })
+        and Counter(first_fact_resolution_summary.get("resolution_status_counts", {})) == Counter({
+            "blocked_w0_b0_core_pdf_hubei": 87,
+            "blocked_b0_companion_pdf_hubei": 188,
+            "blocked_structure_pdf_hubei": 66,
+            "blocked_regular_pdf_hubei": 49,
+            "blocked_double_review_pdf_hubei": 45,
+            "blocked_manual_image_pdf_hubei": 4,
+        })
+        and Counter(first_fact_resolution_summary.get("resolution_blocker_counts", {})) == Counter({
+            "G0-W0B0核心事实优先阻断": 87,
+            "G1-B0同页伴生事实阻断": 188,
+            "G2-结构事实PDF湖北官方先行": 66,
+            "G3-双人复核待完成": 45,
+            "G4-人工看图待完成": 4,
+            "G6-常规PDF湖北官方闭环待完成": 49,
+        })
+        and first_fact_resolution_summary.get("missing_pdf_count") == 439
+        and first_fact_resolution_summary.get("missing_hubei_official_count") == 439
+        and first_fact_resolution_summary.get("missing_school_source_count") == 201
+        and first_fact_resolution_summary.get("missing_conflict_count") == 275
+        and first_fact_resolution_summary.get("missing_double_review_count") == 146
+        and first_fact_resolution_summary.get("missing_three_way_count") == 439
+        and first_fact_resolution_summary.get("missing_major_assignment_count") == 48
+        and first_fact_resolution_summary.get("missing_group_boundary_count") == 37
+        and first_fact_resolution_summary.get("private_writeback_review_ready_count") == 0
+        and first_fact_resolution_summary.get("field_writeback_allowed_count") == 0
+        and first_fact_resolution_summary.get("recommendation_basis_allowed_count") == 0
+        and first_fact_resolution_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_fact_resolution_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_fact_resolution_summary.get("next_stage_allowed_count") == 0
+        and first_fact_resolution_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环事实准出门禁账本字段、守恒和公开安全正确",
+        first_fact_resolution_fields == script_runtime_constant(first_fact_resolution_script, "LEDGER_FIELDS")
+        and first_fact_resolution_page_fields == script_runtime_constant(first_fact_resolution_script, "PAGE_FIELDS")
+        and first_fact_resolution_task_fields == script_runtime_constant(first_fact_resolution_script, "TASK_FIELDS")
+        and len({row.get("事实准出门禁ID", "") for row in first_fact_resolution_rows}) == 439
+        and first_fact_resolution_fact_ids == first_fact_gate_fact_ids
+        and first_fact_resolution_task_ids == first_fact_gate_task_ids
+        and len({row.get("事实准出页列汇总ID", "") for row in first_fact_resolution_page_rows}) == 37
+        and len({row.get("页码版面键", "") for row in first_fact_resolution_page_rows}) == 37
+        and len({row.get("事实准出任务汇总ID", "") for row in first_fact_resolution_task_rows}) == 206
+        and [as_int(row.get("准出序号")) for row in first_fact_resolution_rows] == list(range(1, 440))
+        and [as_int(row.get("页列汇总序号")) for row in first_fact_resolution_page_rows] == list(range(1, 38))
+        and [as_int(row.get("任务汇总序号")) for row in first_fact_resolution_task_rows] == list(range(1, 207))
+        and sum(csv_int(row, "事实范围数") for row in first_fact_resolution_page_rows) == 439
+        and sum(csv_int(row, "字段事实数") for row in first_fact_resolution_page_rows) == 354
+        and sum(csv_int(row, "专业名归属事实数") for row in first_fact_resolution_page_rows) == 48
+        and sum(csv_int(row, "专业组边界事实数") for row in first_fact_resolution_page_rows) == 37
+        and sum(csv_int(row, "涉及任务数") for row in first_fact_resolution_page_rows) == 206
+        and sum(csv_int(row, "PDF待补事实数") for row in first_fact_resolution_page_rows) == 439
+        and sum(csv_int(row, "湖北官方待补事实数") for row in first_fact_resolution_page_rows) == 439
+        and sum(csv_int(row, "高校辅证待补事实数") for row in first_fact_resolution_page_rows) == 201
+        and sum(csv_int(row, "冲突待处理事实数") for row in first_fact_resolution_page_rows) == 275
+        and sum(csv_int(row, "双人复核待完成事实数") for row in first_fact_resolution_page_rows) == 146
+        and sum(csv_int(row, "三方闭环待完成事实数") for row in first_fact_resolution_page_rows) == 439
+        and sum(csv_int(row, "专业名归属待闭环事实数") for row in first_fact_resolution_page_rows) == 48
+        and sum(csv_int(row, "专业组边界待闭环事实数") for row in first_fact_resolution_page_rows) == 37
+        and sum(csv_int(row, "可进入私有写回评审事实数") for row in first_fact_resolution_page_rows) == 0
+        and sum(csv_int(row, "事实范围数") for row in first_fact_resolution_task_rows) == 402
+        and sum(csv_int(row, "字段事实数") for row in first_fact_resolution_task_rows) == 354
+        and sum(csv_int(row, "专业名归属事实数") for row in first_fact_resolution_task_rows) == 48
+        and sum(csv_int(row, "专业组边界事实数") for row in first_fact_resolution_task_rows) == 0
+        and sum(csv_int(row, "PDF待补事实数") for row in first_fact_resolution_task_rows) == 402
+        and sum(csv_int(row, "湖北官方待补事实数") for row in first_fact_resolution_task_rows) == 402
+        and sum(csv_int(row, "冲突待处理事实数") for row in first_fact_resolution_task_rows) == 265
+        and sum(csv_int(row, "双人复核待完成事实数") for row in first_fact_resolution_task_rows) == 136
+        and sum(csv_int(row, "三方闭环待完成事实数") for row in first_fact_resolution_task_rows) == 402
+        and Counter(row.get("事实准出状态", "") for row in first_fact_resolution_rows) == Counter(
+            first_fact_resolution_summary.get("resolution_status_counts", {})
+        )
+        and Counter(row.get("事实准出阻断等级", "") for row in first_fact_resolution_rows) == Counter(
+            first_fact_resolution_summary.get("resolution_blocker_counts", {})
+        )
+        and {row.get("是否可进入私有写回评审", "") for row in first_fact_resolution_rows} == {"false"}
+        and {row.get("官方公开计划页可定稿", "") for row in first_fact_resolution_rows} == {"false"}
+        and {row.get("数智平台可定稿", "") for row in first_fact_resolution_rows} == {"false"}
+        and {row.get("是否仍需PDF原页", "") for row in first_fact_resolution_rows} == {"true"}
+        and {row.get("是否仍需湖北官方侧", "") for row in first_fact_resolution_rows} == {"true"}
+        and {row.get("是否仍需三方闭环", "") for row in first_fact_resolution_rows} == {"true"}
+        and all(
+            {row.get(field, "") for row in first_fact_resolution_rows} == {"false"}
+            for field in first_fact_resolution_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in first_fact_resolution_page_rows} == {"false"}
+            for field in first_fact_resolution_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in first_fact_resolution_task_rows} == {"false"}
+            for field in first_fact_resolution_false_fields
+        )
+        and not any(token in first_fact_resolution_public_text for token in first_fact_resolution_forbidden_tokens),
     ))
 
     w0_b0_school_bridge_false_fields = script_runtime_constant(w0_b0_school_bridge_script, "FALSE_FIELDS")
