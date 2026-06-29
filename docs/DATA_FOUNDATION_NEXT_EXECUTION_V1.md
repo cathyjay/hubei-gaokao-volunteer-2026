@@ -190,6 +190,13 @@
 
 这张表把 146 条私有 D0/D1 核验项压到 18 个 `PDF页码×版面列`：E0 计划数冲突页列 9、E1 OCR 计划数缺失可补页列 7、E2 疑似匹配页列 2；包内 R0/R1/R2/R3 明细仍守恒为 27/102/2/15。公开层只保存页列、计数、集合 SHA、私有 CSV/HTML SHA 和非最终门禁；私有层生成每页列 CSV/HTML，供人工对照第 19 期原页、湖北官方侧和必要高校辅证。它是高校源 double check 后的人工排队层，不确认计划数、学费、选科、专业名或专业组边界。
 
+新增高校源 Adapter D0/D1 页列核验进度公开账本：
+
+- 公开账本：`data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json`
+
+这张表是页列私有 CSV 的公开状态机/进度账本，只同步 PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核和字段写回门禁的填写状态，以及是否能进入字段写回评审。公开层不得保存学校名、专业名、字段值、OCR 正文、人工读数或私有路径。当前仍为 `not_final`，字段事实、推荐依据、最终可用、学校专业建议均为 0 或 `false`；它只用于判断私有核验项是否填写完毕和是否具备写回评审条件，不确认任何招生字段。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

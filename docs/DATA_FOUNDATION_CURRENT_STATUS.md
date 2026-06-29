@@ -141,6 +141,8 @@
 
 新增的 `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv` 是 D0/D1 的页列人工核验包。它把 146 条私有核验项按 `PDF页码×版面列` 压成 18 个页列：E0 计划数冲突页列 9、E1 OCR 计划数缺失可补页列 7、E2 疑似匹配页列 2；R0/R1/R2/R3 明细数仍守恒为 27/102/2/15。公开层只保留页码、版面列、计数、集合 SHA 和私有 CSV/HTML SHA；学校名、专业名、OCR 候选、高校源字段和人工记录只在 Git 忽略私有材料里。它是“更好人工核”的入口，不是“字段已核准”的证据。
 
+新增的 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json` 是 D0/D1 页列私有 CSV 的公开状态机/进度账本。它只回答 PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核和字段写回门禁有没有填写、是否能进入字段写回评审；不含学校名、专业名、字段值、OCR 正文、人工读数或私有路径。当前仍是 `not_final`，字段事实、推荐依据、最终可用、学校专业建议均为 0 或 `false`，不能作为字段事实、学校专业建议或最终志愿依据。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。

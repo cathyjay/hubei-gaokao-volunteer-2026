@@ -662,6 +662,14 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 公开层只能保存页码、版面列、计数、集合 SHA、私有材料 SHA 和非最终门禁；不得出现学校名、专业名、OCR 候选、高校源字段、私有路径、人工记录或最终误导结论。
 - 所有页列仍待 PDF 原页、湖北官方系统或省招办计划、必要高校辅证核验；写回、推荐、官网替代湖北官方计划、学校专业建议、下一阶段和最终门禁必须为 false 或 0。
 
+高校源 Adapter D0/D1 页列核验进度公开账本的校验方式：
+
+- `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json` 是公开状态机/进度账本，只能从 D0/D1 页列私有 CSV 的填写状态派生。
+- 公开账本只能回答 PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核、字段写回门禁是否已填，以及是否可进入字段写回评审。
+- 公开文件不得出现学校名、专业名、字段值、OCR 正文、人工读数、复核备注正文、私有路径、登录态、身份信息或最终误导结论。
+- 所有行当前必须保持 `not_final`；字段事实、推荐依据、最终可用、学校专业建议、字段写回允许、官网替代湖北官方计划和进入下一阶段门禁必须全部为 false 或 0。
+- 该账本不能替代 D0/D1 页列人工核验包、不能替代第 19 期 PDF 原页或湖北官方计划，只能作为“私有核验项有没有填、能否进入字段写回评审”的公开进度入口。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。
