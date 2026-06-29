@@ -602,6 +602,10 @@
 - `data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-public-ledger.csv`：第一闭环 G0 冲突字段补证闭环结果公开账本，68 行；一行对应一个补证执行项的当前闭环状态，逐项回链执行项、准出门禁、Overlay、高校源字段回接队列和本地未公开页列 CSV 的 SHA。
 - `data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-page-summary.csv`：第一闭环 G0 冲突字段补证闭环结果页列汇总，10 行；按 `PDF页码×版面列` 汇总 68 个字段的 PDF 原页、湖北官方侧、高校辅证、冲突处理、双人复核、三方闭环、字段确认和写回评审状态。
 - `data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-summary.json`：第一闭环 G0 冲突字段补证闭环结果摘要；记录 68 个字段、10 个页列、字段分布 26/26/16、高校源私有种子线索 62/无线索 6、双人复核待完成 47，以及所有写回、推荐、下一阶段和最终门禁为 0 的边界。
+- `data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-public-ledger.csv`：第一闭环 G0 冲突字段补证缺口任务公开账本，523 行；一行对应一个 `字段事实×证据缺口通道`，从 68 个闭环结果拆出 PDF 原页、湖北官方侧、高校辅证、冲突处理、双人复核、三方闭环、字段确认和写回评审任务。
+- `data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-page-channel-summary.csv`：第一闭环 G0 冲突字段补证缺口页列通道汇总，77 行；按 `PDF页码×版面列×证据通道` 汇总缺口任务数、涉及字段事实数、可并行执行数和待前置闭环数。
+- `data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-channel-summary.csv`：第一闭环 G0 冲突字段补证缺口通道汇总，8 行；按证据通道汇总 523 条任务，其中 251 条当前可并行执行、272 条等待前置闭环。
+- `data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-summary.json`：第一闭环 G0 冲突字段补证缺口任务摘要；记录 68 个来源闭环结果、523 条缺口任务、字段分布 26/26/16、通道分布和所有写回、推荐、下一阶段、最终门禁为 0 的边界。
 - `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv`：第一闭环事实核验包，37 行；一行对应一个 `PDF页码×版面列` 核验包，把 439 个事实缺口压缩为 B0 冲突优先、专业名归属优先、缺候选人工看图、机器坐标辅助四类波次。
 - `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv`：第一闭环事实核验包明细，439 行；一行对应一个包内事实范围，逐项回链到事实范围缺口账本，并继承包序号、波次、页列主阻断和非最终门禁。
 - `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-summary.json`：第一闭环事实核验包摘要；记录 37 个核验包、439 个包内事实，波次分布为 B0 冲突优先 10、专业名归属优先 9、缺候选人工看图 2、机器坐标辅助 16；字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
@@ -805,6 +809,7 @@
 - `scripts/build_issue19_first_closure_g0_conflict_field_resolution_gate_v1.py`：生成 68 行 G0 冲突字段准出门禁公开账本、10 行页列汇总和 summary；用于判断每个冲突字段进入私有写回评审前还缺哪些证据，公开层只保留缺口状态、计数和 SHA，不公开字段值、候选值、学校专业明细、OCR 原文或人工记录。
 - `scripts/build_issue19_first_closure_g0_conflict_field_evidence_execution_packets_v1.py`：生成 10 行 G0 冲突字段补证执行包、68 行逐字段补证执行项和 summary；用于把准出门禁缺口转成可按页列执行的私有补证顺序，公开层只保留状态、计数、集合 SHA 和证据编号。
 - `scripts/build_issue19_first_closure_g0_conflict_field_evidence_closure_result_v1.py`：生成 68 行 G0 冲突字段补证闭环结果、10 行页列汇总和 summary；用于把执行项接到本地未公开页列 CSV 的当前补证状态，公开层只保留状态、计数、证据编号和 SHA，不公开具体核验内容、识别内容、人工内容或本地位置。
+- `scripts/build_issue19_first_closure_g0_conflict_field_evidence_gap_task_queue_v1.py`：生成 523 行 G0 冲突字段补证缺口任务、77 行页列通道汇总、8 行通道汇总和 summary；用于把闭环结果拆成可并行执行或等待前置闭环的证据通道任务，不确认字段事实、不写回、不进入推荐。
 - `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-summary.json`：高校源 Adapter D0/D1 页列人工核验包，把 146 条私有核验项压成 18 个页列；用于人工核第 19 期原页、湖北官方侧和高校辅证差异，不确认字段事实。
 - `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json`：高校源 Adapter D0/D1 页列核验进度公开账本，是私有页列 CSV 的公开状态机；只同步 PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核和字段写回门禁的填写状态，不含学校名、专业名、字段值、OCR 正文、人工读数或私有路径。当前仍为 `not_final`，字段事实、推荐依据、最终可用和学校专业建议均为 0 或 `false`。
 - `scripts/build_issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1.py`：生成 `data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv` 和 summary，同时在 Git 忽略私有目录生成 18 个页列栏图、18 个私有审阅 HTML 和私有视觉索引；公开层只保存页码、版面列、计数、尺寸、证据编号和 SHA，不保存图片、路径、学校专业明细、OCR 原文、字段候选或人工记录。
