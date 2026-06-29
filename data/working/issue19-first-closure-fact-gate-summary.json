@@ -1,0 +1,64 @@
+{
+  "status": "issue19_first_closure_fact_gate_ready_not_final",
+  "generated_by": "build_issue19_first_closure_fact_gate_public_ledger.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output": "data/working/issue19-first-closure-fact-gate-public-ledger.csv",
+  "page_output": "data/working/issue19-first-closure-fact-gate-page-summary.csv",
+  "task_output": "data/working/issue19-first-closure-fact-gate-task-summary.csv",
+  "fact_gate_row_count": 439,
+  "page_summary_row_count": 37,
+  "task_summary_row_count": 206,
+  "task_summary_fact_count": 402,
+  "unique_fact_scope_count": 439,
+  "unique_page_side_count": 37,
+  "unique_task_count": 206,
+  "task_absent_fact_count": 37,
+  "fact_domain_counts": {
+    "字段事实": 354,
+    "专业名归属": 48,
+    "专业组边界": 37
+  },
+  "fact_type_counts": {
+    "字段事实-专业计划数": 170,
+    "字段事实-学费": 105,
+    "字段事实-再选科目": 77,
+    "字段事实-待人工判定字段": 2,
+    "专业名归属事实": 48,
+    "专业组边界事实": 37
+  },
+  "field_category_counts": {
+    "专业计划数": 170,
+    "学费": 105,
+    "再选科目": 77,
+    "待人工判定字段": 2
+  },
+  "gate_level_counts": {
+    "G0-W0B0核心事实优先阻断": 87,
+    "G1-B0同页伴生事实阻断": 188,
+    "G3-双人复核待完成": 45,
+    "G6-常规PDF湖北官方闭环待完成": 49,
+    "G4-人工看图待完成": 4,
+    "G2-结构事实PDF湖北官方先行": 66
+  },
+  "gate_status_counts": {
+    "blocked_not_ready_for_next_stage": 439
+  },
+  "w0_b0_fact_count": 87,
+  "w0_b0_double_check_fact_count": 68,
+  "w0_b0_pdf_hubei_first_fact_count": 19,
+  "field_backlink_fact_count": 68,
+  "structured_candidate_fact_count": 7,
+  "b0_conflict_fact_count": 275,
+  "double_review_required_fact_count": 146,
+  "manual_image_required_fact_count": 373,
+  "pdf_pending_count": 439,
+  "hubei_official_pending_count": 439,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "final_available_count": 0,
+  "policy": "本账本只做第一闭环事实准入门禁，不公开字段值，不确认事实，不替代湖北官方计划，不进入推荐。"
+}
