@@ -1,0 +1,57 @@
+{
+  "status": "issue19_first_closure_g0_conflict_field_w0_w1_candidate_triage_v1_ready_not_final",
+  "generated_by": "build_issue19_first_closure_g0_conflict_field_w0_w1_candidate_triage_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_launch_ledger": "data/working/issue19-first-closure-g0-conflict-field-w0-w1-review-launch-v1-public-ledger.csv",
+  "source_launch_ledger_sha256": "9e48a680d8437f5db97250561a3b073f079f4ebc0cb4b4167f4568d21709912a",
+  "source_launch_page": "data/working/issue19-first-closure-g0-conflict-field-w0-w1-review-launch-v1-page-summary.csv",
+  "source_launch_page_sha256": "5cb237794803dc955cfe7dd864cd180413f32696655eb9b6d41a03168559d95a",
+  "source_launch_summary": "data/working/issue19-first-closure-g0-conflict-field-w0-w1-review-launch-v1-summary.json",
+  "source_launch_summary_sha256": "8c4b8f4db44c3e39930ef17cab1f7ea49b9d5794f4db79ab499338e6dbc36dc2",
+  "source_gap_tasks": "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-public-ledger.csv",
+  "source_gap_tasks_sha256": "50b419cf078570895fe111eb3076bce612009acc9bf946c420e7bc8319308beb",
+  "source_private_overlay": "g0_conflict_field_review_private_overlay_not_public",
+  "source_private_overlay_sha256": "749d242338c905662993abae16006adfd53a3a8535dcc689051a850987d6820e",
+  "output_table": "data/working/issue19-first-closure-g0-conflict-field-w0-w1-candidate-triage-v1-public-ledger.csv",
+  "page_summary_table": "data/working/issue19-first-closure-g0-conflict-field-w0-w1-candidate-triage-v1-page-summary.csv",
+  "ledger_row_count": 37,
+  "page_summary_row_count": 10,
+  "source_launch_row_count": 37,
+  "source_gap_task_row_count": 523,
+  "source_private_overlay_row_count": 68,
+  "active_task_row_count": 251,
+  "unique_page_side_count": 10,
+  "unique_candidate_field_count": 68,
+  "candidate_field_task_channel_count": 251,
+  "unique_candidate_bucket_counts": {
+    "C3-仅高校辅证候选需核原页": 22,
+    "C0-双侧候选冲突优先核": 30,
+    "C2-仅PDFOCR候选需补辅证": 6,
+    "C1-双侧候选一致但仍待核": 10
+  },
+  "candidate_task_channel_bucket_counts": {
+    "C0-双侧候选冲突优先核": 112,
+    "C1-双侧候选一致但仍待核": 37,
+    "C3-仅高校辅证候选需核原页": 80,
+    "C2-仅PDFOCR候选需补辅证": 22
+  },
+  "package_count_by_status": {
+    "candidate_conflict_ready_for_human_review_not_fact": 37
+  },
+  "page_count_by_status": {
+    "candidate_conflict_ready_for_human_review_not_fact": 10
+  },
+  "pdf_original_manual_record_filled_count": 0,
+  "hubei_official_field_value_filled_count": 0,
+  "school_support_manual_record_filled_count": 0,
+  "field_confirmation_filled_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该表只把私有候选线索转成公开分层和开核优先级，不公开线索内容，不确认字段事实，不写回，不进入推荐。"
+}

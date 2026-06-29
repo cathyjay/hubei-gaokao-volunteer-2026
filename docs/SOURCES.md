@@ -618,6 +618,9 @@
 - `data/working/issue19-first-closure-g0-conflict-field-w0-w1-review-launch-v1-public-ledger.csv`：第一闭环 G0 冲突字段 W0/W1 开核执行清单公开账本，37 行；一行对应一个 `页列×证据通道` 开核工作包，只保存开核动作、状态桶、计数、ID 和 SHA。
 - `data/working/issue19-first-closure-g0-conflict-field-w0-w1-review-launch-v1-page-summary.csv`：第一闭环 G0 冲突字段 W0/W1 开核执行页列汇总，10 行；按页列汇总开核工作包、材料就绪、人工记录阻断和任务集合 SHA。
 - `data/working/issue19-first-closure-g0-conflict-field-w0-w1-review-launch-v1-summary.json`：第一闭环 G0 冲突字段 W0/W1 开核执行摘要；记录 37 个开核包、10 个页列、251 条当前可并行任务口径、188 条双人复核任务通道记录，以及所有写回、推荐、下一阶段和最终门禁为 0 的边界。
+- `data/working/issue19-first-closure-g0-conflict-field-w0-w1-candidate-triage-v1-public-ledger.csv`：第一闭环 G0 冲突字段 W0/W1 候选分层公开账本，37 行；一行对应一个 `页列×证据通道` 分层工作包，只公开候选分层、计数、ID 和 SHA。
+- `data/working/issue19-first-closure-g0-conflict-field-w0-w1-candidate-triage-v1-page-summary.csv`：第一闭环 G0 冲突字段 W0/W1 候选分层页列汇总，10 行；按页列汇总唯一冲突字段数、候选分层桶和任务集合 SHA。
+- `data/working/issue19-first-closure-g0-conflict-field-w0-w1-candidate-triage-v1-summary.json`：第一闭环 G0 冲突字段 W0/W1 候选分层摘要；记录 68 个唯一冲突字段、251 条任务通道分层记录、唯一分层 30/10/22/6 和通道分层 112/37/80/22，以及所有写回、推荐、下一阶段和最终门禁为 0 的边界。
 - `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv`：第一闭环事实核验包，37 行；一行对应一个 `PDF页码×版面列` 核验包，把 439 个事实缺口压缩为 B0 冲突优先、专业名归属优先、缺候选人工看图、机器坐标辅助四类波次。
 - `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv`：第一闭环事实核验包明细，439 行；一行对应一个包内事实范围，逐项回链到事实范围缺口账本，并继承包序号、波次、页列主阻断和非最终门禁。
 - `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-summary.json`：第一闭环事实核验包摘要；记录 37 个核验包、439 个包内事实，波次分布为 B0 冲突优先 10、专业名归属优先 9、缺候选人工看图 2、机器坐标辅助 16；字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用全部为 0。
@@ -826,6 +829,7 @@
 - `scripts/build_issue19_first_closure_g0_conflict_field_w0_w1_active_workboard_v1.py`：生成 37 行 G0 冲突字段 W0/W1 主动工作板、10 行页列汇总和 summary；用于把当前可并行的 251 条 W0/W1 任务落成可分工工作包，不确认字段事实、不写回、不进入推荐。
 - `scripts/build_issue19_first_closure_g0_conflict_field_w0_w1_material_readiness_v1.py`：生成 37 行 G0 冲突字段 W0/W1 材料就绪审计、10 行页列汇总和 summary；用于核对 W0/W1 开核材料是否齐备。公开层只保存工作包、页列、材料就绪、人工记录就绪、高校辅证 seed 和 `ready_not_final` 状态，不保存私有路径、人工记录内容、字段事实或最终结论。
 - `scripts/build_issue19_first_closure_g0_conflict_field_w0_w1_review_launch_v1.py`：生成 37 行 G0 冲突字段 W0/W1 开核执行清单、10 行页列汇总和 summary；用于把材料已齐的工作包转成开核动作队列。公开层只保存开核动作、状态桶、计数、ID 和 SHA，不保存私有路径、字段读数、OCR 文本、学校专业明细或最终结论。
+- `scripts/build_issue19_first_closure_g0_conflict_field_w0_w1_candidate_triage_v1.py`：生成 37 行 G0 冲突字段 W0/W1 候选分层、10 行页列汇总和 summary；用于把私有 Overlay 中的线索存在性和冲突关系转成公开安全分层。公开层只保存分层桶、计数、ID 和 SHA，不保存私有路径、具体线索、字段记录、OCR 文本、学校专业明细或最终结论。
 - `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-summary.json`：高校源 Adapter D0/D1 页列人工核验包，把 146 条私有核验项压成 18 个页列；用于人工核第 19 期原页、湖北官方侧和高校辅证差异，不确认字段事实。
 - `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json`：高校源 Adapter D0/D1 页列核验进度公开账本，是私有页列 CSV 的公开状态机；只同步 PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核和字段写回门禁的填写状态，不含学校名、专业名、字段值、OCR 正文、人工读数或私有路径。当前仍为 `not_final`，字段事实、推荐依据、最终可用和学校专业建议均为 0 或 `false`。
 - `scripts/build_issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1.py`：生成 `data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv` 和 summary，同时在 Git 忽略私有目录生成 18 个页列栏图、18 个私有审阅 HTML 和私有视觉索引；公开层只保存页码、版面列、计数、尺寸、证据编号和 SHA，不保存图片、路径、学校专业明细、OCR 原文、字段候选或人工记录。
