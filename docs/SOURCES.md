@@ -748,6 +748,7 @@
 - `scripts/build_issue19_first_closure_field_fact_public_ledger.py`：读取第一闭环字段确认公开账本、证据状态、下一步动作矩阵、P0 top3 字段账本、B0 冲突页列账本和 Git 忽略的私有字段工作台，生成 354 行字段原子公开账本；公开层只同步状态和 SHA，不公开字段明细值。
 - `scripts/build_issue19_first_closure_fact_scope_gap_ledger.py`：读取第一闭环字段事实账本、下一步动作矩阵、页列动作汇总和证据状态报告，生成 439 行事实范围缺口账本；用于把字段事实、专业名归属和专业组边界三类待闭环事实放到同一个公开状态层，不确认字段事实。
 - `scripts/build_issue19_first_closure_resolution_execution_overlay_v1.py`：读取第一闭环执行队列、事实准出门禁账本、事实准出页列汇总、核验结果页列汇总和公开证据地图，生成 37 行准出执行叠加表；用于把 439 个事实准出缺口压回页列执行顺序，安排下一轮补证闭环，不确认字段事实。
+- `scripts/build_issue19_first_closure_fact_evidence_channel_workbench_v1.py`：读取第一闭环事实准出门禁、准出执行叠加表、核验结果看板、字段级公开状态和高校官网辅证进度看板，生成 439 行事实证据通道工作台；用于把每个事实范围接到 PDF/OCR/机器坐标/高校官网/湖北官方/冲突/双人复核/三方闭环通道并安排下一步最小核验动作，不确认字段事实。
 - `scripts/build_issue19_first_closure_fact_verification_packets.py`：读取事实范围缺口账本、下一步动作矩阵、页列动作汇总、公开证据地图和页列证据汇总，生成 37 个页列核验包和 439 个包内事实项；用于安排人工核页、双人复核和并行处理顺序，不确认字段事实。
 - `scripts/build_issue19_first_closure_w0_b0_minimal_manual_checklist.py`：读取第一闭环事实核验包、包内事实明细和 B0 冲突页列核验状态，生成 10 个 W0/B0 最小人工复核包和 87 个核心事实项；用于先核专业组边界、明确冲突字段和专业名归属，不确认字段事实。
 - `scripts/build_issue19_first_closure_w0_b0_execution_prefill_audit.py`：读取 W0/B0 最小人工复核包、B0 冲突页列状态、公开证据地图、下一步动作矩阵、字段确认账本、PDFOCR/机器坐标候选和 Git 忽略的私有工作台，生成 10 行执行预填包审计、87 行执行预填明细审计和本地私有页列 CSV；用于人工打开私有材料核 PDF 原页，不确认字段事实。
@@ -773,7 +774,8 @@
 - `scripts/build_issue19_first_closure_manual_verification_workbook.py`：生成 `data/exports/issue19-first-closure-manual-verification-workbook.xlsx`、37 行页列核验包、206 行任务核验项和 354 行字段核验项；用于把第一闭环人工核验拆成可执行清单，公开层不保存具体核验内容、OCR 原文、截图路径或最终结论。
 - `scripts/build_issue19_priority55_family_major_decision_workbook.py`：生成 `data/exports/issue19-priority55-family-major-decision-workbook.xlsx`、55 行组汇总和 458 行逐专业家庭标注表；用于家庭先标“可接受/勉强接受/不能接受/待了解”和服从调剂态度，不确认招生计划字段。
 - `scripts/build_issue19_school_source_structured_ingestion_candidates.py`：生成 `data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv`、summary 和 Excel；优先列出兰州大学、武汉轻工大学、湖北师范大学、西安建筑科技大学、北京语言大学、天津外国语大学、忻州师范学院、西安航空学院、江汉大学、喀什大学、山东工商学院、杭州电子科技大学 12 所已有公开结构化/半结构化源的下一步接入动作。
-- 上述三个产物均继承第 19 期 PDF SHA `ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d`，并保持字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用门禁为 `false` 或 0。
+- `scripts/build_issue19_first_closure_fact_evidence_channel_workbench_v1.py`：生成 `data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-public-ledger.csv` 和 summary，将 439 个事实范围按事实级证据通道展开；公开层不保存学校名、专业名、字段值、OCR 原文、图片路径、人工记录或登录态，`同校高校源*` 仅是同校上下文计数，不能跨事实行求和。
+- 上述产物均继承第 19 期 PDF SHA `ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d`，并保持字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用门禁为 `false` 或 0。
 
 ## 使用优先级
 

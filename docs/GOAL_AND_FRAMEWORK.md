@@ -61,6 +61,8 @@
 
 新增的 `data/working/issue19-first-closure-resolution-execution-overlay-v1.csv` 和 `data/working/issue19-first-closure-resolution-execution-overlay-v1-summary.json` 是第一闭环的准出执行叠加入口：它把执行队列、439 个事实准出缺口、核验结果页列汇总和公开证据地图压到 37 个页列上，明确每个页列离“可进入私有写回评审”还差什么。当前 37 个页列分为 R0 冲突事实先闭环 10 个、R1 专业名归属先闭环 9 个、R2 双人复核先闭环 18 个；所有字段写回、推荐依据、学校专业建议和最终可用仍为 0。
 
+新增的 `data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-public-ledger.csv` 和 `data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-summary.json` 是事实级证据通道工作台：它把同一批 439 个事实范围逐条接到 PDF 原页、OCR、机器坐标、高校官网辅证、湖北官方侧、冲突处理、双人复核、三方闭环、专业名归属和专业组边界通道。它只回答“下一步最小核验动作是什么”，不确认字段事实，不写回主表，不生成学校专业建议或志愿推荐；其中 `同校高校源*` 字段只是随事实行重复展示的同校上下文，不能跨行求和。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-pdf-ocr-candidate-public-audit-summary.json` 是第一闭环 PDF OCR 候选提示层：覆盖 206 条任务，103 条已有 PDF OCR 候选，103 条需人工看图，26 条存在 PDF OCR 与高校辅证冲突，13 条存在一致字段但仍需官方闭环。它把私有候选值留在 Git 忽略目录，公开层只同步状态桶和计数，用于减少人工找行成本，不能自动写入人工记录或字段事实。
 
 新增的 `data/working/issue19-stable-foundation-first-closure-page-side-candidate-dashboard.csv` 和 `data/working/issue19-stable-foundation-first-closure-machine-coordinate-candidate-public-audit.csv` 继续压缩第一闭环人工工作量：前者把 206 条任务按 37 个页列给出核验动作，后者把 103 条原缺 PDF OCR 候选任务中的 49 条提升为机器坐标候选待人工核页。机器坐标候选只用于提示人工回看 PDF 原页，仍必须核湖北官方侧，不得自动写回字段事实或进入志愿推荐。

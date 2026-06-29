@@ -31180,6 +31180,13 @@ def main():
     first_resolution_overlay_csv = (
         ROOT / "data/working/issue19-first-closure-resolution-execution-overlay-v1.csv"
     )
+    first_fact_channel_script = ROOT / "scripts/build_issue19_first_closure_fact_evidence_channel_workbench_v1.py"
+    first_fact_channel_summary_path = (
+        ROOT / "data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-summary.json"
+    )
+    first_fact_channel_csv = (
+        ROOT / "data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-public-ledger.csv"
+    )
     w0_b0_school_bridge_script = ROOT / "scripts/build_issue19_w0_b0_school_source_bridge.py"
     w0_b0_school_bridge_summary_path = ROOT / "data/working/issue19-w0-b0-school-source-bridge-summary.json"
     w0_b0_school_bridge_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv"
@@ -31201,6 +31208,7 @@ def main():
     first_fact_gate_summary = json.loads(first_fact_gate_summary_path.read_text())
     first_fact_resolution_summary = json.loads(first_fact_resolution_summary_path.read_text())
     first_resolution_overlay_summary = json.loads(first_resolution_overlay_summary_path.read_text())
+    first_fact_channel_summary = json.loads(first_fact_channel_summary_path.read_text())
     w0_b0_school_bridge_summary = json.loads(w0_b0_school_bridge_summary_path.read_text())
     field_backlink_summary = json.loads(field_backlink_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -31287,6 +31295,10 @@ def main():
         first_resolution_overlay_reader = csv.DictReader(f)
         first_resolution_overlay_rows = list(first_resolution_overlay_reader)
         first_resolution_overlay_fields = first_resolution_overlay_reader.fieldnames or []
+    with first_fact_channel_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_fact_channel_reader = csv.DictReader(f)
+        first_fact_channel_rows = list(first_fact_channel_reader)
+        first_fact_channel_fields = first_fact_channel_reader.fieldnames or []
     with w0_b0_school_bridge_csv.open(newline="", encoding="utf-8-sig") as f:
         w0_b0_school_bridge_reader = csv.DictReader(f)
         w0_b0_school_bridge_rows = list(w0_b0_school_bridge_reader)
@@ -31369,6 +31381,10 @@ def main():
     first_resolution_overlay_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
         for path in [first_resolution_overlay_summary_path, first_resolution_overlay_csv]
+    )
+    first_fact_channel_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_fact_channel_summary_path, first_fact_channel_csv]
     )
     w0_b0_school_bridge_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -32483,6 +32499,266 @@ def main():
         and "最终推荐" not in first_resolution_overlay_public_text
         and "可填报" not in first_resolution_overlay_public_text
         and "字段明细值" in first_resolution_overlay_public_text,
+    ))
+
+    first_fact_channel_false_fields = script_runtime_constant(
+        first_fact_channel_script, "FALSE_FIELDS"
+    )
+    first_fact_channel_forbidden_tokens = set(shared_forbidden_tokens)
+    first_fact_channel_forbidden_tokens.update(
+        script_runtime_constant(first_fact_channel_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    first_fact_channel_forbidden_tokens.update([
+        "院校名称",
+        "专业名称",
+        "专业代号",
+        "专业组代码",
+        "院校专业组代码",
+        "字段读数",
+        "人工读数",
+        "字段OCR候选",
+        "字段人工确认",
+        "字段候选值集合",
+        "候选计划数",
+        "候选学费",
+        "候选选科",
+        "机器候选字段值",
+        "机器候选值集合",
+        "专业名称及备注",
+        "OCR正文",
+        "OCR行文本",
+        "截图路径",
+        "复核备注",
+        "一审记录",
+        "二审记录",
+        "复核结论",
+        "最终候选",
+        "最终推荐",
+        "最终方案",
+        "可填报",
+        "可排序",
+    ])
+    first_fact_channel_by_fact = {
+        row.get("第一闭环事实范围缺口公开账本ID", ""): row
+        for row in first_fact_channel_rows
+    }
+    first_result_by_task = {
+        row.get("稳定基座第一闭环明细任务ID", ""): row
+        for row in first_result_rows
+        if row.get("稳定基座第一闭环明细任务ID", "")
+    }
+    first_field_status_by_task_field = {
+        (row.get("稳定基座第一闭环明细任务ID", ""), row.get("字段名", "")): row
+        for row in first_field_status_rows
+        if row.get("稳定基座第一闭环明细任务ID", "") and row.get("字段名", "")
+    }
+    school_progress_by_code = defaultdict(list)
+    for row in school_progress_rows:
+        school_progress_by_code[row.get("院校代码", "")].append(row)
+    first_fact_channel_action_rank = {
+        "A0-W0B0冲突事实先核": 0,
+        "A1-专业名归属事实先核": 1,
+        "A2-专业组边界事实随页先核": 2,
+        "A3-双人复核事实先核": 3,
+        "A4-无稳定OCR人工看图": 4,
+        "A5-机器坐标辅助核页": 5,
+        "A6-高校辅证提示回接": 6,
+        "A7-常规PDF湖北官方闭环": 7,
+    }
+    first_fact_channel_order_ok = [
+        (
+            as_int(row.get("来源执行顺序")),
+            first_fact_channel_action_rank.get(row.get("事实核验动作组", ""), 99),
+            as_int(row.get("来源准出序号")),
+        )
+        for row in first_fact_channel_rows
+    ] == sorted(
+        (
+            as_int(row.get("来源执行顺序")),
+            first_fact_channel_action_rank.get(row.get("事实核验动作组", ""), 99),
+            as_int(row.get("来源准出序号")),
+        )
+        for row in first_fact_channel_rows
+    )
+    first_fact_channel_join_ok = True
+    for row in first_fact_channel_rows:
+        fact_id = row.get("第一闭环事实范围缺口公开账本ID", "")
+        fact = next(
+            (
+                item for item in first_fact_resolution_rows
+                if item.get("第一闭环事实范围缺口公开账本ID", "") == fact_id
+            ),
+            {},
+        )
+        overlay = first_resolution_overlay_by_key.get(row.get("页码版面键", ""), {})
+        task_id = row.get("稳定基座第一闭环明细任务ID", "")
+        result = first_result_by_task.get(task_id, {}) if task_id else {}
+        field_status = (
+            first_field_status_by_task_field.get((task_id, row.get("字段类别", "")), {})
+            if task_id and row.get("事实域") == "字段事实"
+            else {}
+        )
+        school_rows_for_code = school_progress_by_code.get(row.get("院校代码", ""), [])
+        first_fact_channel_join_ok = (
+            first_fact_channel_join_ok
+            and bool(fact)
+            and bool(overlay)
+            and row.get("事实证据通道工作台ID")
+            == stable_id("FCFACTCHANNEL", [issue19_source["source"]["sha256"], fact_id])
+            and row.get("来源事实准出门禁账本")
+            == "data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv"
+            and row.get("来源准出执行叠加表")
+            == "data/working/issue19-first-closure-resolution-execution-overlay-v1.csv"
+            and row.get("来源第一闭环核验结果看板")
+            == "data/working/issue19-first-closure-verification-result-public-ledger.csv"
+            and row.get("来源第一闭环字段级公开状态")
+            == "data/working/issue19-first-closure-field-verification-status-public-ledger.csv"
+            and row.get("来源高校官网辅证进度看板")
+            == "data/working/issue19-school-source-progress-board-public-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_first_closure_fact_evidence_channel_workbench_v1"
+            and all(row.get(field) == "false" for field in first_fact_channel_false_fields)
+            and row.get("来源准出序号") == fact.get("准出序号")
+            and row.get("来源执行顺序") == overlay.get("来源执行顺序")
+            and row.get("准出闭环波次") == overlay.get("准出闭环波次")
+            and row.get("页码版面键") == fact.get("页码版面键")
+            and row.get("来源页码") == fact.get("来源页码")
+            and row.get("版面列") == fact.get("版面列")
+            and row.get("事实准出门禁ID") == fact.get("事实准出门禁ID")
+            and row.get("稳定基座第一闭环明细任务ID") == fact.get("稳定基座第一闭环明细任务ID")
+            and row.get("稳定基座第一闭环页列包ID") == fact.get("稳定基座第一闭环页列包ID")
+            and row.get("事实域") == fact.get("事实域")
+            and row.get("事实类型") == fact.get("事实类型")
+            and row.get("字段类别") == fact.get("字段类别")
+            and row.get("是否仍需PDF原页") == fact.get("是否仍需PDF原页")
+            and row.get("是否仍需湖北官方侧") == fact.get("是否仍需湖北官方侧")
+            and row.get("是否仍需高校辅证") == fact.get("是否仍需高校辅证")
+            and row.get("是否仍需冲突处理") == fact.get("是否仍需冲突处理")
+            and row.get("是否仍需双人复核") == fact.get("是否仍需双人复核")
+            and row.get("是否仍需三方闭环") == fact.get("是否仍需三方闭环")
+            and row.get("是否仍需专业名归属") == fact.get("是否仍需专业名归属")
+            and row.get("是否仍需专业组边界") == fact.get("是否仍需专业组边界")
+            and row.get("是否可进入私有写回评审") == "false"
+            and csv_int(row, "同校高校源进度任务数") == len(school_rows_for_code)
+            and (
+                row.get("事实域") != "字段事实"
+                or (
+                    bool(field_status)
+                    and row.get("第一闭环字段核验状态ID")
+                    == field_status.get("第一闭环字段核验状态ID")
+                    and row.get("字段事实状态") == field_status.get("字段事实状态")
+                    and row.get("字段核验优先级") == field_status.get("字段核验优先级")
+                )
+            )
+            and (
+                not task_id
+                or (
+                    bool(result)
+                    and row.get("第一闭环核验结果ID")
+                    == (fact.get("第一闭环核验结果ID") or result.get("第一闭环核验结果ID"))
+                )
+            )
+            and "PDF原页" in row.get("完成证据要求", "")
+            and "湖北官方侧" in row.get("完成证据要求", "")
+            and row.get("下一步最小核验动作")
+        )
+    checks.append(ok(
+        "第 19 期第一闭环事实证据通道工作台摘要、规模和通道分布正确",
+        first_fact_channel_summary.get("status")
+        == "issue19_first_closure_fact_evidence_channel_workbench_v1_not_final"
+        and first_fact_channel_summary.get("generated_by")
+        == "build_issue19_first_closure_fact_evidence_channel_workbench_v1.py"
+        and first_fact_channel_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_fact_channel_summary.get("source_fact_resolution")
+        == "data/working/issue19-first-closure-fact-resolution-gate-v1-public-ledger.csv"
+        and first_fact_channel_summary.get("source_resolution_overlay")
+        == "data/working/issue19-first-closure-resolution-execution-overlay-v1.csv"
+        and first_fact_channel_summary.get("source_verification_result")
+        == "data/working/issue19-first-closure-verification-result-public-ledger.csv"
+        and first_fact_channel_summary.get("source_field_status")
+        == "data/working/issue19-first-closure-field-verification-status-public-ledger.csv"
+        and first_fact_channel_summary.get("source_school_progress")
+        == "data/working/issue19-school-source-progress-board-public-ledger.csv"
+        and first_fact_channel_summary.get("output_table")
+        == "data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-public-ledger.csv"
+        and first_fact_channel_summary.get("row_count") == len(first_fact_channel_rows) == 439
+        and first_fact_channel_summary.get("source_fact_resolution_row_count") == len(first_fact_resolution_rows) == 439
+        and first_fact_channel_summary.get("source_overlay_row_count") == len(first_resolution_overlay_rows) == 37
+        and first_fact_channel_summary.get("source_verification_result_row_count") == len(first_result_rows) == 206
+        and first_fact_channel_summary.get("source_field_status_row_count") == len(first_field_status_rows) == 354
+        and first_fact_channel_summary.get("source_school_progress_row_count") == len(school_progress_rows) == 80
+        and first_fact_channel_summary.get("unique_fact_scope_count") == 439
+        and first_fact_channel_summary.get("unique_page_side_count") == 37
+        and first_fact_channel_summary.get("unique_task_count") == 206
+        and first_fact_channel_summary.get("unique_school_code_count") == 34
+        and Counter(first_fact_channel_summary.get("fact_domain_counts", {})) == Counter({
+            "字段事实": 354,
+            "专业名归属": 48,
+            "专业组边界": 37,
+        })
+        and Counter(first_fact_channel_summary.get("fact_type_counts", {})) == Counter({
+            "字段事实-专业计划数": 170,
+            "字段事实-学费": 105,
+            "字段事实-再选科目": 77,
+            "字段事实-待人工判定字段": 2,
+            "专业名归属事实": 48,
+            "专业组边界事实": 37,
+        })
+        and Counter(first_fact_channel_summary.get("field_category_counts", {})) == Counter({
+            "专业计划数": 170,
+            "学费": 105,
+            "再选科目": 77,
+            "待人工判定字段": 2,
+        })
+        and Counter(first_fact_channel_summary.get("action_group_counts", {})) == Counter({
+            "A0-W0B0冲突事实先核": 275,
+            "A1-专业名归属事实先核": 39,
+            "A2-专业组边界事实随页先核": 27,
+            "A3-双人复核事实先核": 45,
+            "A4-无稳定OCR人工看图": 4,
+            "A6-高校辅证提示回接": 13,
+            "A7-常规PDF湖北官方闭环": 36,
+        })
+        and Counter(first_fact_channel_summary.get("closure_wave_counts", {})) == Counter({
+            "R0-W0B0冲突事实先闭环": 275,
+            "R1-专业名归属事实先闭环": 104,
+            "R2-双人复核事实先闭环": 60,
+        })
+        and first_fact_channel_summary.get("missing_pdf_count") == 439
+        and first_fact_channel_summary.get("missing_hubei_official_count") == 439
+        and first_fact_channel_summary.get("missing_school_source_count") == 201
+        and first_fact_channel_summary.get("missing_conflict_count") == 275
+        and first_fact_channel_summary.get("missing_double_review_count") == 146
+        and first_fact_channel_summary.get("missing_three_way_count") == 439
+        and first_fact_channel_summary.get("missing_major_assignment_count") == 48
+        and first_fact_channel_summary.get("missing_group_boundary_count") == 37
+        and first_fact_channel_summary.get("private_writeback_review_ready_count") == 0
+        and first_fact_channel_summary.get("field_writeback_allowed_count") == 0
+        and first_fact_channel_summary.get("recommendation_basis_allowed_count") == 0
+        and first_fact_channel_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_fact_channel_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_fact_channel_summary.get("next_stage_allowed_count") == 0
+        and first_fact_channel_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环事实证据通道工作台字段、顺序、回链和公开安全正确",
+        first_fact_channel_fields == script_runtime_constant(first_fact_channel_script, "WORKBENCH_FIELDS")
+        and len({row.get("事实证据通道工作台ID", "") for row in first_fact_channel_rows}) == 439
+        and [as_int(row.get("事实工作台序号")) for row in first_fact_channel_rows] == list(range(1, 440))
+        and first_fact_channel_order_ok
+        and set(first_fact_channel_by_fact) == first_fact_resolution_fact_ids
+        and all(
+            {row.get(field, "") for row in first_fact_channel_rows} == {"false"}
+            for field in first_fact_channel_false_fields
+        )
+        and first_fact_channel_join_ok
+        and sum(1 for row in first_fact_channel_rows if row.get("事实域") == "字段事实") == 354
+        and sum(1 for row in first_fact_channel_rows if row.get("第一闭环字段核验状态ID")) == 354
+        and sum(1 for row in first_fact_channel_rows if row.get("第一闭环核验结果ID")) == 402
+        and not any(token in first_fact_channel_public_text for token in first_fact_channel_forbidden_tokens)
+        and "字段明细值" in first_fact_channel_public_text
+        and "最终推荐" not in first_fact_channel_public_text
+        and "可填报" not in first_fact_channel_public_text,
     ))
 
     w0_b0_school_bridge_false_fields = script_runtime_constant(w0_b0_school_bridge_script, "FALSE_FIELDS")

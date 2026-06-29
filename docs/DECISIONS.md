@@ -216,3 +216,4 @@
 - 新增第一闭环人工核验执行工作簿：`scripts/build_issue19_first_closure_manual_verification_workbook.py` 生成 37 个页列包、206 个任务核验项、354 个字段核验项和 Excel 工作簿；用途是把 PDF 原页、OCR、机器坐标、高校辅证、冲突状态和湖北官方侧待核动作拆成可执行清单，不确认字段事实。
 - 新增 Priority55 家庭逐专业决策工作簿：`scripts/build_issue19_priority55_family_major_decision_workbook.py` 生成 55 组汇总、458 条逐专业家庭标注明细和 Excel 工作簿；当前可接受 147、勉强接受 267、待核后判断 44，下一步由家庭填写真实接受度和服从调剂态度。
 - 新增高校官网结构化接入候选账本：`scripts/build_issue19_school_source_structured_ingestion_candidates.py` 生成 12 所学校接入候选表和 Excel；下一步优先对已有 API/JSON、PDF 抽取 CSV、XLSX 和章程 HTML 的学校写 adapter/diff，不再只做宽泛补源搜索。
+- 新增第一闭环事实证据通道工作台：`scripts/build_issue19_first_closure_fact_evidence_channel_workbench_v1.py` 生成 439 行事实级公开工作台和 summary，把字段事实 354、专业名归属 48、专业组边界 37 逐项接到 PDF 原页、OCR、机器坐标、高校官网辅证、湖北官方侧、冲突处理、双人复核和三方闭环通道。该表只用于安排下一步最小核验动作，不确认字段事实、不写回主表、不生成学校专业建议；`同校高校源*` 字段仅是随事实行重复的同校上下文，不能跨行求和。

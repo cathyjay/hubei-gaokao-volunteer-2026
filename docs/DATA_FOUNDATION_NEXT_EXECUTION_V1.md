@@ -130,6 +130,18 @@
 
 该表只公开页列级计数、字段类型、证据编号、状态桶和集合 SHA；不公开学校专业明细、字段候选值、OCR 原文、人工读数或私有路径。字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
 
+## 第一闭环事实证据通道工作台
+
+新增事实级执行视图：
+
+- 生成脚本：`scripts/build_issue19_first_closure_fact_evidence_channel_workbench_v1.py`
+- 公开工作台：`data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-summary.json`
+
+这张表把第一闭环 439 个事实范围逐项接到 PDF 原页、OCR、机器坐标、高校官网辅证、湖北官方侧、冲突处理、双人复核、三方闭环、专业名归属和专业组边界通道。当前事实域为字段事实 354、专业名归属 48、专业组边界 37；动作组用于安排 A0 冲突先核、A1 专业名归属先核、A2 专业组边界随页先核、A3 双人复核先核、A4 人工看图、A6 高校辅证提示回接和 A7 常规 PDF/湖北官方闭环。
+
+这张表只用于排下一步最小核验动作，不确认计划数、学费、选科、专业名或专业组边界，不写回主表，也不生成学校/专业建议或志愿推荐。公开层不保存学校名、专业名、字段值、OCR 原文、图片路径、人工记录或登录态。`同校高校源*` 字段是随事实行重复的同校上下文，不能跨行求和。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：
