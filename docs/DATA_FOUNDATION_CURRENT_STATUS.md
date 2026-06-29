@@ -133,6 +133,8 @@
 
 新增的 `data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv` 是高校源 Adapter/Diff 执行工作台。它把 12 所结构化接入候选拆成 adapter、parser、normalized bridge 和候选 diff 执行动作，并按院校代码回链 28 条高校源进度任务、28 条最新对齐任务和 28 条自动执行批次。来源类型为 API/JSON 6、API/JSON+章程HTML 1、PDF 抽取 CSV 3、XLSX 2；当前候选 diff 线索 446、计划数冲突线索 35、官网补缺线索 221，但所有行仍待 PDF 原页和湖北官方侧核验，不确认字段事实。
 
+新增的 `data/working/issue19-school-source-adapter-parse-audit-v1-public-ledger.csv` 是高校源 Adapter 解析审计。它对上述 12 个来源实际跑 parser：12 行均能解析出湖北物理类计划行，覆盖 JSON 7、PDF_CSV 3、XLSX 2；解析湖北物理类行数合计 326，计划数合计 6725。该表只回答“来源是否能被机器解析、字段覆盖到哪一步”，不保存字段明细，不写回主表，也不替代 PDF 原页和湖北官方侧。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。

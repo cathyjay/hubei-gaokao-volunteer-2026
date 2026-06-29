@@ -49,6 +49,8 @@
 
 新增的 `data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-diff-execution-workbench-v1-summary.json` 是高校源 Adapter/Diff 执行层：它把 12 个已有公开结构化或半结构化源的候选学校接到 adapter、parser、normalized bridge 和候选 diff 动作上，用于继续自动 double check、发现冲突和压缩人工核验范围。它仍不确认计划数、学费、选科、专业名或专业组边界，不允许字段写回，也不能替代湖北官方计划。
 
+新增的 `data/working/issue19-school-source-adapter-parse-audit-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-parse-audit-v1-summary.json` 是高校源 Adapter 解析审计层：它对 12 个来源实际跑 parser，确认这些来源能解析出 326 条湖北物理类计划行，并记录计划数、学费、选科、组内代码和校内组线索覆盖情况。它只证明“机器能解析出线索”，不证明这些线索已经可写回或可用于最终志愿。
+
 新增的 `data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 是该状态快照的执行层：它不新增字段事实，只把 80 条任务拆成冲突回页、官网补缺回页、专业名归属、补结构化、继续补源、章程规则和留存观察 7 条泳道。当前它用于继续落实基础数据基座，把“我可以自动推进什么”和“哪些必须人工/官方闭环”分清楚。
 
 新增的 `data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 是第一批执行入口：把最高优先级的 206 条明细任务集中到 37 个页列，先核冲突、补缺、官网未匹配和高校辅证字段线索。它只压缩人工工作量和安排核验顺序，不改变“湖北官方计划和 PDF 原页闭环前不得定案”的原则。

@@ -1,0 +1,49 @@
+{
+  "status": "issue19_school_source_adapter_parse_audit_v1_not_final",
+  "generated_by": "build_issue19_school_source_adapter_parse_audit_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_adapter_workbench": "data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv",
+  "source_structured_ingestion": "data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv",
+  "output_table": "data/working/issue19-school-source-adapter-parse-audit-v1-public-ledger.csv",
+  "row_count": 12,
+  "unique_school_count": 12,
+  "source_adapter_row_count": 12,
+  "source_type_counts": {
+    "API/JSON": 6,
+    "API/JSON；章程HTML": 1,
+    "PDF抽取CSV": 3,
+    "XLSX": 2
+  },
+  "parser_family_counts": {
+    "JSON计划源解析": 6,
+    "JSON计划源解析；章程规则旁路": 1,
+    "PDF_CSV抽取源解析": 3,
+    "XLSX附件解析": 2
+  },
+  "parse_result_counts": {
+    "parsed_has_rows": 12
+  },
+  "diff_ready_counts": {
+    "true": 12
+  },
+  "plan_hint_count": 12,
+  "fee_hint_count": 2,
+  "subject_hint_count": 4,
+  "major_code_hint_count": 3,
+  "group_hint_count": 2,
+  "evidence_file_count": 17,
+  "parseable_evidence_file_count": 12,
+  "non_plan_rule_sidecar_count": 2,
+  "parsed_hubei_physics_row_count": 326,
+  "parsed_hubei_physics_plan_sum": 6725,
+  "pdf_pending_count": 12,
+  "hubei_official_pending_count": 12,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "本表只审计高校源adapter解析能力和字段覆盖，不保存学校名、专业名、字段明细或证据路径，不替代第19期PDF原页和湖北官方计划。"
+}

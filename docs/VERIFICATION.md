@@ -629,6 +629,15 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 所有行必须仍待 PDF 原页和湖北官方侧核验；字段写回、推荐依据、官网替代湖北官方计划、学校专业建议、进入下一阶段和最终可用门禁必须为 false 或 0。
 - 公开文件不得出现学校名、专业名、字段明细、OCR 正文、人工读数、候选值、私有路径、证据文件路径、登录态、身份信息或最终推荐/可填报等误导词。
 
+高校源 Adapter 解析审计的校验方式：
+
+- `data/working/issue19-school-source-adapter-parse-audit-v1-public-ledger.csv` 必须由 `scripts/build_issue19_school_source_adapter_parse_audit_v1.py` 生成，输入来自高校源 Adapter/Diff 执行工作台、结构化接入候选账本和既有 B0/B1 官方证据 parser。
+- 公开账本必须保持 12 行、12 个唯一院校代码，并与 Adapter/Diff 工作台的院校代码集合完全一致；解析结果必须全部为 `parsed_has_rows`，且全部 `是否具备候选diff基础=true`。
+- 来源类型分布必须保持 API/JSON 6、API/JSON；章程HTML 1、PDF抽取CSV 3、XLSX 2；parser 分布必须保持 JSON计划源解析 6、JSON计划源解析；章程规则旁路 1、PDF_CSV抽取源解析 3、XLSX附件解析 2。
+- 解析湖北物理类行数必须合计 326，解析计划数必须合计 6725；计划线索覆盖 12 行，费用线索 2 行，选科线索 4 行，组内代码线索 3 行，校内组线索 2 行。
+- 证据文件数必须合计 17，其中可解析计划源 12 个、非计划规则侧证 2 个；所有行必须仍待 PDF 原页和湖北官方侧核验，写回、推荐、官网替代、学校专业建议、下一阶段和最终门禁必须为 false 或 0。
+- 公开文件不得出现学校名、专业名、字段明细、字段读数、候选正文、私有路径、证据文件路径、登录态、身份信息或最终推荐/可填报等误导词。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。

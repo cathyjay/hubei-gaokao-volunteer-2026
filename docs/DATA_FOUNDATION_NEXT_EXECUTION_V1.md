@@ -158,6 +158,14 @@
 
 这张表把 12 个高校官网结构化接入候选推进到 adapter、parser、normalized bridge 和候选 diff 的执行层。当前 4 行需要新建 adapter 或 bridge，8 行已有结构化线索需统一 normalized 输出；8 行属于优先生成冲突或高明细 diff，3 行生成补缺或常规 diff，1 行先做来源边界防串校验。它只服务高校源 double check 和人工核验压缩，不替代 PDF 原页、湖北官方计划或家庭决策。
 
+新增高校源 Adapter 解析审计视图：
+
+- 生成脚本：`scripts/build_issue19_school_source_adapter_parse_audit_v1.py`
+- 公开工作台：`data/working/issue19-school-source-adapter-parse-audit-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-school-source-adapter-parse-audit-v1-summary.json`
+
+这张表把 12 个来源真实跑过 parser，确认都能形成 normalized 审计行：总计解析湖北物理类计划行 326，计划数合计 6725；计划数线索覆盖 12 行，学费线索覆盖 2 行，选科线索覆盖 4 行，组内代码线索覆盖 3 行，校内组线索覆盖 2 行。它的作用是判断后续 diff 能不能自动跑，不能直接作为最终招生计划事实。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：
