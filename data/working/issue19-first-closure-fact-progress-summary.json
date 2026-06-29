@@ -1,0 +1,80 @@
+{
+  "status": "issue19_first_closure_fact_progress_public_ledger_ready_not_final",
+  "generated_by": "build_issue19_first_closure_fact_progress_public_ledger.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output": "data/working/issue19-first-closure-fact-progress-public-ledger.csv",
+  "page_output": "data/working/issue19-first-closure-fact-progress-page-summary.csv",
+  "fact_progress_row_count": 439,
+  "page_summary_row_count": 37,
+  "unique_fact_scope_count": 439,
+  "unique_page_side_count": 37,
+  "unique_task_count": 206,
+  "fact_domain_counts": {
+    "字段事实": 354,
+    "专业名归属": 48,
+    "专业组边界": 37
+  },
+  "fact_type_counts": {
+    "字段事实-专业计划数": 170,
+    "字段事实-学费": 105,
+    "字段事实-再选科目": 77,
+    "字段事实-待人工判定字段": 2,
+    "专业名归属事实": 48,
+    "专业组边界事实": 37
+  },
+  "field_category_counts": {
+    "专业计划数": 170,
+    "学费": 105,
+    "再选科目": 77,
+    "待人工判定字段": 2
+  },
+  "pdf_progress_counts": {
+    "P0-有冲突线索，PDF原页优先人工核验": 68,
+    "P1-有机器坐标提示，仍待PDF原页人工核验": 49,
+    "P2-有PDFOCR提示，仍待PDF原页人工确认": 212,
+    "P3-无稳定OCR提示，需人工看PDF原页": 73,
+    "pending_pdf_page_review": 37
+  },
+  "ocr_progress_counts": {
+    "O0-PDFOCR与高校辅证冲突": 68,
+    "O4-无PDFOCR但有机器坐标提示": 49,
+    "O3-仅PDFOCR候选待人工核页": 79,
+    "O1-PDFOCR与高校辅证有一致字段但仍待官方闭环": 37,
+    "O5-无公开OCR候选提示": 73,
+    "O2-高校有线索但PDFOCR缺候选": 96,
+    "OZ-页列或事实级待人工核验": 37
+  },
+  "machine_progress_counts": {
+    "M0-无机器坐标提示": 353,
+    "M1-有机器坐标提示可辅助定位": 49,
+    "MZ-无任务级机器坐标提示": 37
+  },
+  "school_source_progress_counts": {
+    "S1-有高校辅证线索或自动官网任务，待私有辅证记录": 376,
+    "S0-无高校字段线索，本任务高校辅证不适用": 26,
+    "for_double_check_only_not_official_plan_replacement": 37
+  },
+  "conflict_progress_counts": {
+    "C0-PDFOCR与高校辅证冲突，必须回PDF原页和湖北官方侧": 68,
+    "C4-无可比候选，需人工看图或随页列闭环": 122,
+    "C3-仅PDFOCR候选，需人工核页": 79,
+    "C2-多源有一致线索，仍待湖北官方侧闭环": 37,
+    "C1-高校补缺线索，PDF原页缺候选需人工看图": 96,
+    "G2-专业组边界待闭环": 27,
+    "P1-多字段冲突或双人复核较多，优先核PDF原页": 6,
+    "P3-单点冲突，随同页列材料完成核验": 3,
+    "P0-整页列高冲突，先双人核PDF原页与湖北官方侧": 1
+  },
+  "hubei_official_pending_count": 439,
+  "pdf_pending_count": 439,
+  "double_review_pending_count": 146,
+  "b0_conflict_fact_count": 275,
+  "official_page_finalize_allowed_count": 0,
+  "platform_finalize_allowed_count": 0,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "policy": "本账本只公开第一闭环事实范围的核验进度，不公开字段内容、OCR正文、截图路径或最终建议。"
+}

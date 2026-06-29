@@ -31159,6 +31159,10 @@ def main():
     family_major_decision_group_csv = ROOT / "data/exports/issue19-priority55-family-major-decision-group-summary.csv"
     family_major_decision_major_csv = ROOT / "data/exports/issue19-priority55-family-major-decision-major-items.csv"
     family_major_decision_workbook = ROOT / "data/exports/issue19-priority55-family-major-decision-workbook.xlsx"
+    first_fact_progress_script = ROOT / "scripts/build_issue19_first_closure_fact_progress_public_ledger.py"
+    first_fact_progress_summary_path = ROOT / "data/working/issue19-first-closure-fact-progress-summary.json"
+    first_fact_progress_csv = ROOT / "data/working/issue19-first-closure-fact-progress-public-ledger.csv"
+    first_fact_progress_page_csv = ROOT / "data/working/issue19-first-closure-fact-progress-page-summary.csv"
 
     first_result_summary = json.loads(first_result_summary_path.read_text())
     first_field_status_summary = json.loads(first_field_status_summary_path.read_text())
@@ -31167,6 +31171,7 @@ def main():
     first_manual_summary = json.loads(first_manual_summary_path.read_text())
     school_ingestion_summary = json.loads(school_ingestion_summary_path.read_text())
     family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
+    first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
         first_result_reader = csv.DictReader(f)
         first_result_rows = list(first_result_reader)
@@ -31215,6 +31220,14 @@ def main():
         family_major_decision_major_reader = csv.DictReader(f)
         family_major_decision_major_rows = list(family_major_decision_major_reader)
         family_major_decision_major_fields = family_major_decision_major_reader.fieldnames or []
+    with first_fact_progress_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_fact_progress_reader = csv.DictReader(f)
+        first_fact_progress_rows = list(first_fact_progress_reader)
+        first_fact_progress_fields = first_fact_progress_reader.fieldnames or []
+    with first_fact_progress_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_fact_progress_page_reader = csv.DictReader(f)
+        first_fact_progress_page_rows = list(first_fact_progress_page_reader)
+        first_fact_progress_page_fields = first_fact_progress_page_reader.fieldnames or []
 
     first_result_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -31246,6 +31259,14 @@ def main():
             family_major_decision_summary_path,
             family_major_decision_group_csv,
             family_major_decision_major_csv,
+        ]
+    )
+    first_fact_progress_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_fact_progress_summary_path,
+            first_fact_progress_csv,
+            first_fact_progress_page_csv,
         ]
     )
 
@@ -31575,6 +31596,147 @@ def main():
         and not any(token in family_major_decision_public_text for token in shared_forbidden_tokens)
         and "人工读数" not in family_major_decision_public_text
         and "字段读数" not in family_major_decision_public_text,
+    ))
+
+    first_fact_false_fields = script_runtime_constant(first_fact_progress_script, "FALSE_FIELDS")
+    first_fact_progress_forbidden_tokens = set(shared_forbidden_tokens)
+    first_fact_progress_forbidden_tokens.update(
+        script_runtime_constant(first_fact_progress_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    first_fact_progress_forbidden_tokens.update([
+        "字段读数",
+        "字段OCR候选",
+        "字段人工确认",
+        "字段候选值集合",
+        "候选计划数",
+        "候选学费",
+        "候选选科",
+        "机器候选字段值",
+        "机器候选值集合",
+        "专业名称及备注",
+        "复核备注",
+        "一审记录",
+        "二审记录",
+        "复核结论",
+        "最终候选",
+    ])
+    checks.append(ok(
+        "第 19 期第一闭环事实进度公开账本摘要、规模和事实域分布正确",
+        first_fact_progress_summary.get("status") == "issue19_first_closure_fact_progress_public_ledger_ready_not_final"
+        and first_fact_progress_summary.get("generated_by") == "build_issue19_first_closure_fact_progress_public_ledger.py"
+        and first_fact_progress_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_fact_progress_summary.get("output") == str(first_fact_progress_csv.relative_to(ROOT))
+        and first_fact_progress_summary.get("page_output") == str(first_fact_progress_page_csv.relative_to(ROOT))
+        and first_fact_progress_summary.get("fact_progress_row_count") == len(first_fact_progress_rows) == 439
+        and first_fact_progress_summary.get("page_summary_row_count") == len(first_fact_progress_page_rows) == 37
+        and first_fact_progress_summary.get("unique_fact_scope_count") == 439
+        and first_fact_progress_summary.get("unique_page_side_count") == 37
+        and first_fact_progress_summary.get("unique_task_count") == 206
+        and Counter(first_fact_progress_summary.get("fact_domain_counts", {})) == Counter({
+            "字段事实": 354,
+            "专业名归属": 48,
+            "专业组边界": 37,
+        })
+        and Counter(first_fact_progress_summary.get("fact_type_counts", {})) == Counter({
+            "字段事实-专业计划数": 170,
+            "字段事实-学费": 105,
+            "字段事实-再选科目": 77,
+            "字段事实-待人工判定字段": 2,
+            "专业名归属事实": 48,
+            "专业组边界事实": 37,
+        })
+        and Counter(first_fact_progress_summary.get("field_category_counts", {})) == Counter({
+            "专业计划数": 170,
+            "学费": 105,
+            "再选科目": 77,
+            "待人工判定字段": 2,
+        })
+        and first_fact_progress_summary.get("hubei_official_pending_count") == 439
+        and first_fact_progress_summary.get("pdf_pending_count") == 439
+        and first_fact_progress_summary.get("double_review_pending_count") == 146
+        and first_fact_progress_summary.get("b0_conflict_fact_count") == 275
+        and first_fact_progress_summary.get("official_page_finalize_allowed_count") == 0
+        and first_fact_progress_summary.get("platform_finalize_allowed_count") == 0
+        and first_fact_progress_summary.get("field_writeback_ready_count") == 0
+        and first_fact_progress_summary.get("recommendation_basis_allowed_count") == 0
+        and first_fact_progress_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_fact_progress_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环事实进度公开账本字段、页列守恒和门禁正确",
+        first_fact_progress_fields == script_runtime_constant(first_fact_progress_script, "PROGRESS_FIELDS")
+        and first_fact_progress_page_fields == script_runtime_constant(first_fact_progress_script, "PAGE_FIELDS")
+        and len({row.get("第一闭环事实进度公开账本ID", "") for row in first_fact_progress_rows}) == 439
+        and len({row.get("第一闭环事实范围缺口公开账本ID", "") for row in first_fact_progress_rows}) == 439
+        and {
+            row.get("第一闭环事实范围缺口公开账本ID", "")
+            for row in first_fact_progress_rows
+        } == {
+            row.get("第一闭环事实范围缺口公开账本ID", "")
+            for row in first_fact_scope_rows
+        }
+        and [as_int(row.get("事实进度序号")) for row in first_fact_progress_rows] == list(range(1, 440))
+        and len({row.get("第一闭环事实进度页列汇总ID", "") for row in first_fact_progress_page_rows}) == 37
+        and len({row.get("页码版面键", "") for row in first_fact_progress_page_rows}) == 37
+        and [as_int(row.get("页列汇总序号")) for row in first_fact_progress_page_rows] == list(range(1, 38))
+        and len({
+            row.get("稳定基座第一闭环明细任务ID", "")
+            for row in first_fact_progress_rows
+            if row.get("稳定基座第一闭环明细任务ID", "")
+        }) == 206
+        and {
+            row.get("稳定基座第一闭环明细任务ID", "")
+            for row in first_fact_progress_rows
+            if row.get("稳定基座第一闭环明细任务ID", "")
+        } == {
+            row.get("稳定基座第一闭环明细任务ID", "")
+            for row in first_result_rows
+        }
+        and Counter(row.get("事实域", "") for row in first_fact_progress_rows) == Counter({
+            "字段事实": 354,
+            "专业名归属": 48,
+            "专业组边界": 37,
+        })
+        and Counter(row.get("事实类型", "") for row in first_fact_progress_rows) == Counter({
+            "字段事实-专业计划数": 170,
+            "字段事实-学费": 105,
+            "字段事实-再选科目": 77,
+            "字段事实-待人工判定字段": 2,
+            "专业名归属事实": 48,
+            "专业组边界事实": 37,
+        })
+        and sum(csv_int(row, "事实范围数") for row in first_fact_progress_page_rows) == 439
+        and sum(csv_int(row, "字段事实数") for row in first_fact_progress_page_rows) == 354
+        and sum(csv_int(row, "专业名归属事实数") for row in first_fact_progress_page_rows) == 48
+        and sum(csv_int(row, "专业组边界事实数") for row in first_fact_progress_page_rows) == 37
+        and sum(csv_int(row, "涉及任务数") for row in first_fact_progress_page_rows) == 206
+        and sum(csv_int(row, "B0冲突事实数") for row in first_fact_progress_page_rows) == 275
+        and sum(csv_int(row, "需要双人复核事实数") for row in first_fact_progress_page_rows) == 146
+        and sum(csv_int(row, "需要人工看图事实数") for row in first_fact_progress_page_rows) == 373
+        and {row.get("字段事实写回状态", "") for row in first_fact_progress_rows} == {
+            "blocked_until_pdf_hubei_school_three_way_closure"
+        }
+        and {row.get("湖北官方侧进度桶", "") for row in first_fact_progress_rows} == {
+            "pending_hubei_official_plan_review"
+        }
+        and {row.get("PDF原页核页状态", "") for row in first_fact_progress_page_rows} == {
+            "pending_pdf_page_review"
+        }
+        and {row.get("湖北官方系统或省招办计划核验状态", "") for row in first_fact_progress_page_rows} == {
+            "pending_hubei_official_plan_review"
+        }
+        and {row.get("高校官网源状态", "") for row in first_fact_progress_page_rows} == {
+            "for_double_check_only_not_official_plan_replacement"
+        }
+        and all(
+            {row.get(field, "") for row in first_fact_progress_rows} == {"false"}
+            for field in first_fact_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in first_fact_progress_page_rows} == {"false"}
+            for field in first_fact_false_fields
+        )
+        and not any(token in first_fact_progress_public_text for token in first_fact_progress_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
