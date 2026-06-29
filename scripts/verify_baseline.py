@@ -31211,6 +31211,24 @@ def main():
         / "private/review-assets/issue19-school-source-adapter-d0-d1-manual-review-packets-v1"
         / "school-source-adapter-d0-d1-private-index.csv"
     )
+    school_adapter_d0_d1_page_script = (
+        ROOT / "scripts/build_issue19_school_source_adapter_d0_d1_page_side_packets_v1.py"
+    )
+    school_adapter_d0_d1_page_summary_path = (
+        ROOT / "data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-summary.json"
+    )
+    school_adapter_d0_d1_page_csv = (
+        ROOT / "data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv"
+    )
+    school_adapter_d0_d1_page_private_dir = (
+        ROOT / "private/review-assets/issue19-school-source-adapter-d0-d1-page-side-packets-v1"
+    )
+    school_adapter_d0_d1_page_private_index_csv = (
+        school_adapter_d0_d1_page_private_dir / "page-side-packets-private-index.csv"
+    )
+    school_adapter_d0_d1_page_private_master_html = (
+        school_adapter_d0_d1_page_private_dir / "index.html"
+    )
     family_major_decision_script = ROOT / "scripts/build_issue19_priority55_family_major_decision_workbook.py"
     family_major_decision_summary_path = ROOT / "data/exports/issue19-priority55-family-major-decision-workbook-summary.json"
     family_major_decision_group_csv = ROOT / "data/exports/issue19-priority55-family-major-decision-group-summary.csv"
@@ -31273,6 +31291,9 @@ def main():
         school_adapter_candidate_diff_summary_path.read_text()
     )
     school_adapter_d0_d1_summary = json.loads(school_adapter_d0_d1_summary_path.read_text())
+    school_adapter_d0_d1_page_summary = json.loads(
+        school_adapter_d0_d1_page_summary_path.read_text()
+    )
     family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
     first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
     first_fact_gate_summary = json.loads(first_fact_gate_summary_path.read_text())
@@ -31373,6 +31394,18 @@ def main():
         school_adapter_d0_d1_private_index_rows = list(school_adapter_d0_d1_private_index_reader)
         school_adapter_d0_d1_private_index_fields = (
             school_adapter_d0_d1_private_index_reader.fieldnames or []
+        )
+    with school_adapter_d0_d1_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_adapter_d0_d1_page_reader = csv.DictReader(f)
+        school_adapter_d0_d1_page_rows = list(school_adapter_d0_d1_page_reader)
+        school_adapter_d0_d1_page_fields = school_adapter_d0_d1_page_reader.fieldnames or []
+    with school_adapter_d0_d1_page_private_index_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_adapter_d0_d1_page_private_index_reader = csv.DictReader(f)
+        school_adapter_d0_d1_page_private_index_rows = list(
+            school_adapter_d0_d1_page_private_index_reader
+        )
+        school_adapter_d0_d1_page_private_index_fields = (
+            school_adapter_d0_d1_page_private_index_reader.fieldnames or []
         )
     with family_major_decision_group_csv.open(newline="", encoding="utf-8-sig") as f:
         family_major_decision_group_reader = csv.DictReader(f)
@@ -32749,6 +32782,278 @@ def main():
         )
         and "最终推荐" not in school_adapter_d0_d1_public_text
         and "可填报" not in school_adapter_d0_d1_public_text,
+    ))
+
+    school_adapter_d0_d1_page_false_fields = script_runtime_constant(
+        school_adapter_d0_d1_page_script, "FALSE_FIELDS"
+    )
+    school_adapter_d0_d1_page_forbidden_tokens = set(shared_forbidden_tokens)
+    school_adapter_d0_d1_page_forbidden_tokens.update(
+        script_runtime_constant(school_adapter_d0_d1_page_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    school_adapter_d0_d1_page_forbidden_tokens.update([
+        "院校名称公开",
+        "院校名称OCR",
+        "学校名称",
+        "专业名称",
+        "专业名称及备注OCR",
+        "专业代号",
+        "院校专业组代码",
+        "官方来源文件",
+        "最佳高校源专业名称",
+        "最佳高校源计划数",
+        "字段值",
+        "字段读数",
+        "候选值",
+        "人工读数",
+        "OCR正文",
+        "复核备注",
+        "最终推荐",
+        "最终方案",
+        "可填报",
+        "可排序",
+    ])
+    d0_d1_items_by_page_side = defaultdict(list)
+    for row in school_adapter_d0_d1_private_items_rows:
+        d0_d1_items_by_page_side[page_side_key(row)].append(row)
+    d0_d1_page_private_index_by_id = {
+        row.get("高校源AdapterD0D1页列核验包ID", ""): row
+        for row in school_adapter_d0_d1_page_private_index_rows
+    }
+    d0_d1_page_public_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in [school_adapter_d0_d1_page_summary_path, school_adapter_d0_d1_page_csv]
+    )
+    d0_d1_page_join_ok = True
+    d0_d1_page_private_item_ids = []
+    d0_d1_page_packet_csv_hashes = []
+    d0_d1_page_packet_html_hashes = []
+    d0_d1_page_private_packet_fields_ok = True
+    d0_d1_page_private_blank_fields_ok = True
+    d0_d1_page_private_row_count = 0
+    d0_d1_page_source_item_ids = {
+        row.get("高校源AdapterD0D1人工核验项ID", "") for row in school_adapter_d0_d1_private_items_rows
+    }
+    d0_d1_page_seen_item_ids = set()
+    d0_d1_page_priority_by_id = {
+        row.get("高校源AdapterD0D1页列核验包ID", ""): index
+        for index, row in enumerate(school_adapter_d0_d1_page_rows, start=1)
+    }
+    for row in school_adapter_d0_d1_page_rows:
+        packet_id = row.get("高校源AdapterD0D1页列核验包ID", "")
+        page_key = (row.get("来源页码", ""), row.get("版面列", ""))
+        source_items = d0_d1_items_by_page_side.get(page_key, [])
+        source_item_ids = [
+            item.get("高校源AdapterD0D1人工核验项ID", "")
+            for item in source_items
+            if item.get("高校源AdapterD0D1人工核验项ID", "")
+        ]
+        priority_counts = Counter(item.get("人工核验优先级", "") for item in source_items)
+        d0_d1_packet_ids = {
+            item.get("高校源AdapterD0D1人工核验包ID", "")
+            for item in source_items
+            if item.get("高校源AdapterD0D1人工核验包ID", "")
+        }
+        school_codes = {
+            item.get("院校代码", "") for item in source_items if item.get("院校代码", "")
+        }
+        major_ids = {
+            item.get("专业行ID", "") for item in source_items if item.get("专业行ID", "")
+        }
+        index_row = d0_d1_page_private_index_by_id.get(packet_id, {})
+        csv_path = school_adapter_d0_d1_page_private_dir / index_row.get("私有页列CSV相对路径", "")
+        html_path = school_adapter_d0_d1_page_private_dir / index_row.get("私有页列HTML相对路径", "")
+        packet_csv_rows = []
+        packet_csv_fields = []
+        if csv_path.exists():
+            with csv_path.open(newline="", encoding="utf-8-sig") as f:
+                packet_csv_reader = csv.DictReader(f)
+                packet_csv_rows = list(packet_csv_reader)
+                packet_csv_fields = packet_csv_reader.fieldnames or []
+        d0_d1_page_seen_item_ids.update(
+            item.get("高校源AdapterD0D1人工核验项ID", "") for item in packet_csv_rows
+        )
+        d0_d1_page_private_item_ids.extend(source_item_ids)
+        d0_d1_page_private_row_count += len(packet_csv_rows)
+        if csv_path.exists():
+            d0_d1_page_packet_csv_hashes.append(sha256(csv_path))
+        if html_path.exists():
+            d0_d1_page_packet_html_hashes.append(sha256(html_path))
+        d0_d1_page_private_packet_fields_ok = (
+            d0_d1_page_private_packet_fields_ok
+            and packet_csv_fields
+            == script_runtime_constant(school_adapter_d0_d1_page_script, "PRIVATE_PAGE_FIELDS")
+        )
+        d0_d1_page_private_blank_fields_ok = (
+            d0_d1_page_private_blank_fields_ok
+            and all(
+                packet_row.get(field, "") == ""
+                for packet_row in packet_csv_rows
+                for field in [
+                    "PDF原页人工核验记录",
+                    "湖北官方计划人工核验记录",
+                    "高校源差异解释记录",
+                    "最终字段处理建议",
+                    "复核人A",
+                    "复核人B",
+                    "人工复核时间",
+                    "页列复核备注",
+                ]
+            )
+        )
+        d0_d1_page_join_ok = (
+            d0_d1_page_join_ok
+            and bool(packet_id)
+            and bool(source_items)
+            and bool(index_row)
+            and csv_path.exists()
+            and html_path.exists()
+            and packet_id
+            == school_adapter_diff_stable_id(
+                "SSPAGE",
+                [
+                    issue19_source["source"]["sha256"],
+                    row.get("来源页码", ""),
+                    row.get("版面列", ""),
+                    school_adapter_diff_sha16(source_item_ids),
+                ],
+            )
+            and row.get("来源D0D1人工核验包公开账本")
+            == "data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-public-ledger.csv"
+            and row.get("来源D0D1人工核验包摘要")
+            == "data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-summary.json"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_school_source_adapter_d0_d1_page_side_packets_v1"
+            and all(row.get(field) == "false" for field in school_adapter_d0_d1_page_false_fields)
+            and row.get("页码版面键SHA16")
+            == school_adapter_diff_sha16([row.get("来源页码", ""), row.get("版面列", "")])
+            and csv_int(row, "涉及院校代码数") == len(school_codes)
+            and row.get("涉及院校代码集合SHA16") == school_adapter_diff_sha16(school_codes)
+            and csv_int(row, "涉及D0D1人工核验包数") == len(d0_d1_packet_ids)
+            and csv_int(row, "私有核验项数") == len(source_items) == len(packet_csv_rows)
+            and csv_int(row, "私有页列CSV行数") == len(packet_csv_rows)
+            and csv_int(row, "R0计划数冲突项数")
+            == priority_counts.get("R0-计划数冲突优先核PDF原页", 0)
+            and csv_int(row, "R1OCR计划数可补项数")
+            == priority_counts.get("R1-OCR计划数缺失但高校源可补", 0)
+            and csv_int(row, "R2疑似匹配项数")
+            == priority_counts.get("R2-疑似匹配专业名人工确认", 0)
+            and csv_int(row, "R3计划数一致抽检项数")
+            == priority_counts.get("R3-计划数一致候选抽检", 0)
+            and csv_int(row, "双人复核建议项数")
+            == priority_counts.get("R0-计划数冲突优先核PDF原页", 0)
+            + priority_counts.get("R2-疑似匹配专业名人工确认", 0)
+            and row.get("涉及D0D1人工核验包ID集合SHA256")
+            == school_adapter_diff_sha16(d0_d1_packet_ids)
+            and row.get("涉及专业行ID集合SHA256") == school_adapter_diff_sha16(major_ids)
+            and row.get("私有页列CSV_SHA256") == sha256(csv_path)
+            and row.get("私有页列HTML_SHA256") == sha256(html_path)
+            and row.get("私有页列索引CSV_SHA256")
+            == sha256(school_adapter_d0_d1_page_private_index_csv)
+            and index_row.get("页列执行序号") == row.get("页列执行序号")
+            and index_row.get("来源页码") == row.get("来源页码")
+            and index_row.get("版面列") == row.get("版面列")
+            and index_row.get("页列执行优先级") == row.get("页列执行优先级")
+            and csv_int(index_row, "私有核验项数") == len(packet_csv_rows)
+            and index_row.get("私有页列CSV_SHA256") == row.get("私有页列CSV_SHA256")
+            and index_row.get("私有页列HTML_SHA256") == row.get("私有页列HTML_SHA256")
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网结构化源状态") == "structured_school_source_candidate_not_verified"
+            and row.get("字段事实写回状态") == "blocked_until_pdf_hubei_official_review"
+        )
+    checks.append(ok(
+        "第 19 期高校源 Adapter D0/D1 页列核验包摘要、规模和守恒正确",
+        school_adapter_d0_d1_page_summary.get("status")
+        == "issue19_school_source_adapter_d0_d1_page_side_packets_v1_not_final"
+        and school_adapter_d0_d1_page_summary.get("generated_by")
+        == "build_issue19_school_source_adapter_d0_d1_page_side_packets_v1.py"
+        and school_adapter_d0_d1_page_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and school_adapter_d0_d1_page_summary.get("source_d0_d1_public")
+        == "data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-public-ledger.csv"
+        and school_adapter_d0_d1_page_summary.get("source_d0_d1_summary")
+        == "data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-summary.json"
+        and school_adapter_d0_d1_page_summary.get("output_public_table")
+        == "data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv"
+        and school_adapter_d0_d1_page_summary.get("row_count")
+        == len(school_adapter_d0_d1_page_rows)
+        == len(d0_d1_items_by_page_side)
+        == 18
+        and school_adapter_d0_d1_page_summary.get("private_page_index_row_count")
+        == len(school_adapter_d0_d1_page_private_index_rows)
+        == 18
+        and school_adapter_d0_d1_page_summary.get("private_review_item_count")
+        == d0_d1_page_private_row_count
+        == len(school_adapter_d0_d1_private_items_rows)
+        == 146
+        and school_adapter_d0_d1_page_summary.get("page_priority_counts") == {
+            "E0-计划数冲突页列先核": 9,
+            "E1-OCR计划数缺失可补页列先核": 7,
+            "E2-疑似匹配页列先核": 2,
+        }
+        and school_adapter_d0_d1_page_summary.get("review_priority_counts") == {
+            "R0-计划数冲突优先核PDF原页": 27,
+            "R1-OCR计划数缺失但高校源可补": 102,
+            "R2-疑似匹配专业名人工确认": 2,
+            "R3-计划数一致候选抽检": 15,
+        }
+        and school_adapter_d0_d1_page_summary.get("plan_conflict_review_item_count") == 27
+        and school_adapter_d0_d1_page_summary.get("ocr_plan_missing_review_item_count") == 102
+        and school_adapter_d0_d1_page_summary.get("possible_match_review_item_count") == 2
+        and school_adapter_d0_d1_page_summary.get("plan_match_sample_review_item_count") == 15
+        and school_adapter_d0_d1_page_summary.get("field_writeback_allowed_count") == 0
+        and school_adapter_d0_d1_page_summary.get("recommendation_basis_allowed_count") == 0
+        and school_adapter_d0_d1_page_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_adapter_d0_d1_page_summary.get("school_major_suggestion_allowed_count") == 0
+        and school_adapter_d0_d1_page_summary.get("final_available_count") == 0
+        and school_adapter_d0_d1_page_summary.get("private_page_index_csv_sha256")
+        == sha256(school_adapter_d0_d1_page_private_index_csv)
+        and school_adapter_d0_d1_page_summary.get("private_master_html_sha256")
+        == sha256(school_adapter_d0_d1_page_private_master_html),
+    ))
+    checks.append(ok(
+        "第 19 期高校源 Adapter D0/D1 页列核验包字段、私有材料和公开安全正确",
+        school_adapter_d0_d1_page_fields
+        == script_runtime_constant(school_adapter_d0_d1_page_script, "PUBLIC_FIELDS")
+        and school_adapter_d0_d1_page_private_index_fields
+        == script_runtime_constant(school_adapter_d0_d1_page_script, "PRIVATE_INDEX_FIELDS")
+        and [as_int(row.get("页列执行序号")) for row in school_adapter_d0_d1_page_rows]
+        == list(range(1, 19))
+        and len({row.get("高校源AdapterD0D1页列核验包ID", "") for row in school_adapter_d0_d1_page_rows})
+        == 18
+        and len({row.get("高校源AdapterD0D1页列核验包ID", "") for row in school_adapter_d0_d1_page_private_index_rows})
+        == 18
+        and all(
+            {row.get(field, "") for row in school_adapter_d0_d1_page_rows} == {"false"}
+            for field in school_adapter_d0_d1_page_false_fields
+        )
+        and d0_d1_page_join_ok
+        and d0_d1_page_private_packet_fields_ok
+        and d0_d1_page_private_blank_fields_ok
+        and d0_d1_page_source_item_ids == d0_d1_page_seen_item_ids
+        and len(d0_d1_page_private_item_ids) == len(set(d0_d1_page_private_item_ids)) == 146
+        and sorted(d0_d1_page_priority_by_id.values()) == list(range(1, 19))
+        and len(d0_d1_page_packet_csv_hashes) == 18
+        and len(d0_d1_page_packet_html_hashes) == 18
+        and sum(csv_int(row, "私有核验项数") for row in school_adapter_d0_d1_page_rows) == 146
+        and sum(csv_int(row, "R0计划数冲突项数") for row in school_adapter_d0_d1_page_rows) == 27
+        and sum(csv_int(row, "R1OCR计划数可补项数") for row in school_adapter_d0_d1_page_rows) == 102
+        and sum(csv_int(row, "R2疑似匹配项数") for row in school_adapter_d0_d1_page_rows) == 2
+        and sum(csv_int(row, "R3计划数一致抽检项数") for row in school_adapter_d0_d1_page_rows) == 15
+        and "院校名称公开" not in school_adapter_d0_d1_page_fields
+        and "院校名称OCR" not in school_adapter_d0_d1_page_fields
+        and "学校名称" not in school_adapter_d0_d1_page_fields
+        and "专业名称" not in school_adapter_d0_d1_page_fields
+        and "专业名称及备注OCR" not in school_adapter_d0_d1_page_fields
+        and "官方来源文件" not in school_adapter_d0_d1_page_fields
+        and not any(
+            token in d0_d1_page_public_text
+            for token in school_adapter_d0_d1_page_forbidden_tokens
+        )
+        and "最终推荐" not in d0_d1_page_public_text
+        and "可填报" not in d0_d1_page_public_text,
     ))
 
     family_major_decision_group_ids = {

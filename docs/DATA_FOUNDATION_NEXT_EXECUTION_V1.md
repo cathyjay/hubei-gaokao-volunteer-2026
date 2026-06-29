@@ -182,6 +182,14 @@
 
 这张表把 344 条私有 diff 明细继续压缩到 146 条私有人工核验项：计划数冲突 27、OCR 计划数可补 102、疑似匹配 2、计划数一致抽检 15。它是下一步人工核 PDF 原页和湖北官方侧的入口，不是字段写回表。
 
+新增高校源 Adapter D0/D1 页列人工核验包：
+
+- 生成脚本：`scripts/build_issue19_school_source_adapter_d0_d1_page_side_packets_v1.py`
+- 公开工作台：`data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-summary.json`
+
+这张表把 146 条私有 D0/D1 核验项压到 18 个 `PDF页码×版面列`：E0 计划数冲突页列 9、E1 OCR 计划数缺失可补页列 7、E2 疑似匹配页列 2；包内 R0/R1/R2/R3 明细仍守恒为 27/102/2/15。公开层只保存页列、计数、集合 SHA、私有 CSV/HTML SHA 和非最终门禁；私有层生成每页列 CSV/HTML，供人工对照第 19 期原页、湖北官方侧和必要高校辅证。它是高校源 double check 后的人工排队层，不确认计划数、学费、选科、专业名或专业组边界。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

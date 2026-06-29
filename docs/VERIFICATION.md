@@ -653,6 +653,15 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 私有核验项优先级必须保持：R0 计划数冲突 27、R1 OCR 计划数缺失但高校源可补 102、R2 疑似匹配 2、R3 计划数一致候选抽检 15。
 - 公开层不得出现学校名、专业名、OCR 字段、高校源字段、来源文件路径、人工备注或最终误导结论；所有行仍待 PDF 原页和湖北官方侧核验，写回、推荐、官网替代、学校专业建议、下一阶段和最终门禁必须为 false 或 0。
 
+高校源 Adapter D0/D1 页列人工核验包的校验方式：
+
+- `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv` 必须由 `scripts/build_issue19_school_source_adapter_d0_d1_page_side_packets_v1.py` 生成，输入来自 D0/D1 人工核验包公开账本和 146 条私有核验项。
+- 公开账本必须保持 18 行、18 个唯一页列包 ID；每条私有核验项必须恰好进入一个页列包，页列包私有 CSV 合计仍为 146 行。
+- 页列优先级必须保持：E0 计划数冲突页列 9、E1 OCR 计划数缺失可补页列 7、E2 疑似匹配页列 2；包内 R0/R1/R2/R3 明细数必须守恒为 27、102、2、15。
+- 私有页列 index、18 个页列 CSV、18 个页列 HTML 和私有总索引 HTML 必须存在；公开表中的私有 CSV/HTML SHA 和 summary 中的私有 index/master HTML SHA 必须与本地文件一致。
+- 公开层只能保存页码、版面列、计数、集合 SHA、私有材料 SHA 和非最终门禁；不得出现学校名、专业名、OCR 候选、高校源字段、私有路径、人工记录或最终误导结论。
+- 所有页列仍待 PDF 原页、湖北官方系统或省招办计划、必要高校辅证核验；写回、推荐、官网替代湖北官方计划、学校专业建议、下一阶段和最终门禁必须为 false 或 0。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。

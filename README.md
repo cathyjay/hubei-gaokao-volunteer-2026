@@ -3,8 +3,7 @@
 这个项目用于持续记录、复核和讨论 2026 年湖北普通类首选物理考生的招生计划数据底座、证据链和志愿填报决策过程。
 当前公开仓库只保存 OCR/结构化复核底座和核验工作台，不构成最终志愿方案或可填报清单。
 当前阶段说“底座数据坐稳”，主要指《湖北招生考试》第 19 期等湖北 2026 招生计划原始数据被准确结构化、可回溯、可复验；不是目标院校、目标专业或志愿方案已经确定。考生分数、位次和家庭底线是固定输入，城市、学校和专业方向仍是后续分析维度，早期提到的城市和专业偏好只作为初始参考。
-项目核心目标仍是在 2026-06-30 前形成可执行的学校/专业组/专业排序最终方案。2026-07-02
-12:00 前只保留应急修改缓冲；官方本科普通批集中填报截止时间仍为 2026-07-02 17:00。
+项目核心目标仍是在 2026-06-30 前形成可执行的学校/专业组/专业排序最终方案。2026-07-02 12:00 前只保留应急修改缓冲；官方本科普通批集中填报截止时间仍为 2026-07-02 17:00。
 
 ## 项目规则
 
@@ -104,6 +103,7 @@
 - 高校源 Adapter 解析审计：`data/working/issue19-school-source-adapter-parse-audit-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-parse-audit-v1-summary.json`。对 12 个结构化来源实际跑解析审计，12 行均解析出湖北物理类计划行，合计 326 行、计划数合计 6725；公开层只保留计数、字段覆盖和 SHA，不保存学校名、专业名、字段明细或证据路径。
 - 高校源 Adapter 候选 diff：`data/working/issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-candidate-diff-v1-summary.json`。基于 326 行私有 normalized 高校源和 344 条第 19 期同校招生明细生成公开包级提示：专业名匹配 280、疑似匹配 4、计划数一致 155、OCR 计划数可补 102、计划数冲突 27；逐专业 OCR、高校源字段和冲突正文只留在 Git 忽略私有 CSV。
 - 高校源 Adapter D0/D1 人工核验包：`data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-summary.json`。把 344 条私有 diff 明细压缩成 146 条私有人工核验项：计划数冲突 27、OCR 计划数可补 102、疑似匹配 2、计划数一致抽检 15；公开层只保留包级计数和 SHA。
+- 高校源 Adapter D0/D1 页列人工核验包：`data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-summary.json`。把上述 146 条私有核验项按 `PDF页码×版面列` 压缩成 18 个页列包：E0 计划数冲突页列 9、E1 OCR 计划数缺失可补页列 7、E2 疑似匹配页列 2。它只安排人工核第 19 期原页、湖北官方侧和必要高校辅证，不确认字段事实，不生成学校专业建议。
 - 第一闭环字段事实公开账本：`data/working/issue19-stable-foundation-first-closure-field-fact-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-field-fact-summary.json`。把 206 条任务展开成 354 个字段原子：计划数 170、学费 105、再选科目 77、待人工判定字段 2；只公开字段闭环状态和 SHA，不公开字段明细值，不允许写回或推荐。
 - 第一闭环事实范围缺口账本：`data/working/issue19-stable-foundation-first-closure-fact-scope-gap-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-fact-scope-gap-summary.json`。把第一闭环扩成 439 个待闭环事实范围：字段事实 354、专业名归属 48、专业组边界 37；用于明确底座差什么，不公开学校专业明细或字段值，不允许写回或推荐。
 - 第一闭环事实进度公开账本：`data/working/issue19-first-closure-fact-progress-public-ledger.csv`、`data/working/issue19-first-closure-fact-progress-page-summary.csv` 和 `data/working/issue19-first-closure-fact-progress-summary.json`。把 439 个待闭环事实范围和 37 个页列接到 PDF 原页、OCR/机器坐标、高校辅证、湖北官方侧、冲突、双人复核和写回门禁；只公开状态、计数和 SHA，是事实进度状态层，不确认字段事实、不允许写回或推荐。
@@ -228,6 +228,7 @@ python3 scripts/build_issue19_school_source_status_snapshot.py
 python3 scripts/build_issue19_school_source_latest_reconciliation.py
 python3 scripts/build_issue19_stable_foundation_first_closure_packet.py
 python3 scripts/build_issue19_first_closure_review_materials.py
+python3 scripts/build_issue19_school_source_adapter_d0_d1_page_side_packets_v1.py
 python3 scripts/build_issue19_first_closure_task_review_ledger.py
 python3 scripts/build_issue19_first_closure_private_triage_prefill.py
 python3 scripts/build_issue19_first_closure_execution_queue.py

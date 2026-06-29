@@ -20,8 +20,9 @@
 继续执行时优先打开：
 
 - `data/exports/issue19-data-foundation-next-execution-v1.xlsx`
+- `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv`
 
-说明：`issue19-next-closure-family-review-v1.xlsx` 是 64 个小包和 55 组讨论的总入口；`issue19-data-foundation-next-execution-v1.xlsx` 是下一批执行入口，专门聚焦 P0 冲突包、官网辅证 next20 和 55 组调剂风险。
+说明：`issue19-next-closure-family-review-v1.xlsx` 是 64 个小包和 55 组讨论的总入口；`issue19-data-foundation-next-execution-v1.xlsx` 是下一批执行入口，专门聚焦 P0 冲突包、官网辅证 next20 和 55 组调剂风险。D0/D1 页列公开账本是高校源 Adapter diff 后的补充人工入口，18 个页列全部仍待第 19 期原页和湖北官方侧核验。
 
 对应 CSV：
 
@@ -104,6 +105,7 @@
 - 第 19 期 PDF 原页或纸质原页仍是省招办原件底座。
 - 湖北官方系统或省招办计划在可得时用于最终代码和字段确认。
 - 高校官网、招生章程、官网 API、XLSX、PDF 或图片计划只用于 double check、补缺和发现冲突。
+- D0/D1 页列人工核验包只压缩高校源差异的人工工作量，不等于任何字段已经核准。
 - OCR、机器坐标、第三方平台和自动抽取结果只作为线索，不直接写回字段事实。
 - 公开仓库只保存计数、状态、证据编号和哈希；字段读数、候选值、截图、OCR 原文和人工备注留在 Git 忽略的私有工作台。
 

@@ -70,6 +70,8 @@
 
 新增高校源 Adapter/Diff 执行工作台：`data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv` 把 12 个结构化接入候选压成统一执行层，明确每个来源要新建还是复用 adapter、parser 处于哪类状态、normalized bridge 是否需新建、diff 先做冲突/高明细还是补缺/常规。下一步优先处理 API/JSON 和 next20 JSON，再处理 XLSX 与 PDF 抽取 CSV；所有输出仍只作 double check，不能写回字段事实。
 
+新增高校源 Adapter D0/D1 页列人工核验包：`data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv` 把 146 条 D0/D1 私有核验项压成 18 个 `PDF页码×版面列` 包，作为下一步人工核第 19 期原页和湖北官方侧的执行入口。当前 E0/E1/E2 页列为 9/7/2，R0/R1/R2/R3 明细守恒为 27/102/2/15；该包只减少人工翻页和对照工作量，不确认字段事实、不写回主表、不生成志愿建议。
+
 新增 C4/C6 高校官网补源尝试账本：`data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv` 把 D4/D5/D6 剩余补源缺口中的 12 所学校单独列成学校级自动探针和人工最小核验动作，覆盖 312 条相关私有明细。当前 4 所学校有入口但尚未结构化，1 所需要补 parser 或匹配规则，7 所仍需继续找学校官方计划源；它用于自动推进高校官网 double check 和缩小人工核验范围，仍不能替代第 19 期原页、湖北官方系统或省招办计划。
 
 新增官方公开入口活体复查：`data/working/issue19-official-public-entry-live-recheck.json` 让“湖北官方是否可得”从一次性判断变成可复跑证据。当前招生计划页、索引页和数智平台首页 SHA 均与留存副本一致，招生计划页仍含“持续更新中/敬请期待”，5 个无登录接口探针仍返回 401；所以当前仍不能自动取得可逐字段定稿的湖北官方结构化计划。

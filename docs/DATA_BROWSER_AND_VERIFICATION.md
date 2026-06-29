@@ -109,6 +109,11 @@
 - `data/exports/issue19-closure-and-shortlist-v1-paused65-groups.csv`
 - `data/exports/issue19-closure-and-shortlist-v1-summary.json`
 
+高校源 Adapter D0/D1 页列人工核验包：
+
+- `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv`
+- `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-summary.json`
+
 第四轮 5 万内中外合作/高收费专项：
 
 - `data/exports/issue19-round4-50k-coop-city-gradient-candidate-groups.csv`
@@ -149,6 +154,17 @@
 
 进入某个专业组后，再到 `03_逐专业浏览` 用 `院校专业组代码OCR规范化` 过滤，查看完整组内专业，不只看想填的 6 个专业。
 
+## D0/D1 页列人工核验包怎么用
+
+`issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv` 是高校侧辅证 diff 之后的最小人工入口之一。它把 146 条私有 D0/D1 核验项压成 18 个 `PDF页码 × 版面列` 包：9 个 E0 计划数冲突页列、7 个 E1 OCR 计划数缺失可补页列、2 个 E2 疑似匹配页列。
+
+使用顺序：
+
+1. 先看公开账本的页码、版面列、优先级、R0/R1/R2/R3 计数和私有材料 SHA。
+2. 到本地 Git 忽略的私有材料中打开对应页列 CSV/HTML，对照第 19 期 PDF 原页逐项核。
+3. 能进入最终候选的组，再核湖北官方系统或省招办计划；高校官网、API、PDF、XLSX 只作 double check 和差异解释。
+4. 未完成 PDF 原页、湖北官方侧和必要高校辅证闭环前，不得写回字段事实，不得生成学校专业建议，也不得把它理解成可填报结论。
+
 ## 怎么快速验证这批数据
 
 快速验证不应该让家里人手工核 13,736 条明细。合理方案是三层：
@@ -185,6 +201,7 @@
 - 页列错位：核同一 `PDF页码 × 版面列`。
 - 学校规则或官网冲突：核同一院校相关专业组。
 - 调剂风险漏标：核完整专业组，并重新判断是否服从调剂。
+- D0/D1 页列包中任一 R0 冲突或 R2 疑似匹配核不准：同页列先升级 100% 核验；同校重复出现问题时，再升级到同校相关专业组。
 
 ## 重新生成浏览工作簿
 
