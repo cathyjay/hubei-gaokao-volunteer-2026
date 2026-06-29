@@ -31464,6 +31464,26 @@ def main():
     first_g0_w0_w1_candidate_page_csv = (
         ROOT / "data/working/issue19-first-closure-g0-conflict-field-w0-w1-candidate-triage-v1-page-summary.csv"
     )
+    first_adjudication_script = ROOT / "scripts/build_issue19_first_closure_evidence_adjudication_board_v1.py"
+    first_adjudication_summary_path = (
+        ROOT / "data/working/issue19-first-closure-evidence-adjudication-board-v1-summary.json"
+    )
+    first_adjudication_csv = (
+        ROOT / "data/working/issue19-first-closure-evidence-adjudication-board-v1-public-ledger.csv"
+    )
+    first_adjudication_page_csv = (
+        ROOT / "data/working/issue19-first-closure-evidence-adjudication-board-v1-page-summary.csv"
+    )
+    first_g0_field_progress_script = ROOT / "scripts/build_issue19_first_closure_g0_field_closure_progress_v1.py"
+    first_g0_field_progress_summary_path = (
+        ROOT / "data/working/issue19-first-closure-g0-field-closure-progress-v1-summary.json"
+    )
+    first_g0_field_progress_csv = (
+        ROOT / "data/working/issue19-first-closure-g0-field-closure-progress-v1-public-ledger.csv"
+    )
+    first_g0_field_progress_page_csv = (
+        ROOT / "data/working/issue19-first-closure-g0-field-closure-progress-v1-page-summary.csv"
+    )
     first_g0_w0_w1_material_private_overlay_csv = (
         ROOT / "private/review-assets/issue19-g0-conflict-field-review-overlay-v1/g0-conflict-field-review-private-overlay.csv"
     )
@@ -31527,6 +31547,8 @@ def main():
     first_g0_w0_w1_material_summary = json.loads(first_g0_w0_w1_material_summary_path.read_text())
     first_g0_w0_w1_launch_summary = json.loads(first_g0_w0_w1_launch_summary_path.read_text())
     first_g0_w0_w1_candidate_summary = json.loads(first_g0_w0_w1_candidate_summary_path.read_text())
+    first_adjudication_summary = json.loads(first_adjudication_summary_path.read_text())
+    first_g0_field_progress_summary = json.loads(first_g0_field_progress_summary_path.read_text())
     w0_b0_school_bridge_summary = json.loads(w0_b0_school_bridge_summary_path.read_text())
     field_backlink_summary = json.loads(field_backlink_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -31811,6 +31833,22 @@ def main():
         first_g0_w0_w1_candidate_page_reader = csv.DictReader(f)
         first_g0_w0_w1_candidate_page_rows = list(first_g0_w0_w1_candidate_page_reader)
         first_g0_w0_w1_candidate_page_fields = first_g0_w0_w1_candidate_page_reader.fieldnames or []
+    with first_adjudication_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_adjudication_reader = csv.DictReader(f)
+        first_adjudication_rows = list(first_adjudication_reader)
+        first_adjudication_fields = first_adjudication_reader.fieldnames or []
+    with first_adjudication_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_adjudication_page_reader = csv.DictReader(f)
+        first_adjudication_page_rows = list(first_adjudication_page_reader)
+        first_adjudication_page_fields = first_adjudication_page_reader.fieldnames or []
+    with first_g0_field_progress_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_g0_field_progress_reader = csv.DictReader(f)
+        first_g0_field_progress_rows = list(first_g0_field_progress_reader)
+        first_g0_field_progress_fields = first_g0_field_progress_reader.fieldnames or []
+    with first_g0_field_progress_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_g0_field_progress_page_reader = csv.DictReader(f)
+        first_g0_field_progress_page_rows = list(first_g0_field_progress_page_reader)
+        first_g0_field_progress_page_fields = first_g0_field_progress_page_reader.fieldnames or []
     with first_g0_w0_w1_material_private_overlay_csv.open(newline="", encoding="utf-8-sig") as f:
         first_g0_w0_w1_private_overlay_reader = csv.DictReader(f)
         first_g0_w0_w1_private_overlay_rows = list(first_g0_w0_w1_private_overlay_reader)
@@ -32009,6 +32047,22 @@ def main():
             first_g0_w0_w1_candidate_summary_path,
             first_g0_w0_w1_candidate_csv,
             first_g0_w0_w1_candidate_page_csv,
+        ]
+    )
+    first_adjudication_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_adjudication_summary_path,
+            first_adjudication_csv,
+            first_adjudication_page_csv,
+        ]
+    )
+    first_g0_field_progress_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_g0_field_progress_summary_path,
+            first_g0_field_progress_csv,
+            first_g0_field_progress_page_csv,
         ]
     )
     w0_b0_school_bridge_public_text = "\n".join(
@@ -40051,6 +40105,224 @@ def main():
             for field in field_backlink_false_fields
         )
         and not any(token in field_backlink_public_text for token in field_backlink_forbidden_tokens),
+    ))
+
+    first_adjudication_false_fields = script_runtime_constant(first_adjudication_script, "FALSE_FIELDS")
+    first_adjudication_forbidden_tokens = set(shared_forbidden_tokens)
+    first_adjudication_forbidden_tokens.update(
+        script_runtime_constant(first_adjudication_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    checks.append(ok(
+        "第 19 期第一闭环证据仲裁总视图摘要、规模和门禁正确",
+        first_adjudication_summary.get("status") == "issue19_first_closure_evidence_adjudication_board_v1_ready_not_final"
+        and first_adjudication_summary.get("generated_by") == "build_issue19_first_closure_evidence_adjudication_board_v1.py"
+        and first_adjudication_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_adjudication_summary.get("source_verification_result_sha256") == sha256(first_result_csv)
+        and first_adjudication_summary.get("source_verification_page_sha256") == sha256(first_result_page_csv)
+        and first_adjudication_summary.get("source_field_confirmation_sha256") == sha256(first_field_confirm_csv)
+        and first_adjudication_summary.get("source_g0_gap_tasks_sha256") == sha256(first_g0_field_gap_csv)
+        and first_adjudication_summary.get("source_w0_w1_candidate_sha256") == sha256(first_g0_w0_w1_candidate_csv)
+        and first_adjudication_summary.get("source_w0_w1_candidate_page_sha256") == sha256(first_g0_w0_w1_candidate_page_csv)
+        and first_adjudication_summary.get("source_field_backlink_sha256") == sha256(field_backlink_csv)
+        and first_adjudication_summary.get("source_private_overlay_sha256") == sha256(first_g0_w0_w1_material_private_overlay_csv)
+        and first_adjudication_summary.get("output") == str(first_adjudication_csv.relative_to(ROOT))
+        and first_adjudication_summary.get("page_output") == str(first_adjudication_page_csv.relative_to(ROOT))
+        and first_adjudication_summary.get("row_count") == len(first_adjudication_rows) == 206
+        and first_adjudication_summary.get("page_summary_row_count") == len(first_adjudication_page_rows) == 37
+        and first_adjudication_summary.get("source_verification_row_count") == len(first_result_rows) == 206
+        and first_adjudication_summary.get("source_verification_page_row_count") == len(first_result_page_rows) == 37
+        and first_adjudication_summary.get("source_field_confirmation_row_count") == len(first_field_confirm_rows) == 206
+        and first_adjudication_summary.get("source_g0_gap_task_row_count") == len(first_g0_field_gap_rows) == 523
+        and first_adjudication_summary.get("source_w0_w1_candidate_row_count") == len(first_g0_w0_w1_candidate_rows) == 37
+        and first_adjudication_summary.get("source_field_backlink_row_count") == len(field_backlink_rows) == 68
+        and first_adjudication_summary.get("unique_task_count") == 206
+        and first_adjudication_summary.get("unique_page_side_count") == 37
+        and first_adjudication_summary.get("g0_hit_task_count") == 26
+        and first_adjudication_summary.get("g0_fact_count") == 68
+        and first_adjudication_summary.get("g0_gap_task_count") == 523
+        and first_adjudication_summary.get("g0_parallel_channel_count") == 251
+        and first_adjudication_summary.get("g0_blocked_channel_count") == 272
+        and first_adjudication_summary.get("g0_pdf_pending_count") == 68
+        and first_adjudication_summary.get("g0_hubei_official_pending_count") == 68
+        and first_adjudication_summary.get("g0_school_support_pending_count") == 68
+        and first_adjudication_summary.get("g0_conflict_resolution_pending_count") == 68
+        and first_adjudication_summary.get("g0_double_review_pending_count") == 47
+        and first_adjudication_summary.get("g0_three_way_pending_count") == 68
+        and first_adjudication_summary.get("g0_field_confirmation_pending_count") == 68
+        and first_adjudication_summary.get("g0_writeback_review_pending_count") == 68
+        and Counter(first_adjudication_summary.get("evidence_stage_counts", {})) == Counter({
+            "A0-G0候选冲突阻断准出": 26,
+            "A3-非G0本轮子集但仍待第一闭环": 180,
+        })
+        and Counter(first_adjudication_summary.get("g0_candidate_bucket_counts", {})) == Counter({
+            "C0-双侧候选冲突优先核": 30,
+            "C1-双侧候选一致但仍待核": 10,
+            "C2-仅PDFOCR候选需补辅证": 6,
+            "C3-仅高校辅证候选需核原页": 22,
+        })
+        and first_adjudication_summary.get("field_writeback_ready_count") == 0
+        and first_adjudication_summary.get("recommendation_basis_allowed_count") == 0
+        and first_adjudication_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_adjudication_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_adjudication_summary.get("next_stage_allowed_count") == 0
+        and first_adjudication_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环证据仲裁总视图字段、回链和公开安全正确",
+        first_adjudication_fields == script_runtime_constant(first_adjudication_script, "BOARD_FIELDS")
+        and first_adjudication_page_fields == script_runtime_constant(first_adjudication_script, "PAGE_FIELDS")
+        and len({row.get("第一闭环证据仲裁ID", "") for row in first_adjudication_rows}) == 206
+        and len({row.get("稳定基座第一闭环明细任务ID", "") for row in first_adjudication_rows}) == 206
+        and {
+            row.get("稳定基座第一闭环明细任务ID", "")
+            for row in first_adjudication_rows
+        } == {
+            row.get("稳定基座第一闭环明细任务ID", "")
+            for row in first_result_rows
+        }
+        and [as_int(row.get("仲裁序号")) for row in first_adjudication_rows] == list(range(1, 207))
+        and [as_int(row.get("页列汇总序号")) for row in first_adjudication_page_rows] == list(range(1, 38))
+        and sum(csv_int(row, "第一闭环任务数") for row in first_adjudication_page_rows) == 206
+        and sum(csv_int(row, "G0命中任务数") for row in first_adjudication_page_rows) == 26
+        and sum(csv_int(row, "G0字段事实数") for row in first_adjudication_page_rows) == 68
+        and sum(csv_int(row, "G0缺口任务数") for row in first_adjudication_page_rows) == 523
+        and sum(csv_int(row, "G0当前可并行通道数") for row in first_adjudication_page_rows) == 251
+        and sum(csv_int(row, "G0前置阻断通道数") for row in first_adjudication_page_rows) == 272
+        and sum(csv_int(row, "G0待PDF原页记录数") for row in first_adjudication_page_rows) == 68
+        and sum(csv_int(row, "G0待湖北官方记录数") for row in first_adjudication_page_rows) == 68
+        and sum(csv_int(row, "G0待三方一致性数") for row in first_adjudication_page_rows) == 68
+        and count_value(first_adjudication_rows, "证据准出阶段", "A0-G0候选冲突阻断准出") == 26
+        and count_value(first_adjudication_rows, "证据准出阶段", "A3-非G0本轮子集但仍待第一闭环") == 180
+        and all(
+            {row.get(field, "") for row in first_adjudication_rows} == {"false"}
+            for field in first_adjudication_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in first_adjudication_page_rows} == {"false"}
+            for field in first_adjudication_false_fields
+        )
+        and not any(token in first_adjudication_public_text for token in first_adjudication_forbidden_tokens),
+    ))
+
+    first_g0_field_progress_false_fields = script_runtime_constant(first_g0_field_progress_script, "FALSE_FIELDS")
+    first_g0_field_progress_forbidden_tokens = set(shared_forbidden_tokens)
+    first_g0_field_progress_forbidden_tokens.update(
+        script_runtime_constant(first_g0_field_progress_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    checks.append(ok(
+        "第 19 期 G0 字段事实闭环进度表摘要、规模和缺口正确",
+        first_g0_field_progress_summary.get("status") == "issue19_first_closure_g0_field_closure_progress_v1_ready_not_final"
+        and first_g0_field_progress_summary.get("generated_by") == "build_issue19_first_closure_g0_field_closure_progress_v1.py"
+        and first_g0_field_progress_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_g0_field_progress_summary.get("source_resolution_gate_sha256") == sha256(first_g0_field_gate_csv)
+        and first_g0_field_progress_summary.get("source_closure_result_sha256") == sha256(first_g0_field_closure_csv)
+        and first_g0_field_progress_summary.get("source_gap_tasks_sha256") == sha256(first_g0_field_gap_csv)
+        and first_g0_field_progress_summary.get("source_review_launch_sha256") == sha256(first_g0_w0_w1_launch_csv)
+        and first_g0_field_progress_summary.get("source_candidate_triage_sha256") == sha256(first_g0_w0_w1_candidate_csv)
+        and first_g0_field_progress_summary.get("source_field_backlink_sha256") == sha256(field_backlink_csv)
+        and first_g0_field_progress_summary.get("source_field_status_sha256") == sha256(first_field_status_csv)
+        and first_g0_field_progress_summary.get("source_field_confirmation_sha256") == sha256(first_field_confirm_csv)
+        and first_g0_field_progress_summary.get("source_private_overlay_sha256") == sha256(first_g0_w0_w1_material_private_overlay_csv)
+        and first_g0_field_progress_summary.get("output") == str(first_g0_field_progress_csv.relative_to(ROOT))
+        and first_g0_field_progress_summary.get("page_output") == str(first_g0_field_progress_page_csv.relative_to(ROOT))
+        and first_g0_field_progress_summary.get("row_count") == len(first_g0_field_progress_rows) == 68
+        and first_g0_field_progress_summary.get("page_summary_row_count") == len(first_g0_field_progress_page_rows) == 10
+        and first_g0_field_progress_summary.get("source_resolution_gate_row_count") == len(first_g0_field_gate_rows) == 68
+        and first_g0_field_progress_summary.get("source_closure_result_row_count") == len(first_g0_field_closure_rows) == 68
+        and first_g0_field_progress_summary.get("source_gap_task_row_count") == len(first_g0_field_gap_rows) == 523
+        and first_g0_field_progress_summary.get("source_review_launch_row_count") == len(first_g0_w0_w1_launch_rows) == 37
+        and first_g0_field_progress_summary.get("source_candidate_triage_row_count") == len(first_g0_w0_w1_candidate_rows) == 37
+        and first_g0_field_progress_summary.get("source_field_backlink_row_count") == len(field_backlink_rows) == 68
+        and first_g0_field_progress_summary.get("unique_fact_scope_count") == 68
+        and first_g0_field_progress_summary.get("unique_task_count") == 26
+        and first_g0_field_progress_summary.get("unique_page_side_count") == 10
+        and Counter(first_g0_field_progress_summary.get("field_counts", {})) == Counter({
+            "专业计划数": 26,
+            "学费": 26,
+            "再选科目": 16,
+        })
+        and Counter(first_g0_field_progress_summary.get("candidate_bucket_counts", {})) == Counter({
+            "C0-双侧候选冲突优先核": 30,
+            "C1-双侧候选一致但仍待核": 10,
+            "C2-仅PDFOCR候选需补辅证": 6,
+            "C3-仅高校辅证候选需核原页": 22,
+        })
+        and Counter(first_g0_field_progress_summary.get("field_status_counts", {})) == Counter({
+            "K0-字段缺口无候选需原页重读": 7,
+            "K1-字段缺口有候选待PDF原页和官方核验": 28,
+            "K2-OCR候选存在但三方核验未闭环": 33,
+        })
+        and Counter(first_g0_field_progress_summary.get("closure_stage_counts", {})) == Counter({
+            "F0-先补PDF原页并处理冲突": 30,
+            "F1-高校线索回PDF原页": 22,
+            "F2-PDFOCR候选需补辅证并核原页": 6,
+            "F3-补PDF原页基础记录": 10,
+        })
+        and first_g0_field_progress_summary.get("pdf_pending_count") == 68
+        and first_g0_field_progress_summary.get("hubei_official_pending_count") == 68
+        and first_g0_field_progress_summary.get("school_support_pending_count") == 68
+        and first_g0_field_progress_summary.get("conflict_resolution_pending_count") == 68
+        and first_g0_field_progress_summary.get("double_review_pending_count") == 47
+        and first_g0_field_progress_summary.get("three_way_pending_count") == 68
+        and first_g0_field_progress_summary.get("field_confirmation_pending_count") == 68
+        and first_g0_field_progress_summary.get("writeback_review_pending_count") == 68
+        and first_g0_field_progress_summary.get("evidence_channel_count") == 523
+        and first_g0_field_progress_summary.get("parallel_channel_count") == 251
+        and first_g0_field_progress_summary.get("blocked_channel_count") == 272
+        and first_g0_field_progress_summary.get("structured_candidate_fact_count") == 5
+        and first_g0_field_progress_summary.get("school_double_check_fact_count") == 68
+        and first_g0_field_progress_summary.get("field_writeback_ready_count") == 0
+        and first_g0_field_progress_summary.get("recommendation_basis_allowed_count") == 0
+        and first_g0_field_progress_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_g0_field_progress_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期 G0 字段事实闭环进度表字段、回链和公开安全正确",
+        first_g0_field_progress_fields == script_runtime_constant(first_g0_field_progress_script, "LEDGER_FIELDS")
+        and first_g0_field_progress_page_fields == script_runtime_constant(first_g0_field_progress_script, "PAGE_FIELDS")
+        and len({row.get("G0字段闭环进度ID", "") for row in first_g0_field_progress_rows}) == 68
+        and len({row.get("第一闭环事实范围缺口公开账本ID", "") for row in first_g0_field_progress_rows}) == 68
+        and {
+            row.get("第一闭环事实范围缺口公开账本ID", "")
+            for row in first_g0_field_progress_rows
+        } == {
+            row.get("第一闭环事实范围缺口公开账本ID", "")
+            for row in first_g0_field_gate_rows
+        } == field_backlink_fact_ids
+        and [as_int(row.get("字段闭环序号")) for row in first_g0_field_progress_rows] == list(range(1, 69))
+        and [as_int(row.get("页列汇总序号")) for row in first_g0_field_progress_page_rows] == list(range(1, 11))
+        and sum(csv_int(row, "字段事实数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "证据通道数") for row in first_g0_field_progress_page_rows) == 523
+        and sum(csv_int(row, "当前可并行通道数") for row in first_g0_field_progress_page_rows) == 251
+        and sum(csv_int(row, "前置阻断通道数") for row in first_g0_field_progress_page_rows) == 272
+        and sum(csv_int(row, "PDF原页待补字段数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "湖北官方待补字段数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "高校辅证待补字段数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "冲突处理待补字段数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "双人复核待补字段数") for row in first_g0_field_progress_page_rows) == 47
+        and sum(csv_int(row, "三方闭环待补字段数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "字段确认待补字段数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "写回评审待补字段数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "高校源可DoubleCheck字段数") for row in first_g0_field_progress_page_rows) == 68
+        and sum(csv_int(row, "结构化接入候选字段数") for row in first_g0_field_progress_page_rows) == 5
+        and {row.get("PDF原页记录状态", "") for row in first_g0_field_progress_rows} == {"pending_pdf_page_review"}
+        and {row.get("湖北官方记录状态", "") for row in first_g0_field_progress_rows} == {"pending_hubei_official_plan_review"}
+        and {row.get("冲突处理状态", "") for row in first_g0_field_progress_rows} == {"pending_conflict_resolution"}
+        and {row.get("三方一致性闭环状态", "") for row in first_g0_field_progress_rows} == {"blocked_missing_pdf"}
+        and {row.get("字段确认状态", "") for row in first_g0_field_progress_rows} == {"blocked"}
+        and {row.get("写回评审状态", "") for row in first_g0_field_progress_rows} == {"blocked_until_required_evidence_closed"}
+        and {row.get("高校源可DoubleCheck提示", "") for row in first_g0_field_progress_rows} == {"true"}
+        and count_value(first_g0_field_progress_rows, "双人复核状态", "pending_double_review") == 47
+        and count_value(first_g0_field_progress_rows, "双人复核状态", "not_required") == 21
+        and all(
+            {row.get(field, "") for row in first_g0_field_progress_rows} == {"false"}
+            for field in first_g0_field_progress_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in first_g0_field_progress_page_rows} == {"false"}
+            for field in first_g0_field_progress_false_fields
+        )
+        and not any(token in first_g0_field_progress_public_text for token in first_g0_field_progress_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())

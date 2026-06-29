@@ -131,6 +131,10 @@
 
 新增的 `data/working/issue19-first-closure-g0-conflict-field-w0-w1-candidate-triage-v1-public-ledger.csv` 是第一闭环 G0 冲突字段 W0/W1 候选分层，并配套页列汇总和 summary。它读取 Git 忽略的私有 Overlay，但公开层只保留分层桶、计数、ID 和 SHA：68 个唯一冲突字段中，30 个双侧线索冲突、10 个双侧线索一致但仍待核、22 个仅高校辅证、6 个仅 PDFOCR；展开到 37 个开核包后形成 251 条任务通道记录，其中冲突 112、一致 37、仅高校辅证 80、仅 PDFOCR 22。该层让人工核验知道先处理哪类冲突或单侧线索，但人工记录、字段确认、写回、推荐和最终可用仍全部为 0。
 
+新增的 `data/working/issue19-first-closure-evidence-adjudication-board-v1-public-ledger.csv` 是第一闭环证据仲裁总视图，并配套 37 行页列汇总和 summary。它把 206 条第一闭环任务统一接到字段确认、G0 缺口任务、W0/W1 候选分层和高校源回接队列：当前 G0 命中 26 个任务、68 个字段事实、523 条证据通道，其中 251 条可并行推进，272 条等待前置闭环。这个视图解决的是“先看哪一层阻断”，不是字段事实结论，写回、推荐、下一阶段和最终可用仍全部为 0。
+
+新增的 `data/working/issue19-first-closure-g0-field-closure-progress-v1-public-ledger.csv` 是第一闭环 G0 字段闭环进度表，并配套 10 行页列汇总和 summary。它把 68 个冲突字段逐字段收束到进度层：专业计划数 26、学费 26、再选科目 16；候选分层为 30 个冲突、10 个一致但仍待核、22 个仅高校辅证、6 个仅 PDFOCR；PDF 原页、湖北官方侧、高校辅证、冲突处理、三方闭环、字段确认和写回评审仍各待 68，双人复核仍待 47。下一步应优先解析和回接已经保留的公开/高校来源，再用第 19 期原页与湖北官方侧做三方闭环，不能用高校源替代湖北官方计划。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv` 是第一闭环事实核验包。它把 439 个事实范围继续压缩成 37 个页列包，并生成 `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv` 作为 439 个包内事实项。当前波次为 B0 冲突优先 10 包、专业名归属优先 9 包、缺候选人工看图 2 包、机器坐标辅助 16 包；37 包全部仍待 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用仍为 0。它是后续人工抽样、双人复核和并行处理的执行入口，不是字段事实表。
 
 新增的 `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv` 是 W0/B0 最小人工复核包。它把 B0 冲突优先的 275 个同页待核事实先压成 87 个核心事实、10 个页列和 35 个任务：专业组边界 10、明确冲突字段 68、专业名归属 9；剩余 188 个同页伴生事实继续待闭环。它的作用是先处理最容易影响底座结构的串组、字段冲突和专业归属问题，仍不确认字段事实、不写回主表、不进入志愿推荐。
