@@ -1,0 +1,67 @@
+{
+  "status": "issue19_w0_b0_school_source_field_backlink_queue_ready_not_final",
+  "generated_by": "build_issue19_w0_b0_school_source_field_backlink_queue.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output": "data/working/issue19-w0-b0-school-source-field-backlink-queue-public-ledger.csv",
+  "page_output": "data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv",
+  "school_output": "data/working/issue19-w0-b0-school-source-field-backlink-school-summary.csv",
+  "row_count": 68,
+  "page_summary_row_count": 10,
+  "school_summary_row_count": 10,
+  "source_bridge_row_count": 87,
+  "source_double_check_field_fact_count": 68,
+  "unique_fact_scope_count": 68,
+  "unique_task_count": 26,
+  "unique_page_side_count": 10,
+  "unique_school_code_count": 10,
+  "field_counts": {
+    "专业计划数": 26,
+    "再选科目": 16,
+    "学费": 26
+  },
+  "backlink_lane_counts": {
+    "R0-B1结构化接入候选优先回接私有核验": 5,
+    "R1-B2冲突字段双人核页前回接高校线索": 45,
+    "R2-B2冲突字段核页提示回接": 18
+  },
+  "backlink_batch_counts": {
+    "BACKLINK-01-结构化候选优先": 5,
+    "BACKLINK-02-双人复核冲突优先": 45,
+    "BACKLINK-03-普通冲突提示回接": 18
+  },
+  "bridge_bucket_counts": {
+    "B1-已有结构化接入候选，可作为高校侧double check提示": 5,
+    "B2-已有高校侧结构化或diff线索，待接入到事实项": 63
+  },
+  "field_status_counts": {
+    "K0-字段缺口无候选需原页重读": 7,
+    "K2-OCR候选存在但三方核验未闭环": 33,
+    "K1-字段缺口有候选待PDF原页和官方核验": 28
+  },
+  "field_priority_counts": {
+    "P0-字段无候选原页重读": 7,
+    "P3-OCR齐全字段三方闭环": 33,
+    "P1-字段有候选回看原页和官方": 28
+  },
+  "field_closure_level_counts": {
+    "L3-单字段缺口无候选需重读": 18,
+    "L2-单字段缺口有候选待核": 11,
+    "L4-三字段OCR齐全但待三方闭环": 6,
+    "L1-两字段缺口优先补证": 17,
+    "L0-三字段缺口优先阻断": 16
+  },
+  "structured_candidate_fact_count": 5,
+  "b2_l3_hint_fact_count": 63,
+  "double_review_required_count": 47,
+  "manual_image_required_count": 68,
+  "pdf_ocr_school_conflict_count": 68,
+  "pdf_pending_count": 68,
+  "hubei_official_pending_count": 68,
+  "school_source_hint_count": 68,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "policy": "本队列只把高校源double check线索回接到W0/B0字段事实核验任务，不公开字段值，不确认事实，不替代湖北官方计划。"
+}

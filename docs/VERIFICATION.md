@@ -120,6 +120,8 @@ C4/C6 高校官网补源尝试账本当前固化在 `data/working/issue19-c4-c6-
 
 W0/B0 高校源桥接账本当前固化在 `data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv` 和 `data/working/issue19-w0-b0-school-source-bridge-page-summary.csv`。主表必须保持 87 行、87 个唯一事实范围缺口，页列汇总必须保持 10 行；事实类型必须保持专业计划数 26、学费 26、再选科目 16、专业组边界 10、专业名归属 9。摘要必须保持院校代码存在 77、缺失 10、唯一学校 11、PDF 页 9、页列 10、可作高校源 double check 提示 68、PDF/湖北官方先行 19、结构化接入候选事实 7、双人复核 57、人工看图 75。`高校源可作double_check提示=true` 的行必须全部是字段事实；专业名归属和专业组边界不得因存在学校源而升级为可写回或可推荐。所有 PDF 原页、湖北官方侧、官网替代湖北官方计划、字段写回、推荐依据、学校专业建议、进入下一阶段和最终可用门禁必须保持 pending、0 或 false。公开文件不得出现字段值、OCR 正文、私有路径、身份信息或定稿结论；该账本只是 W0/B0 核心事实与高校源状态的桥接层。
 
+W0/B0 高校源字段回接队列当前固化在 `data/working/issue19-w0-b0-school-source-field-backlink-queue-public-ledger.csv`、`data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv` 和 `data/working/issue19-w0-b0-school-source-field-backlink-school-summary.csv`。主表必须保持 68 行、68 个唯一事实范围缺口，且事实范围集合必须等于 W0/B0 高校源桥接账本中 `高校源可作double_check提示=true` 的 68 条字段事实；页列汇总和院校汇总都必须保持 10 行。字段分布必须保持专业计划数 26、学费 26、再选科目 16；回接泳道必须保持 B1 结构化候选优先 5、B2 双人核页前回接 45、B2 普通冲突提示 18；桥接桶必须保持 B1 5、B2 63。所有 68 行都必须是字段事实、都有高校源 double check 提示、都有 PDFOCR 与高校辅证冲突、都需要人工看图；其中 47 行需要双人复核，5 行有结构化接入候选。该队列只把高校源线索接入私有核验材料，所有 PDF 原页、湖北官方侧、官网替代湖北官方计划、字段写回、推荐依据、学校专业建议、进入下一阶段和最终可用门禁必须保持 pending、0 或 false。公开文件不得出现字段值、OCR 正文、候选值、人工读数、私有路径、截图路径、登录态、身份信息或最终推荐/可填报等误导词。
+
 官方平台不可得时的最小人工核验策略：
 
 - 先自动核全量可抓高校官网/API/PDF/图片计划，按 `专业行ID` 比对专业名、计划数、学费、选科、校区和备注。

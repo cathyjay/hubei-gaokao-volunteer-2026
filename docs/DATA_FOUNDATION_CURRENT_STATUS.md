@@ -105,6 +105,8 @@
 
 新增的 `data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv` 是 W0/B0 高校源桥接账本，并配套 `data/working/issue19-w0-b0-school-source-bridge-page-summary.csv`。它把 87 个核心事实按院校代码接到高校源进度、最新证据对齐和结构化接入候选：68 条计划数/学费/选科字段事实已有高校源可作 double check 提示，19 条专业名归属或专业组边界仍必须先核 PDF 原页和湖北官方侧；当前没有任何字段事实被写回或推荐。它的作用是减少私有核验材料回接高校源的成本，不替代第 19 期 PDF 原页或湖北官方计划。
 
+新增的 `data/working/issue19-w0-b0-school-source-field-backlink-queue-public-ledger.csv` 是 W0/B0 高校源字段回接队列，并配套页列汇总和院校汇总。它只覆盖上述 68 条可 double check 的字段事实，分为 5 条 B1 结构化候选优先回接、45 条 B2 双人核页前回接和 18 条 B2 普通冲突提示回接；字段分布为专业计划数 26、学费 26、再选科目 16。它的作用是把人工核验从“找高校源线索”推进到“按字段、页列和院校批量回接线索”，但所有行仍待 PDF 原页和湖北官方侧闭环，不确认字段值、不写回主表、不进入志愿推荐。
+
 新增的 `data/working/issue19-first-closure-verification-result-public-ledger.csv` 是第一闭环核验结果看板。它把 206 条最高风险任务统一摊到 PDF 原页、OCR、机器坐标、高校官网辅证、湖北官方侧、冲突状态和字段写回门禁上，并生成 `data/working/issue19-first-closure-verification-result-page-summary.csv` 作为 37 个页列汇总。当前 N0/N1/N2/N3/N4/N5 为 26/35/49/54/29/13，PDF 原页待核 206、湖北官方侧待核 206、双人复核 91、人工看图 80；它是核验排程表，不是字段事实表。
 
 新增的 `data/working/issue19-first-closure-field-verification-status-public-ledger.csv` 是第一闭环字段级公开状态。它把 206 条组合任务拆成 354 个字段级状态：专业计划数 170、学费 105、再选科目 77、待人工判定字段 2；352 个字段能映射到字段事实核验任务，2 个保持人工判定口径。该表解决“组合字段看不清到底哪个字段卡住”的问题，但所有字段仍待 PDF 原页和湖北官方侧闭环。

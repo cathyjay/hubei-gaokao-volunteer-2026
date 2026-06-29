@@ -31167,6 +31167,11 @@ def main():
     w0_b0_school_bridge_summary_path = ROOT / "data/working/issue19-w0-b0-school-source-bridge-summary.json"
     w0_b0_school_bridge_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv"
     w0_b0_school_bridge_page_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-page-summary.csv"
+    field_backlink_script = ROOT / "scripts/build_issue19_w0_b0_school_source_field_backlink_queue.py"
+    field_backlink_summary_path = ROOT / "data/working/issue19-w0-b0-school-source-field-backlink-summary.json"
+    field_backlink_csv = ROOT / "data/working/issue19-w0-b0-school-source-field-backlink-queue-public-ledger.csv"
+    field_backlink_page_csv = ROOT / "data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv"
+    field_backlink_school_csv = ROOT / "data/working/issue19-w0-b0-school-source-field-backlink-school-summary.csv"
 
     first_result_summary = json.loads(first_result_summary_path.read_text())
     first_field_status_summary = json.loads(first_field_status_summary_path.read_text())
@@ -31177,6 +31182,7 @@ def main():
     family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
     first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
     w0_b0_school_bridge_summary = json.loads(w0_b0_school_bridge_summary_path.read_text())
+    field_backlink_summary = json.loads(field_backlink_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
         first_result_reader = csv.DictReader(f)
         first_result_rows = list(first_result_reader)
@@ -31241,6 +31247,18 @@ def main():
         w0_b0_school_bridge_page_reader = csv.DictReader(f)
         w0_b0_school_bridge_page_rows = list(w0_b0_school_bridge_page_reader)
         w0_b0_school_bridge_page_fields = w0_b0_school_bridge_page_reader.fieldnames or []
+    with field_backlink_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_backlink_reader = csv.DictReader(f)
+        field_backlink_rows = list(field_backlink_reader)
+        field_backlink_fields = field_backlink_reader.fieldnames or []
+    with field_backlink_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_backlink_page_reader = csv.DictReader(f)
+        field_backlink_page_rows = list(field_backlink_page_reader)
+        field_backlink_page_fields = field_backlink_page_reader.fieldnames or []
+    with field_backlink_school_csv.open(newline="", encoding="utf-8-sig") as f:
+        field_backlink_school_reader = csv.DictReader(f)
+        field_backlink_school_rows = list(field_backlink_school_reader)
+        field_backlink_school_fields = field_backlink_school_reader.fieldnames or []
 
     first_result_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -31288,6 +31306,15 @@ def main():
             w0_b0_school_bridge_summary_path,
             w0_b0_school_bridge_csv,
             w0_b0_school_bridge_page_csv,
+        ]
+    )
+    field_backlink_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            field_backlink_summary_path,
+            field_backlink_csv,
+            field_backlink_page_csv,
+            field_backlink_school_csv,
         ]
     )
 
@@ -31865,6 +31892,163 @@ def main():
             for field in w0_b0_school_bridge_false_fields
         )
         and not any(token in w0_b0_school_bridge_public_text for token in w0_b0_school_bridge_forbidden_tokens),
+    ))
+
+    field_backlink_false_fields = script_runtime_constant(field_backlink_script, "FALSE_FIELDS")
+    field_backlink_forbidden_tokens = set(shared_forbidden_tokens)
+    field_backlink_forbidden_tokens.update(
+        script_runtime_constant(field_backlink_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    field_backlink_fact_ids = {
+        row.get("第一闭环事实范围缺口公开账本ID", "")
+        for row in field_backlink_rows
+    }
+    w0_b0_double_check_fact_ids = {
+        row.get("第一闭环事实范围缺口公开账本ID", "")
+        for row in w0_b0_school_bridge_rows
+        if row.get("高校源可作double_check提示") == "true"
+    }
+    checks.append(ok(
+        "第 19 期 W0/B0 高校源字段回接队列摘要、规模和分层正确",
+        field_backlink_summary.get("status") == "issue19_w0_b0_school_source_field_backlink_queue_ready_not_final"
+        and field_backlink_summary.get("generated_by") == "build_issue19_w0_b0_school_source_field_backlink_queue.py"
+        and field_backlink_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and field_backlink_summary.get("output") == str(field_backlink_csv.relative_to(ROOT))
+        and field_backlink_summary.get("page_output") == str(field_backlink_page_csv.relative_to(ROOT))
+        and field_backlink_summary.get("school_output") == str(field_backlink_school_csv.relative_to(ROOT))
+        and field_backlink_summary.get("row_count") == len(field_backlink_rows) == 68
+        and field_backlink_summary.get("page_summary_row_count") == len(field_backlink_page_rows) == 10
+        and field_backlink_summary.get("school_summary_row_count") == len(field_backlink_school_rows) == 10
+        and field_backlink_summary.get("source_bridge_row_count") == 87
+        and field_backlink_summary.get("source_double_check_field_fact_count") == 68
+        and field_backlink_summary.get("unique_fact_scope_count") == 68
+        and field_backlink_summary.get("unique_task_count") == 26
+        and field_backlink_summary.get("unique_page_side_count") == 10
+        and field_backlink_summary.get("unique_school_code_count") == 10
+        and Counter(field_backlink_summary.get("field_counts", {})) == Counter({
+            "专业计划数": 26,
+            "学费": 26,
+            "再选科目": 16,
+        })
+        and Counter(field_backlink_summary.get("backlink_lane_counts", {})) == Counter({
+            "R0-B1结构化接入候选优先回接私有核验": 5,
+            "R1-B2冲突字段双人核页前回接高校线索": 45,
+            "R2-B2冲突字段核页提示回接": 18,
+        })
+        and Counter(field_backlink_summary.get("backlink_batch_counts", {})) == Counter({
+            "BACKLINK-01-结构化候选优先": 5,
+            "BACKLINK-02-双人复核冲突优先": 45,
+            "BACKLINK-03-普通冲突提示回接": 18,
+        })
+        and Counter(field_backlink_summary.get("bridge_bucket_counts", {})) == Counter({
+            "B1-已有结构化接入候选，可作为高校侧double check提示": 5,
+            "B2-已有高校侧结构化或diff线索，待接入到事实项": 63,
+        })
+        and Counter(field_backlink_summary.get("field_status_counts", {})) == Counter({
+            "K0-字段缺口无候选需原页重读": 7,
+            "K1-字段缺口有候选待PDF原页和官方核验": 28,
+            "K2-OCR候选存在但三方核验未闭环": 33,
+        })
+        and Counter(field_backlink_summary.get("field_priority_counts", {})) == Counter({
+            "P0-字段无候选原页重读": 7,
+            "P1-字段有候选回看原页和官方": 28,
+            "P3-OCR齐全字段三方闭环": 33,
+        })
+        and Counter(field_backlink_summary.get("field_closure_level_counts", {})) == Counter({
+            "L0-三字段缺口优先阻断": 16,
+            "L1-两字段缺口优先补证": 17,
+            "L2-单字段缺口有候选待核": 11,
+            "L3-单字段缺口无候选需重读": 18,
+            "L4-三字段OCR齐全但待三方闭环": 6,
+        })
+        and field_backlink_summary.get("structured_candidate_fact_count") == 5
+        and field_backlink_summary.get("b2_l3_hint_fact_count") == 63
+        and field_backlink_summary.get("double_review_required_count") == 47
+        and field_backlink_summary.get("manual_image_required_count") == 68
+        and field_backlink_summary.get("pdf_ocr_school_conflict_count") == 68
+        and field_backlink_summary.get("pdf_pending_count") == 68
+        and field_backlink_summary.get("hubei_official_pending_count") == 68
+        and field_backlink_summary.get("school_source_hint_count") == 68
+        and field_backlink_summary.get("field_writeback_ready_count") == 0
+        and field_backlink_summary.get("recommendation_basis_allowed_count") == 0
+        and field_backlink_summary.get("official_plan_replacement_allowed_count") == 0
+        and field_backlink_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期 W0/B0 高校源字段回接队列字段、回链和公开安全正确",
+        field_backlink_fields == script_runtime_constant(field_backlink_script, "QUEUE_FIELDS")
+        and field_backlink_page_fields == script_runtime_constant(field_backlink_script, "PAGE_FIELDS")
+        and field_backlink_school_fields == script_runtime_constant(field_backlink_script, "SCHOOL_FIELDS")
+        and len({row.get("高校源字段回接队列ID", "") for row in field_backlink_rows}) == 68
+        and len(field_backlink_fact_ids) == 68
+        and field_backlink_fact_ids == w0_b0_double_check_fact_ids
+        and field_backlink_fact_ids.issubset({
+            row.get("第一闭环事实范围缺口公开账本ID", "")
+            for row in first_fact_progress_rows
+        })
+        and {
+            row.get("第一闭环字段核验状态ID", "")
+            for row in field_backlink_rows
+        }.issubset({
+            row.get("第一闭环字段核验状态ID", "")
+            for row in first_field_status_rows
+        })
+        and {
+            row.get("第一闭环核验结果ID", "")
+            for row in field_backlink_rows
+        }.issubset({
+            row.get("第一闭环核验结果ID", "")
+            for row in first_result_rows
+        })
+        and [as_int(row.get("回接序号")) for row in field_backlink_rows] == list(range(1, 69))
+        and [as_int(row.get("页列汇总序号")) for row in field_backlink_page_rows] == list(range(1, 11))
+        and [as_int(row.get("院校汇总序号")) for row in field_backlink_school_rows] == list(range(1, 11))
+        and sum(csv_int(row, "字段事实数") for row in field_backlink_page_rows) == 68
+        and sum(csv_int(row, "字段事实数") for row in field_backlink_school_rows) == 68
+        and sum(csv_int(row, "涉及任务数") for row in field_backlink_page_rows) == 26
+        and sum(csv_int(row, "涉及任务数") for row in field_backlink_school_rows) == 26
+        and sum(csv_int(row, "需要双人复核字段数") for row in field_backlink_page_rows) == 47
+        and sum(csv_int(row, "需要双人复核字段数") for row in field_backlink_school_rows) == 47
+        and sum(csv_int(row, "需要人工看图字段数") for row in field_backlink_page_rows) == 68
+        and sum(csv_int(row, "需要人工看图字段数") for row in field_backlink_school_rows) == 68
+        and sum(csv_int(row, "存在PDFOCR与高校冲突字段数") for row in field_backlink_page_rows) == 68
+        and sum(csv_int(row, "存在PDFOCR与高校冲突字段数") for row in field_backlink_school_rows) == 68
+        and sum(csv_int(row, "结构化接入候选字段数") for row in field_backlink_page_rows) == 5
+        and sum(csv_int(row, "结构化接入候选字段数") for row in field_backlink_school_rows) == 5
+        and Counter(row.get("字段名", "") for row in field_backlink_rows) == Counter({
+            "专业计划数": 26,
+            "学费": 26,
+            "再选科目": 16,
+        })
+        and {row.get("事实域", "") for row in field_backlink_rows} == {"字段事实"}
+        and {row.get("高校源可作double_check提示", "") for row in field_backlink_rows} == {"true"}
+        and {row.get("是否存在PDFOCR与高校冲突", "") for row in field_backlink_rows} == {"true"}
+        and {row.get("是否需要人工直接看图", "") for row in field_backlink_rows} == {"true"}
+        and {row.get("PDF原页核页状态", "") for row in field_backlink_rows + field_backlink_page_rows + field_backlink_school_rows} == {
+            "pending_pdf_page_review"
+        }
+        and {row.get("湖北官方系统或省招办计划核验状态", "") for row in field_backlink_rows + field_backlink_page_rows + field_backlink_school_rows} == {
+            "pending_hubei_official_plan_review"
+        }
+        and {row.get("高校官网源状态", "") for row in field_backlink_rows + field_backlink_page_rows + field_backlink_school_rows} == {
+            "for_double_check_only_not_official_plan_replacement"
+        }
+        and {row.get("字段事实写回状态", "") for row in field_backlink_rows + field_backlink_page_rows + field_backlink_school_rows} == {
+            "blocked_until_pdf_hubei_school_three_way_closure"
+        }
+        and all(
+            {row.get(field, "") for row in field_backlink_rows} == {"false"}
+            for field in field_backlink_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in field_backlink_page_rows} == {"false"}
+            for field in field_backlink_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in field_backlink_school_rows} == {"false"}
+            for field in field_backlink_false_fields
+        )
+        and not any(token in field_backlink_public_text for token in field_backlink_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
