@@ -221,3 +221,5 @@
 - 新增高校源 Adapter/Diff 执行工作台：`scripts/build_issue19_school_source_adapter_diff_execution_workbench_v1.py` 生成 12 行公开工作台和 summary，把结构化接入候选推进到 adapter、parser、normalized bridge 和候选 diff 执行层；当前关联 28 条高校源进度任务，候选 diff 线索 446、计划数冲突线索 35、官网补缺线索 221。该表只用于 double check 和压缩人工核验范围，不确认字段事实、不替代湖北官方计划。
 
 - 新增高校源 Adapter 解析审计：`scripts/build_issue19_school_source_adapter_parse_audit_v1.py` 对 12 个结构化来源实际跑 parser，全部解析出湖北物理类计划行，合计 326 行、计划数合计 6725；公开层只保留计数、覆盖桶和 SHA。该审计说明这些高校侧来源可以进入后续 normalized rows 和候选 diff 生成，但仍不能越过第 19 期 PDF 原页、湖北官方侧和人工复核门禁。
+
+- 新增高校源 Adapter 候选 diff：`scripts/build_issue19_school_source_adapter_candidate_diff_v1.py` 把 326 行私有 normalized 高校源同 344 条第 19 期同校招生明细做自动匹配，公开层只输出 12 行计数和 SHA。当前专业名匹配 280、疑似匹配 4、计划数一致 155、OCR 计划数可补 102、计划数冲突 27；下一步按 D0 冲突和 D1 可补缺口优先核 PDF 原页与湖北官方侧，不逐行全量人工核验。

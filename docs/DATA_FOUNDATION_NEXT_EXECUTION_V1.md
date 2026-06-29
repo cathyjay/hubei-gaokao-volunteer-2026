@@ -166,6 +166,14 @@
 
 这张表把 12 个来源真实跑过 parser，确认都能形成 normalized 审计行：总计解析湖北物理类计划行 326，计划数合计 6725；计划数线索覆盖 12 行，学费线索覆盖 2 行，选科线索覆盖 4 行，组内代码线索覆盖 3 行，校内组线索覆盖 2 行。它的作用是判断后续 diff 能不能自动跑，不能直接作为最终招生计划事实。
 
+新增高校源 Adapter 候选 diff 视图：
+
+- 生成脚本：`scripts/build_issue19_school_source_adapter_candidate_diff_v1.py`
+- 公开工作台：`data/working/issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-school-source-adapter-candidate-diff-v1-summary.json`
+
+这张表把上述 12 个 parser 输出进一步接到第 19 期逐专业招生明细：私有 normalized 行 326、私有 diff 明细 344，公开层只保留 12 行院校代码级计数和私有 CSV SHA。当前专业名匹配 280、疑似匹配 4、计划数一致候选 155、OCR 计划数可补 102、计划数冲突 27；D0 冲突优先 8 包、D1 可补缺口 4 包。下一步人工只优先核冲突、OCR 缺失但高校源可补、疑似匹配和一致候选抽检，不需要逐行打开 344 条。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

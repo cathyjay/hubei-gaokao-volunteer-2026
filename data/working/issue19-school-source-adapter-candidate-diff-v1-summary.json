@@ -1,0 +1,60 @@
+{
+  "status": "issue19_school_source_adapter_candidate_diff_v1_not_final",
+  "generated_by": "build_issue19_school_source_adapter_candidate_diff_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_parse_audit": "data/working/issue19-school-source-adapter-parse-audit-v1-public-ledger.csv",
+  "source_adapter_workbench": "data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv",
+  "source_admission_detail": "data/working/issue19-admission-detail-master-workbench.csv",
+  "output_public_table": "data/working/issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv",
+  "row_count": 12,
+  "unique_school_count": 12,
+  "private_normalized_row_count": 326,
+  "private_diff_detail_row_count": 344,
+  "private_index_row_count": 12,
+  "parsed_hubei_physics_row_count": 326,
+  "parsed_hubei_physics_plan_sum": 6725,
+  "admission_detail_row_count": 344,
+  "school_group_count": 70,
+  "source_type_counts": {
+    "API/JSON": 6,
+    "API/JSON；章程HTML": 1,
+    "PDF抽取CSV": 3,
+    "XLSX": 2
+  },
+  "parser_family_counts": {
+    "JSON计划源解析": 6,
+    "JSON计划源解析；章程规则旁路": 1,
+    "PDF_CSV抽取源解析": 3,
+    "XLSX附件解析": 2
+  },
+  "candidate_priority_counts": {
+    "D0-存在计划数冲突需优先核PDF原页": 8,
+    "D1-高校源可补OCR计划数缺口需核页": 4
+  },
+  "match_status_counts": {
+    "matched": 280,
+    "possible_match": 4,
+    "unmatched": 60
+  },
+  "plan_check_status_counts": {
+    "match": 155,
+    "mismatch": 27,
+    "not_covered": 60,
+    "ocr_plan_missing_official_available": 102
+  },
+  "match_candidate_count": 284,
+  "plan_match_candidate_count": 155,
+  "ocr_plan_missing_official_available_count": 102,
+  "plan_mismatch_candidate_count": 27,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "final_available_count": 0,
+  "private_normalized_csv_sha256": "300c4a8c45dc32c0a1f20b0fb2ae2f6a204c7e568c1553b93de4c02bbf735e55",
+  "private_detail_csv_sha256": "0bd6f67717058a0517cf35ca4eac8e22b013ef649b33baefc8ccd81c4df633cc",
+  "private_index_csv_sha256": "4b9d3ac4694b3baff0c5e9fccd81035027aebb02af6a083686529c368d655840",
+  "public_boundary": "公开表只保存院校代码级计数、私有CSV SHA和非最终门禁；学校名、专业名、OCR字段、高校源字段和人工记录留在Git忽略的私有目录。"
+}

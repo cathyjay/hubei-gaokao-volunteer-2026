@@ -638,6 +638,14 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 证据文件数必须合计 17，其中可解析计划源 12 个、非计划规则侧证 2 个；所有行必须仍待 PDF 原页和湖北官方侧核验，写回、推荐、官网替代、学校专业建议、下一阶段和最终门禁必须为 false 或 0。
 - 公开文件不得出现学校名、专业名、字段明细、字段读数、候选正文、私有路径、证据文件路径、登录态、身份信息或最终推荐/可填报等误导词。
 
+高校源 Adapter 候选 diff 的校验方式：
+
+- `data/working/issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv` 必须由 `scripts/build_issue19_school_source_adapter_candidate_diff_v1.py` 生成，输入来自 Adapter 解析审计账本、Adapter/Diff 工作台和单一逐专业招生明细总工作台。
+- 公开账本必须保持 12 行、12 个唯一院校代码；私有 normalized CSV 必须保持 326 行，私有 diff 明细必须保持 344 行，私有 index 必须保持 12 行，且三份私有 CSV 的 SHA 与公开表和 summary 一致。
+- 公开计数必须由私有明细聚合得到：专业名匹配 280、疑似匹配 4、未匹配 60；计划数一致 155、OCR 计划数可补 102、计划数冲突 27、计划数未覆盖 60。
+- 公开层必须只保留院校代码级计数、学校键 SHA、私有 CSV SHA 和非最终门禁，不得出现学校名、专业名、OCR 字段、高校源字段、来源文件路径、冲突正文、人工记录或最终误导结论。
+- 所有行必须仍待 PDF 原页和湖北官方侧核验；写回、推荐、官网替代、学校专业建议、下一阶段和最终门禁必须为 false 或 0。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。

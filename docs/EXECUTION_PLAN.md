@@ -208,6 +208,8 @@
 
 新增的 `issue19-school-source-adapter-parse-audit-v1-public-ledger.csv` 已对 12 个结构化高校侧来源实际跑 parser：12 行均能解析出湖北物理类计划行，合计 326 行、计划数合计 6725；JSON 7 个、PDF_CSV 3 个、XLSX 2 个来源全部进入可比对状态。该表只保存来源类型、解析计数、字段覆盖桶、证据 SHA 和非最终门禁，不公开学校名、专业名、字段明细或证据路径。下一步可以基于私有明细生成 normalized rows 与候选 diff 提示，但仍必须回到第 19 期 PDF 原页和湖北官方侧闭环后才允许写回事实。
 
+新增的 `issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv` 已完成这一步的公开压缩：326 行高校源 normalized 明细和 344 条第 19 期同校招生明细的逐专业匹配只放在本地私有 CSV，公开层只留下 12 行计数和 SHA。当前可生成候选 diff 明细 284 条，其中计划数一致 155、OCR 计划数可补 102、计划数冲突 27。执行顺序应先处理 8 个 D0 冲突包，再处理 4 个 D1 OCR 可补缺口包；所有命中项仍必须核 PDF 原页和湖北官方侧。
+
 补源尝试账本 `issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv` 是上述三项之后的细化执行层：它不再停留在“哪些学校要补源”，而是记录每所学校当前入口状态、不可得边界、自动下一步和人工最小核验动作。它让官方平台不可匿名批量抓取时的替代方案可复跑、可审计：自动侧继续搜高校招生网/API/XLSX/PDF/HTML，人工侧只核最终候选、冲突、官网缺失和抽检失败升级范围。
 
 配套的 `issue19-p0-immediate-page-execution-queue.csv` 不增加字段事实，只把 148 个页列包按 Q0/Q1/Q2/Q3 排成执行顺序，其中 Q0 候选冲突 11 个页列包、Q1 无稳定候选 34 个页列包、Q2 候选一致仍需官方闭环 11 个页列包、Q3 常规候选 92 个页列包；它覆盖同一批 319 条字段任务，继续保持字段写回、推荐依据和最终可用均为 0。

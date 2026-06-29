@@ -135,6 +135,8 @@
 
 新增的 `data/working/issue19-school-source-adapter-parse-audit-v1-public-ledger.csv` 是高校源 Adapter 解析审计。它对上述 12 个来源实际跑 parser：12 行均能解析出湖北物理类计划行，覆盖 JSON 7、PDF_CSV 3、XLSX 2；解析湖北物理类行数合计 326，计划数合计 6725。该表只回答“来源是否能被机器解析、字段覆盖到哪一步”，不保存字段明细，不写回主表，也不替代 PDF 原页和湖北官方侧。
 
+新增的 `data/working/issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv` 是高校源 Adapter 候选 diff 公开账本。它把 326 行私有 normalized 高校源同第 19 期同校 344 条逐专业招生明细做自动匹配，只公开 12 行包级计数：专业名匹配 280、疑似匹配 4、未匹配 60；计划数一致候选 155、OCR 计划数可补 102、计划数冲突 27。逐专业 OCR、高校源字段、最佳匹配和冲突正文全部留在 Git 忽略私有 CSV；公开层仍不确认字段事实。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。
