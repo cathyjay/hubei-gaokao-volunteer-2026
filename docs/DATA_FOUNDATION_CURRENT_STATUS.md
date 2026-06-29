@@ -101,6 +101,14 @@
 
 新增的 `data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-packets-public-audit.csv` 是 W0/B0 执行预填公开审计包。它把 87 个核心事实接到本地私有预填材料：10 个页列 CSV、87 条私有预填记录、10 个原页图 SHA 和 10 个 OCR 文本 SHA；公开层只保存 ID、状态、计数和哈希。它让下一步人工复核可以直接按页列打开私有材料核 PDF 原页，但仍不确认任何计划数、学费、选科、专业名或专业组边界，不写回主表、不进入志愿推荐。
 
+新增的 `data/working/issue19-first-closure-verification-result-public-ledger.csv` 是第一闭环核验结果看板。它把 206 条最高风险任务统一摊到 PDF 原页、OCR、机器坐标、高校官网辅证、湖北官方侧、冲突状态和字段写回门禁上，并生成 `data/working/issue19-first-closure-verification-result-page-summary.csv` 作为 37 个页列汇总。当前 N0/N1/N2/N3/N4/N5 为 26/35/49/54/29/13，PDF 原页待核 206、湖北官方侧待核 206、双人复核 91、人工看图 80；它是核验排程表，不是字段事实表。
+
+新增的 `data/working/issue19-first-closure-field-verification-status-public-ledger.csv` 是第一闭环字段级公开状态。它把 206 条组合任务拆成 354 个字段级状态：专业计划数 170、学费 105、再选科目 77、待人工判定字段 2；352 个字段能映射到字段事实核验任务，2 个保持人工判定口径。该表解决“组合字段看不清到底哪个字段卡住”的问题，但所有字段仍待 PDF 原页和湖北官方侧闭环。
+
+新增的 `data/working/issue19-school-source-progress-board-public-ledger.csv` 是高校官网辅证进度看板。它在 80 个高校侧辅证任务上叠加最新证据层级、来源形态、留存状态和下一批推进动作：当前 L3/L1/L0 为 60/12/8，C4/C6 唯一口径仍是 411 条需补结构化、190 条需继续补源。高校官网只能作为 double check、补源和冲突发现，不能替代湖北官方招生计划。
+
+新增的 `data/exports/issue19-round4-family-explanation-board.xlsx` 是 Round4 家庭阅读说明表。它把 120 个优先讨论组解释成 55 个重点核验和 65 个暂缓保留，并补齐“为什么入选/为什么暂缓”、完整组内专业接受/勉强调剂/待核/不能计数和调剂风险说明；这个表方便家庭讨论，但仍不作为最终志愿方案。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。

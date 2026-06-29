@@ -31128,6 +31128,239 @@ def main():
         and not any(token in volunteer_public_text for token in shared_forbidden_tokens),
     ))
 
+    first_result_script = ROOT / "scripts/build_issue19_first_closure_verification_result_board.py"
+    first_result_summary_path = ROOT / "data/working/issue19-first-closure-verification-result-summary.json"
+    first_result_csv = ROOT / "data/working/issue19-first-closure-verification-result-public-ledger.csv"
+    first_result_page_csv = ROOT / "data/working/issue19-first-closure-verification-result-page-summary.csv"
+    first_field_status_script = ROOT / "scripts/build_issue19_first_closure_field_verification_status.py"
+    first_field_status_summary_path = ROOT / "data/working/issue19-first-closure-field-verification-status-summary.json"
+    first_field_status_csv = ROOT / "data/working/issue19-first-closure-field-verification-status-public-ledger.csv"
+    school_progress_script = ROOT / "scripts/build_issue19_school_source_progress_board.py"
+    school_progress_summary_path = ROOT / "data/working/issue19-school-source-progress-board-summary.json"
+    school_progress_csv = ROOT / "data/working/issue19-school-source-progress-board-public-ledger.csv"
+    round4_family_script = ROOT / "scripts/build_issue19_round4_family_explanation_board.py"
+    round4_family_summary_path = ROOT / "data/exports/issue19-round4-family-explanation-board-summary.json"
+    round4_family_csv = ROOT / "data/exports/issue19-round4-family-explanation-board.csv"
+    round4_family_focus_csv = ROOT / "data/exports/issue19-round4-family-explanation-focus55.csv"
+    round4_family_paused_csv = ROOT / "data/exports/issue19-round4-family-explanation-paused65.csv"
+    round4_family_workbook = ROOT / "data/exports/issue19-round4-family-explanation-board.xlsx"
+
+    first_result_summary = json.loads(first_result_summary_path.read_text())
+    first_field_status_summary = json.loads(first_field_status_summary_path.read_text())
+    school_progress_summary = json.loads(school_progress_summary_path.read_text())
+    round4_family_summary = json.loads(round4_family_summary_path.read_text())
+    with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_result_reader = csv.DictReader(f)
+        first_result_rows = list(first_result_reader)
+        first_result_fields = first_result_reader.fieldnames or []
+    with first_result_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_result_page_reader = csv.DictReader(f)
+        first_result_page_rows = list(first_result_page_reader)
+        first_result_page_fields = first_result_page_reader.fieldnames or []
+    with first_field_status_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_field_status_reader = csv.DictReader(f)
+        first_field_status_rows = list(first_field_status_reader)
+        first_field_status_fields = first_field_status_reader.fieldnames or []
+    with school_progress_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_progress_reader = csv.DictReader(f)
+        school_progress_rows = list(school_progress_reader)
+        school_progress_fields = school_progress_reader.fieldnames or []
+    with round4_family_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_family_reader = csv.DictReader(f)
+        round4_family_rows = list(round4_family_reader)
+        round4_family_fields = round4_family_reader.fieldnames or []
+    with round4_family_focus_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_family_focus_rows = list(csv.DictReader(f))
+    with round4_family_paused_csv.open(newline="", encoding="utf-8-sig") as f:
+        round4_family_paused_rows = list(csv.DictReader(f))
+
+    first_result_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_result_summary_path, first_result_csv, first_result_page_csv]
+    )
+    first_field_status_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_field_status_summary_path, first_field_status_csv]
+    )
+    school_progress_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_progress_summary_path, school_progress_csv]
+    )
+    round4_family_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [round4_family_summary_path, round4_family_csv, round4_family_focus_csv, round4_family_paused_csv]
+    )
+
+    checks.append(ok(
+        "第 19 期第一闭环核验结果看板摘要、规模和分布正确",
+        first_result_summary.get("status") == "issue19_first_closure_verification_result_board_not_final"
+        and first_result_summary.get("generated_by") == "build_issue19_first_closure_verification_result_board.py"
+        and first_result_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_result_summary.get("result_row_count") == len(first_result_rows) == 206
+        and first_result_summary.get("page_summary_row_count") == len(first_result_page_rows) == 37
+        and first_result_summary.get("unique_task_count") == 206
+        and first_result_summary.get("unique_page_side_count") == 37
+        and Counter(first_result_summary.get("action_level_counts", {})) == Counter({
+            "N0-先双人核PDF原页冲突": 26,
+            "N1-高校补缺线索回PDF原页": 35,
+            "N2-机器坐标辅助核PDF原页": 49,
+            "N3-无稳定候选人工看图": 54,
+            "N4-PDFOCR候选人工确认": 29,
+            "N5-多源一致仍待湖北官方侧": 13,
+        })
+        and Counter(first_result_summary.get("execution_lane_counts", {})) == Counter({
+            "E0-冲突异常双人优先核验": 106,
+            "E1-计划数补缺或偏大优先核验": 62,
+            "E2-官网未匹配专业名归属核验": 38,
+        })
+        and first_result_summary.get("pdf_pending_task_count") == 206
+        and first_result_summary.get("hubei_official_pending_task_count") == 206
+        and first_result_summary.get("school_source_hint_task_count") == 180
+        and first_result_summary.get("double_review_required_count") == 91
+        and first_result_summary.get("direct_image_review_required_count") == 80
+        and first_result_summary.get("field_writeback_ready_count") == 0
+        and first_result_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环核验结果看板字段、门禁和公开安全正确",
+        first_result_fields == script_runtime_constant(first_result_script, "RESULT_FIELDS")
+        and first_result_page_fields == script_runtime_constant(first_result_script, "PAGE_FIELDS")
+        and len({row.get("第一闭环核验结果ID", "") for row in first_result_rows}) == 206
+        and {row.get("最终可用", "") for row in first_result_rows} == {"false"}
+        and {row.get("是否允许作为志愿推荐依据", "") for row in first_result_rows} == {"false"}
+        and {row.get("是否允许写回字段事实", "") for row in first_result_rows} == {"false"}
+        and {row.get("PDF原页核页状态", "") for row in first_result_page_rows} == {"pending_pdf_page_review"}
+        and {row.get("湖北官方系统或省招办计划核验状态", "") for row in first_result_page_rows} == {"pending_hubei_official_plan_review"}
+        and not any(token in first_result_public_text for token in shared_forbidden_tokens)
+        and "字段OCR候选" not in first_result_public_text
+        and "字段人工确认" not in first_result_public_text
+        and "字段候选值集合" not in first_result_public_text,
+    ))
+
+    checks.append(ok(
+        "第 19 期第一闭环字段级公开状态摘要、拆分和门禁正确",
+        first_field_status_summary.get("status") == "issue19_first_closure_field_verification_status_not_final"
+        and first_field_status_summary.get("generated_by") == "build_issue19_first_closure_field_verification_status.py"
+        and first_field_status_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_field_status_summary.get("row_count") == len(first_field_status_rows) == 354
+        and first_field_status_summary.get("source_next_action_row_count") == 206
+        and first_field_status_summary.get("unique_status_id_count") == 354
+        and first_field_status_summary.get("unique_task_field_count") == 354
+        and Counter(first_field_status_summary.get("field_counts", {})) == Counter({
+            "专业计划数": 170,
+            "学费": 105,
+            "再选科目": 77,
+            "待人工判定字段": 2,
+        })
+        and Counter(first_field_status_summary.get("field_mapping_status_counts", {})) == Counter({
+            "M1-已映射字段事实核验任务": 352,
+            "M0-待人工判定字段未映射": 2,
+        })
+        and first_field_status_summary.get("mapped_field_count") == 352
+        and first_field_status_summary.get("unmapped_field_count") == 2
+        and first_field_status_summary.get("field_writeback_ready_count") == 0
+        and first_field_status_summary.get("recommendation_basis_allowed_count") == 0
+        and first_field_status_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_field_status_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环字段级公开状态字段、映射和公开安全正确",
+        first_field_status_fields == script_runtime_constant(first_field_status_script, "FIELDS")
+        and len({row.get("第一闭环字段核验状态ID", "") for row in first_field_status_rows}) == 354
+        and all(
+            row.get("字段名") == "待人工判定字段"
+            for row in first_field_status_rows
+            if row.get("字段映射状态", "").startswith("M0-")
+        )
+        and {row.get("PDF原页核页状态", "") for row in first_field_status_rows} == {"pending_pdf_page_review"}
+        and {row.get("湖北官方系统或省招办计划核验状态", "") for row in first_field_status_rows} == {"pending_hubei_official_plan_review"}
+        and {row.get("字段事实写回状态", "") for row in first_field_status_rows} == {"blocked_until_pdf_hubei_school_three_way_closure"}
+        and {row.get("最终可用", "") for row in first_field_status_rows} == {"false"}
+        and {row.get("是否允许作为志愿推荐依据", "") for row in first_field_status_rows} == {"false"}
+        and not any(token in first_field_status_public_text for token in shared_forbidden_tokens)
+        and "字段OCR候选" not in first_field_status_public_text
+        and "字段人工确认" not in first_field_status_public_text
+        and "字段候选值集合" not in first_field_status_public_text
+        and "院校名称OCR" not in first_field_status_public_text
+        and "专业名称及备注" not in first_field_status_public_text,
+    ))
+
+    checks.append(ok(
+        "第 19 期高校官网辅证进度看板摘要、规模和唯一包口径正确",
+        school_progress_summary.get("status") == "issue19_school_source_progress_board_not_final"
+        and school_progress_summary.get("generated_by") == "build_issue19_school_source_progress_board.py"
+        and school_progress_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and school_progress_summary.get("row_count") == len(school_progress_rows) == 80
+        and school_progress_summary.get("unique_school_count") == 36
+        and school_progress_summary.get("source_auto_row_count") == 80
+        and school_progress_summary.get("source_latest_row_count") == 80
+        and school_progress_summary.get("source_c4c6_packet_count") == 36
+        and Counter(school_progress_summary.get("latest_evidence_level_counts", {})) == Counter({
+            "L3-已有湖北物理结构化或候选diff线索": 60,
+            "L1-有入口或探针记录但未取得湖北物理结构化明细": 12,
+            "L0-暂无可复用高校侧计划源": 8,
+        })
+        and school_progress_summary.get("c4c6_unique_need_structure_count") == 411
+        and school_progress_summary.get("c4c6_unique_need_source_count") == 190
+        and school_progress_summary.get("pdf_pending_count") == 80
+        and school_progress_summary.get("hubei_official_pending_count") == 80
+        and school_progress_summary.get("field_writeback_ready_count") == 0
+        and school_progress_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_progress_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期高校官网辅证进度看板字段、排序和公开安全正确",
+        school_progress_fields == script_runtime_constant(school_progress_script, "FIELDS")
+        and len({row.get("高校源进度看板ID", "") for row in school_progress_rows}) == 80
+        and [as_int(row.get("看板序号")) for row in school_progress_rows] == list(range(1, 81))
+        and {row.get("PDF原页核页状态", "") for row in school_progress_rows} == {"pending_pdf_page_review"}
+        and {row.get("湖北官方系统或省招办计划核验状态", "") for row in school_progress_rows} == {"pending_hubei_official_plan_review"}
+        and {row.get("高校官网源状态", "") for row in school_progress_rows} == {"for_double_check_only_not_official_plan_replacement"}
+        and {row.get("字段事实写回状态", "") for row in school_progress_rows} == {"blocked_until_pdf_hubei_school_three_way_closure"}
+        and {row.get("最终可用", "") for row in school_progress_rows} == {"false"}
+        and {row.get("是否允许官网证据替代湖北官方计划", "") for row in school_progress_rows} == {"false"}
+        and not any(token in school_progress_public_text for token in shared_forbidden_tokens),
+    ))
+
+    round4_family_ids = {row.get("第四轮候选ID", "") for row in round4_family_rows}
+    round4_family_focus_ids = {row.get("第四轮候选ID", "") for row in round4_family_focus_rows}
+    round4_family_paused_ids = {row.get("第四轮候选ID", "") for row in round4_family_paused_rows}
+    checks.append(ok(
+        "第 19 期 Round4 家庭阅读说明表摘要、规模和拆分正确",
+        round4_family_summary.get("status") == "issue19_round4_family_explanation_board_not_final"
+        and round4_family_summary.get("generated_by") == "build_issue19_round4_family_explanation_board.py"
+        and round4_family_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and round4_family_summary.get("row_count") == len(round4_family_rows) == 120
+        and round4_family_summary.get("focus_count") == len(round4_family_focus_rows) == 55
+        and round4_family_summary.get("paused_count") == len(round4_family_paused_rows) == 65
+        and round4_family_summary.get("unique_candidate_count") == 120
+        and round4_family_focus_ids.isdisjoint(round4_family_paused_ids)
+        and round4_family_ids == round4_family_focus_ids | round4_family_paused_ids
+        and Counter(round4_family_summary.get("focus_gradient_counts", {})) == Counter({
+            "保底观察": 1,
+            "稳妥观察": 24,
+            "稳冲观察": 18,
+            "冲刺观察": 12,
+        })
+        and round4_family_summary.get("state_counts") == {"重点核验": 55, "暂缓保留": 65}
+        and round4_family_summary.get("high_score_paused_count") == 3
+        and round4_family_summary.get("all_false_gate") is True
+        and round4_family_workbook.exists()
+        and round4_family_workbook.stat().st_size > 20_000,
+    ))
+    checks.append(ok(
+        "第 19 期 Round4 家庭阅读说明表字段、解释层和公开安全正确",
+        round4_family_fields == script_runtime_constant(round4_family_script, "FIELDS")
+        and {row.get("最终可用", "") for row in round4_family_rows} == {"false"}
+        and {row.get("是否允许作为志愿推荐依据", "") for row in round4_family_rows} == {"false"}
+        and {row.get("是否允许写回字段事实", "") for row in round4_family_rows} == {"false"}
+        and all(row.get("为什么入选", "") for row in round4_family_focus_rows)
+        and all(row.get("为什么暂缓", "") for row in round4_family_paused_rows)
+        and all(row.get("完整组内专业接受度摘要", "") for row in round4_family_rows)
+        and all(row.get("调剂风险说明", "") for row in round4_family_rows)
+        and not any(token in round4_family_public_text for token in shared_forbidden_tokens),
+    ))
+
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())
     checks.append(ok(
         "第 19 期全量 OCR 摘要已记录",

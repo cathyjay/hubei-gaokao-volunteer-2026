@@ -1,0 +1,63 @@
+{
+  "status": "issue19_school_source_progress_board_not_final",
+  "generated_by": "build_issue19_school_source_progress_board.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_auto_batches": "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv",
+  "source_latest_reconciliation": "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv",
+  "source_c4c6_packets": "data/working/issue19-c4-c6-school-source-refresh-execution-packets.csv",
+  "output_table": "data/working/issue19-school-source-progress-board-public-ledger.csv",
+  "row_count": 80,
+  "unique_school_count": 36,
+  "source_auto_row_count": 80,
+  "source_latest_row_count": 80,
+  "source_c4c6_packet_count": 36,
+  "latest_evidence_level_counts": {
+    "L3-已有湖北物理结构化或候选diff线索": 60,
+    "L0-暂无可复用高校侧计划源": 8,
+    "L1-有入口或探针记录但未取得湖北物理结构化明细": 12
+  },
+  "next_priority_counts": {
+    "P0-冲突优先回PDF原页和湖北官方侧": 35,
+    "P1-官网补缺线索回页": 22,
+    "P2-专业名匹配和组边界确认": 1,
+    "P3-补结构化湖北物理明细": 12,
+    "P4-继续搜索高校官网计划网源": 10
+  },
+  "source_family_counts": {
+    "F0-已有结构化或候选diff线索": 60,
+    "F2-暂无可复用高校侧计划源": 8,
+    "F1-有入口或探针但缺湖北物理结构化明细": 12
+  },
+  "source_shape_counts": {
+    "API/JSON": 21,
+    "PDF": 6,
+    "XLSX": 6,
+    "HTML/招生系统入口": 10,
+    "公开来源待判定": 31,
+    "待搜索高校官网计划源": 1,
+    "章程/规则": 5
+  },
+  "retention_state_counts": {
+    "R0-已有公开来源文件或URL留存": 69,
+    "R2-已有账本线索但需补结构化留存": 1,
+    "R3-暂无公开留存源": 3,
+    "R1-已有探针或live补源记录": 7
+  },
+  "total_involved_major_detail_count": 854,
+  "row_attached_need_structure_count": 1128,
+  "row_attached_need_source_count": 227,
+  "c4c6_unique_need_structure_count": 411,
+  "c4c6_unique_need_source_count": 190,
+  "total_candidate_diff_count": 714,
+  "total_conflict_count": 81,
+  "total_fill_candidate_count": 326,
+  "pdf_pending_count": 80,
+  "hubei_official_pending_count": 80,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该看板只安排高校官网辅证继续推进和double check；官网证据不能替代湖北官方招生计划，不能自动写回字段事实或生成志愿建议。"
+}

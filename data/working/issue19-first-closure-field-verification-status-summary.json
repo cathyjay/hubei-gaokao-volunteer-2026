@@ -1,0 +1,56 @@
+{
+  "status": "issue19_first_closure_field_verification_status_not_final",
+  "generated_by": "build_issue19_first_closure_field_verification_status.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_next_action_matrix": "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv",
+  "source_field_tasks": "data/working/issue19-field-fact-verification-tasks.csv",
+  "source_school_source_e0_manual_queue": "data/working/issue19-school-source-e0-manual-page-review-queue-public-ledger.csv",
+  "output_table": "data/working/issue19-first-closure-field-verification-status-public-ledger.csv",
+  "row_grain": "第一闭环明细任务×待核字段",
+  "row_count": 354,
+  "source_next_action_row_count": 206,
+  "source_field_task_row_count": 41208,
+  "source_school_source_e0_count": 37,
+  "unique_status_id_count": 354,
+  "unique_task_field_count": 354,
+  "field_counts": {
+    "专业计划数": 170,
+    "再选科目": 77,
+    "学费": 105,
+    "待人工判定字段": 2
+  },
+  "field_mapping_status_counts": {
+    "M1-已映射字段事实核验任务": 352,
+    "M0-待人工判定字段未映射": 2
+  },
+  "field_fact_status_counts": {
+    "K0-字段缺口无候选需原页重读": 156,
+    "K1-字段缺口有候选待PDF原页和官方核验": 62,
+    "K2-OCR候选存在但三方核验未闭环": 134,
+    "": 2
+  },
+  "field_priority_counts": {
+    "P0-字段无候选原页重读": 156,
+    "P1-字段有候选回看原页和官方": 62,
+    "P3-OCR齐全字段三方闭环": 134,
+    "": 2
+  },
+  "pdf_status_counts": {
+    "pending_pdf_page_review": 354
+  },
+  "hubei_official_status_counts": {
+    "pending_hubei_official_plan_review": 354
+  },
+  "writeback_status_counts": {
+    "blocked_until_pdf_hubei_school_three_way_closure": 354
+  },
+  "mapped_field_count": 352,
+  "unmapped_field_count": 2,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该表只把第一闭环206条任务拆成字段级公开状态，不确认任何字段事实，不保存字段读数，不进入推荐或写回。"
+}

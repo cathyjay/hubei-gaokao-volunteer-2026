@@ -1,0 +1,44 @@
+{
+  "status": "issue19_round4_family_explanation_board_not_final",
+  "generated_by": "build_issue19_round4_family_explanation_board.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_focus55": "data/exports/issue19-round4-priority-focus55-groups.csv",
+  "source_paused65": "data/exports/issue19-round4-priority-focus55-paused65-groups.csv",
+  "source_priority120": "data/exports/issue19-round4-city-gradient-priority120-groups.csv",
+  "output_table": "data/exports/issue19-round4-family-explanation-board.csv",
+  "output_focus55": "data/exports/issue19-round4-family-explanation-focus55.csv",
+  "output_paused65": "data/exports/issue19-round4-family-explanation-paused65.csv",
+  "output_workbook": "data/exports/issue19-round4-family-explanation-board.xlsx",
+  "row_count": 120,
+  "focus_count": 55,
+  "paused_count": 65,
+  "unique_candidate_count": 120,
+  "state_counts": {
+    "重点核验": 55,
+    "暂缓保留": 65
+  },
+  "focus_gradient_counts": {
+    "保底观察": 1,
+    "冲刺观察": 12,
+    "稳冲观察": 18,
+    "稳妥观察": 24
+  },
+  "paused_reason_counts": {
+    "P0-存在不能接受专业提示，先暂缓": 11,
+    "P2-调剂或特殊限制风险较高": 12,
+    "P3-核验成本高，先留给更高收益组": 5,
+    "P1-专业匹配弱于当前优先方向": 15,
+    "P4-同梯度配额外，作为备选保留": 22
+  },
+  "high_score_paused_count": 3,
+  "acceptance_totals": {
+    "接受专业数": 242,
+    "勉强调剂专业数": 585,
+    "待核后判断专业数": 92,
+    "不能接受提示专业数": 19
+  },
+  "all_false_gate": true,
+  "public_boundary": "该表把 Round4 120 组解释为重点核验或暂缓保留；所有组仍非最终，不能作为志愿定稿依据。"
+}

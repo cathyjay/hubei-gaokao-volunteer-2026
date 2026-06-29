@@ -660,6 +660,15 @@
 - `scripts/build_issue19_school_source_latest_reconciliation.py`：读取高校官网辅证自动执行批次、next20 探测、live 补源、C4/C6 复用审计、结构化候选 diff 和补源尝试账本，生成 80 行高校官网最新证据对齐账本；用于识别哪些高校侧任务已经推进、哪些仍需补源或解析，不确认字段事实。
 - `scripts/build_issue19_school_source_gap_priority_ledger.py`：读取高校官网最新证据对齐账本、状态快照、自动执行批次、C4/C6 结构化候选 diff 和补源尝试账本，生成 80 行高校源缺口优先级清单；用于固定下一步人工回页、自动补结构化、继续补源和章程规则核验顺序，不确认字段事实。
 - `scripts/build_issue19_school_source_e0_manual_page_review_queue.py`：读取高校源缺口优先级清单和第一闭环下一步动作矩阵，生成 37 行 E0 人工回页桥接队列；用于固定人工先核任务和同校页列提示，不确认字段事实。
+- `scripts/build_issue19_first_closure_verification_result_board.py`：读取第一闭环下一步动作矩阵、页列下一步汇总、证据状态账本、字段事实核验任务和 E0 人工回页队列，生成 206 行任务级核验结果看板和 37 行页列汇总；用于统一展示 PDF/OCR/机器坐标/高校官网/湖北官方/冲突状态，不确认字段事实。
+- `scripts/build_issue19_first_closure_field_verification_status.py`：读取第一闭环下一步动作矩阵、字段事实核验任务和 E0 人工回页队列，把 206 条组合任务拆成 354 个字段级公开状态；只保存状态、ID、计数和动作，不保存字段读数或候选文本。
+- `scripts/build_issue19_school_source_progress_board.py`：读取高校官网辅证自动执行批次、高校源最新对齐账本和 C4/C6 执行包，生成 80 行高校官网辅证进度看板；用于按 L3/L1/L0、来源形态、留存状态和下一批动作继续推进 double check。
+- `scripts/build_issue19_round4_family_explanation_board.py`：读取 Round4 重点 55 组、暂缓 65 组和优先 120 组，生成家庭阅读说明表和工作簿；用于解释为什么入选、为什么暂缓、完整组内专业接受度和调剂风险，不作为定稿依据。
+- `data/working/issue19-first-closure-verification-result-public-ledger.csv`：第一闭环 206 条最高风险明细的任务级核验结果看板。
+- `data/working/issue19-first-closure-verification-result-page-summary.csv`：第一闭环 37 个页列的核验结果页列汇总和建议人工小包。
+- `data/working/issue19-first-closure-field-verification-status-public-ledger.csv`：第一闭环 354 个字段级待核状态，拆分专业计划数、学费、再选科目和待人工判定字段。
+- `data/working/issue19-school-source-progress-board-public-ledger.csv`：80 个高校官网辅证任务的最新进度看板。
+- `data/exports/issue19-round4-family-explanation-board.xlsx`、`data/exports/issue19-round4-family-explanation-board.csv`、`data/exports/issue19-round4-family-explanation-focus55.csv`、`data/exports/issue19-round4-family-explanation-paused65.csv`：Round4 120 组家庭阅读说明表，重点 55 与暂缓 65 分开保存。
 - `scripts/build_issue19_stable_foundation_first_closure_packet.py`：读取稳定基座下一步闭环工作台，把最高优先级 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成 206 条明细任务和 37 个页列执行包。
 - `scripts/build_issue19_first_closure_review_materials.py`：读取第一闭环明细包、页列包、页列底座公开进度账本、字段线索审计、人工复核 Overlay、官方入口状态和私有 OCR 证据，生成第一闭环公开复核账本，并在 Git 忽略的 `private/` 目录生成 37 份页列 HTML/CSV 核页材料。
 - `scripts/build_issue19_first_closure_task_review_ledger.py`：读取第一闭环明细包、页列包、第一闭环复核公开账本和官方入口状态，生成 206 行任务级公开复核账本；公共高校来源文件只公开相对路径和 SHA，字段读数、OCR 原文、页图路径和人工记录继续留在私有复核材料。

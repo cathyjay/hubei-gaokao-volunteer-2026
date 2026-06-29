@@ -203,3 +203,7 @@
 - 新增第一闭环事实核验包：`scripts/build_issue19_first_closure_fact_verification_packets.py` 生成 37 个页列核验包和 439 个包内事实项，把字段事实、专业名归属和专业组边界按 B0 冲突优先、专业名归属优先、缺候选人工看图、机器坐标辅助四类波次排队；该表只服务人工核页和双人复核顺序，不确认字段事实。
 - 新增第一闭环 W0/B0 最小人工复核清单：`scripts/build_issue19_first_closure_w0_b0_minimal_manual_checklist.py` 生成 10 个 B0 页列包和 87 个核心事实项，从 275 个 W0 同页待核事实中优先抽出专业组边界 10、明确冲突字段 68、专业名归属 9；该清单只用于先核最可能导致串组、字段冲突和归属错位的问题，剩余 188 个同页伴生事实继续待闭环，字段写回和最终门禁仍为 0。
 - 新增第一闭环 W0/B0 执行预填审计：`scripts/build_issue19_first_closure_w0_b0_execution_prefill_audit.py` 生成 10 行执行预填包公开审计、87 行执行预填明细公开审计和 Git 忽略的私有页列 CSV。公开层只保存 ID、状态、计数和私有材料 SHA；私有层保留 OCR 文本、候选读数和人工填写栏，便于后续按页列核 PDF 原页。该审计不确认字段事实，不写回主表，不进入学校专业建议或最终志愿方案。
+- 新增第一闭环核验结果看板：`scripts/build_issue19_first_closure_verification_result_board.py` 生成 206 行任务级看板、37 行页列汇总和 summary，把 PDF 原页、OCR、机器坐标、高校官网辅证、湖北官方侧、冲突状态和字段写回门禁放到同一张表。当前 PDF 原页待核 206、湖北官方侧待核 206、双人复核 91、人工看图 80；该表只用于核验排程，不确认字段事实。
+- 新增第一闭环字段级公开状态：`scripts/build_issue19_first_closure_field_verification_status.py` 生成 354 行字段级状态，把 206 条组合任务拆成专业计划数 170、学费 105、再选科目 77、待人工判定字段 2。当前 352 个字段映射到字段事实核验任务，2 个保持人工判定口径；所有字段写回、推荐依据和最终门禁仍为 0。
+- 新增高校官网辅证进度看板：`scripts/build_issue19_school_source_progress_board.py` 生成 80 行进度看板和 summary，把 36 所学校的高校侧辅证任务按最新证据层级、来源形态、留存状态和下一批动作重新排队。当前 L3/L1/L0 为 60/12/8，C4/C6 唯一口径为需补结构化 411 条、需继续补源 190 条；官网证据仍只能 double check，不能替代湖北官方计划。
+- 新增 Round4 家庭阅读说明表：`scripts/build_issue19_round4_family_explanation_board.py` 生成 120 行说明表、重点 55、暂缓 65 和 Excel 工作簿，补齐每组为什么入选或暂缓、完整组内专业接受度计数和调剂风险说明。该表用于家庭讨论和下一轮核验排序，不作为定稿依据。
