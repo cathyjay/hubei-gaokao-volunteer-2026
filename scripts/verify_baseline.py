@@ -31163,6 +31163,10 @@ def main():
     first_fact_progress_summary_path = ROOT / "data/working/issue19-first-closure-fact-progress-summary.json"
     first_fact_progress_csv = ROOT / "data/working/issue19-first-closure-fact-progress-public-ledger.csv"
     first_fact_progress_page_csv = ROOT / "data/working/issue19-first-closure-fact-progress-page-summary.csv"
+    w0_b0_school_bridge_script = ROOT / "scripts/build_issue19_w0_b0_school_source_bridge.py"
+    w0_b0_school_bridge_summary_path = ROOT / "data/working/issue19-w0-b0-school-source-bridge-summary.json"
+    w0_b0_school_bridge_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv"
+    w0_b0_school_bridge_page_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-page-summary.csv"
 
     first_result_summary = json.loads(first_result_summary_path.read_text())
     first_field_status_summary = json.loads(first_field_status_summary_path.read_text())
@@ -31172,6 +31176,7 @@ def main():
     school_ingestion_summary = json.loads(school_ingestion_summary_path.read_text())
     family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
     first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
+    w0_b0_school_bridge_summary = json.loads(w0_b0_school_bridge_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
         first_result_reader = csv.DictReader(f)
         first_result_rows = list(first_result_reader)
@@ -31228,6 +31233,14 @@ def main():
         first_fact_progress_page_reader = csv.DictReader(f)
         first_fact_progress_page_rows = list(first_fact_progress_page_reader)
         first_fact_progress_page_fields = first_fact_progress_page_reader.fieldnames or []
+    with w0_b0_school_bridge_csv.open(newline="", encoding="utf-8-sig") as f:
+        w0_b0_school_bridge_reader = csv.DictReader(f)
+        w0_b0_school_bridge_rows = list(w0_b0_school_bridge_reader)
+        w0_b0_school_bridge_fields = w0_b0_school_bridge_reader.fieldnames or []
+    with w0_b0_school_bridge_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        w0_b0_school_bridge_page_reader = csv.DictReader(f)
+        w0_b0_school_bridge_page_rows = list(w0_b0_school_bridge_page_reader)
+        w0_b0_school_bridge_page_fields = w0_b0_school_bridge_page_reader.fieldnames or []
 
     first_result_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -31267,6 +31280,14 @@ def main():
             first_fact_progress_summary_path,
             first_fact_progress_csv,
             first_fact_progress_page_csv,
+        ]
+    )
+    w0_b0_school_bridge_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            w0_b0_school_bridge_summary_path,
+            w0_b0_school_bridge_csv,
+            w0_b0_school_bridge_page_csv,
         ]
     )
 
@@ -31737,6 +31758,113 @@ def main():
             for field in first_fact_false_fields
         )
         and not any(token in first_fact_progress_public_text for token in first_fact_progress_forbidden_tokens),
+    ))
+
+    w0_b0_school_bridge_false_fields = script_runtime_constant(w0_b0_school_bridge_script, "FALSE_FIELDS")
+    w0_b0_school_bridge_forbidden_tokens = set(shared_forbidden_tokens)
+    w0_b0_school_bridge_forbidden_tokens.update(
+        script_runtime_constant(w0_b0_school_bridge_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    checks.append(ok(
+        "第 19 期 W0/B0 高校源桥接账本摘要、规模和桥接口径正确",
+        w0_b0_school_bridge_summary.get("status") == "issue19_w0_b0_school_source_bridge_ready_not_final"
+        and w0_b0_school_bridge_summary.get("generated_by") == "build_issue19_w0_b0_school_source_bridge.py"
+        and w0_b0_school_bridge_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and w0_b0_school_bridge_summary.get("output") == str(w0_b0_school_bridge_csv.relative_to(ROOT))
+        and w0_b0_school_bridge_summary.get("page_output") == str(w0_b0_school_bridge_page_csv.relative_to(ROOT))
+        and w0_b0_school_bridge_summary.get("row_count") == len(w0_b0_school_bridge_rows) == 87
+        and w0_b0_school_bridge_summary.get("page_summary_row_count") == len(w0_b0_school_bridge_page_rows) == 10
+        and w0_b0_school_bridge_summary.get("source_w0_b0_item_count") == 87
+        and w0_b0_school_bridge_summary.get("unique_fact_scope_count") == 87
+        and w0_b0_school_bridge_summary.get("unique_task_count") == 35
+        and w0_b0_school_bridge_summary.get("unique_page_side_count") == 10
+        and w0_b0_school_bridge_summary.get("unique_school_code_count") == 11
+        and w0_b0_school_bridge_summary.get("school_code_present_count") == 77
+        and w0_b0_school_bridge_summary.get("school_code_absent_count") == 10
+        and w0_b0_school_bridge_summary.get("unique_page_count") == 9
+        and Counter(w0_b0_school_bridge_summary.get("fact_domain_counts", {})) == Counter({
+            "字段事实": 68,
+            "专业组边界": 10,
+            "专业名归属": 9,
+        })
+        and Counter(w0_b0_school_bridge_summary.get("fact_type_counts", {})) == Counter({
+            "字段事实-专业计划数": 26,
+            "字段事实-学费": 26,
+            "字段事实-再选科目": 16,
+            "专业组边界事实": 10,
+            "专业名归属事实": 9,
+        })
+        and Counter(w0_b0_school_bridge_summary.get("bridge_bucket_counts", {})) == Counter({
+            "B1-已有结构化接入候选，可作为高校侧double check提示": 5,
+            "B2-已有高校侧结构化或diff线索，待接入到事实项": 63,
+            "B4-专业组边界或页列事实无单校高校源桥接": 10,
+            "B5-专业名归属先核PDF原页和湖北官方侧，归属稳定后回接高校源": 9,
+        })
+        and w0_b0_school_bridge_summary.get("double_check_hint_fact_count") == 68
+        and w0_b0_school_bridge_summary.get("pdf_hubei_first_fact_count") == 19
+        and w0_b0_school_bridge_summary.get("structured_candidate_fact_count") == 7
+        and w0_b0_school_bridge_summary.get("need_source_or_parse_fact_count") == 0
+        and w0_b0_school_bridge_summary.get("double_review_required_fact_count") == 57
+        and w0_b0_school_bridge_summary.get("manual_image_required_fact_count") == 75
+        and w0_b0_school_bridge_summary.get("pdf_pending_count") == 87
+        and w0_b0_school_bridge_summary.get("hubei_official_pending_count") == 87
+        and w0_b0_school_bridge_summary.get("field_writeback_ready_count") == 0
+        and w0_b0_school_bridge_summary.get("recommendation_basis_allowed_count") == 0
+        and w0_b0_school_bridge_summary.get("official_plan_replacement_allowed_count") == 0
+        and w0_b0_school_bridge_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期 W0/B0 高校源桥接账本字段、页列守恒和公开安全正确",
+        w0_b0_school_bridge_fields == script_runtime_constant(w0_b0_school_bridge_script, "FIELDS")
+        and w0_b0_school_bridge_page_fields == script_runtime_constant(w0_b0_school_bridge_script, "PAGE_FIELDS")
+        and len({row.get("W0B0高校源桥接ID", "") for row in w0_b0_school_bridge_rows}) == 87
+        and len({row.get("第一闭环事实范围缺口公开账本ID", "") for row in w0_b0_school_bridge_rows}) == 87
+        and {
+            row.get("第一闭环事实范围缺口公开账本ID", "")
+            for row in w0_b0_school_bridge_rows
+        }.issubset({
+            row.get("第一闭环事实范围缺口公开账本ID", "")
+            for row in first_fact_scope_rows
+        })
+        and [as_int(row.get("桥接序号")) for row in w0_b0_school_bridge_rows] == list(range(1, 88))
+        and [as_int(row.get("页列汇总序号")) for row in w0_b0_school_bridge_page_rows] == list(range(1, 11))
+        and sum(csv_int(row, "事实数") for row in w0_b0_school_bridge_page_rows) == 87
+        and sum(csv_int(row, "字段事实数") for row in w0_b0_school_bridge_page_rows) == 68
+        and sum(csv_int(row, "专业名归属事实数") for row in w0_b0_school_bridge_page_rows) == 9
+        and sum(csv_int(row, "专业组边界事实数") for row in w0_b0_school_bridge_page_rows) == 10
+        and sum(csv_int(row, "涉及任务数") for row in w0_b0_school_bridge_page_rows) == 35
+        and sum(csv_int(row, "可作double_check提示事实数") for row in w0_b0_school_bridge_page_rows) == 68
+        and sum(csv_int(row, "结构化接入候选事实数") for row in w0_b0_school_bridge_page_rows) == 7
+        and sum(csv_int(row, "需要双人复核事实数") for row in w0_b0_school_bridge_page_rows) == 57
+        and sum(csv_int(row, "需要人工看图事实数") for row in w0_b0_school_bridge_page_rows) == 75
+        and {
+            row.get("事实域", "")
+            for row in w0_b0_school_bridge_rows
+            if row.get("高校源可作double_check提示") == "true"
+        } == {"字段事实"}
+        and count_value(w0_b0_school_bridge_rows, "高校源可作double_check提示", "true") == 68
+        and count_value(w0_b0_school_bridge_rows, "高校源可作double_check提示", "false") == 19
+        and {row.get("PDF原页核页状态", "") for row in w0_b0_school_bridge_rows + w0_b0_school_bridge_page_rows} == {
+            "pending_pdf_page_review"
+        }
+        and {row.get("湖北官方系统或省招办计划核验状态", "") for row in w0_b0_school_bridge_rows + w0_b0_school_bridge_page_rows} == {
+            "pending_hubei_official_plan_review"
+        }
+        and {row.get("高校官网源状态", "") for row in w0_b0_school_bridge_rows + w0_b0_school_bridge_page_rows} == {
+            "for_double_check_only_not_official_plan_replacement"
+        }
+        and {row.get("字段事实写回状态", "") for row in w0_b0_school_bridge_rows + w0_b0_school_bridge_page_rows} == {
+            "blocked_until_pdf_hubei_school_three_way_closure"
+        }
+        and all(
+            {row.get(field, "") for row in w0_b0_school_bridge_rows} == {"false"}
+            for field in w0_b0_school_bridge_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in w0_b0_school_bridge_page_rows} == {"false"}
+            for field in w0_b0_school_bridge_false_fields
+        )
+        and not any(token in w0_b0_school_bridge_public_text for token in w0_b0_school_bridge_forbidden_tokens),
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())

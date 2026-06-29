@@ -106,6 +106,7 @@
 - 第一闭环事实核验包：`data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv`、`data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-summary.json`。把 439 个事实缺口压成 37 个页列核验包，分为 B0 冲突优先 10 包、专业名归属优先 9 包、缺候选人工看图 2 包、机器坐标辅助 16 包；只用于排核验顺序，不确认字段事实。
 - 第一闭环 W0/B0 最小人工复核清单：`data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv`、`data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-items-public-ledger.csv` 和 `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-summary.json`。把 B0 冲突优先的 275 个同页待核事实先压成 87 个核心事实、10 个页列、35 个任务：专业组边界 10、明确冲突字段 68、专业名归属 9；用于先核最容易导致串组、字段冲突或归属错位的事实，剩余 188 个同页伴生事实继续待闭环。
 - 第一闭环 W0/B0 执行预填审计：`data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-packets-public-audit.csv`、`data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-items-public-audit.csv` 和 `data/working/issue19-stable-foundation-first-closure-w0-b0-execution-prefill-summary.json`。把 10 个页列、87 个核心事实接到 Git 忽略的私有预填 CSV、页图和 OCR 文本哈希；公开层只保存 ID、状态、计数和 SHA，不公开读数，不确认字段事实。
+- 第一闭环 W0/B0 高校源桥接账本：`data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv`、`data/working/issue19-w0-b0-school-source-bridge-page-summary.csv` 和 `data/working/issue19-w0-b0-school-source-bridge-summary.json`。把 87 个核心事实接到高校源进度、最新证据对齐和结构化接入候选：68 条字段事实已有高校源可作 double check 提示，19 条专业名归属/专业组边界仍必须先核 PDF 原页和湖北官方侧；全部仍不确认字段事实、不替代湖北官方计划。
 - 数据基座状态快照：`data/working/issue19-data-foundation-status-snapshot.csv` 和 `data/working/issue19-data-foundation-status-snapshot.json`。由 `scripts/build_issue19_data_foundation_status_snapshot.py` 生成，用于快速查看全量结构化、第一闭环、官网辅证、候选压缩和最终门禁状态；它只说明推进状态，不确认字段事实。
 - 高校官网辅证状态快照：`data/working/issue19-school-source-status-snapshot-public-ledger.csv` 和 `data/working/issue19-school-source-status-snapshot-summary.json`。由 `scripts/build_issue19_school_source_status_snapshot.py` 生成，把 36 所学校、80 条高校侧辅证机会任务、C4/C6 补结构化/补源包、live 补源记录和最终门禁放到同一张公开状态账本；它只用于安排自动补源、生成 diff、压缩人工核验范围，不能作为字段事实、学校专业建议或志愿推荐依据。
 - 高校官网辅证自动执行批次：`data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 和 `data/working/issue19-school-source-auto-execution-batches-summary.json`。由 `scripts/build_issue19_school_source_auto_execution_batches.py` 生成，在状态快照基础上把 80 条任务拆成 7 条推进泳道：冲突回页 17、补缺回页 8、专业名归属 12、补结构化 18、继续补计划网源 8、章程规则 16、留存观察 1；全部仍禁止字段写回、推荐和最终使用。
@@ -231,6 +232,7 @@ python3 scripts/build_issue19_first_closure_next_action_matrix.py
 python3 scripts/build_issue19_first_closure_field_fact_public_ledger.py
 python3 scripts/build_issue19_first_closure_fact_progress_public_ledger.py
 python3 scripts/build_issue19_first_closure_b0_conflict_status.py
+python3 scripts/build_issue19_w0_b0_school_source_bridge.py
 python3 scripts/build_issue19_next_closure_family_review_v1.py
 python3 scripts/build_issue19_p0_top3_review_packet.py
 python3 scripts/build_issue19_data_foundation_next_execution_v1.py

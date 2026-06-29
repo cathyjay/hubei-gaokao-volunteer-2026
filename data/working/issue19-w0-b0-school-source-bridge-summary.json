@@ -1,0 +1,50 @@
+{
+  "status": "issue19_w0_b0_school_source_bridge_ready_not_final",
+  "generated_by": "build_issue19_w0_b0_school_source_bridge.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output": "data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv",
+  "page_output": "data/working/issue19-w0-b0-school-source-bridge-page-summary.csv",
+  "row_count": 87,
+  "page_summary_row_count": 10,
+  "source_w0_b0_item_count": 87,
+  "unique_fact_scope_count": 87,
+  "unique_task_count": 35,
+  "unique_page_side_count": 10,
+  "unique_school_code_count": 11,
+  "fact_domain_counts": {
+    "专业组边界": 10,
+    "字段事实": 68,
+    "专业名归属": 9
+  },
+  "fact_type_counts": {
+    "专业组边界事实": 10,
+    "字段事实-专业计划数": 26,
+    "字段事实-再选科目": 16,
+    "字段事实-学费": 26,
+    "专业名归属事实": 9
+  },
+  "bridge_bucket_counts": {
+    "B4-专业组边界或页列事实无单校高校源桥接": 10,
+    "B2-已有高校侧结构化或diff线索，待接入到事实项": 63,
+    "B5-专业名归属先核PDF原页和湖北官方侧，归属稳定后回接高校源": 9,
+    "B1-已有结构化接入候选，可作为高校侧double check提示": 5
+  },
+  "school_code_present_count": 77,
+  "school_code_absent_count": 10,
+  "unique_page_count": 9,
+  "double_check_hint_fact_count": 68,
+  "pdf_hubei_first_fact_count": 19,
+  "structured_candidate_fact_count": 7,
+  "need_source_or_parse_fact_count": 0,
+  "no_single_school_bridge_fact_count": 10,
+  "double_review_required_fact_count": 57,
+  "manual_image_required_fact_count": 75,
+  "pdf_pending_count": 87,
+  "hubei_official_pending_count": 87,
+  "field_writeback_ready_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "final_available_count": 0,
+  "policy": "本账本只公开 W0/B0 核心事实与高校源状态的桥接关系，不公开字段值、人工记录或最终结论。"
+}
