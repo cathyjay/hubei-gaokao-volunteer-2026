@@ -701,6 +701,13 @@
 - `data/working/historical-preferred-city-pool-2023-2025.tsv`：按早期提到的成都、西安、武汉、北京生成的三年历史投档候选池，只用于复现历史候选发现；Round3 当前不按城市加分或设名额，进入后续讨论前必须回看官方原件、2026 招生计划和招生章程。
 - `data/working/candidate-pool-v1.csv`：第一版可讨论候选池，20 条，全部为 `needs_2026_plan_verification`。
 
+## 2026-06-29 新增执行与接入产物
+
+- `scripts/build_issue19_first_closure_manual_verification_workbook.py`：生成 `data/exports/issue19-first-closure-manual-verification-workbook.xlsx`、37 行页列核验包、206 行任务核验项和 354 行字段核验项；用于把第一闭环人工核验拆成可执行清单，公开层不保存具体核验内容、OCR 原文、截图路径或最终结论。
+- `scripts/build_issue19_priority55_family_major_decision_workbook.py`：生成 `data/exports/issue19-priority55-family-major-decision-workbook.xlsx`、55 行组汇总和 458 行逐专业家庭标注表；用于家庭先标“可接受/勉强接受/不能接受/待了解”和服从调剂态度，不确认招生计划字段。
+- `scripts/build_issue19_school_source_structured_ingestion_candidates.py`：生成 `data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv`、summary 和 Excel；优先列出兰州大学、武汉轻工大学、湖北师范大学、西安建筑科技大学、北京语言大学、天津外国语大学、忻州师范学院、西安航空学院、江汉大学、喀什大学、山东工商学院、杭州电子科技大学 12 所已有公开结构化/半结构化源的下一步接入动作。
+- 上述三个产物均继承第 19 期 PDF SHA `ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d`，并保持字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用门禁为 `false` 或 0。
+
 ## 使用优先级
 
 1. 最终录取判断：湖北官方投档线、2026 湖北招生计划、高校招生章程。

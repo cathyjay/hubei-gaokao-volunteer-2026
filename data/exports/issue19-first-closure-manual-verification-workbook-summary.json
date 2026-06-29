@@ -1,0 +1,30 @@
+{
+  "status": "issue19_first_closure_manual_verification_workbook_ready_not_final",
+  "generated_by": "build_issue19_first_closure_manual_verification_workbook.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "page_packet_output": "data/exports/issue19-first-closure-manual-verification-page-packets.csv",
+  "task_item_output": "data/exports/issue19-first-closure-manual-verification-task-items.csv",
+  "field_item_output": "data/exports/issue19-first-closure-manual-verification-field-items.csv",
+  "workbook_output": "data/exports/issue19-first-closure-manual-verification-workbook.xlsx",
+  "page_packet_count": 37,
+  "task_item_count": 206,
+  "field_item_count": 354,
+  "field_counts": {
+    "专业计划数": 170,
+    "再选科目": 77,
+    "学费": 105,
+    "待人工判定字段": 2
+  },
+  "page_packet_lane_counts": {
+    "E1-计划数补缺或偏大优先核验": 11,
+    "E0-冲突异常双人优先核验": 18,
+    "E2-官网未匹配专业名归属核验": 8
+  },
+  "double_review_task_count": 91,
+  "direct_image_review_task_count": 80,
+  "final_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "policy": "公开工作簿只作人工核验执行清单；不得填写具体核验内容、字段内容、OCR原文、截图路径或最终建议。"
+}

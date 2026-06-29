@@ -109,6 +109,12 @@
 
 新增的 `data/exports/issue19-round4-family-explanation-board.xlsx` 是 Round4 家庭阅读说明表。它把 120 个优先讨论组解释成 55 个重点核验和 65 个暂缓保留，并补齐“为什么入选/为什么暂缓”、完整组内专业接受/勉强调剂/待核/不能计数和调剂风险说明；这个表方便家庭讨论，但仍不作为最终志愿方案。
 
+新增的 `data/exports/issue19-first-closure-manual-verification-workbook.xlsx` 是第一闭环人工核验执行工作簿。它把第一闭环进一步拆成 37 个页列包、206 个任务核验项和 354 个字段核验项，解决“知道有待核项但不知道按什么顺序打开哪一页、核哪类字段”的问题。该工作簿仍只保存公开状态和操作提示，不保存具体核验内容。
+
+新增的 `data/exports/issue19-priority55-family-major-decision-workbook.xlsx` 是 55 个重点组的家庭逐专业决策工作簿。它把 458 条完整组内专业拆成可填写的家庭态度表：当前机器初判可接受 147、勉强接受 267、待核后判断 44；家庭下一步要把这些转换成真实的“可接受/勉强接受/不能接受/待了解”和服从调剂态度。
+
+新增的 `data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv` 是高校官网结构化接入候选账本。它从 36 所学校、80 个高校侧辅证任务中先挑出 12 所已有公开结构化或半结构化源的学校，安排下一步 JSON/PDF/XLSX/HTML adapter 和 candidate diff 工作；它让“继续自动找高校官网数据”从盲搜转为按证据源类型推进。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。

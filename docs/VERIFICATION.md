@@ -580,6 +580,30 @@ Round4 家庭阅读说明表的校验方式：
 - 每行必须保留“为什么入选”或“为什么暂缓”、完整组内专业接受/勉强调剂/待核/不能计数、调剂风险说明和城市口径提醒。
 - 所有最终、推荐、写回和官网替代湖北官方计划门禁必须保持 `false`；该表只用于家庭阅读和核验排序，不作为定稿依据。
 
+第一闭环人工核验执行工作簿的校验方式：
+
+- `data/exports/issue19-first-closure-manual-verification-workbook.xlsx` 必须由 `scripts/build_issue19_first_closure_manual_verification_workbook.py` 生成。
+- 工作簿必须保持 37 个页列包、206 个任务核验项和 354 个字段核验项；字段分布必须为专业计划数 170、学费 105、再选科目 77、待人工判定字段 2。
+- 页列执行泳道必须保持 E0/E1/E2 为 18/11/8；任务层双人复核 91、人工直接看图 80。
+- 任务 ID 必须与第一闭环核验结果看板一致，字段项必须与第一闭环字段级公开状态按 `稳定基座第一闭环明细任务ID+字段名` 一一对应。
+- 公开工作簿只允许保存状态、计数、ID、SHA 和操作提示；不得保存具体核验内容、OCR 原文、截图路径、登录态、个人身份信息或任何定稿结论。
+
+Priority55 家庭逐专业决策工作簿的校验方式：
+
+- `data/exports/issue19-priority55-family-major-decision-workbook.xlsx` 必须由 `scripts/build_issue19_priority55_family_major_decision_workbook.py` 生成。
+- 工作簿必须保持 55 个重点组和 458 条完整组内专业；机器接受度分布必须为可接受 147、勉强接受 267、待核后判断 44。
+- 147 条专业可作为 6 专业讨论候选，120 条专业必须 100% 人工核验；PDF 原页待核和湖北官方侧待核均必须保持 458。
+- 家庭可填值只能是“可接受 / 勉强接受 / 不能接受 / 待了解”，组级服从调剂态度必须保持待填，不得由机器自动替家庭决定。
+- 该工作簿只用于家庭态度收集，不确认专业名称、计划数、学费、选科、组边界或最终志愿顺序。
+
+高校官网结构化接入候选账本的校验方式：
+
+- `data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv` 必须由 `scripts/build_issue19_school_source_structured_ingestion_candidates.py` 生成。
+- 账本必须保持 12 所学校：兰州大学、武汉轻工大学、湖北师范大学、西安建筑科技大学、北京语言大学、天津外国语大学、忻州师范学院、西安航空学院、江汉大学、喀什大学、山东工商学院、杭州电子科技大学。
+- 来源类型分布必须为 API/JSON 6、API/JSON+章程HTML 1、PDF 抽取 CSV 3、XLSX 2；接入批次分布必须与 summary 一致。
+- 每行列出的本地公开证据文件必须存在，且所有行必须保持 `是否允许官网证据替代湖北官方计划=false`、`是否允许自动写回主表=false`、字段事实写回 blocked。
+- 该账本只定义 parser、adapter 和 candidate diff 的下一步工作，不产生字段事实、不替代湖北官方计划。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。

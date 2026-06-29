@@ -1,0 +1,30 @@
+{
+  "status": "issue19_school_source_structured_ingestion_candidates_ready_not_final",
+  "generated_by": "build_issue19_school_source_structured_ingestion_candidates.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "output": "data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv",
+  "workbook_output": "data/exports/issue19-school-source-structured-ingestion-candidates.xlsx",
+  "row_count": 12,
+  "unique_school_count": 12,
+  "source_type_counts": {
+    "API/JSON": 6,
+    "API/JSON；章程HTML": 1,
+    "PDF抽取CSV": 3,
+    "XLSX": 2
+  },
+  "batch_counts": {
+    "B0B1_API_JSON": 3,
+    "NEXT20_API_JSON": 2,
+    "C4C6_API_JSON": 2,
+    "B0B1_PDF_CSV": 2,
+    "LIVE_PDF_CSV": 1,
+    "B0B1_XLSX": 2
+  },
+  "total_attached_progress_tasks": 28,
+  "total_attached_major_detail_count": 344,
+  "final_available_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "policy": "本表只定义高校公开结构化源接入候选，不写回第19期主表，不替代湖北官方计划。"
+}

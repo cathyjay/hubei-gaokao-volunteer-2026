@@ -1,0 +1,30 @@
+{
+  "status": "issue19_priority55_family_major_decision_workbook_ready_not_final",
+  "generated_by": "build_issue19_priority55_family_major_decision_workbook.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "group_output": "data/exports/issue19-priority55-family-major-decision-group-summary.csv",
+  "major_output": "data/exports/issue19-priority55-family-major-decision-major-items.csv",
+  "workbook_output": "data/exports/issue19-priority55-family-major-decision-workbook.xlsx",
+  "group_count": 55,
+  "major_count": 458,
+  "machine_acceptance_counts": {
+    "勉强接受": 267,
+    "可接受": 147,
+    "待核后判断": 44
+  },
+  "suggested_six_major_count": 147,
+  "must_100_percent_manual_review_count": 120,
+  "risk_type_counts": {
+    "无公开风险提示": 414,
+    "语种或单科限制": 22,
+    "体检或色觉限制": 19,
+    "体检或色觉限制；语种或单科限制": 3
+  },
+  "pdf_pending_count": 458,
+  "hubei_official_pending_count": 458,
+  "final_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "field_writeback_allowed_count": 0,
+  "policy": "本工作簿只用于家庭逐专业接受度讨论，不是最终志愿方案；不得填写字段内容或私人信息。"
+}

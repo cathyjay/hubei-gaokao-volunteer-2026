@@ -31144,11 +31144,29 @@ def main():
     round4_family_focus_csv = ROOT / "data/exports/issue19-round4-family-explanation-focus55.csv"
     round4_family_paused_csv = ROOT / "data/exports/issue19-round4-family-explanation-paused65.csv"
     round4_family_workbook = ROOT / "data/exports/issue19-round4-family-explanation-board.xlsx"
+    first_manual_script = ROOT / "scripts/build_issue19_first_closure_manual_verification_workbook.py"
+    first_manual_summary_path = ROOT / "data/exports/issue19-first-closure-manual-verification-workbook-summary.json"
+    first_manual_page_csv = ROOT / "data/exports/issue19-first-closure-manual-verification-page-packets.csv"
+    first_manual_task_csv = ROOT / "data/exports/issue19-first-closure-manual-verification-task-items.csv"
+    first_manual_field_csv = ROOT / "data/exports/issue19-first-closure-manual-verification-field-items.csv"
+    first_manual_workbook = ROOT / "data/exports/issue19-first-closure-manual-verification-workbook.xlsx"
+    school_ingestion_script = ROOT / "scripts/build_issue19_school_source_structured_ingestion_candidates.py"
+    school_ingestion_summary_path = ROOT / "data/working/issue19-school-source-structured-ingestion-candidates-summary.json"
+    school_ingestion_csv = ROOT / "data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv"
+    school_ingestion_workbook = ROOT / "data/exports/issue19-school-source-structured-ingestion-candidates.xlsx"
+    family_major_decision_script = ROOT / "scripts/build_issue19_priority55_family_major_decision_workbook.py"
+    family_major_decision_summary_path = ROOT / "data/exports/issue19-priority55-family-major-decision-workbook-summary.json"
+    family_major_decision_group_csv = ROOT / "data/exports/issue19-priority55-family-major-decision-group-summary.csv"
+    family_major_decision_major_csv = ROOT / "data/exports/issue19-priority55-family-major-decision-major-items.csv"
+    family_major_decision_workbook = ROOT / "data/exports/issue19-priority55-family-major-decision-workbook.xlsx"
 
     first_result_summary = json.loads(first_result_summary_path.read_text())
     first_field_status_summary = json.loads(first_field_status_summary_path.read_text())
     school_progress_summary = json.loads(school_progress_summary_path.read_text())
     round4_family_summary = json.loads(round4_family_summary_path.read_text())
+    first_manual_summary = json.loads(first_manual_summary_path.read_text())
+    school_ingestion_summary = json.loads(school_ingestion_summary_path.read_text())
+    family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
         first_result_reader = csv.DictReader(f)
         first_result_rows = list(first_result_reader)
@@ -31173,6 +31191,30 @@ def main():
         round4_family_focus_rows = list(csv.DictReader(f))
     with round4_family_paused_csv.open(newline="", encoding="utf-8-sig") as f:
         round4_family_paused_rows = list(csv.DictReader(f))
+    with first_manual_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_manual_page_reader = csv.DictReader(f)
+        first_manual_page_rows = list(first_manual_page_reader)
+        first_manual_page_fields = first_manual_page_reader.fieldnames or []
+    with first_manual_task_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_manual_task_reader = csv.DictReader(f)
+        first_manual_task_rows = list(first_manual_task_reader)
+        first_manual_task_fields = first_manual_task_reader.fieldnames or []
+    with first_manual_field_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_manual_field_reader = csv.DictReader(f)
+        first_manual_field_rows = list(first_manual_field_reader)
+        first_manual_field_fields = first_manual_field_reader.fieldnames or []
+    with school_ingestion_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_ingestion_reader = csv.DictReader(f)
+        school_ingestion_rows = list(school_ingestion_reader)
+        school_ingestion_fields = school_ingestion_reader.fieldnames or []
+    with family_major_decision_group_csv.open(newline="", encoding="utf-8-sig") as f:
+        family_major_decision_group_reader = csv.DictReader(f)
+        family_major_decision_group_rows = list(family_major_decision_group_reader)
+        family_major_decision_group_fields = family_major_decision_group_reader.fieldnames or []
+    with family_major_decision_major_csv.open(newline="", encoding="utf-8-sig") as f:
+        family_major_decision_major_reader = csv.DictReader(f)
+        family_major_decision_major_rows = list(family_major_decision_major_reader)
+        family_major_decision_major_fields = family_major_decision_major_reader.fieldnames or []
 
     first_result_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -31189,6 +31231,22 @@ def main():
     round4_family_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
         for path in [round4_family_summary_path, round4_family_csv, round4_family_focus_csv, round4_family_paused_csv]
+    )
+    first_manual_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [first_manual_summary_path, first_manual_page_csv, first_manual_task_csv, first_manual_field_csv]
+    )
+    school_ingestion_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_ingestion_summary_path, school_ingestion_csv]
+    )
+    family_major_decision_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            family_major_decision_summary_path,
+            family_major_decision_group_csv,
+            family_major_decision_major_csv,
+        ]
     )
 
     checks.append(ok(
@@ -31359,6 +31417,164 @@ def main():
         and all(row.get("完整组内专业接受度摘要", "") for row in round4_family_rows)
         and all(row.get("调剂风险说明", "") for row in round4_family_rows)
         and not any(token in round4_family_public_text for token in shared_forbidden_tokens),
+    ))
+
+    checks.append(ok(
+        "第 19 期第一闭环人工核验执行工作簿摘要、规模和门禁正确",
+        first_manual_summary.get("status") == "issue19_first_closure_manual_verification_workbook_ready_not_final"
+        and first_manual_summary.get("generated_by") == "build_issue19_first_closure_manual_verification_workbook.py"
+        and first_manual_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_manual_summary.get("page_packet_count") == len(first_manual_page_rows) == 37
+        and first_manual_summary.get("task_item_count") == len(first_manual_task_rows) == 206
+        and first_manual_summary.get("field_item_count") == len(first_manual_field_rows) == 354
+        and Counter(first_manual_summary.get("field_counts", {})) == Counter({
+            "专业计划数": 170,
+            "学费": 105,
+            "再选科目": 77,
+            "待人工判定字段": 2,
+        })
+        and Counter(first_manual_summary.get("page_packet_lane_counts", {})) == Counter({
+            "E0-冲突异常双人优先核验": 18,
+            "E1-计划数补缺或偏大优先核验": 11,
+            "E2-官网未匹配专业名归属核验": 8,
+        })
+        and first_manual_summary.get("double_review_task_count") == 91
+        and first_manual_summary.get("direct_image_review_task_count") == 80
+        and first_manual_summary.get("final_available_count") == 0
+        and first_manual_summary.get("recommendation_basis_allowed_count") == 0
+        and first_manual_summary.get("field_writeback_allowed_count") == 0
+        and first_manual_workbook.exists()
+        and first_manual_workbook.stat().st_size > 20_000,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环人工核验执行工作簿字段、回链和公开安全正确",
+        first_manual_page_fields == script_runtime_constant(first_manual_script, "PAGE_FIELDS")
+        and first_manual_task_fields == script_runtime_constant(first_manual_script, "TASK_FIELDS")
+        and first_manual_field_fields == script_runtime_constant(first_manual_script, "FIELD_FIELDS")
+        and len({row.get("第一闭环人工核验页列包ID", "") for row in first_manual_page_rows}) == 37
+        and len({row.get("第一闭环人工核验任务ID", "") for row in first_manual_task_rows}) == 206
+        and len({row.get("第一闭环人工核验字段ID", "") for row in first_manual_field_rows}) == 354
+        and {
+            row.get("稳定基座第一闭环明细任务ID", "") for row in first_manual_task_rows
+        } == {row.get("稳定基座第一闭环明细任务ID", "") for row in first_result_rows}
+        and {
+            (row.get("稳定基座第一闭环明细任务ID", ""), row.get("字段名", ""))
+            for row in first_manual_field_rows
+        } == {
+            (row.get("稳定基座第一闭环明细任务ID", ""), row.get("字段名", ""))
+            for row in first_field_status_rows
+        }
+        and {row.get("最终可用", "") for row in first_manual_page_rows + first_manual_task_rows + first_manual_field_rows} == {"false"}
+        and {row.get("是否允许作为志愿推荐依据", "") for row in first_manual_page_rows + first_manual_task_rows + first_manual_field_rows} == {"false"}
+        and {row.get("是否允许写回字段事实", "") for row in first_manual_page_rows + first_manual_task_rows + first_manual_field_rows} == {"false"}
+        and not any(token in first_manual_public_text for token in shared_forbidden_tokens)
+        and "人工读数" not in first_manual_public_text
+        and "字段读数" not in first_manual_public_text
+        and "候选值" not in first_manual_public_text,
+    ))
+
+    school_ingestion_codes = {row.get("院校代码", "") for row in school_ingestion_rows}
+    expected_school_ingestion_codes = {
+        "A195", "C125", "C133", "K465", "A032", "F099",
+        "F305", "K487", "C108", "K753", "H450", "H001",
+    }
+    checks.append(ok(
+        "第 19 期高校官网结构化接入候选账本摘要、规模和门禁正确",
+        school_ingestion_summary.get("status") == "issue19_school_source_structured_ingestion_candidates_ready_not_final"
+        and school_ingestion_summary.get("generated_by") == "build_issue19_school_source_structured_ingestion_candidates.py"
+        and school_ingestion_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and school_ingestion_summary.get("row_count") == len(school_ingestion_rows) == 12
+        and school_ingestion_summary.get("unique_school_count") == 12
+        and school_ingestion_codes == expected_school_ingestion_codes
+        and Counter(school_ingestion_summary.get("source_type_counts", {})) == Counter({
+            "API/JSON": 6,
+            "API/JSON；章程HTML": 1,
+            "PDF抽取CSV": 3,
+            "XLSX": 2,
+        })
+        and Counter(school_ingestion_summary.get("batch_counts", {})) == Counter({
+            "B0B1_API_JSON": 3,
+            "NEXT20_API_JSON": 2,
+            "C4C6_API_JSON": 2,
+            "B0B1_PDF_CSV": 2,
+            "LIVE_PDF_CSV": 1,
+            "B0B1_XLSX": 2,
+        })
+        and school_ingestion_summary.get("total_attached_progress_tasks") == 28
+        and school_ingestion_summary.get("total_attached_major_detail_count") == 344
+        and school_ingestion_summary.get("final_available_count") == 0
+        and school_ingestion_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_ingestion_summary.get("field_writeback_allowed_count") == 0
+        and school_ingestion_workbook.exists()
+        and school_ingestion_workbook.stat().st_size > 10_000,
+    ))
+    checks.append(ok(
+        "第 19 期高校官网结构化接入候选账本字段、证据文件和公开安全正确",
+        school_ingestion_fields == script_runtime_constant(school_ingestion_script, "FIELDS")
+        and [as_int(row.get("接入优先序")) for row in school_ingestion_rows] == list(range(1, 13))
+        and len({row.get("高校源结构化接入候选ID", "") for row in school_ingestion_rows}) == 12
+        and all(
+            (ROOT / rel).exists()
+            for row in school_ingestion_rows
+            for rel in row.get("本地公开证据文件集合", "").split("；")
+            if rel
+        )
+        and {row.get("最终可用", "") for row in school_ingestion_rows} == {"false"}
+        and {row.get("是否允许官网证据替代湖北官方计划", "") for row in school_ingestion_rows} == {"false"}
+        and {row.get("字段事实写回状态", "") for row in school_ingestion_rows} == {"blocked_until_pdf_hubei_official_review"}
+        and not any(token in school_ingestion_public_text for token in shared_forbidden_tokens)
+        and "候选值" not in school_ingestion_public_text
+        and "字段确认值" not in school_ingestion_public_text,
+    ))
+
+    family_major_decision_group_ids = {
+        row.get("院校代码", "") + "|" + row.get("院校专业组代码", "")
+        for row in family_major_decision_group_rows
+    }
+    family_major_decision_major_group_ids = {
+        row.get("院校代码", "") + "|" + row.get("院校专业组代码", "")
+        for row in family_major_decision_major_rows
+    }
+    checks.append(ok(
+        "第 19 期 Priority55 家庭逐专业决策工作簿摘要、规模和门禁正确",
+        family_major_decision_summary.get("status") == "issue19_priority55_family_major_decision_workbook_ready_not_final"
+        and family_major_decision_summary.get("generated_by") == "build_issue19_priority55_family_major_decision_workbook.py"
+        and family_major_decision_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and family_major_decision_summary.get("group_count") == len(family_major_decision_group_rows) == 55
+        and family_major_decision_summary.get("major_count") == len(family_major_decision_major_rows) == 458
+        and Counter(family_major_decision_summary.get("machine_acceptance_counts", {})) == Counter({
+            "可接受": 147,
+            "勉强接受": 267,
+            "待核后判断": 44,
+        })
+        and family_major_decision_summary.get("suggested_six_major_count") == 147
+        and family_major_decision_summary.get("must_100_percent_manual_review_count") == 120
+        and family_major_decision_summary.get("pdf_pending_count") == 458
+        and family_major_decision_summary.get("hubei_official_pending_count") == 458
+        and family_major_decision_summary.get("final_available_count") == 0
+        and family_major_decision_summary.get("recommendation_basis_allowed_count") == 0
+        and family_major_decision_summary.get("field_writeback_allowed_count") == 0
+        and family_major_decision_workbook.exists()
+        and family_major_decision_workbook.stat().st_size > 30_000,
+    ))
+    checks.append(ok(
+        "第 19 期 Priority55 家庭逐专业决策工作簿字段、组专业回链和公开安全正确",
+        family_major_decision_group_fields == script_runtime_constant(family_major_decision_script, "GROUP_FIELDS")
+        and family_major_decision_major_fields == script_runtime_constant(family_major_decision_script, "MAJOR_FIELDS")
+        and len({row.get("家庭专业决策组ID", "") for row in family_major_decision_group_rows}) == 55
+        and len({row.get("家庭专业决策明细ID", "") for row in family_major_decision_major_rows}) == 458
+        and len({row.get("专业行ID", "") for row in family_major_decision_major_rows}) == 458
+        and family_major_decision_group_ids == family_major_decision_major_group_ids
+        and {row.get("最终可用", "") for row in family_major_decision_group_rows + family_major_decision_major_rows} == {"false"}
+        and {row.get("是否允许作为志愿推荐依据", "") for row in family_major_decision_group_rows + family_major_decision_major_rows} == {"false"}
+        and {row.get("是否允许写回字段事实", "") for row in family_major_decision_group_rows + family_major_decision_major_rows} == {"false"}
+        and {row.get("家庭最终接受度可填值", "") for row in family_major_decision_major_rows} == {
+            "可接受 / 勉强接受 / 不能接受 / 待了解"
+        }
+        and {row.get("是否愿意服从调剂待填", "") for row in family_major_decision_group_rows} == {""}
+        and not any(token in family_major_decision_public_text for token in shared_forbidden_tokens)
+        and "人工读数" not in family_major_decision_public_text
+        and "字段读数" not in family_major_decision_public_text,
     ))
 
     issue19_ocr_summary = json.loads((ROOT / "data/working/issue19-ocr-run-summary.json").read_text())

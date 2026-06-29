@@ -207,3 +207,6 @@
 - 新增第一闭环字段级公开状态：`scripts/build_issue19_first_closure_field_verification_status.py` 生成 354 行字段级状态，把 206 条组合任务拆成专业计划数 170、学费 105、再选科目 77、待人工判定字段 2。当前 352 个字段映射到字段事实核验任务，2 个保持人工判定口径；所有字段写回、推荐依据和最终门禁仍为 0。
 - 新增高校官网辅证进度看板：`scripts/build_issue19_school_source_progress_board.py` 生成 80 行进度看板和 summary，把 36 所学校的高校侧辅证任务按最新证据层级、来源形态、留存状态和下一批动作重新排队。当前 L3/L1/L0 为 60/12/8，C4/C6 唯一口径为需补结构化 411 条、需继续补源 190 条；官网证据仍只能 double check，不能替代湖北官方计划。
 - 新增 Round4 家庭阅读说明表：`scripts/build_issue19_round4_family_explanation_board.py` 生成 120 行说明表、重点 55、暂缓 65 和 Excel 工作簿，补齐每组为什么入选或暂缓、完整组内专业接受度计数和调剂风险说明。该表用于家庭讨论和下一轮核验排序，不作为定稿依据。
+- 新增第一闭环人工核验执行工作簿：`scripts/build_issue19_first_closure_manual_verification_workbook.py` 生成 37 个页列包、206 个任务核验项、354 个字段核验项和 Excel 工作簿；用途是把 PDF 原页、OCR、机器坐标、高校辅证、冲突状态和湖北官方侧待核动作拆成可执行清单，不确认字段事实。
+- 新增 Priority55 家庭逐专业决策工作簿：`scripts/build_issue19_priority55_family_major_decision_workbook.py` 生成 55 组汇总、458 条逐专业家庭标注明细和 Excel 工作簿；当前可接受 147、勉强接受 267、待核后判断 44，下一步由家庭填写真实接受度和服从调剂态度。
+- 新增高校官网结构化接入候选账本：`scripts/build_issue19_school_source_structured_ingestion_candidates.py` 生成 12 所学校接入候选表和 Excel；下一步优先对已有 API/JSON、PDF 抽取 CSV、XLSX 和章程 HTML 的学校写 adapter/diff，不再只做宽泛补源搜索。
