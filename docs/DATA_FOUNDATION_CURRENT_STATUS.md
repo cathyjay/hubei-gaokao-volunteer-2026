@@ -143,6 +143,8 @@
 
 新增的 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json` 是 D0/D1 页列私有 CSV 的公开状态机/进度账本。它只回答 PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核和字段写回门禁有没有填写、是否能进入字段写回评审；不含学校名、专业名、字段值、OCR 正文、人工读数或私有路径。当前仍是 `not_final`，字段事实、推荐依据、最终可用、学校专业建议均为 0 或 `false`，不能作为字段事实、学校专业建议或最终志愿依据。
 
+新增的 `data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv` 是 D0/D1 页列 PDF 视觉核验审计层。它把 18 个页列接到 14 个本地源页图、18 个左右栏裁图和 18 个私有审阅 HTML，公开层只保存页码、版面列、计数、尺寸、证据编号和 SHA；图片、学校专业线索、OCR 线索、人工记录和本地路径都留在 Git 忽略私有目录。它推进的是“人工核页更容易定位”，不是“字段已经核准”。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。

@@ -229,3 +229,5 @@
 - 新增高校源 Adapter D0/D1 页列人工核验包：`scripts/build_issue19_school_source_adapter_d0_d1_page_side_packets_v1.py` 将 146 条私有核验项继续压缩为 18 个 `PDF页码×版面列` 包，其中 E0 计划数冲突页列 9、E1 OCR 计划数缺失可补页列 7、E2 疑似匹配页列 2；公开层只保存页列、计数、集合 SHA 和私有 CSV/HTML SHA。该包让人工复核按页列执行，但仍不确认字段事实、不替代湖北官方计划。
 
 - 新增高校源 Adapter D0/D1 页列核验进度公开账本：`data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json`。决策口径是公开层只同步私有页列 CSV 的填写状态：PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核和字段写回门禁；不得公开学校名、专业名、字段值、OCR 正文、人工读数或私有路径。当前仍是 `not_final`，字段事实、推荐依据、最终可用、学校专业建议均为 0 或 `false`；它只回答私有核验项有没有填、能否进入字段写回评审。
+
+- 新增高校源 Adapter D0/D1 页列 PDF 视觉核验审计：`scripts/build_issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1.py` 为 18 个 D0/D1 页列生成本地私有栏图和审阅 HTML，公开账本只保留源页图、栏图、HTML、原页列 CSV/HTML 的证据编号、尺寸和 SHA。该层只服务人工快速回看 PDF 原页和左右栏，不确认字段事实，不替代湖北官方计划，也不生成学校专业建议。

@@ -7504,7 +7504,9 @@ def main():
         fidelity_row = full_major_fidelity_by_major_id.get(row.get("专业行ID"))
         full_row = full_major_evidence_by_workbench_id.get(row.get("来源全量证据工作台ID"))
         task_row = full_major_field_gap_task_by_major_id.get(row.get("专业行ID"))
-        manifest_row = page_manifest_by_page.get(as_int(row.get("来源页码")))
+        manifest_row = page_manifest_by_page.get(as_int(row.get("来源页码"))) or page_manifest_by_page.get(
+            row.get("来源页码", "")
+        )
         page_row = page_fidelity_by_page.get(as_int(row.get("来源页码")))
         field_name = row.get("字段名")
         field_gap_join_ok = (
@@ -7864,7 +7866,9 @@ def main():
         p0_rows = p0_review_by_major_id.get(major_id, [])
         gap_rows = field_gap_by_major_id.get(major_id, [])
         diff_rows = b0_b1_diff_by_major_id.get(major_id, [])
-        manifest_row = page_manifest_by_page.get(as_int(row.get("来源页码")))
+        manifest_row = page_manifest_by_page.get(as_int(row.get("来源页码"))) or page_manifest_by_page.get(
+            row.get("来源页码", "")
+        )
         page_row = page_fidelity_by_page.get(as_int(row.get("来源页码")))
         gap_fields = {gap_row.get("字段名") for gap_row in gap_rows if gap_row.get("字段名")}
         p0_items = {p0_row.get("证据项") for p0_row in p0_rows if p0_row.get("证据项")}
@@ -31238,6 +31242,27 @@ def main():
     school_adapter_d0_d1_page_progress_csv = (
         ROOT / "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv"
     )
+    school_adapter_d0_d1_page_visual_script = (
+        ROOT / "scripts/build_issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1.py"
+    )
+    school_adapter_d0_d1_page_visual_summary_path = (
+        ROOT
+        / "data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-summary.json"
+    )
+    school_adapter_d0_d1_page_visual_csv = (
+        ROOT
+        / "data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv"
+    )
+    school_adapter_d0_d1_page_visual_private_dir = (
+        ROOT
+        / "private/review-assets/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1"
+    )
+    school_adapter_d0_d1_page_visual_private_index_csv = (
+        school_adapter_d0_d1_page_visual_private_dir / "pdf-visual-private-index.csv"
+    )
+    school_adapter_d0_d1_page_visual_private_master_html = (
+        school_adapter_d0_d1_page_visual_private_dir / "index.html"
+    )
     family_major_decision_script = ROOT / "scripts/build_issue19_priority55_family_major_decision_workbook.py"
     family_major_decision_summary_path = ROOT / "data/exports/issue19-priority55-family-major-decision-workbook-summary.json"
     family_major_decision_group_csv = ROOT / "data/exports/issue19-priority55-family-major-decision-group-summary.csv"
@@ -31305,6 +31330,9 @@ def main():
     )
     school_adapter_d0_d1_page_progress_summary = json.loads(
         school_adapter_d0_d1_page_progress_summary_path.read_text()
+    )
+    school_adapter_d0_d1_page_visual_summary = json.loads(
+        school_adapter_d0_d1_page_visual_summary_path.read_text()
     )
     family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
     first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
@@ -31424,6 +31452,22 @@ def main():
         school_adapter_d0_d1_page_progress_rows = list(school_adapter_d0_d1_page_progress_reader)
         school_adapter_d0_d1_page_progress_fields = (
             school_adapter_d0_d1_page_progress_reader.fieldnames or []
+        )
+    with school_adapter_d0_d1_page_visual_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_adapter_d0_d1_page_visual_reader = csv.DictReader(f)
+        school_adapter_d0_d1_page_visual_rows = list(school_adapter_d0_d1_page_visual_reader)
+        school_adapter_d0_d1_page_visual_fields = (
+            school_adapter_d0_d1_page_visual_reader.fieldnames or []
+        )
+    with school_adapter_d0_d1_page_visual_private_index_csv.open(
+        newline="", encoding="utf-8-sig"
+    ) as f:
+        school_adapter_d0_d1_page_visual_private_index_reader = csv.DictReader(f)
+        school_adapter_d0_d1_page_visual_private_index_rows = list(
+            school_adapter_d0_d1_page_visual_private_index_reader
+        )
+        school_adapter_d0_d1_page_visual_private_index_fields = (
+            school_adapter_d0_d1_page_visual_private_index_reader.fieldnames or []
         )
     with family_major_decision_group_csv.open(newline="", encoding="utf-8-sig") as f:
         family_major_decision_group_reader = csv.DictReader(f)
@@ -33386,6 +33430,440 @@ def main():
         )
         and "最终推荐" not in d0_d1_page_progress_public_text
         and "可填报" not in d0_d1_page_progress_public_text,
+    ))
+
+    school_adapter_d0_d1_page_visual_false_fields = script_runtime_constant(
+        school_adapter_d0_d1_page_visual_script, "FALSE_FIELDS"
+    )
+    school_adapter_d0_d1_page_visual_forbidden_tokens = set(shared_forbidden_tokens)
+    school_adapter_d0_d1_page_visual_forbidden_tokens.update(
+        script_runtime_constant(school_adapter_d0_d1_page_visual_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    school_adapter_d0_d1_page_visual_forbidden_tokens.update([
+        "院校名称公开",
+        "院校名称OCR",
+        "学校名称",
+        "专业名称",
+        "专业名称及备注OCR",
+        "专业代号",
+        "院校专业组代码",
+        "官方来源文件",
+        "最佳高校源专业名称",
+        "最佳高校源计划数",
+        "字段值",
+        "字段读数",
+        "人工读数",
+        "候选值",
+        "OCR正文",
+        "OCR行文本",
+        "截图路径",
+        "复核备注",
+        "最终推荐",
+        "最终方案",
+        "可填报",
+        "可排序",
+        "data/external/",
+    ])
+    d0_d1_page_visual_public_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in [
+            school_adapter_d0_d1_page_visual_summary_path,
+            school_adapter_d0_d1_page_visual_csv,
+        ]
+    )
+    d0_d1_page_visual_private_index_by_id = {
+        row.get("高校源AdapterD0D1页列PDF视觉核验审计ID", ""): row
+        for row in school_adapter_d0_d1_page_visual_private_index_rows
+    }
+    d0_d1_page_visual_by_packet = {
+        row.get("高校源AdapterD0D1页列核验包ID", ""): row
+        for row in school_adapter_d0_d1_page_visual_rows
+    }
+    d0_d1_page_visual_hash_re = re.compile(r"^[0-9a-f]{64}$")
+    d0_d1_page_visual_bbox_norm_re = re.compile(
+        r"^x=([0-9.]+)-([0-9.]+);y_top_origin=([0-9.]+)-([0-9.]+)$"
+    )
+    d0_d1_page_visual_bbox_px_re = re.compile(r"^x=(\d+)-(\d+);y=(\d+)-(\d+)$")
+    d0_d1_page_visual_join_ok = True
+    d0_d1_page_visual_private_item_count = 0
+    d0_d1_page_visual_crop_hashes = []
+    d0_d1_page_visual_html_hashes = []
+    d0_d1_page_visual_source_page_hashes = []
+    d0_d1_page_visual_source_page_count = 0
+    d0_d1_page_visual_join_failures = []
+    d0_d1_page_visual_private_dir = Path(
+        script_runtime_constant(school_adapter_d0_d1_page_visual_script, "PRIVATE_OUTPUT_DIR")
+    )
+    d0_d1_page_visual_rendered_page_dir = Path(
+        script_runtime_constant(school_adapter_d0_d1_page_visual_script, "RENDERED_PAGE_DIR")
+    )
+    for row in school_adapter_d0_d1_page_visual_rows:
+        audit_id = row.get("高校源AdapterD0D1页列PDF视觉核验审计ID", "")
+        packet_id = row.get("高校源AdapterD0D1页列核验包ID", "")
+        progress_row = d0_d1_page_progress_by_id.get(packet_id, {})
+        page_row = d0_d1_page_public_by_id.get(packet_id, {})
+        packet_index_row = d0_d1_page_private_index_by_id.get(packet_id, {})
+        visual_index_row = d0_d1_page_visual_private_index_by_id.get(audit_id, {})
+        manifest_row = page_manifest_by_page.get(as_int(row.get("来源页码"))) or page_manifest_by_page.get(
+            row.get("来源页码", "")
+        )
+        source_page_image_path = d0_d1_page_visual_rendered_page_dir / (
+            f"page-{as_int(row.get('来源页码')):03d}.png"
+        )
+        crop_path = d0_d1_page_visual_private_dir / visual_index_row.get("私有栏图相对路径", "")
+        visual_html_path = d0_d1_page_visual_private_dir / visual_index_row.get("私有审阅HTML相对路径", "")
+        page_side_csv_path = ROOT / "private" / visual_index_row.get("私有页列CSV相对路径", "")
+        page_side_html_path = ROOT / "private" / visual_index_row.get("私有页列HTML相对路径", "")
+        bbox_norm_match = d0_d1_page_visual_bbox_norm_re.match(row.get("栏图bbox归一化", ""))
+        bbox_px_match = d0_d1_page_visual_bbox_px_re.match(row.get("栏图bbox像素", ""))
+        bbox_norm_ok = False
+        if bbox_norm_match:
+            x1, x2, y1, y2 = [float(value) for value in bbox_norm_match.groups()]
+            bbox_norm_ok = 0 <= x1 < x2 <= 1 and 0 <= y1 < y2 <= 1
+        bbox_px_ok = False
+        if bbox_px_match:
+            x1, x2, y1, y2 = [as_int(value) for value in bbox_px_match.groups()]
+            bbox_px_ok = (
+                0 <= x1 < x2 <= as_int(row.get("源页图宽度px"))
+                and 0 <= y1 < y2 <= as_int(row.get("源页图高度px"))
+                and as_int(row.get("栏图宽度px")) == x2 - x1
+                and as_int(row.get("栏图高度px")) == y2 - y1
+            )
+        private_packet_rows = []
+        if page_side_csv_path.exists():
+            with page_side_csv_path.open(newline="", encoding="utf-8-sig") as f:
+                private_packet_rows = list(csv.DictReader(f))
+        d0_d1_page_visual_private_item_count += len(private_packet_rows)
+        if crop_path.exists():
+            d0_d1_page_visual_crop_hashes.append(sha256(crop_path))
+        if visual_html_path.exists():
+            d0_d1_page_visual_html_hashes.append(sha256(visual_html_path))
+        if source_page_image_path.exists():
+            d0_d1_page_visual_source_page_hashes.append(sha256(source_page_image_path))
+            d0_d1_page_visual_source_page_count += 1
+        d0_d1_page_visual_row_checks = [
+            ("bools", bool(audit_id) and bool(packet_id) and bool(progress_row) and bool(page_row) and bool(packet_index_row) and bool(visual_index_row) and bool(manifest_row)),
+            ("exists", source_page_image_path.exists() and crop_path.exists() and visual_html_path.exists() and page_side_csv_path.exists() and page_side_html_path.exists()),
+            (
+                "audit_id",
+                audit_id
+                == school_adapter_diff_stable_id(
+                    "SSPAGEVIS",
+                    [
+                        issue19_source["source"]["sha256"],
+                        packet_id,
+                        row.get("来源页码", ""),
+                        row.get("版面列", ""),
+                    ],
+                ),
+            ),
+            ("source_progress", row.get("来源D0D1页列进度公开账本") == "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv"),
+            ("source_summary", row.get("来源D0D1页列进度摘要") == "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json"),
+            ("source_manifest", row.get("来源页级manifest") == "data/working/issue19-page-manifest.csv"),
+            ("source_pdf", row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]),
+            ("stage", row.get("数据阶段") == "issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1"),
+            ("false_fields", all(row.get(field) == "false" for field in school_adapter_d0_d1_page_visual_false_fields)),
+            ("progress_id", row.get("高校源AdapterD0D1页列进度公开账本ID") == progress_row.get("高校源AdapterD0D1页列进度公开账本ID")),
+            ("sequence", row.get("页列执行序号") == progress_row.get("页列执行序号")),
+            ("page", row.get("来源页码") == progress_row.get("来源页码")),
+            ("side", row.get("版面列") == progress_row.get("版面列")),
+            ("page_side_sha", row.get("页码版面键SHA16") == progress_row.get("页码版面键SHA16")),
+            ("priority", row.get("页列执行优先级") == progress_row.get("页列执行优先级")),
+            ("private_count", csv_int(row, "私有核验项数") == len(private_packet_rows) == csv_int(progress_row, "私有核验项数")),
+            ("r0", csv_int(row, "R0计划数冲突项数") == csv_int(progress_row, "R0计划数冲突项数")),
+            ("r1", csv_int(row, "R1OCR计划数可补项数") == csv_int(progress_row, "R1OCR计划数可补项数")),
+            ("r2", csv_int(row, "R2疑似匹配项数") == csv_int(progress_row, "R2疑似匹配项数")),
+            ("r3", csv_int(row, "R3计划数一致抽检项数") == csv_int(progress_row, "R3计划数一致抽检项数")),
+            ("page_image_id", row.get("私有页图证据编号") == manifest_row.get("私有页图证据编号")),
+            ("page_image_sha", row.get("私有页图SHA256") == manifest_row.get("私有页图SHA256") == sha256(source_page_image_path)),
+            ("page_image_size", csv_int(row, "私有页图大小字节") == source_page_image_path.stat().st_size),
+            ("page_width", csv_int(row, "源页图宽度px") >= 1600),
+            ("page_height", csv_int(row, "源页图高度px") >= 2400),
+            ("ocr_count", row.get("OCR识别行数") == manifest_row.get("OCR识别行数")),
+            ("ocr_confidence", row.get("OCR平均置信度") == manifest_row.get("OCR平均置信度")),
+            ("crop_hash_shape", bool(d0_d1_page_visual_hash_re.match(row.get("私有栏图SHA256", "")))),
+            ("crop_sha", row.get("私有栏图SHA256") == sha256(crop_path) == visual_index_row.get("私有栏图SHA256")),
+            ("crop_size", csv_int(row, "私有栏图大小字节") == crop_path.stat().st_size),
+            ("bbox_norm", bbox_norm_ok),
+            ("bbox_px", bbox_px_ok),
+            ("crop_status", row.get("栏图生成状态") == "local_page_side_crop_generated_hash_recorded"),
+            ("render_dpi", "render_dpi=120" in row.get("栏图生成参数摘要", "")),
+            ("html_sha", row.get("私有审阅HTML_SHA256") == sha256(visual_html_path)),
+            ("html_index_sha", row.get("私有审阅HTML_SHA256") == visual_index_row.get("私有审阅HTML_SHA256")),
+            ("visual_index_sha", row.get("私有视觉索引CSV_SHA256") == sha256(school_adapter_d0_d1_page_visual_private_index_csv)),
+            ("visual_master_sha", row.get("私有视觉总览HTML_SHA256") == sha256(school_adapter_d0_d1_page_visual_private_master_html)),
+            ("old_csv_id", row.get("私有页列CSV证据编号") == progress_row.get("私有页列CSV证据编号")),
+            ("old_csv_sha", row.get("私有页列CSV_SHA256") == sha256(page_side_csv_path)),
+            ("old_csv_progress_sha", row.get("私有页列CSV_SHA256") == progress_row.get("私有页列CSV_SHA256")),
+            ("old_html_id", row.get("私有页列HTML证据编号") == progress_row.get("私有页列HTML证据编号")),
+            ("old_html_sha", row.get("私有页列HTML_SHA256") == sha256(page_side_html_path)),
+            ("old_html_progress_sha", row.get("私有页列HTML_SHA256") == progress_row.get("私有页列HTML_SHA256")),
+            ("visual_idx_sequence", visual_index_row.get("页列执行序号") == row.get("页列执行序号")),
+            ("visual_idx_page", visual_index_row.get("来源页码") == row.get("来源页码")),
+            ("visual_idx_side", visual_index_row.get("版面列") == row.get("版面列")),
+            ("visual_idx_packet", visual_index_row.get("高校源AdapterD0D1页列核验包ID") == packet_id),
+            ("source_page_rel", visual_index_row.get("私有源页图相对路径") == f"ocr-runs/issue19-full-120dpi/rendered-pages/page-{as_int(row.get('来源页码')):03d}.png"),
+            ("pdf_status", row.get("PDF原页核页状态") == "pending_manual_pdf_review"),
+            ("hubei_status", row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_plan_review"),
+            ("school_status", row.get("高校官网结构化源状态") == "structured_school_source_candidate_not_verified"),
+            ("writeback_status", row.get("字段事实写回状态") == "blocked_until_required_private_records_complete"),
+        ]
+        if any(not value for _, value in d0_d1_page_visual_row_checks):
+            d0_d1_page_visual_join_failures.append(
+                row.get("高校源AdapterD0D1页列PDF视觉核验审计ID", "")
+                + ":"
+                + ",".join(label for label, value in d0_d1_page_visual_row_checks if not value)
+            )
+        d0_d1_page_visual_join_ok = (
+            d0_d1_page_visual_join_ok
+            and bool(audit_id)
+            and bool(packet_id)
+            and bool(progress_row)
+            and bool(page_row)
+            and bool(packet_index_row)
+            and bool(visual_index_row)
+            and bool(manifest_row)
+            and source_page_image_path.exists()
+            and crop_path.exists()
+            and visual_html_path.exists()
+            and page_side_csv_path.exists()
+            and page_side_html_path.exists()
+            and audit_id
+            == school_adapter_diff_stable_id(
+                "SSPAGEVIS",
+                [
+                    issue19_source["source"]["sha256"],
+                    packet_id,
+                    row.get("来源页码", ""),
+                    row.get("版面列", ""),
+                ],
+            )
+            and row.get("来源D0D1页列进度公开账本")
+            == "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv"
+            and row.get("来源D0D1页列进度摘要")
+            == "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json"
+            and row.get("来源页级manifest") == "data/working/issue19-page-manifest.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1"
+            and all(row.get(field) == "false" for field in school_adapter_d0_d1_page_visual_false_fields)
+            and row.get("高校源AdapterD0D1页列进度公开账本ID")
+            == progress_row.get("高校源AdapterD0D1页列进度公开账本ID")
+            and row.get("页列执行序号") == progress_row.get("页列执行序号")
+            and row.get("来源页码") == progress_row.get("来源页码")
+            and row.get("版面列") == progress_row.get("版面列")
+            and row.get("页码版面键SHA16") == progress_row.get("页码版面键SHA16")
+            and row.get("页列执行优先级") == progress_row.get("页列执行优先级")
+            and csv_int(row, "私有核验项数") == len(private_packet_rows) == csv_int(progress_row, "私有核验项数")
+            and csv_int(row, "R0计划数冲突项数") == csv_int(progress_row, "R0计划数冲突项数")
+            and csv_int(row, "R1OCR计划数可补项数") == csv_int(progress_row, "R1OCR计划数可补项数")
+            and csv_int(row, "R2疑似匹配项数") == csv_int(progress_row, "R2疑似匹配项数")
+            and csv_int(row, "R3计划数一致抽检项数") == csv_int(progress_row, "R3计划数一致抽检项数")
+            and row.get("私有页图证据编号") == manifest_row.get("私有页图证据编号")
+            and row.get("私有页图SHA256") == manifest_row.get("私有页图SHA256") == sha256(source_page_image_path)
+            and csv_int(row, "私有页图大小字节") == source_page_image_path.stat().st_size
+            and csv_int(row, "源页图宽度px") >= 1600
+            and csv_int(row, "源页图高度px") >= 2400
+            and row.get("OCR识别行数") == manifest_row.get("OCR识别行数")
+            and row.get("OCR平均置信度") == manifest_row.get("OCR平均置信度")
+            and d0_d1_page_visual_hash_re.match(row.get("私有栏图SHA256", ""))
+            and row.get("私有栏图SHA256") == sha256(crop_path) == visual_index_row.get("私有栏图SHA256")
+            and csv_int(row, "私有栏图大小字节") == crop_path.stat().st_size
+            and bbox_norm_ok
+            and bbox_px_ok
+            and row.get("栏图生成状态") == "local_page_side_crop_generated_hash_recorded"
+            and "render_dpi=120" in row.get("栏图生成参数摘要", "")
+            and row.get("私有审阅HTML_SHA256") == sha256(visual_html_path)
+            and row.get("私有审阅HTML_SHA256") == visual_index_row.get("私有审阅HTML_SHA256")
+            and row.get("私有视觉索引CSV_SHA256")
+            == sha256(school_adapter_d0_d1_page_visual_private_index_csv)
+            and row.get("私有视觉总览HTML_SHA256")
+            == sha256(school_adapter_d0_d1_page_visual_private_master_html)
+            and row.get("私有页列CSV证据编号") == progress_row.get("私有页列CSV证据编号")
+            and row.get("私有页列CSV_SHA256") == sha256(page_side_csv_path)
+            and row.get("私有页列CSV_SHA256") == progress_row.get("私有页列CSV_SHA256")
+            and row.get("私有页列HTML证据编号") == progress_row.get("私有页列HTML证据编号")
+            and row.get("私有页列HTML_SHA256") == sha256(page_side_html_path)
+            and row.get("私有页列HTML_SHA256") == progress_row.get("私有页列HTML_SHA256")
+            and visual_index_row.get("页列执行序号") == row.get("页列执行序号")
+            and visual_index_row.get("来源页码") == row.get("来源页码")
+            and visual_index_row.get("版面列") == row.get("版面列")
+            and visual_index_row.get("高校源AdapterD0D1页列核验包ID") == packet_id
+            and visual_index_row.get("私有源页图相对路径")
+            == f"ocr-runs/issue19-full-120dpi/rendered-pages/page-{as_int(row.get('来源页码')):03d}.png"
+            and row.get("PDF原页核页状态") == "pending_manual_pdf_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网结构化源状态") == "structured_school_source_candidate_not_verified"
+            and row.get("字段事实写回状态")
+            == "blocked_until_required_private_records_complete"
+        )
+    checks.append(ok(
+        "第 19 期高校源 Adapter D0/D1 页列PDF视觉核验审计摘要、规模和私有素材正确",
+        school_adapter_d0_d1_page_visual_summary.get("status")
+        == "issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1_not_final"
+        and school_adapter_d0_d1_page_visual_summary.get("generated_by")
+        == "build_issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1.py"
+        and school_adapter_d0_d1_page_visual_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and school_adapter_d0_d1_page_visual_summary.get("source_page_side_progress_public")
+        == "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv"
+        and school_adapter_d0_d1_page_visual_summary.get("source_page_side_progress_summary")
+        == "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json"
+        and school_adapter_d0_d1_page_visual_summary.get("source_page_manifest")
+        == "data/working/issue19-page-manifest.csv"
+        and school_adapter_d0_d1_page_visual_summary.get("output_public_table")
+        == "data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv"
+        and school_adapter_d0_d1_page_visual_summary.get("row_count")
+        == len(school_adapter_d0_d1_page_visual_rows)
+        == 18
+        and school_adapter_d0_d1_page_visual_summary.get("private_visual_index_row_count")
+        == len(school_adapter_d0_d1_page_visual_private_index_rows)
+        == 18
+        and school_adapter_d0_d1_page_visual_summary.get("unique_pdf_page_count") == 14
+        and school_adapter_d0_d1_page_visual_summary.get("unique_page_side_count") == 18
+        and school_adapter_d0_d1_page_visual_summary.get("private_page_side_crop_count") == 18
+        and school_adapter_d0_d1_page_visual_summary.get("private_review_html_count") == 18
+        and school_adapter_d0_d1_page_visual_summary.get("private_review_item_count")
+        == d0_d1_page_visual_private_item_count
+        == 146
+        and school_adapter_d0_d1_page_visual_summary.get("page_priority_counts") == {
+            "E0-计划数冲突页列先核": 9,
+            "E1-OCR计划数缺失可补页列先核": 7,
+            "E2-疑似匹配页列先核": 2,
+        }
+        and school_adapter_d0_d1_page_visual_summary.get("side_counts") == {
+            "left": 9,
+            "right": 9,
+        }
+        and school_adapter_d0_d1_page_visual_summary.get("crop_status_counts") == {
+            "local_page_side_crop_generated_hash_recorded": 18,
+        }
+        and school_adapter_d0_d1_page_visual_summary.get("source_page_image_hash_count")
+        == len(set(d0_d1_page_visual_source_page_hashes))
+        == 14
+        and school_adapter_d0_d1_page_visual_summary.get("page_side_crop_hash_count")
+        == len(set(d0_d1_page_visual_crop_hashes))
+        == 18
+        and school_adapter_d0_d1_page_visual_summary.get("review_html_hash_count")
+        == len(set(d0_d1_page_visual_html_hashes))
+        == 18
+        and school_adapter_d0_d1_page_visual_summary.get("private_visual_index_csv_sha256")
+        == sha256(school_adapter_d0_d1_page_visual_private_index_csv)
+        and school_adapter_d0_d1_page_visual_summary.get("private_master_html_sha256")
+        == sha256(school_adapter_d0_d1_page_visual_private_master_html)
+        and school_adapter_d0_d1_page_visual_summary.get("pdf_manual_review_pending_count") == 18
+        and school_adapter_d0_d1_page_visual_summary.get("hubei_official_review_pending_count") == 18
+        and school_adapter_d0_d1_page_visual_summary.get("field_writeback_ready_count") == 0
+        and school_adapter_d0_d1_page_visual_summary.get("field_writeback_allowed_count") == 0
+        and school_adapter_d0_d1_page_visual_summary.get("recommendation_basis_allowed_count") == 0
+        and school_adapter_d0_d1_page_visual_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_adapter_d0_d1_page_visual_summary.get("school_major_suggestion_allowed_count") == 0
+        and school_adapter_d0_d1_page_visual_summary.get("final_available_count") == 0
+        and d0_d1_page_visual_source_page_count == 18,
+    ))
+    d0_d1_page_visual_field_check_items = [
+        (
+            "fields",
+            school_adapter_d0_d1_page_visual_fields
+            == script_runtime_constant(school_adapter_d0_d1_page_visual_script, "PUBLIC_FIELDS"),
+        ),
+        (
+            "private_index_fields",
+            school_adapter_d0_d1_page_visual_private_index_fields
+            == script_runtime_constant(school_adapter_d0_d1_page_visual_script, "PRIVATE_INDEX_FIELDS"),
+        ),
+        (
+            "sequence",
+            [as_int(row.get("页列执行序号")) for row in school_adapter_d0_d1_page_visual_rows]
+            == list(range(1, 19)),
+        ),
+        (
+            "unique_ids",
+            len({
+                row.get("高校源AdapterD0D1页列PDF视觉核验审计ID", "")
+                for row in school_adapter_d0_d1_page_visual_rows
+            })
+            == 18,
+        ),
+        (
+            "packet_sets",
+            set(d0_d1_page_visual_by_packet)
+            == set(d0_d1_page_progress_by_id)
+            == set(d0_d1_page_public_by_id)
+            == {
+                row.get("高校源AdapterD0D1页列核验包ID", "")
+                for row in school_adapter_d0_d1_page_private_index_rows
+            },
+        ),
+        (
+            "false_gates",
+            all(
+                {row.get(field, "") for row in school_adapter_d0_d1_page_visual_rows}
+                == {"false"}
+                for field in school_adapter_d0_d1_page_visual_false_fields
+            ),
+        ),
+        ("join", d0_d1_page_visual_join_ok),
+        (
+            "total_count",
+            sum(csv_int(row, "私有核验项数") for row in school_adapter_d0_d1_page_visual_rows) == 146,
+        ),
+        (
+            "r0",
+            sum(csv_int(row, "R0计划数冲突项数") for row in school_adapter_d0_d1_page_visual_rows) == 27,
+        ),
+        (
+            "r1",
+            sum(csv_int(row, "R1OCR计划数可补项数") for row in school_adapter_d0_d1_page_visual_rows) == 102,
+        ),
+        (
+            "r2",
+            sum(csv_int(row, "R2疑似匹配项数") for row in school_adapter_d0_d1_page_visual_rows) == 2,
+        ),
+        (
+            "r3",
+            sum(csv_int(row, "R3计划数一致抽检项数") for row in school_adapter_d0_d1_page_visual_rows) == 15,
+        ),
+        (
+            "crop_status",
+            Counter(row.get("栏图生成状态", "") for row in school_adapter_d0_d1_page_visual_rows)
+            == Counter({"local_page_side_crop_generated_hash_recorded": 18}),
+        ),
+        (
+            "hash_shape",
+            all(
+                d0_d1_page_visual_hash_re.match(row.get("私有页图SHA256", ""))
+                and d0_d1_page_visual_hash_re.match(row.get("私有栏图SHA256", ""))
+                and d0_d1_page_visual_hash_re.match(row.get("私有审阅HTML_SHA256", ""))
+                for row in school_adapter_d0_d1_page_visual_rows
+            ),
+        ),
+        (
+            "crop_size",
+            all(as_int(row.get("私有栏图大小字节")) > 1000 for row in school_adapter_d0_d1_page_visual_rows),
+        ),
+        ("no_school_public", "院校名称公开" not in school_adapter_d0_d1_page_visual_fields),
+        ("no_school_ocr", "院校名称OCR" not in school_adapter_d0_d1_page_visual_fields),
+        ("no_school_name", "学校名称" not in school_adapter_d0_d1_page_visual_fields),
+        ("no_major_name", "专业名称" not in school_adapter_d0_d1_page_visual_fields),
+        ("no_major_ocr", "专业名称及备注OCR" not in school_adapter_d0_d1_page_visual_fields),
+        ("no_source_file", "官方来源文件" not in school_adapter_d0_d1_page_visual_fields),
+        (
+            "forbidden_tokens",
+            not any(
+                token in d0_d1_page_visual_public_text
+                for token in school_adapter_d0_d1_page_visual_forbidden_tokens
+            ),
+        ),
+        ("no_final_reco", "最终推荐" not in d0_d1_page_visual_public_text),
+        ("no_fillable", "可填报" not in d0_d1_page_visual_public_text),
+    ]
+    checks.append(ok(
+        "第 19 期高校源 Adapter D0/D1 页列PDF视觉核验审计字段、回链和公开安全正确",
+        all(value for _, value in d0_d1_page_visual_field_check_items),
+        ",".join(label for label, value in d0_d1_page_visual_field_check_items if not value)
+        + (";" + "；".join(d0_d1_page_visual_join_failures[:3]) if d0_d1_page_visual_join_failures else ""),
     ))
 
     family_major_decision_group_ids = {

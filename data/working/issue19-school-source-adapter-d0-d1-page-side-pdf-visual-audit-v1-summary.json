@@ -1,0 +1,44 @@
+{
+  "status": "issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1_not_final",
+  "generated_by": "build_issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_page_side_progress_public": "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv",
+  "source_page_side_progress_summary": "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json",
+  "source_page_manifest": "data/working/issue19-page-manifest.csv",
+  "output_public_table": "data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv",
+  "row_count": 18,
+  "private_visual_index_row_count": 18,
+  "unique_pdf_page_count": 14,
+  "unique_page_side_count": 18,
+  "private_page_side_crop_count": 18,
+  "private_review_html_count": 18,
+  "private_review_item_count": 146,
+  "page_priority_counts": {
+    "E0-计划数冲突页列先核": 9,
+    "E1-OCR计划数缺失可补页列先核": 7,
+    "E2-疑似匹配页列先核": 2
+  },
+  "side_counts": {
+    "right": 9,
+    "left": 9
+  },
+  "crop_status_counts": {
+    "local_page_side_crop_generated_hash_recorded": 18
+  },
+  "source_page_image_hash_count": 14,
+  "page_side_crop_hash_count": 18,
+  "review_html_hash_count": 18,
+  "private_visual_index_csv_sha256": "804ba04adea83bb51800d3c91ba9de4fed1807113d8f5cffee87b93cc6c7d2bf",
+  "private_master_html_sha256": "2184bcf8812fc0ab4361406725bf6e13e85ed1e4c978b790938ce6ff7f39abfb",
+  "pdf_manual_review_pending_count": 18,
+  "hubei_official_review_pending_count": 18,
+  "field_writeback_ready_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "公开表只保存页列、计数、尺寸、证据编号和SHA；栏图、整页图、学校专业线索、OCR线索、人工记录和本地材料路径留在Git忽略私有目录。"
+}

@@ -670,6 +670,13 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 所有行当前必须保持 `not_final`；字段事实、推荐依据、最终可用、学校专业建议、字段写回允许、官网替代湖北官方计划和进入下一阶段门禁必须全部为 false 或 0。
 - 该账本不能替代 D0/D1 页列人工核验包、不能替代第 19 期 PDF 原页或湖北官方计划，只能作为“私有核验项有没有填、能否进入字段写回评审”的公开进度入口。
 
+高校源 Adapter D0/D1 页列 PDF 视觉核验审计的校验方式：
+
+- `data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv` 和 summary 必须严格覆盖 D0/D1 页列进度账本的 18 个页列，覆盖 14 个 PDF 页和 146 条私有核验项。
+- 每行必须回链页级 manifest 的私有页图证据编号和 SHA、本地栏图 SHA、私有审阅 HTML SHA、原 D0/D1 页列 CSV/HTML SHA；私有 index CSV 和私有总览 HTML 的 SHA 必须与 summary 一致。
+- 公开层只能保存页码、版面列、计数、尺寸、证据编号、SHA、bbox 和非最终门禁；不得出现图片路径、私有路径、学校名、专业名、专业代号、专业组代码、OCR 正文、字段候选、人工读数、复核备注正文或最终误导结论。
+- 视觉核验审计只证明“对应 PDF 页列可定位、可打开、可复验”，不确认计划数、学费、选科、专业名或专业组边界，也不能替代湖北官方计划。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。
