@@ -1,0 +1,53 @@
+{
+  "status": "issue19_first_closure_g0_conflict_field_resolution_gate_v1_ready_not_final",
+  "generated_by": "build_issue19_first_closure_g0_conflict_field_resolution_gate_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_overlay_public": "data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-public-ledger.csv",
+  "source_overlay_public_sha256": "91d2c3ddc43044726b9037d39e2292ce2a9a8c83e5a2ac0792b5b7c6ac3e750a",
+  "source_overlay_page": "data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-page-summary.csv",
+  "source_overlay_page_sha256": "9190db8376f5c278fc1923e24c4c2d0d5d862804ba8c8f7a35cfbf94a6abc413",
+  "source_overlay_summary": "data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-summary.json",
+  "source_overlay_summary_sha256": "5a1aaea71b2cd80b71d23bbe2dc78e7545a4081b40643b59bffc33b0bef2bcf8",
+  "private_overlay_workbench": "g0_conflict_field_review_overlay_not_public",
+  "private_overlay_sha256": "749d242338c905662993abae16006adfd53a3a8535dcc689051a850987d6820e",
+  "output_table": "data/working/issue19-first-closure-g0-conflict-field-resolution-gate-v1-public-ledger.csv",
+  "page_summary_table": "data/working/issue19-first-closure-g0-conflict-field-resolution-gate-v1-page-summary.csv",
+  "row_count": 68,
+  "page_summary_row_count": 10,
+  "source_overlay_row_count": 68,
+  "source_overlay_page_row_count": 10,
+  "private_overlay_row_count": 68,
+  "unique_fact_scope_count": 68,
+  "unique_page_side_count": 10,
+  "unique_task_count": 26,
+  "unique_major_row_count": 26,
+  "field_name_counts": {
+    "专业计划数": 26,
+    "再选科目": 16,
+    "学费": 26
+  },
+  "gate_status_counts": {
+    "blocked_missing_required_field_evidence": 68
+  },
+  "main_gap_bucket_counts": {
+    "G0-缺PDF原页记录": 68
+  },
+  "pdf_record_gap_count": 68,
+  "hubei_official_record_gap_count": 68,
+  "school_side_record_gap_count": 68,
+  "conflict_resolution_gap_count": 68,
+  "double_review_gap_count": 47,
+  "three_way_gap_count": 68,
+  "field_confirmation_gap_count": 68,
+  "writeback_review_gap_count": 68,
+  "ready_for_private_writeback_review_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该账本只同步G0冲突字段写回前缺口门禁，不公开字段明细或人工记录，不确认字段事实。"
+}
