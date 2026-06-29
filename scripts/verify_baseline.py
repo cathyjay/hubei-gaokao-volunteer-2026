@@ -31377,6 +31377,18 @@ def main():
     first_g0_field_exec_item_csv = (
         ROOT / "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-items-v1-public-ledger.csv"
     )
+    first_g0_field_closure_script = (
+        ROOT / "scripts/build_issue19_first_closure_g0_conflict_field_evidence_closure_result_v1.py"
+    )
+    first_g0_field_closure_summary_path = (
+        ROOT / "data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-summary.json"
+    )
+    first_g0_field_closure_csv = (
+        ROOT / "data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-public-ledger.csv"
+    )
+    first_g0_field_closure_page_csv = (
+        ROOT / "data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-page-summary.csv"
+    )
     w0_b0_school_bridge_script = ROOT / "scripts/build_issue19_w0_b0_school_source_bridge.py"
     w0_b0_school_bridge_summary_path = ROOT / "data/working/issue19-w0-b0-school-source-bridge-summary.json"
     w0_b0_school_bridge_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv"
@@ -31430,6 +31442,7 @@ def main():
     first_g0_field_overlay_summary = json.loads(first_g0_field_overlay_summary_path.read_text())
     first_g0_field_gate_summary = json.loads(first_g0_field_gate_summary_path.read_text())
     first_g0_field_exec_summary = json.loads(first_g0_field_exec_summary_path.read_text())
+    first_g0_field_closure_summary = json.loads(first_g0_field_closure_summary_path.read_text())
     w0_b0_school_bridge_summary = json.loads(w0_b0_school_bridge_summary_path.read_text())
     field_backlink_summary = json.loads(field_backlink_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -31654,6 +31667,14 @@ def main():
         first_g0_field_exec_item_reader = csv.DictReader(f)
         first_g0_field_exec_item_rows = list(first_g0_field_exec_item_reader)
         first_g0_field_exec_item_fields = first_g0_field_exec_item_reader.fieldnames or []
+    with first_g0_field_closure_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_g0_field_closure_reader = csv.DictReader(f)
+        first_g0_field_closure_rows = list(first_g0_field_closure_reader)
+        first_g0_field_closure_fields = first_g0_field_closure_reader.fieldnames or []
+    with first_g0_field_closure_page_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_g0_field_closure_page_reader = csv.DictReader(f)
+        first_g0_field_closure_page_rows = list(first_g0_field_closure_page_reader)
+        first_g0_field_closure_page_fields = first_g0_field_closure_page_reader.fieldnames or []
     with w0_b0_school_bridge_csv.open(newline="", encoding="utf-8-sig") as f:
         w0_b0_school_bridge_reader = csv.DictReader(f)
         w0_b0_school_bridge_rows = list(w0_b0_school_bridge_reader)
@@ -31791,6 +31812,14 @@ def main():
             first_g0_field_exec_summary_path,
             first_g0_field_exec_packet_csv,
             first_g0_field_exec_item_csv,
+        ]
+    )
+    first_g0_field_closure_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_g0_field_closure_summary_path,
+            first_g0_field_closure_csv,
+            first_g0_field_closure_page_csv,
         ]
     )
     w0_b0_school_bridge_public_text = "\n".join(
@@ -37512,6 +37541,428 @@ def main():
         and "最终推荐" not in first_g0_field_exec_public_text
         and "最终方案" not in first_g0_field_exec_public_text
         and "可填报" not in first_g0_field_exec_public_text,
+    ))
+
+    first_g0_field_closure_false_fields = script_runtime_constant(
+        first_g0_field_closure_script, "FALSE_FIELDS"
+    )
+    first_g0_field_closure_forbidden_tokens = set(shared_forbidden_tokens)
+    first_g0_field_closure_forbidden_tokens.update(
+        script_runtime_constant(first_g0_field_closure_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    first_g0_field_closure_by_id = {
+        row.get("G0冲突字段补证闭环结果公开账本ID", ""): row
+        for row in first_g0_field_closure_rows
+    }
+    first_g0_field_closure_by_exec_item = {
+        row.get("G0冲突字段补证执行项公开账本ID", ""): row
+        for row in first_g0_field_closure_rows
+    }
+    first_g0_field_closure_by_gate = {
+        row.get("G0冲突字段准出门禁公开账本ID", ""): row
+        for row in first_g0_field_closure_rows
+    }
+    first_g0_field_closure_by_fact = {
+        row.get("第一闭环事实范围缺口公开账本ID", ""): row
+        for row in first_g0_field_closure_rows
+    }
+    first_g0_field_closure_rows_by_page = defaultdict(list)
+    for row in first_g0_field_closure_rows:
+        first_g0_field_closure_rows_by_page[row.get("页码版面键", "")].append(row)
+    first_g0_field_closure_page_by_page = {
+        row.get("页码版面键", ""): row
+        for row in first_g0_field_closure_page_rows
+    }
+    first_g0_field_closure_backlink_by_id = {
+        row.get("高校源字段回接队列ID", ""): row
+        for row in field_backlink_rows
+    }
+    first_g0_field_closure_backlink_page_by_page = {
+        row.get("页码版面键", ""): row
+        for row in field_backlink_page_rows
+    }
+
+    first_g0_field_closure_join_ok = True
+    for row in first_g0_field_closure_rows:
+        exec_item = first_g0_field_exec_item_by_id.get(
+            row.get("G0冲突字段补证执行项公开账本ID", ""), {}
+        )
+        packet = first_g0_field_exec_packet_by_id.get(
+            row.get("G0冲突字段补证执行包公开账本ID", ""), {}
+        )
+        gate = first_g0_field_gate_by_id.get(row.get("G0冲突字段准出门禁公开账本ID", ""), {})
+        overlay = first_g0_field_overlay_by_id.get(
+            row.get("G0冲突字段复核Overlay公开账本ID", ""), {}
+        )
+        backlink = first_g0_field_closure_backlink_by_id.get(
+            row.get("高校源字段回接队列ID", ""), {}
+        )
+        expected_missing_count = 8 if row.get("双人复核缺口") == "true" else 7
+        first_g0_field_closure_join_ok = first_g0_field_closure_join_ok and (
+            row.get("来源G0冲突字段补证执行项公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-items-v1-public-ledger.csv"
+            and row.get("来源G0冲突字段补证执行包公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-packets-v1-public-ledger.csv"
+            and row.get("来源G0冲突字段准出门禁公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-resolution-gate-v1-public-ledger.csv"
+            and row.get("来源G0冲突字段准出门禁页列汇总")
+            == "data/working/issue19-first-closure-g0-conflict-field-resolution-gate-v1-page-summary.csv"
+            and row.get("来源G0冲突字段复核Overlay公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-public-ledger.csv"
+            and row.get("来源G0冲突字段复核Overlay页列汇总")
+            == "data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-page-summary.csv"
+            and row.get("来源W0B0高校源字段回接队列")
+            == "data/working/issue19-w0-b0-school-source-field-backlink-queue-public-ledger.csv"
+            and row.get("来源W0B0高校源字段回接页列汇总")
+            == "data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv"
+            and row.get("来源私有G0字段复核页列CSV")
+            == "g0_conflict_field_private_page_csv_not_public"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_first_closure_g0_conflict_field_evidence_closure_result_v1"
+            and all(row.get(field) == "false" for field in first_g0_field_closure_false_fields)
+            and row.get("是否允许进入私有写回评审") == "false"
+            and row.get("G0冲突字段补证执行项公开账本ID")
+            == exec_item.get("G0冲突字段补证执行项公开账本ID")
+            and row.get("G0冲突字段补证执行包公开账本ID")
+            == exec_item.get("G0冲突字段补证执行包公开账本ID")
+            == packet.get("G0冲突字段补证执行包公开账本ID")
+            and row.get("G0冲突字段准出门禁公开账本ID")
+            == exec_item.get("G0冲突字段准出门禁公开账本ID")
+            == gate.get("G0冲突字段准出门禁公开账本ID")
+            and row.get("G0冲突字段复核Overlay公开账本ID")
+            == exec_item.get("G0冲突字段复核Overlay公开账本ID")
+            == gate.get("G0冲突字段复核Overlay公开账本ID")
+            == overlay.get("G0冲突字段复核Overlay公开账本ID")
+            and row.get("G0冲突动作包闭环工作台ID") == exec_item.get("G0冲突动作包闭环工作台ID")
+            and row.get("高校源字段回接队列ID")
+            == exec_item.get("高校源字段回接队列ID")
+            == backlink.get("高校源字段回接队列ID")
+            and row.get("W0B0执行预填明细公开审计ID")
+            == exec_item.get("W0B0执行预填明细公开审计ID")
+            and row.get("第一闭环事实范围缺口公开账本ID")
+            == exec_item.get("第一闭环事实范围缺口公开账本ID")
+            == gate.get("第一闭环事实范围缺口公开账本ID")
+            == overlay.get("第一闭环事实范围缺口公开账本ID")
+            == backlink.get("第一闭环事实范围缺口公开账本ID")
+            and row.get("第一闭环字段事实公开账本ID") == exec_item.get("第一闭环字段事实公开账本ID")
+            and row.get("第一闭环字段核验状态ID") == exec_item.get("第一闭环字段核验状态ID")
+            and row.get("稳定基座第一闭环明细任务ID")
+            == exec_item.get("稳定基座第一闭环明细任务ID")
+            == backlink.get("稳定基座第一闭环明细任务ID")
+            and row.get("页码版面键") == exec_item.get("页码版面键") == packet.get("页码版面键")
+            and row.get("来源页码") == exec_item.get("来源页码")
+            and row.get("版面列") == exec_item.get("版面列")
+            and row.get("专业行ID") == exec_item.get("专业行ID")
+            and row.get("专业组出现ID") == exec_item.get("专业组出现ID")
+            and row.get("院校代码") == exec_item.get("院校代码")
+            and row.get("事实域") == exec_item.get("事实域") == "字段事实"
+            and row.get("事实类型") == exec_item.get("事实类型")
+            and row.get("字段名") == exec_item.get("字段名")
+            and row.get("补证执行优先级") == exec_item.get("补证执行优先级")
+            and row.get("补证执行泳道") == exec_item.get("补证执行泳道")
+            and row.get("回接泳道") == exec_item.get("回接泳道")
+            and row.get("回接批次") == exec_item.get("回接批次")
+            and row.get("字段事实状态") == exec_item.get("字段事实状态")
+            and row.get("字段核验优先级") == exec_item.get("字段核验优先级")
+            and row.get("PDFOCR与高校辅证关系桶") == exec_item.get("PDFOCR与高校辅证关系桶")
+            and row.get("是否有PDFOCR提示") == exec_item.get("是否有PDFOCR提示") == "true"
+            and row.get("是否有高校辅证线索") == exec_item.get("是否有高校辅证线索") == "true"
+            and row.get("是否存在PDFOCR与高校冲突")
+            == exec_item.get("是否存在PDFOCR与高校冲突")
+            == "true"
+            and row.get("是否需要人工直接看图") == exec_item.get("是否需要人工直接看图") == "true"
+            and row.get("是否需要双人复核") == exec_item.get("是否需要双人复核")
+            and row.get("PDF原页记录缺口") == exec_item.get("PDF原页记录缺口") == "true"
+            and row.get("湖北官方记录缺口") == exec_item.get("湖北官方记录缺口") == "true"
+            and row.get("高校辅证记录缺口") == exec_item.get("高校辅证记录缺口") == "true"
+            and row.get("冲突处理缺口") == exec_item.get("冲突处理缺口") == "true"
+            and row.get("双人复核缺口") == exec_item.get("双人复核缺口")
+            and row.get("三方一致性缺口") == exec_item.get("三方一致性缺口") == "true"
+            and row.get("字段确认缺口") == exec_item.get("字段确认缺口") == "true"
+            and row.get("写回评审缺口") == exec_item.get("写回评审缺口") == "true"
+            and row.get("准出门禁状态") == exec_item.get("准出门禁状态")
+            == "blocked_missing_required_field_evidence"
+            and row.get("主缺口桶") == exec_item.get("主缺口桶") == "G0-缺PDF原页记录"
+            and row.get("PDF原页核验结果状态") == "pending_pdf_page_review"
+            and row.get("OCR提示核验状态") == "ocr_hint_present_not_fact"
+            and row.get("湖北官方侧核验状态") == "pending_hubei_official_plan_review"
+            and row.get("冲突处理状态") == "pending_conflict_resolution"
+            and row.get("三方闭环状态") == "blocked_missing_pdf"
+            and row.get("字段确认状态") == "blocked"
+            and row.get("字段写回评审状态") == "blocked_until_required_evidence_closed"
+            and row.get("补证闭环状态") == "closure_blocked_missing_required_evidence"
+            and row.get("私有写回评审准入状态") == "blocked"
+            and row.get("当前主阻断桶") == "G0-缺PDF原页记录"
+            and csv_int(row, "必要证据缺口数") == expected_missing_count
+            and row.get("私有字段复核记录证据编号") == exec_item.get("私有字段复核记录证据编号")
+            and row.get("私有字段复核记录SHA256") == exec_item.get("私有字段复核记录SHA256")
+            and row.get("私有页列CSV证据编号") == exec_item.get("私有G0页列CSV证据编号")
+            and row.get("私有页列CSV_SHA256") == exec_item.get("私有G0页列CSV_SHA256")
+            and row.get("私有核页HTML证据编号") == exec_item.get("私有核页HTML证据编号")
+            and row.get("私有核页HTML_SHA256") == exec_item.get("私有核页HTML_SHA256")
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有字段复核记录SHA256", "") or "") is not None
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有页列CSV_SHA256", "") or "") is not None
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("私有核页HTML_SHA256", "") or "") is not None
+            and re.fullmatch(r"[0-9a-f]{64}", row.get("当前私有页列CSV记录SHA256", "") or "") is not None
+        )
+
+    first_g0_field_closure_page_join_ok = True
+    for row in first_g0_field_closure_page_rows:
+        page_key = row.get("页码版面键", "")
+        rows = first_g0_field_closure_rows_by_page.get(page_key, [])
+        packet = first_g0_field_exec_packets_by_page.get(page_key, {})
+        gate_page = first_g0_field_gate_page_by_page.get(page_key, {})
+        overlay_page = first_g0_field_overlay_page_by_page.get(page_key, {})
+        backlink_page = first_g0_field_closure_backlink_page_by_page.get(page_key, {})
+        first_g0_field_closure_page_join_ok = first_g0_field_closure_page_join_ok and (
+            row.get("来源G0冲突字段补证闭环结果公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-public-ledger.csv"
+            and row.get("来源G0冲突字段补证执行包公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-packets-v1-public-ledger.csv"
+            and row.get("来源G0冲突字段准出门禁页列汇总")
+            == "data/working/issue19-first-closure-g0-conflict-field-resolution-gate-v1-page-summary.csv"
+            and row.get("来源G0冲突字段复核Overlay页列汇总")
+            == "data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-page-summary.csv"
+            and row.get("来源W0B0高校源字段回接页列汇总")
+            == "data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv"
+            and row.get("来源私有G0字段复核页列CSV")
+            == "g0_conflict_field_private_page_csv_not_public"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_first_closure_g0_conflict_field_evidence_closure_result_v1"
+            and all(row.get(field) == "false" for field in first_g0_field_closure_false_fields)
+            and row.get("G0冲突字段补证执行包公开账本ID")
+            == packet.get("G0冲突字段补证执行包公开账本ID")
+            and row.get("来源页码") == packet.get("来源页码") == gate_page.get("来源页码")
+            and row.get("版面列") == packet.get("版面列") == gate_page.get("版面列")
+            and csv_int(row, "字段事实数") == len(rows) == csv_int(packet, "字段事实数")
+            == csv_int(gate_page, "字段事实数")
+            == csv_int(overlay_page, "字段事实数")
+            == csv_int(backlink_page, "字段事实数")
+            and csv_int(row, "涉及任务数")
+            == len({item.get("稳定基座第一闭环明细任务ID", "") for item in rows if item.get("稳定基座第一闭环明细任务ID", "")})
+            == csv_int(packet, "涉及任务数")
+            and csv_int(row, "涉及专业行数")
+            == len({item.get("专业行ID", "") for item in rows if item.get("专业行ID", "")})
+            == csv_int(packet, "涉及专业行数")
+            and csv_int(row, "涉及院校代码数")
+            == len({item.get("院校代码", "") for item in rows if item.get("院校代码", "")})
+            == csv_int(packet, "涉及院校代码数")
+            and row.get("补证执行优先级") == packet.get("补证执行优先级")
+            and row.get("补证执行泳道") == packet.get("补证执行泳道")
+            and csv_int(row, "PDF原页记录缺口字段数") == len(rows)
+            and csv_int(row, "湖北官方记录缺口字段数") == len(rows)
+            and csv_int(row, "高校辅证记录缺口字段数") == len(rows)
+            and csv_int(row, "冲突处理缺口字段数") == len(rows)
+            and csv_int(row, "双人复核缺口字段数") == count_value(rows, "双人复核缺口", "true")
+            and csv_int(row, "三方一致性缺口字段数") == len(rows)
+            and csv_int(row, "字段确认缺口字段数") == len(rows)
+            and csv_int(row, "写回评审缺口字段数") == len(rows)
+            and csv_int(row, "可进入私有写回评审字段数") == 0
+            and row.get("PDF原页核验结果状态分布") == f"pending_pdf_page_review:{len(rows)}"
+            and row.get("OCR提示核验状态分布") == f"ocr_hint_present_not_fact:{len(rows)}"
+            and row.get("湖北官方侧核验状态分布") == f"pending_hubei_official_plan_review:{len(rows)}"
+            and row.get("冲突处理状态分布") == f"pending_conflict_resolution:{len(rows)}"
+            and row.get("三方闭环状态分布") == f"blocked_missing_pdf:{len(rows)}"
+            and row.get("字段确认状态分布") == f"blocked:{len(rows)}"
+            and row.get("字段写回评审状态分布") == f"blocked_until_required_evidence_closed:{len(rows)}"
+            and row.get("补证闭环状态分布") == f"closure_blocked_missing_required_evidence:{len(rows)}"
+            and row.get("当前主阻断桶分布") == f"G0-缺PDF原页记录:{len(rows)}"
+            and row.get("私有页列CSV证据编号") == packet.get("私有G0页列CSV证据编号")
+            and row.get("私有页列CSV_SHA256") == packet.get("私有G0页列CSV_SHA256")
+            and row.get("私有核页HTML证据编号") == packet.get("私有核页HTML证据编号")
+            and row.get("私有核页HTML_SHA256") == packet.get("私有核页HTML_SHA256")
+            and row.get("当前私有页列CSV_SHA256") == packet.get("私有G0页列CSV_SHA256")
+            and row.get("字段事实集合SHA256")
+            == first_g0_exec_sha_values(item.get("第一闭环事实范围缺口公开账本ID", "") for item in rows)
+            and row.get("补证执行项集合SHA256")
+            == first_g0_exec_sha_values(item.get("G0冲突字段补证执行项公开账本ID", "") for item in rows)
+            and row.get("闭环结果集合SHA256")
+            == first_g0_exec_sha_values(item.get("G0冲突字段补证闭环结果公开账本ID", "") for item in rows)
+            and row.get("页列补证闭环状态") == "closure_blocked_missing_required_evidence"
+        )
+
+    checks.append(ok(
+        "第 19 期第一闭环 G0 冲突字段补证闭环结果摘要、规模和缺口守恒正确",
+        first_g0_field_closure_summary.get("status")
+        == "issue19_first_closure_g0_conflict_field_evidence_closure_result_v1_ready_not_final"
+        and first_g0_field_closure_summary.get("generated_by")
+        == "build_issue19_first_closure_g0_conflict_field_evidence_closure_result_v1.py"
+        and first_g0_field_closure_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and first_g0_field_closure_summary.get("source_exec_items")
+        == "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-items-v1-public-ledger.csv"
+        and first_g0_field_closure_summary.get("source_exec_items_sha256")
+        == sha256(first_g0_field_exec_item_csv)
+        and first_g0_field_closure_summary.get("source_exec_packets")
+        == "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-packets-v1-public-ledger.csv"
+        and first_g0_field_closure_summary.get("source_exec_packets_sha256")
+        == sha256(first_g0_field_exec_packet_csv)
+        and first_g0_field_closure_summary.get("source_exec_summary")
+        == "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-packets-v1-summary.json"
+        and first_g0_field_closure_summary.get("source_exec_summary_sha256")
+        == sha256(first_g0_field_exec_summary_path)
+        and first_g0_field_closure_summary.get("source_gate_public_sha256") == sha256(first_g0_field_gate_csv)
+        and first_g0_field_closure_summary.get("source_gate_page_sha256") == sha256(first_g0_field_gate_page_csv)
+        and first_g0_field_closure_summary.get("source_overlay_public_sha256")
+        == sha256(first_g0_field_overlay_csv)
+        and first_g0_field_closure_summary.get("source_overlay_page_sha256")
+        == sha256(first_g0_field_overlay_page_csv)
+        and first_g0_field_closure_summary.get("source_field_backlink_sha256") == sha256(field_backlink_csv)
+        and first_g0_field_closure_summary.get("source_field_backlink_page_sha256")
+        == sha256(field_backlink_page_csv)
+        and re.fullmatch(
+            r"[0-9a-f]{64}",
+            first_g0_field_closure_summary.get("private_g0_index_sha256", "") or "",
+        ) is not None
+        and first_g0_field_closure_summary.get("private_g0_page_csv_count") == 10
+        and first_g0_field_closure_summary.get("private_g0_field_record_count") == 68
+        and first_g0_field_closure_summary.get("output_table")
+        == "data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-public-ledger.csv"
+        and first_g0_field_closure_summary.get("page_summary_table")
+        == "data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-page-summary.csv"
+        and first_g0_field_closure_summary.get("row_count") == len(first_g0_field_closure_rows) == 68
+        and first_g0_field_closure_summary.get("page_summary_row_count")
+        == len(first_g0_field_closure_page_rows)
+        == 10
+        and first_g0_field_closure_summary.get("source_exec_item_row_count") == 68
+        and first_g0_field_closure_summary.get("source_exec_packet_row_count") == 10
+        and first_g0_field_closure_summary.get("source_gate_row_count") == 68
+        and first_g0_field_closure_summary.get("source_gate_page_row_count") == 10
+        and first_g0_field_closure_summary.get("source_overlay_row_count") == 68
+        and first_g0_field_closure_summary.get("source_overlay_page_row_count") == 10
+        and first_g0_field_closure_summary.get("source_field_backlink_row_count") == 68
+        and first_g0_field_closure_summary.get("source_field_backlink_page_row_count") == 10
+        and first_g0_field_closure_summary.get("unique_fact_scope_count") == 68
+        and first_g0_field_closure_summary.get("unique_page_side_count") == 10
+        and first_g0_field_closure_summary.get("unique_task_count") == 26
+        and first_g0_field_closure_summary.get("unique_major_row_count") == 26
+        and Counter(first_g0_field_closure_summary.get("field_name_counts", {})) == Counter({
+            "专业计划数": 26,
+            "学费": 26,
+            "再选科目": 16,
+        })
+        and Counter(first_g0_field_closure_summary.get("pdf_status_counts", {})) == Counter({
+            "pending_pdf_page_review": 68,
+        })
+        and Counter(first_g0_field_closure_summary.get("ocr_status_counts", {})) == Counter({
+            "ocr_hint_present_not_fact": 68,
+        })
+        and Counter(first_g0_field_closure_summary.get("school_status_counts", {})) == Counter({
+            "school_source_seed_present_pending_manual_review": 62,
+            "school_source_pending": 6,
+        })
+        and Counter(first_g0_field_closure_summary.get("hubei_status_counts", {})) == Counter({
+            "pending_hubei_official_plan_review": 68,
+        })
+        and Counter(first_g0_field_closure_summary.get("conflict_status_counts", {})) == Counter({
+            "pending_conflict_resolution": 68,
+        })
+        and Counter(first_g0_field_closure_summary.get("double_review_status_counts", {})) == Counter({
+            "pending_double_review": 47,
+            "not_required": 21,
+        })
+        and Counter(first_g0_field_closure_summary.get("three_way_status_counts", {})) == Counter({
+            "blocked_missing_pdf": 68,
+        })
+        and Counter(first_g0_field_closure_summary.get("field_confirmation_status_counts", {})) == Counter({
+            "blocked": 68,
+        })
+        and Counter(first_g0_field_closure_summary.get("writeback_review_status_counts", {})) == Counter({
+            "blocked_until_required_evidence_closed": 68,
+        })
+        and Counter(first_g0_field_closure_summary.get("closure_status_counts", {})) == Counter({
+            "closure_blocked_missing_required_evidence": 68,
+        })
+        and Counter(first_g0_field_closure_summary.get("main_blocker_counts", {})) == Counter({
+            "G0-缺PDF原页记录": 68,
+        })
+        and first_g0_field_closure_summary.get("pdf_record_gap_count") == 68
+        and first_g0_field_closure_summary.get("hubei_official_record_gap_count") == 68
+        and first_g0_field_closure_summary.get("school_side_record_gap_count") == 68
+        and first_g0_field_closure_summary.get("conflict_resolution_gap_count") == 68
+        and first_g0_field_closure_summary.get("double_review_gap_count") == 47
+        and first_g0_field_closure_summary.get("three_way_gap_count") == 68
+        and first_g0_field_closure_summary.get("field_confirmation_gap_count") == 68
+        and first_g0_field_closure_summary.get("writeback_review_gap_count") == 68
+        and first_g0_field_closure_summary.get("ready_for_private_writeback_review_count") == 0
+        and first_g0_field_closure_summary.get("field_writeback_allowed_count") == 0
+        and first_g0_field_closure_summary.get("recommendation_basis_allowed_count") == 0
+        and first_g0_field_closure_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_g0_field_closure_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_g0_field_closure_summary.get("next_stage_allowed_count") == 0
+        and first_g0_field_closure_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环 G0 冲突字段补证闭环结果字段、回链和公开安全正确",
+        first_g0_field_closure_fields == script_runtime_constant(
+            first_g0_field_closure_script, "RESULT_FIELDS"
+        )
+        and first_g0_field_closure_page_fields == script_runtime_constant(
+            first_g0_field_closure_script, "PAGE_FIELDS"
+        )
+        and len(first_g0_field_closure_by_id) == len(first_g0_field_closure_rows) == 68
+        and len(first_g0_field_closure_by_exec_item) == len(first_g0_field_closure_rows) == 68
+        and len(first_g0_field_closure_by_gate) == len(first_g0_field_closure_rows) == 68
+        and len(first_g0_field_closure_by_fact) == len(first_g0_field_closure_rows) == 68
+        and set(first_g0_field_closure_by_exec_item) == set(first_g0_field_exec_item_by_id)
+        and set(first_g0_field_closure_by_gate) == set(first_g0_field_gate_by_id)
+        and set(first_g0_field_closure_by_fact) == set(first_g0_field_gate_by_fact)
+        and set(first_g0_field_closure_page_by_page) == set(first_g0_field_exec_packets_by_page)
+        and set(first_g0_field_closure_rows_by_page) == set(first_g0_field_exec_packets_by_page)
+        and [as_int(row.get("闭环结果序号")) for row in first_g0_field_closure_rows] == list(range(1, 69))
+        and [as_int(row.get("页列汇总序号")) for row in first_g0_field_closure_page_rows] == list(range(1, 11))
+        and first_g0_field_closure_join_ok
+        and first_g0_field_closure_page_join_ok
+        and all(
+            {row.get(field, "") for row in first_g0_field_closure_rows} == {"false"}
+            for field in first_g0_field_closure_false_fields
+        )
+        and all(
+            {row.get(field, "") for row in first_g0_field_closure_page_rows} == {"false"}
+            for field in first_g0_field_closure_false_fields
+        )
+        and sum(csv_int(row, "字段事实数") for row in first_g0_field_closure_page_rows) == 68
+        and sum(csv_int(row, "涉及任务数") for row in first_g0_field_closure_page_rows) == 26
+        and sum(csv_int(row, "涉及专业行数") for row in first_g0_field_closure_page_rows) == 26
+        and sum(csv_int(row, "PDF原页记录缺口字段数") for row in first_g0_field_closure_page_rows) == 68
+        and sum(csv_int(row, "湖北官方记录缺口字段数") for row in first_g0_field_closure_page_rows) == 68
+        and sum(csv_int(row, "高校辅证记录缺口字段数") for row in first_g0_field_closure_page_rows) == 68
+        and sum(csv_int(row, "冲突处理缺口字段数") for row in first_g0_field_closure_page_rows) == 68
+        and sum(csv_int(row, "双人复核缺口字段数") for row in first_g0_field_closure_page_rows) == 47
+        and sum(csv_int(row, "三方一致性缺口字段数") for row in first_g0_field_closure_page_rows) == 68
+        and sum(csv_int(row, "字段确认缺口字段数") for row in first_g0_field_closure_page_rows) == 68
+        and sum(csv_int(row, "写回评审缺口字段数") for row in first_g0_field_closure_page_rows) == 68
+        and sum(csv_int(row, "可进入私有写回评审字段数") for row in first_g0_field_closure_page_rows) == 0
+        and count_value(first_g0_field_closure_rows, "字段名", "专业计划数") == 26
+        and count_value(first_g0_field_closure_rows, "字段名", "学费") == 26
+        and count_value(first_g0_field_closure_rows, "字段名", "再选科目") == 16
+        and count_value(first_g0_field_closure_rows, "PDF原页核验结果状态", "pending_pdf_page_review") == 68
+        and count_value(first_g0_field_closure_rows, "OCR提示核验状态", "ocr_hint_present_not_fact") == 68
+        and count_value(first_g0_field_closure_rows, "高校官网辅证核验状态", "school_source_seed_present_pending_manual_review") == 62
+        and count_value(first_g0_field_closure_rows, "高校官网辅证核验状态", "school_source_pending") == 6
+        and count_value(first_g0_field_closure_rows, "湖北官方侧核验状态", "pending_hubei_official_plan_review") == 68
+        and count_value(first_g0_field_closure_rows, "冲突处理状态", "pending_conflict_resolution") == 68
+        and count_value(first_g0_field_closure_rows, "双人复核结果状态", "pending_double_review") == 47
+        and count_value(first_g0_field_closure_rows, "双人复核结果状态", "not_required") == 21
+        and count_value(first_g0_field_closure_rows, "三方闭环状态", "blocked_missing_pdf") == 68
+        and count_value(first_g0_field_closure_rows, "字段确认状态", "blocked") == 68
+        and count_value(first_g0_field_closure_rows, "字段写回评审状态", "blocked_until_required_evidence_closed") == 68
+        and count_value(first_g0_field_closure_rows, "补证闭环状态", "closure_blocked_missing_required_evidence") == 68
+        and count_value(first_g0_field_closure_rows, "当前主阻断桶", "G0-缺PDF原页记录") == 68
+        and count_value(first_g0_field_closure_rows, "是否允许进入私有写回评审", "true") == 0
+        and count_value(first_g0_field_closure_rows, "是否允许写回字段事实", "true") == 0
+        and count_value(first_g0_field_closure_rows, "是否允许作为志愿推荐依据", "true") == 0
+        and count_value(first_g0_field_closure_rows, "最终可用", "true") == 0
+        and not any(
+            token in first_g0_field_closure_public_text
+            for token in first_g0_field_closure_forbidden_tokens
+        )
+        and "G0冲突字段" in first_g0_field_closure_public_text
+        and "最终推荐" not in first_g0_field_closure_public_text
+        and "最终方案" not in first_g0_field_closure_public_text
+        and "可填报" not in first_g0_field_closure_public_text,
     ))
 
     w0_b0_school_bridge_false_fields = script_runtime_constant(w0_b0_school_bridge_script, "FALSE_FIELDS")

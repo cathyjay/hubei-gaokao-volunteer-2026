@@ -1,0 +1,101 @@
+{
+  "status": "issue19_first_closure_g0_conflict_field_evidence_closure_result_v1_ready_not_final",
+  "generated_by": "build_issue19_first_closure_g0_conflict_field_evidence_closure_result_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_exec_items": "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-items-v1-public-ledger.csv",
+  "source_exec_items_sha256": "a10d9db21824b88fbe4c968597a549628bb3b6e405ac84a7b300a1eefff57951",
+  "source_exec_packets": "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-packets-v1-public-ledger.csv",
+  "source_exec_packets_sha256": "dde46fa2c23758220a4dc674c7693ca69aab0e014d7f1523c40b8037a99b332c",
+  "source_exec_summary": "data/working/issue19-first-closure-g0-conflict-field-evidence-execution-packets-v1-summary.json",
+  "source_exec_summary_sha256": "33ed62e96e54fcef0f02dbc94a34aa819551e35c86f3edaa6b7dfc7be7795ff9",
+  "source_gate_public": "data/working/issue19-first-closure-g0-conflict-field-resolution-gate-v1-public-ledger.csv",
+  "source_gate_public_sha256": "812220b9566956ab5c5f1895fbecf97cf9e1e62d96cf77bc011b2a526934b833",
+  "source_gate_page": "data/working/issue19-first-closure-g0-conflict-field-resolution-gate-v1-page-summary.csv",
+  "source_gate_page_sha256": "4148aced97c28321d2b3f3ee84d80189ced351a927f05c2523b7b8a16795cffe",
+  "source_overlay_public": "data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-public-ledger.csv",
+  "source_overlay_public_sha256": "91d2c3ddc43044726b9037d39e2292ce2a9a8c83e5a2ac0792b5b7c6ac3e750a",
+  "source_overlay_page": "data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-page-summary.csv",
+  "source_overlay_page_sha256": "9190db8376f5c278fc1923e24c4c2d0d5d862804ba8c8f7a35cfbf94a6abc413",
+  "source_field_backlink": "data/working/issue19-w0-b0-school-source-field-backlink-queue-public-ledger.csv",
+  "source_field_backlink_sha256": "222ee6a6d6de34766e77069e29d9d665f4ea1d5d498ea3baf189318d577a9919",
+  "source_field_backlink_page": "data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv",
+  "source_field_backlink_page_sha256": "a7cc7c16600321cf20919bc90bd5d4f5fef966422b92afb74ac4e7da82d7c509",
+  "private_g0_index": "g0_conflict_field_private_index_not_public",
+  "private_g0_index_sha256": "5d0e51294487fa72c4fef0c932ad5e298518ae6955c7c4c0603ac1aa6fb5a4dd",
+  "private_g0_page_csv_count": 10,
+  "private_g0_field_record_count": 68,
+  "output_table": "data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-public-ledger.csv",
+  "page_summary_table": "data/working/issue19-first-closure-g0-conflict-field-evidence-closure-result-v1-page-summary.csv",
+  "row_count": 68,
+  "page_summary_row_count": 10,
+  "source_exec_item_row_count": 68,
+  "source_exec_packet_row_count": 10,
+  "source_gate_row_count": 68,
+  "source_gate_page_row_count": 10,
+  "source_overlay_row_count": 68,
+  "source_overlay_page_row_count": 10,
+  "source_field_backlink_row_count": 68,
+  "source_field_backlink_page_row_count": 10,
+  "unique_fact_scope_count": 68,
+  "unique_page_side_count": 10,
+  "unique_task_count": 26,
+  "unique_major_row_count": 26,
+  "field_name_counts": {
+    "专业计划数": 26,
+    "再选科目": 16,
+    "学费": 26
+  },
+  "pdf_status_counts": {
+    "pending_pdf_page_review": 68
+  },
+  "ocr_status_counts": {
+    "ocr_hint_present_not_fact": 68
+  },
+  "school_status_counts": {
+    "school_source_seed_present_pending_manual_review": 62,
+    "school_source_pending": 6
+  },
+  "hubei_status_counts": {
+    "pending_hubei_official_plan_review": 68
+  },
+  "conflict_status_counts": {
+    "pending_conflict_resolution": 68
+  },
+  "double_review_status_counts": {
+    "pending_double_review": 47,
+    "not_required": 21
+  },
+  "three_way_status_counts": {
+    "blocked_missing_pdf": 68
+  },
+  "field_confirmation_status_counts": {
+    "blocked": 68
+  },
+  "writeback_review_status_counts": {
+    "blocked_until_required_evidence_closed": 68
+  },
+  "closure_status_counts": {
+    "closure_blocked_missing_required_evidence": 68
+  },
+  "main_blocker_counts": {
+    "G0-缺PDF原页记录": 68
+  },
+  "pdf_record_gap_count": 68,
+  "hubei_official_record_gap_count": 68,
+  "school_side_record_gap_count": 68,
+  "conflict_resolution_gap_count": 68,
+  "double_review_gap_count": 47,
+  "three_way_gap_count": 68,
+  "field_confirmation_gap_count": 68,
+  "writeback_review_gap_count": 68,
+  "ready_for_private_writeback_review_count": 0,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该账本只公开G0补证结果状态和SHA，不公开具体核验内容、识别内容、明细文本或人工内容；进入私有写回评审也不等于允许写回字段事实。"
+}
