@@ -123,6 +123,8 @@
 
 新增的 `data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-public-ledger.csv` 是第一闭环 G0 冲突字段补证执行波次，并配套 5 行波次汇总和 summary。它把 523 条缺口任务压成 47 个 `页列×执行波次` 包：W0 一手证据与辅证采集 204 条、W1 双人复核 47 条、W2 冲突处理与三方闭环 136 条、W3 字段确认 68 条、W4 写回评审 68 条；W0/W1 共 251 条当前可并行推进，W2-W4 共 272 条等待前置闭环。它把下一步执行从“看 523 行任务”收束为“按 10 个页列和 5 个波次推进”，仍不确认字段事实、不写回主表、不进入志愿推荐。
 
+新增的 `data/working/issue19-first-closure-g0-conflict-field-w0-w1-active-workboard-v1-public-ledger.csv` 是第一闭环 G0 冲突字段 W0/W1 主动工作板，并配套 10 行页列汇总和 summary。它只抽取当前能动的 W0/W1：从 523 条缺口任务中收束出 251 条可并行任务，生成 37 个 `页列×证据通道` 工作包，其中 PDF 原页、湖北官方侧、高校辅证各 68 条，双人复核 47 条。它用于立刻分工核 PDF 原页、湖北官方侧、高校辅证和双人复核，不确认字段事实、不写回主表、不进入志愿推荐。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv` 是第一闭环事实核验包。它把 439 个事实范围继续压缩成 37 个页列包，并生成 `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv` 作为 439 个包内事实项。当前波次为 B0 冲突优先 10 包、专业名归属优先 9 包、缺候选人工看图 2 包、机器坐标辅助 16 包；37 包全部仍待 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用仍为 0。它是后续人工抽样、双人复核和并行处理的执行入口，不是字段事实表。
 
 新增的 `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv` 是 W0/B0 最小人工复核包。它把 B0 冲突优先的 275 个同页待核事实先压成 87 个核心事实、10 个页列和 35 个任务：专业组边界 10、明确冲突字段 68、专业名归属 9；剩余 188 个同页伴生事实继续待闭环。它的作用是先处理最容易影响底座结构的串组、字段冲突和专业归属问题，仍不确认字段事实、不写回主表、不进入志愿推荐。

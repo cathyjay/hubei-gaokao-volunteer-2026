@@ -1,0 +1,57 @@
+{
+  "status": "issue19_first_closure_g0_conflict_field_w0_w1_active_workboard_v1_ready_not_final",
+  "generated_by": "build_issue19_first_closure_g0_conflict_field_w0_w1_active_workboard_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_gap_tasks": "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-public-ledger.csv",
+  "source_gap_tasks_sha256": "50b419cf078570895fe111eb3076bce612009acc9bf946c420e7bc8319308beb",
+  "source_gap_waves": "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-public-ledger.csv",
+  "source_gap_waves_sha256": "cfeed9f52b33d5d2c75a2cbd8977d273437e22a1c94ad895994a324d9b6e873d",
+  "source_gap_wave_summary": "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-summary.json",
+  "source_gap_wave_summary_sha256": "7a4295e6230ea86fb503fbd9f47684ec999a1bb10a29ddc32718117b5a723f02",
+  "source_verification_page_summary": "data/working/issue19-first-closure-verification-result-page-summary.csv",
+  "source_verification_page_summary_sha256": "83564d978000b35b0061052dd01208d936cc7776fc11993a1dad7202826dd9e8",
+  "source_public_evidence_map": "data/working/issue19-stable-foundation-first-closure-public-evidence-map.csv",
+  "source_public_evidence_map_sha256": "bb45a67fbf8beb924277a89c51d83de35cc602a008c5e5b1e4e729ea0ddb933e",
+  "source_field_backlink_page_summary": "data/working/issue19-w0-b0-school-source-field-backlink-page-summary.csv",
+  "source_field_backlink_page_summary_sha256": "a7cc7c16600321cf20919bc90bd5d4f5fef966422b92afb74ac4e7da82d7c509",
+  "output_table": "data/working/issue19-first-closure-g0-conflict-field-w0-w1-active-workboard-v1-public-ledger.csv",
+  "page_summary_table": "data/working/issue19-first-closure-g0-conflict-field-w0-w1-active-workboard-v1-page-summary.csv",
+  "workboard_row_count": 37,
+  "page_summary_row_count": 10,
+  "source_gap_task_row_count": 523,
+  "active_task_row_count": 251,
+  "active_wave_packet_count": 17,
+  "unique_page_side_count": 10,
+  "unique_closure_result_count": 68,
+  "unique_task_count": 26,
+  "unique_major_row_count": 26,
+  "active_task_count_by_wave": {
+    "W0": 204,
+    "W1": 47
+  },
+  "active_task_count_by_channel": {
+    "01": 68,
+    "02": 68,
+    "03": 68,
+    "05": 47
+  },
+  "workboard_row_count_by_wave": {
+    "W0": 30,
+    "W1": 7
+  },
+  "workboard_row_count_by_channel": {
+    "01": 10,
+    "02": 10,
+    "03": 10,
+    "05": 7
+  },
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "next_stage_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "该表只抽取W0/W1当前可执行补证工作包，不确认字段事实，不写回，不进入推荐。"
+}
