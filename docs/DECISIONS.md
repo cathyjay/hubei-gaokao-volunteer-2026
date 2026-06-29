@@ -233,3 +233,5 @@
 - 新增高校源 Adapter D0/D1 页列 PDF 视觉核验审计：`scripts/build_issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1.py` 为 18 个 D0/D1 页列生成本地私有栏图和审阅 HTML，公开账本只保留源页图、栏图、HTML、原页列 CSV/HTML 的证据编号、尺寸和 SHA。该层只服务人工快速回看 PDF 原页和左右栏，不确认字段事实，不替代湖北官方计划，也不生成学校专业建议。
 
 - 新增高校源 Adapter D0/D1 逐项证据路由：`scripts/build_issue19_school_source_adapter_d0_d1_item_evidence_route_v1.py` 生成 146 行公开路由账本和 summary，把每条私有核验项接到页列包、页列进度和 PDF 视觉审计。决策口径是公开层只保存状态桶、证据编号和 SHA，不公开学校、专业、代码、OCR 线索、字段读数或人工记录；当前 PDF 原页待核 146、湖北官方侧待核 146、建议双人复核 29，字段写回、推荐依据和最终可用仍为 0。
+
+- 新增高校源 Adapter D0/D1 逐项准出门禁：`scripts/build_issue19_school_source_adapter_d0_d1_item_resolution_gate_v1.py` 生成 146 行准出门禁账本和 summary，把逐项证据路由转换成写回前缺口判断。当前 146 条全部为 `blocked_missing_required_evidence`；PDF 原页、湖北官方侧、高校辅证、三方闭环和字段写回缺口均为 146，冲突处理和双人复核缺口各 29；该表只用于判断补证完成后能否进入私有写回评审，不确认字段事实。

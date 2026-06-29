@@ -686,6 +686,14 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 公开层只能保存状态桶、证据编号和 SHA；不得出现学校名、专业名、专业代号、专业组代码、OCR 正文、字段候选、字段读数、人工读数、复核备注正文、图片路径、私有路径、登录态、身份信息或最终误导结论。
 - 所有行当前仍必须保持 PDF 原页待核、湖北官方侧待核、字段写回阻断、推荐依据阻断和最终可用为 false 或 0；该路由账本只说明“每一项还缺什么证据”，不确认任何字段事实。
 
+高校源 Adapter D0/D1 逐项准出门禁的校验方式：
+
+- `data/working/issue19-school-source-adapter-d0-d1-item-resolution-gate-v1-public-ledger.csv` 和 summary 必须由 `scripts/build_issue19_school_source_adapter_d0_d1_item_resolution_gate_v1.py` 生成，输入来自 D0/D1 逐项证据路由公开账本。
+- 公开账本必须保持 146 行、146 个唯一准出门禁 ID、146 个唯一逐项证据路由 ID、146 个唯一私有核验项 ID；每行必须逐项回链到上游路由 ID、页列包 ID、页列进度 ID 和 PDF 视觉审计 ID。
+- 缺口计数必须保持：PDF 原页缺口 146、湖北官方侧缺口 146、高校辅证未验证 146、三方闭环缺口 146、字段写回缺口 146、冲突处理缺口 29、双人复核缺口 29。
+- 准出动作组必须与冲突桶一致：G0/G1/G2/G3 为 27/102/2/15；准出状态必须全部为 `blocked_missing_required_evidence`，私有写回评审 ready、字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用必须全部为 0 或 false。
+- 公开层只能保存缺口桶、门禁状态、证据编号和 SHA；不得出现学校名、专业名、专业代号、专业组代码、OCR 正文、字段候选、字段读数、人工读数、复核备注正文、图片路径、私有路径、登录态、身份信息或最终误导结论。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。

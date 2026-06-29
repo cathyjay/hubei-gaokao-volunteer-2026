@@ -212,6 +212,14 @@
 
 这张表把 146 条私有核验项逐条接到页列包、页列进度和 PDF 视觉审计，方便后续按“单项缺什么证据”推进。公开层只保存状态桶、证据编号和 SHA，不保存学校名、专业名、代码、OCR 线索、字段读数或人工记录；当前 PDF 原页待核 146、湖北官方侧待核 146、建议双人复核 29、字段写回和推荐依据仍为 0。
 
+新增高校源 Adapter D0/D1 逐项准出门禁：
+
+- 生成脚本：`scripts/build_issue19_school_source_adapter_d0_d1_item_resolution_gate_v1.py`
+- 公开账本：`data/working/issue19-school-source-adapter-d0-d1-item-resolution-gate-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-school-source-adapter-d0-d1-item-resolution-gate-v1-summary.json`
+
+这张表把 146 条逐项证据路由转换成写回前缺口门禁。当前 146 条全部阻断，PDF 原页、湖北官方侧、高校辅证、三方闭环和字段写回缺口均为 146；其中 29 条同时存在冲突处理和双人复核缺口。它用于核验完成后判断是否可进入私有写回评审，不确认任何招生字段。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

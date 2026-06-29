@@ -129,6 +129,11 @@
 - `data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv`
 - `data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-summary.json`
 
+高校源 Adapter D0/D1 逐项准出门禁：
+
+- `data/working/issue19-school-source-adapter-d0-d1-item-resolution-gate-v1-public-ledger.csv`
+- `data/working/issue19-school-source-adapter-d0-d1-item-resolution-gate-v1-summary.json`
+
 第四轮 5 万内中外合作/高收费专项：
 
 - `data/exports/issue19-round4-50k-coop-city-gradient-candidate-groups.csv`
@@ -185,6 +190,8 @@
 `issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv` 是同一批页列的视觉核验入口。公开层只显示 18 个页列的源页图 SHA、栏图 SHA、HTML SHA、尺寸、页码和状态；实际栏图、整页图、学校专业线索和人工填写栏只在本地私有 HTML/CSV。它用于人工快速打开对应 PDF 原页和左右栏，不确认计划数、学费、选科、专业名或专业组边界。
 
 `issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv` 是同一批 146 条私有核验项的一行一项公开路由。它逐条回链页列包、页列进度和 PDF 视觉审计，只公开状态桶、证据编号和 SHA，不公开学校、专业、代码、OCR 线索、字段读数或人工记录。它适合用来检查“每一项到底还缺 PDF 原页、湖北官方侧、高校源辅证还是双人复核”，但仍不能作为字段事实、学校专业建议或最终志愿依据。
+
+`issue19-school-source-adapter-d0-d1-item-resolution-gate-v1-public-ledger.csv` 是逐项证据路由之后的准出门禁表。它不新增事实，只把每条核验项拆成 PDF 原页、湖北官方侧、高校辅证、冲突处理、双人复核、三方闭环和字段写回缺口；当前 146 条全部为 `blocked_missing_required_evidence`，其中 29 条还需要冲突处理和双人复核。它用于判断哪些项补证后才可进入私有写回评审。
 
 ## 怎么快速验证这批数据
 
