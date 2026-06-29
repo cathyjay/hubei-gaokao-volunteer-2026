@@ -107,6 +107,8 @@
 
 新增的 `data/working/issue19-first-closure-fact-action-packets-v1-public-ledger.csv` 是第一闭环事实动作包。它把 439 个事实范围按 `页码版面键×事实核验动作组` 压成 79 个执行包，覆盖 37 个页列：A0 冲突事实先核 10 包、A1 专业名归属先核 9 包、A2 专业组边界随页先核 27 包、A3 双人复核先核 20 包、A4 人工看图 2 包、A6 高校辅证提示回接 2 包、A7 常规 PDF/湖北官方闭环 9 包。它是执行层，不是字段确认层；PDF 原页、湖北官方侧和三方闭环仍各待补 439 个事实，字段写回、推荐依据、学校专业建议和最终可用仍为 0。
 
+新增的 `data/working/issue19-first-closure-fact-action-packet-resolution-gate-v1-public-ledger.csv` 是第一闭环事实动作包准出门禁。它把上述 79 个执行包逐包落到写回前门禁：当前 79 包全部为 `blocked_missing_required_evidence`，主缺口桶为冲突待处理 10 包、专业组边界待闭环 27 包、双人复核待完成 21 包、专业名归属待闭环 8 包、PDF/湖北官方待闭环 11 包、高校辅证待补 2 包。它只说明每个包的下一步证据缺口，不确认字段事实、不允许写回、不进入推荐。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv` 是第一闭环事实核验包。它把 439 个事实范围继续压缩成 37 个页列包，并生成 `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv` 作为 439 个包内事实项。当前波次为 B0 冲突优先 10 包、专业名归属优先 9 包、缺候选人工看图 2 包、机器坐标辅助 16 包；37 包全部仍待 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用仍为 0。它是后续人工抽样、双人复核和并行处理的执行入口，不是字段事实表。
 
 新增的 `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv` 是 W0/B0 最小人工复核包。它把 B0 冲突优先的 275 个同页待核事实先压成 87 个核心事实、10 个页列和 35 个任务：专业组边界 10、明确冲突字段 68、专业名归属 9；剩余 188 个同页伴生事实继续待闭环。它的作用是先处理最容易影响底座结构的串组、字段冲突和专业归属问题，仍不确认字段事实、不写回主表、不进入志愿推荐。

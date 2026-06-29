@@ -218,6 +218,7 @@
 - 新增高校官网结构化接入候选账本：`scripts/build_issue19_school_source_structured_ingestion_candidates.py` 生成 12 所学校接入候选表和 Excel；下一步优先对已有 API/JSON、PDF 抽取 CSV、XLSX 和章程 HTML 的学校写 adapter/diff，不再只做宽泛补源搜索。
 - 新增第一闭环事实证据通道工作台：`scripts/build_issue19_first_closure_fact_evidence_channel_workbench_v1.py` 生成 439 行事实级公开工作台和 summary，把字段事实 354、专业名归属 48、专业组边界 37 逐项接到 PDF 原页、OCR、机器坐标、高校官网辅证、湖北官方侧、冲突处理、双人复核和三方闭环通道。该表只用于安排下一步最小核验动作，不确认字段事实、不写回主表、不生成学校专业建议；`同校高校源*` 字段仅是随事实行重复的同校上下文，不能跨行求和。
 - 新增第一闭环事实动作包：`scripts/build_issue19_first_closure_fact_action_packets_v1.py` 生成 79 行 `页列×事实核验动作组` 执行包和 summary，把 439 个事实范围从事实级工作台压缩为可并行推进的小包；当前覆盖 37 个页列、7 类动作组，所有 PDF 原页、湖北官方侧、三方闭环、字段写回、推荐和最终可用门禁仍保持待核或 0。子代理只读审查高校源后建议下一步优先做官方源 parser/adapter/diff，不继续盲目广搜。
+- 新增第一闭环事实动作包准出门禁：`scripts/build_issue19_first_closure_fact_action_packet_resolution_gate_v1.py` 生成 79 行动作包准出门禁账本和 summary，把 79 个执行包逐包回链事实动作包、事实准出门禁和事实证据通道工作台。当前 79 包全部为 `blocked_missing_required_evidence`，主缺口桶为冲突 10、专业组边界 27、双人复核 21、专业名归属 8、PDF/湖北官方 11、高校辅证 2；该表只用于判断每包还差什么证据，不确认字段事实、不写回、不进入推荐。
 - 新增高校源 Adapter/Diff 执行工作台：`scripts/build_issue19_school_source_adapter_diff_execution_workbench_v1.py` 生成 12 行公开工作台和 summary，把结构化接入候选推进到 adapter、parser、normalized bridge 和候选 diff 执行层；当前关联 28 条高校源进度任务，候选 diff 线索 446、计划数冲突线索 35、官网补缺线索 221。该表只用于 double check 和压缩人工核验范围，不确认字段事实、不替代湖北官方计划。
 
 - 新增高校源 Adapter 解析审计：`scripts/build_issue19_school_source_adapter_parse_audit_v1.py` 对 12 个结构化来源实际跑 parser，全部解析出湖北物理类计划行，合计 326 行、计划数合计 6725；公开层只保留计数、覆盖桶和 SHA。该审计说明这些高校侧来源可以进入后续 normalized rows 和候选 diff 生成，但仍不能越过第 19 期 PDF 原页、湖北官方侧和人工复核门禁。
