@@ -111,6 +111,8 @@
 
 新增的 `data/working/issue19-first-closure-g0-conflict-package-closure-workbench-v1-public-ledger.csv` 是第一闭环 G0 冲突动作包闭环工作台。它从动作包准出门禁中抽出 10 个冲突包，逐包回链 W0/B0 最小人工复核、执行预填公开审计、高校源桥接、字段回接和准出执行叠加表：当前覆盖 275 个待核事实、87 个最小人工复核事实、188 个同页伴生待核事实、68 个冲突字段和 10 个已生成私有核页材料 SHA。10 包全部仍阻断在 PDF 原页、湖北官方侧、冲突处理和双人复核之前，字段写回、推荐依据、学校专业建议和最终可用仍全部为 0。
 
+新增的 `data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-public-ledger.csv` 是第一闭环 G0 冲突字段复核 Overlay 公开账本，并配套 `data/working/issue19-first-closure-g0-conflict-field-review-overlay-v1-page-summary.csv`。它只覆盖上述 68 个 PDFOCR 与高校辅证冲突字段，逐字段回链 G0 冲突动作包、W0/B0 执行预填明细和高校源字段回接队列；字段分布为专业计划数 26、学费 26、再选科目 16，10 个页列均已生成 Git 忽略私有 CSV 的 SHA。当前 68 个字段全部仍为 `R0-Overlay已生成未填写`，PDF 原页记录、湖北官方记录、高校辅证人工核验、双人复核和三方一致性完成数均为 0；它是人工填表入口，不确认字段事实、不写回主表、不进入志愿推荐。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv` 是第一闭环事实核验包。它把 439 个事实范围继续压缩成 37 个页列包，并生成 `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv` 作为 439 个包内事实项。当前波次为 B0 冲突优先 10 包、专业名归属优先 9 包、缺候选人工看图 2 包、机器坐标辅助 16 包；37 包全部仍待 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用仍为 0。它是后续人工抽样、双人复核和并行处理的执行入口，不是字段事实表。
 
 新增的 `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv` 是 W0/B0 最小人工复核包。它把 B0 冲突优先的 275 个同页待核事实先压成 87 个核心事实、10 个页列和 35 个任务：专业组边界 10、明确冲突字段 68、专业名归属 9；剩余 188 个同页伴生事实继续待闭环。它的作用是先处理最容易影响底座结构的串组、字段冲突和专业归属问题，仍不确认字段事实、不写回主表、不进入志愿推荐。
