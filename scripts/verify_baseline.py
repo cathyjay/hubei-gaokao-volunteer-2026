@@ -31404,6 +31404,18 @@ def main():
     first_g0_field_gap_channel_csv = (
         ROOT / "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-channel-summary.csv"
     )
+    first_g0_field_gap_wave_script = (
+        ROOT / "scripts/build_issue19_first_closure_g0_conflict_field_evidence_gap_execution_waves_v1.py"
+    )
+    first_g0_field_gap_wave_summary_path = (
+        ROOT / "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-summary.json"
+    )
+    first_g0_field_gap_wave_csv = (
+        ROOT / "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-public-ledger.csv"
+    )
+    first_g0_field_gap_wave_summary_csv = (
+        ROOT / "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-wave-summary.csv"
+    )
     w0_b0_school_bridge_script = ROOT / "scripts/build_issue19_w0_b0_school_source_bridge.py"
     w0_b0_school_bridge_summary_path = ROOT / "data/working/issue19-w0-b0-school-source-bridge-summary.json"
     w0_b0_school_bridge_csv = ROOT / "data/working/issue19-w0-b0-school-source-bridge-public-ledger.csv"
@@ -31459,6 +31471,7 @@ def main():
     first_g0_field_exec_summary = json.loads(first_g0_field_exec_summary_path.read_text())
     first_g0_field_closure_summary = json.loads(first_g0_field_closure_summary_path.read_text())
     first_g0_field_gap_summary = json.loads(first_g0_field_gap_summary_path.read_text())
+    first_g0_field_gap_wave_summary = json.loads(first_g0_field_gap_wave_summary_path.read_text())
     w0_b0_school_bridge_summary = json.loads(w0_b0_school_bridge_summary_path.read_text())
     field_backlink_summary = json.loads(field_backlink_summary_path.read_text())
     with first_result_csv.open(newline="", encoding="utf-8-sig") as f:
@@ -31703,6 +31716,14 @@ def main():
         first_g0_field_gap_channel_reader = csv.DictReader(f)
         first_g0_field_gap_channel_rows = list(first_g0_field_gap_channel_reader)
         first_g0_field_gap_channel_fields = first_g0_field_gap_channel_reader.fieldnames or []
+    with first_g0_field_gap_wave_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_g0_field_gap_wave_reader = csv.DictReader(f)
+        first_g0_field_gap_wave_rows = list(first_g0_field_gap_wave_reader)
+        first_g0_field_gap_wave_fields = first_g0_field_gap_wave_reader.fieldnames or []
+    with first_g0_field_gap_wave_summary_csv.open(newline="", encoding="utf-8-sig") as f:
+        first_g0_field_gap_wave_summary_reader = csv.DictReader(f)
+        first_g0_field_gap_wave_summary_rows = list(first_g0_field_gap_wave_summary_reader)
+        first_g0_field_gap_wave_summary_fields = first_g0_field_gap_wave_summary_reader.fieldnames or []
     with w0_b0_school_bridge_csv.open(newline="", encoding="utf-8-sig") as f:
         w0_b0_school_bridge_reader = csv.DictReader(f)
         w0_b0_school_bridge_rows = list(w0_b0_school_bridge_reader)
@@ -31857,6 +31878,14 @@ def main():
             first_g0_field_gap_csv,
             first_g0_field_gap_page_channel_csv,
             first_g0_field_gap_channel_csv,
+        ]
+    )
+    first_g0_field_gap_wave_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [
+            first_g0_field_gap_wave_summary_path,
+            first_g0_field_gap_wave_csv,
+            first_g0_field_gap_wave_summary_csv,
         ]
     )
     w0_b0_school_bridge_public_text = "\n".join(
@@ -38296,6 +38325,209 @@ def main():
         and "最终推荐" not in first_g0_field_gap_public_text
         and "最终方案" not in first_g0_field_gap_public_text
         and "可填报" not in first_g0_field_gap_public_text,
+    ))
+
+    first_g0_field_gap_wave_false_fields = script_runtime_constant(
+        first_g0_field_gap_wave_script, "FALSE_FIELDS"
+    )
+    first_g0_field_gap_waves = script_runtime_constant(first_g0_field_gap_wave_script, "WAVES")
+    first_g0_field_gap_wave_forbidden_tokens = set(shared_forbidden_tokens)
+    first_g0_field_gap_wave_forbidden_tokens.update(
+        script_runtime_constant(first_g0_field_gap_wave_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    first_g0_field_gap_wave_by_seq = {
+        str(wave.get("seq", "")): wave
+        for wave in first_g0_field_gap_waves
+    }
+    first_g0_field_gap_wave_by_channel = {
+        str(channel): wave
+        for wave in first_g0_field_gap_waves
+        for channel in wave.get("channels", set())
+    }
+    first_g0_field_gap_tasks_by_wave_page = defaultdict(list)
+    first_g0_field_gap_tasks_by_wave = defaultdict(list)
+    for row in first_g0_field_gap_rows:
+        wave = first_g0_field_gap_wave_by_channel.get(row.get("证据通道序号", ""))
+        first_g0_field_gap_tasks_by_wave_page[
+            (str(wave.get("seq", "")), row.get("页码版面键", ""))
+        ].append(row)
+        first_g0_field_gap_tasks_by_wave[str(wave.get("seq", ""))].append(row)
+    first_g0_field_gap_wave_packets_by_key = {
+        (row.get("执行波次序号", ""), row.get("页码版面键", "")): row
+        for row in first_g0_field_gap_wave_rows
+    }
+    first_g0_field_gap_wave_packets_by_wave = defaultdict(list)
+    for row in first_g0_field_gap_wave_rows:
+        first_g0_field_gap_wave_packets_by_wave[row.get("执行波次序号", "")].append(row)
+    first_g0_field_gap_wave_summary_by_seq = {
+        row.get("执行波次序号", ""): row
+        for row in first_g0_field_gap_wave_summary_rows
+    }
+    first_g0_field_gap_wave_packet_join_ok = True
+    for key, packet in first_g0_field_gap_wave_packets_by_key.items():
+        wave_seq, _page_key = key
+        wave = first_g0_field_gap_wave_by_seq.get(wave_seq, {})
+        tasks = first_g0_field_gap_tasks_by_wave_page.get(key, [])
+        first_g0_field_gap_wave_packet_join_ok = first_g0_field_gap_wave_packet_join_ok and (
+            bool(tasks)
+            and packet.get("来源G0冲突字段补证缺口任务公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-public-ledger.csv"
+            and packet.get("来源G0冲突字段补证缺口页列通道汇总")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-page-channel-summary.csv"
+            and packet.get("来源G0冲突字段补证缺口摘要")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-summary.json"
+            and packet.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and packet.get("数据阶段")
+            == "issue19_first_closure_g0_conflict_field_evidence_gap_execution_waves_v1"
+            and all(packet.get(field) == "false" for field in first_g0_field_gap_wave_false_fields)
+            and packet.get("执行波次") == str(wave.get("name", ""))
+            and packet.get("波次类型") == str(wave.get("kind", ""))
+            and packet.get("波次前置条件") == str(wave.get("prerequisite", ""))
+            and packet.get("波次准出条件") == str(wave.get("exit_condition", ""))
+            and packet.get("波次当前执行状态") == str(wave.get("status", ""))
+            and packet.get("是否当前可并行推进") == str(wave.get("parallel", ""))
+            and csv_int(packet, "缺口任务数") == len(tasks)
+            and csv_int(packet, "涉及字段事实数")
+            == len({item.get("G0冲突字段补证闭环结果公开账本ID", "") for item in tasks if item.get("G0冲突字段补证闭环结果公开账本ID", "")})
+            and csv_int(packet, "涉及任务数")
+            == len({item.get("稳定基座第一闭环明细任务ID", "") for item in tasks if item.get("稳定基座第一闭环明细任务ID", "")})
+            and csv_int(packet, "涉及专业行数")
+            == len({item.get("专业行ID", "") for item in tasks if item.get("专业行ID", "")})
+            and csv_int(packet, "涉及院校代码数")
+            == len({item.get("院校代码", "") for item in tasks if item.get("院校代码", "")})
+            and csv_int(packet, "可并行执行任务数") == count_value(tasks, "是否当前可并行执行", "true")
+            and csv_int(packet, "待前置闭环任务数") == len(tasks) - count_value(tasks, "是否当前可并行执行", "true")
+            and packet.get("私有页列CSV证据编号") == tasks[0].get("私有页列CSV证据编号")
+            and packet.get("私有页列CSV_SHA256") == tasks[0].get("私有页列CSV_SHA256")
+            and packet.get("私有核页HTML证据编号") == tasks[0].get("私有核页HTML证据编号")
+            and packet.get("私有核页HTML_SHA256") == tasks[0].get("私有核页HTML_SHA256")
+            and packet.get("缺口任务集合SHA256")
+            == first_g0_exec_sha_values(item.get("G0冲突字段补证缺口任务公开账本ID", "") for item in tasks)
+            and packet.get("闭环结果集合SHA256")
+            == first_g0_exec_sha_values(item.get("G0冲突字段补证闭环结果公开账本ID", "") for item in tasks)
+        )
+    first_g0_field_gap_wave_summary_join_ok = True
+    for wave_seq, row in first_g0_field_gap_wave_summary_by_seq.items():
+        wave = first_g0_field_gap_wave_by_seq.get(wave_seq, {})
+        tasks = first_g0_field_gap_tasks_by_wave.get(wave_seq, [])
+        packets = first_g0_field_gap_wave_packets_by_wave.get(wave_seq, [])
+        first_g0_field_gap_wave_summary_join_ok = first_g0_field_gap_wave_summary_join_ok and (
+            bool(tasks)
+            and bool(packets)
+            and row.get("来源G0冲突字段补证执行波次公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-public-ledger.csv"
+            and row.get("来源G0冲突字段补证缺口任务公开账本")
+            == "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-tasks-v1-public-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段")
+            == "issue19_first_closure_g0_conflict_field_evidence_gap_execution_waves_v1"
+            and all(row.get(field) == "false" for field in first_g0_field_gap_wave_false_fields)
+            and row.get("执行波次") == str(wave.get("name", ""))
+            and row.get("波次当前执行状态") == str(wave.get("status", ""))
+            and csv_int(row, "波次包数") == len(packets)
+            and csv_int(row, "缺口任务数") == len(tasks)
+            and csv_int(row, "涉及页列数")
+            == len({item.get("页码版面键", "") for item in tasks if item.get("页码版面键", "")})
+            and csv_int(row, "涉及字段事实数")
+            == len({item.get("G0冲突字段补证闭环结果公开账本ID", "") for item in tasks if item.get("G0冲突字段补证闭环结果公开账本ID", "")})
+            and csv_int(row, "涉及任务数")
+            == len({item.get("稳定基座第一闭环明细任务ID", "") for item in tasks if item.get("稳定基座第一闭环明细任务ID", "")})
+            and csv_int(row, "可并行执行任务数") == count_value(tasks, "是否当前可并行执行", "true")
+            and csv_int(row, "待前置闭环任务数") == len(tasks) - count_value(tasks, "是否当前可并行执行", "true")
+            and row.get("波次包集合SHA256")
+            == first_g0_exec_sha_values(item.get("G0冲突字段补证执行波次公开账本ID", "") for item in packets)
+            and row.get("缺口任务集合SHA256")
+            == first_g0_exec_sha_values(item.get("G0冲突字段补证缺口任务公开账本ID", "") for item in tasks)
+            and row.get("闭环结果集合SHA256")
+            == first_g0_exec_sha_values(item.get("G0冲突字段补证闭环结果公开账本ID", "") for item in tasks)
+        )
+    checks.append(ok(
+        "第 19 期第一闭环 G0 冲突字段补证执行波次摘要、规模和波次分布正确",
+        first_g0_field_gap_wave_summary.get("status")
+        == "issue19_first_closure_g0_conflict_field_evidence_gap_execution_waves_v1_ready_not_final"
+        and first_g0_field_gap_wave_summary.get("generated_by")
+        == "build_issue19_first_closure_g0_conflict_field_evidence_gap_execution_waves_v1.py"
+        and first_g0_field_gap_wave_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and first_g0_field_gap_wave_summary.get("source_gap_tasks_sha256") == sha256(first_g0_field_gap_csv)
+        and first_g0_field_gap_wave_summary.get("source_gap_page_channel_sha256")
+        == sha256(first_g0_field_gap_page_channel_csv)
+        and first_g0_field_gap_wave_summary.get("source_gap_summary_sha256")
+        == sha256(first_g0_field_gap_summary_path)
+        and first_g0_field_gap_wave_summary.get("output_table")
+        == "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-public-ledger.csv"
+        and first_g0_field_gap_wave_summary.get("wave_summary_table")
+        == "data/working/issue19-first-closure-g0-conflict-field-evidence-gap-execution-waves-v1-wave-summary.csv"
+        and first_g0_field_gap_wave_summary.get("packet_row_count")
+        == len(first_g0_field_gap_wave_rows)
+        == 47
+        and first_g0_field_gap_wave_summary.get("wave_summary_row_count")
+        == len(first_g0_field_gap_wave_summary_rows)
+        == 5
+        and first_g0_field_gap_wave_summary.get("source_gap_task_row_count")
+        == len(first_g0_field_gap_rows)
+        == 523
+        and first_g0_field_gap_wave_summary.get("unique_page_side_count") == 10
+        and first_g0_field_gap_wave_summary.get("unique_wave_count") == 5
+        and first_g0_field_gap_wave_summary.get("unique_closure_result_count") == 68
+        and first_g0_field_gap_wave_summary.get("unique_task_count") == 26
+        and first_g0_field_gap_wave_summary.get("unique_major_row_count") == 26
+        and Counter(first_g0_field_gap_wave_summary.get("task_count_by_wave", {})) == Counter({
+            "W0": 204,
+            "W1": 47,
+            "W2": 136,
+            "W3": 68,
+            "W4": 68,
+        })
+        and Counter(first_g0_field_gap_wave_summary.get("packet_count_by_wave", {})) == Counter({
+            "W0": 10,
+            "W1": 7,
+            "W2": 10,
+            "W3": 10,
+            "W4": 10,
+        })
+        and first_g0_field_gap_wave_summary.get("parallel_executable_task_count") == 251
+        and first_g0_field_gap_wave_summary.get("blocked_until_predecessor_task_count") == 272
+        and first_g0_field_gap_wave_summary.get("field_writeback_allowed_count") == 0
+        and first_g0_field_gap_wave_summary.get("recommendation_basis_allowed_count") == 0
+        and first_g0_field_gap_wave_summary.get("school_major_suggestion_allowed_count") == 0
+        and first_g0_field_gap_wave_summary.get("official_plan_replacement_allowed_count") == 0
+        and first_g0_field_gap_wave_summary.get("next_stage_allowed_count") == 0
+        and first_g0_field_gap_wave_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期第一闭环 G0 冲突字段补证执行波次字段、回链和公开安全正确",
+        first_g0_field_gap_wave_fields == script_runtime_constant(
+            first_g0_field_gap_wave_script, "PACKET_FIELDS"
+        )
+        and first_g0_field_gap_wave_summary_fields == script_runtime_constant(
+            first_g0_field_gap_wave_script, "WAVE_SUMMARY_FIELDS"
+        )
+        and len(first_g0_field_gap_wave_packets_by_key) == len(first_g0_field_gap_wave_rows) == 47
+        and len(first_g0_field_gap_wave_summary_by_seq) == len(first_g0_field_gap_wave_summary_rows) == 5
+        and set(first_g0_field_gap_wave_packets_by_key) == set(first_g0_field_gap_tasks_by_wave_page)
+        and set(first_g0_field_gap_wave_summary_by_seq) == {str(wave.get("seq", "")) for wave in first_g0_field_gap_waves}
+        and [as_int(row.get("波次包序号")) for row in first_g0_field_gap_wave_rows] == list(range(1, 48))
+        and [as_int(row.get("波次汇总序号")) for row in first_g0_field_gap_wave_summary_rows] == list(range(1, 6))
+        and first_g0_field_gap_wave_packet_join_ok
+        and first_g0_field_gap_wave_summary_join_ok
+        and count_value(first_g0_field_gap_wave_rows, "执行波次序号", "W0") == 10
+        and count_value(first_g0_field_gap_wave_rows, "执行波次序号", "W1") == 7
+        and count_value(first_g0_field_gap_wave_rows, "执行波次序号", "W2") == 10
+        and count_value(first_g0_field_gap_wave_rows, "执行波次序号", "W3") == 10
+        and count_value(first_g0_field_gap_wave_rows, "执行波次序号", "W4") == 10
+        and count_value(first_g0_field_gap_wave_rows, "是否当前可并行推进", "true") == 17
+        and count_value(first_g0_field_gap_wave_rows, "是否当前可并行推进", "false") == 30
+        and count_value(first_g0_field_gap_wave_rows, "最终可用", "true") == 0
+        and count_value(first_g0_field_gap_wave_rows, "是否允许写回字段事实", "true") == 0
+        and count_value(first_g0_field_gap_wave_rows, "是否允许作为志愿推荐依据", "true") == 0
+        and not any(
+            token in first_g0_field_gap_wave_public_text
+            for token in first_g0_field_gap_wave_forbidden_tokens
+        )
+        and "G0冲突字段" in first_g0_field_gap_wave_public_text
+        and "最终推荐" not in first_g0_field_gap_wave_public_text
+        and "最终方案" not in first_g0_field_gap_wave_public_text
+        and "可填报" not in first_g0_field_gap_wave_public_text,
     ))
 
     w0_b0_school_bridge_false_fields = script_runtime_constant(w0_b0_school_bridge_script, "FALSE_FIELDS")
