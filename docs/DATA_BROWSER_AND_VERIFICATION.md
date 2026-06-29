@@ -124,6 +124,11 @@
 - `data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv`
 - `data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-summary.json`
 
+高校源 Adapter D0/D1 逐项证据路由：
+
+- `data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv`
+- `data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-summary.json`
+
 第四轮 5 万内中外合作/高收费专项：
 
 - `data/exports/issue19-round4-50k-coop-city-gradient-candidate-groups.csv`
@@ -178,6 +183,8 @@
 `issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv` 是上述页列包的公开状态机/进度账本，不是新的事实源。它只同步每个页列私有 CSV 中 PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核和字段写回门禁的填写状态，以及是否可进入字段写回评审；不含学校名、专业名、字段值、OCR 正文、人工读数或私有路径。当前仍是 `not_final`，字段事实、推荐依据、最终可用、学校专业建议均为 0 或 `false`，只能回答“私有核验项有没有填、能否进入字段写回评审”。
 
 `issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv` 是同一批页列的视觉核验入口。公开层只显示 18 个页列的源页图 SHA、栏图 SHA、HTML SHA、尺寸、页码和状态；实际栏图、整页图、学校专业线索和人工填写栏只在本地私有 HTML/CSV。它用于人工快速打开对应 PDF 原页和左右栏，不确认计划数、学费、选科、专业名或专业组边界。
+
+`issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv` 是同一批 146 条私有核验项的一行一项公开路由。它逐条回链页列包、页列进度和 PDF 视觉审计，只公开状态桶、证据编号和 SHA，不公开学校、专业、代码、OCR 线索、字段读数或人工记录。它适合用来检查“每一项到底还缺 PDF 原页、湖北官方侧、高校源辅证还是双人复核”，但仍不能作为字段事实、学校专业建议或最终志愿依据。
 
 ## 怎么快速验证这批数据
 

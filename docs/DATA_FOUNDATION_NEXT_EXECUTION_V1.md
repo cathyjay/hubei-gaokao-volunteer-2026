@@ -204,6 +204,14 @@
 
 这张表把上述 18 个 D0/D1 页列接到本地整页图、左右栏裁图和私有审阅 HTML，方便人工直接打开对应 PDF 页列。公开层只保存证据编号、SHA、尺寸和计数，不保存图片、私有路径、学校专业明细、OCR 原文、字段候选或人工读数；它仍然只是核页素材入口，不能替代第 19 期原页人工判断、湖北官方侧和必要高校辅证闭环。
 
+新增高校源 Adapter D0/D1 逐项证据路由：
+
+- 生成脚本：`scripts/build_issue19_school_source_adapter_d0_d1_item_evidence_route_v1.py`
+- 公开账本：`data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-summary.json`
+
+这张表把 146 条私有核验项逐条接到页列包、页列进度和 PDF 视觉审计，方便后续按“单项缺什么证据”推进。公开层只保存状态桶、证据编号和 SHA，不保存学校名、专业名、代码、OCR 线索、字段读数或人工记录；当前 PDF 原页待核 146、湖北官方侧待核 146、建议双人复核 29、字段写回和推荐依据仍为 0。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

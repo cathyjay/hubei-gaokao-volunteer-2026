@@ -731,6 +731,7 @@
 - `scripts/build_issue19_school_source_adapter_candidate_diff_v1.py`：读取 Adapter 解析审计账本、结构化接入候选、单一逐专业招生明细总工作台和既有匹配函数，生成 12 行公开候选 diff 账本，并在 Git 忽略私有目录写出 326 行 normalized 高校源和 344 行逐专业 diff 明细；公开层只保存计数、SHA 和非最终门禁。
 - `scripts/build_issue19_school_source_adapter_d0_d1_manual_review_packets_v1.py`：读取 Adapter 候选 diff 公开账本和私有 diff 明细，生成 12 行 D0/D1 人工核验包，并在 Git 忽略私有目录写出 146 条优先核验项；公开层只保存包级计数、私有 CSV SHA 和非最终门禁。
 - `scripts/build_issue19_school_source_adapter_d0_d1_page_side_packets_v1.py`：读取 D0/D1 人工核验包公开账本和 146 条私有核验项，生成 18 行 `PDF页码×版面列` 页列人工核验包，并在 Git 忽略私有目录写出每页列 CSV/HTML 和私有索引；公开层只保存页列、计数、集合 SHA、私有材料 SHA 和非最终门禁。
+- `scripts/build_issue19_school_source_adapter_d0_d1_item_evidence_route_v1.py`：读取 146 条 D0/D1 私有核验项、页列包、页列进度和 PDF 视觉审计，生成逐项证据路由公开账本；公开层只保存状态桶、证据编号、SHA 和非最终门禁，不保存学校、专业、代码、OCR 线索、字段读数或人工记录。
 - `scripts/build_issue19_first_closure_verification_result_board.py`：读取第一闭环下一步动作矩阵、页列下一步汇总、证据状态账本、字段事实核验任务和 E0 人工回页队列，生成 206 行任务级核验结果看板和 37 行页列汇总；用于统一展示 PDF/OCR/机器坐标/高校官网/湖北官方/冲突状态，不确认字段事实。
 - `scripts/build_issue19_first_closure_field_verification_status.py`：读取第一闭环下一步动作矩阵、字段事实核验任务和 E0 人工回页队列，把 206 条组合任务拆成 354 个字段级公开状态；只保存状态、ID、计数和动作，不保存字段读数或候选文本。
 - `scripts/build_issue19_school_source_progress_board.py`：读取高校官网辅证自动执行批次、高校源最新对齐账本和 C4/C6 执行包，生成 80 行高校官网辅证进度看板；用于按 L3/L1/L0、来源形态、留存状态和下一批动作继续推进 double check。
@@ -784,6 +785,7 @@
 - `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-summary.json`：高校源 Adapter D0/D1 页列人工核验包，把 146 条私有核验项压成 18 个页列；用于人工核第 19 期原页、湖北官方侧和高校辅证差异，不确认字段事实。
 - `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-summary.json`：高校源 Adapter D0/D1 页列核验进度公开账本，是私有页列 CSV 的公开状态机；只同步 PDF 原页记录、湖北官方计划记录、高校源差异解释、最终字段处理建议、双人复核和字段写回门禁的填写状态，不含学校名、专业名、字段值、OCR 正文、人工读数或私有路径。当前仍为 `not_final`，字段事实、推荐依据、最终可用和学校专业建议均为 0 或 `false`。
 - `scripts/build_issue19_school_source_adapter_d0_d1_page_side_pdf_visual_audit_v1.py`：生成 `data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv` 和 summary，同时在 Git 忽略私有目录生成 18 个页列栏图、18 个私有审阅 HTML 和私有视觉索引；公开层只保存页码、版面列、计数、尺寸、证据编号和 SHA，不保存图片、路径、学校专业明细、OCR 原文、字段候选或人工记录。
+- `data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-summary.json`：高校源 Adapter D0/D1 逐项证据路由，把 146 条私有核验项逐条回链页列包、页列进度和 PDF 视觉审计；公开层只保存状态桶、证据编号和 SHA，不确认字段事实。
 - 上述产物均继承第 19 期 PDF SHA `ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d`，并保持字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用门禁为 `false` 或 0。
 
 ## 使用优先级

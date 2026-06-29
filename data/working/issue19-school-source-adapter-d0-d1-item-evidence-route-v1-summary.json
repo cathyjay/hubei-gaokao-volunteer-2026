@@ -1,0 +1,38 @@
+{
+  "status": "issue19_school_source_adapter_d0_d1_item_evidence_route_v1_not_final",
+  "generated_by": "build_issue19_school_source_adapter_d0_d1_item_evidence_route_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_private_review_items_sha256": "ef5fd869fee056b91fcaa5254dd465bc4db8bae92e3cba68b5392f20ec963eca",
+  "source_page_side_packets_public": "data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv",
+  "source_page_side_progress_public": "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv",
+  "source_page_side_visual_public": "data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv",
+  "source_page_side_private_index_sha256": "f495b9d0a4ab891ba72912712dd84bd3007e219620cf86b67b0d946e82a1bb80",
+  "output_public_table": "data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv",
+  "row_count": 146,
+  "unique_review_item_count": 146,
+  "unique_page_side_count": 18,
+  "unique_pdf_page_count": 14,
+  "page_priority_counts": {
+    "R0-计划数冲突优先核PDF原页": 27,
+    "R1-OCR计划数缺失但高校源可补": 102,
+    "R3-计划数一致候选抽检": 15,
+    "R2-疑似匹配专业名人工确认": 2
+  },
+  "conflict_bucket_counts": {
+    "C0-计划数冲突": 27,
+    "C1-OCR计划缺失可补": 102,
+    "C3-计划一致抽检": 15,
+    "C2-名称疑似匹配": 2
+  },
+  "pdf_visual_ready_count": 146,
+  "double_review_suggested_count": 29,
+  "pdf_manual_review_pending_count": 146,
+  "hubei_official_review_pending_count": 146,
+  "field_writeback_ready_count": 0,
+  "final_available_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "public_boundary": "公开表只保存逐项状态、桶、证据编号和SHA；学校、专业、代码、OCR线索、数值线索、人工记录和本地材料路径留在Git忽略私有目录。"
+}

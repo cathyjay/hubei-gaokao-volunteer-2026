@@ -677,6 +677,15 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 公开层只能保存页码、版面列、计数、尺寸、证据编号、SHA、bbox 和非最终门禁；不得出现图片路径、私有路径、学校名、专业名、专业代号、专业组代码、OCR 正文、字段候选、人工读数、复核备注正文或最终误导结论。
 - 视觉核验审计只证明“对应 PDF 页列可定位、可打开、可复验”，不确认计划数、学费、选科、专业名或专业组边界，也不能替代湖北官方计划。
 
+高校源 Adapter D0/D1 逐项证据路由的校验方式：
+
+- `data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv` 和 summary 必须由 `scripts/build_issue19_school_source_adapter_d0_d1_item_evidence_route_v1.py` 生成，输入来自 146 条私有 D0/D1 核验项、18 行页列包、18 行页列进度和 18 行 PDF 视觉审计。
+- 公开账本必须保持 146 行、146 个唯一逐项证据路由 ID、146 个唯一私有核验项 ID；每行必须能回链到对应页列包 ID、页列进度 ID 和 PDF 视觉审计 ID。
+- 优先级和冲突桶必须守恒：R0/R1/R2/R3 为 27/102/2/15，C0/C1/C2/C3 为 27/102/2/15；18 个页列、14 个 PDF 页和 29 条建议双人复核必须与上游一致。
+- 每行的页图 SHA、栏图 SHA、私有审阅 HTML SHA、页列 CSV/HTML SHA 必须与 PDF 视觉审计和页列进度公开账本一致。
+- 公开层只能保存状态桶、证据编号和 SHA；不得出现学校名、专业名、专业代号、专业组代码、OCR 正文、字段候选、字段读数、人工读数、复核备注正文、图片路径、私有路径、登录态、身份信息或最终误导结论。
+- 所有行当前仍必须保持 PDF 原页待核、湖北官方侧待核、字段写回阻断、推荐依据阻断和最终可用为 false 或 0；该路由账本只说明“每一项还缺什么证据”，不确认任何字段事实。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。

@@ -31263,6 +31263,16 @@ def main():
     school_adapter_d0_d1_page_visual_private_master_html = (
         school_adapter_d0_d1_page_visual_private_dir / "index.html"
     )
+    school_adapter_d0_d1_item_route_script = (
+        ROOT / "scripts/build_issue19_school_source_adapter_d0_d1_item_evidence_route_v1.py"
+    )
+    school_adapter_d0_d1_item_route_summary_path = (
+        ROOT / "data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-summary.json"
+    )
+    school_adapter_d0_d1_item_route_csv = (
+        ROOT
+        / "data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv"
+    )
     family_major_decision_script = ROOT / "scripts/build_issue19_priority55_family_major_decision_workbook.py"
     family_major_decision_summary_path = ROOT / "data/exports/issue19-priority55-family-major-decision-workbook-summary.json"
     family_major_decision_group_csv = ROOT / "data/exports/issue19-priority55-family-major-decision-group-summary.csv"
@@ -31333,6 +31343,9 @@ def main():
     )
     school_adapter_d0_d1_page_visual_summary = json.loads(
         school_adapter_d0_d1_page_visual_summary_path.read_text()
+    )
+    school_adapter_d0_d1_item_route_summary = json.loads(
+        school_adapter_d0_d1_item_route_summary_path.read_text()
     )
     family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
     first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
@@ -31468,6 +31481,12 @@ def main():
         )
         school_adapter_d0_d1_page_visual_private_index_fields = (
             school_adapter_d0_d1_page_visual_private_index_reader.fieldnames or []
+        )
+    with school_adapter_d0_d1_item_route_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_adapter_d0_d1_item_route_reader = csv.DictReader(f)
+        school_adapter_d0_d1_item_route_rows = list(school_adapter_d0_d1_item_route_reader)
+        school_adapter_d0_d1_item_route_fields = (
+            school_adapter_d0_d1_item_route_reader.fieldnames or []
         )
     with family_major_decision_group_csv.open(newline="", encoding="utf-8-sig") as f:
         family_major_decision_group_reader = csv.DictReader(f)
@@ -33864,6 +33883,520 @@ def main():
         all(value for _, value in d0_d1_page_visual_field_check_items),
         ",".join(label for label, value in d0_d1_page_visual_field_check_items if not value)
         + (";" + "；".join(d0_d1_page_visual_join_failures[:3]) if d0_d1_page_visual_join_failures else ""),
+    ))
+
+    school_adapter_d0_d1_item_route_false_fields = script_runtime_constant(
+        school_adapter_d0_d1_item_route_script, "FALSE_FIELDS"
+    )
+    school_adapter_d0_d1_item_route_forbidden_tokens = set(shared_forbidden_tokens)
+    school_adapter_d0_d1_item_route_forbidden_tokens.update(
+        script_runtime_constant(school_adapter_d0_d1_item_route_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    school_adapter_d0_d1_item_route_forbidden_tokens.update([
+        "院校名称公开",
+        "院校名称OCR",
+        "学校名称",
+        "专业名称",
+        "专业名称及备注OCR",
+        "专业代号",
+        "院校专业组代码",
+        "官方来源文件",
+        "最佳高校源专业名称",
+        "最佳高校源计划数",
+        "字段值",
+        "字段读数",
+        "人工读数",
+        "候选值",
+        "OCR正文",
+        "OCR行文本",
+        "复核备注",
+        "最终推荐",
+        "最终方案",
+        "可填报",
+        "可排序",
+        "data/external/",
+    ])
+    d0_d1_item_route_public_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in [
+            school_adapter_d0_d1_item_route_summary_path,
+            school_adapter_d0_d1_item_route_csv,
+        ]
+    )
+    d0_d1_item_route_by_item_id = {
+        row.get("高校源AdapterD0D1人工核验项ID", ""): row
+        for row in school_adapter_d0_d1_item_route_rows
+    }
+    d0_d1_private_item_by_id = {
+        row.get("高校源AdapterD0D1人工核验项ID", ""): row
+        for row in school_adapter_d0_d1_private_items_rows
+    }
+    d0_d1_page_by_key_for_item_route = {
+        (row.get("来源页码", ""), row.get("版面列", "")): row
+        for row in school_adapter_d0_d1_page_rows
+    }
+    d0_d1_progress_by_packet_for_item_route = {
+        row.get("高校源AdapterD0D1页列核验包ID", ""): row
+        for row in school_adapter_d0_d1_page_progress_rows
+    }
+    d0_d1_visual_by_packet_for_item_route = {
+        row.get("高校源AdapterD0D1页列核验包ID", ""): row
+        for row in school_adapter_d0_d1_page_visual_rows
+    }
+
+    def d0_d1_item_route_has_text(value):
+        return bool(str(value or "").strip())
+
+    def d0_d1_item_route_status(value, present, missing):
+        return present if d0_d1_item_route_has_text(value) else missing
+
+    def d0_d1_item_route_score_band(value):
+        text = str(value or "").strip()
+        if not text:
+            return "名称匹配分缺失"
+        try:
+            score = float(text)
+        except ValueError:
+            return "名称匹配分异常"
+        if score >= 0.95:
+            return "名称匹配高"
+        if score >= 0.85:
+            return "名称匹配中"
+        return "名称匹配低"
+
+    def d0_d1_item_route_reason_bucket(value):
+        text = str(value or "").strip()
+        if "计划数冲突" in text:
+            return "计划数冲突"
+        if "计划数缺失" in text or "OCR计划数缺失" in text:
+            return "OCR计划缺失"
+        if "疑似匹配" in text or "专业名" in text:
+            return "名称疑似匹配"
+        if "抽检" in text or "一致" in text:
+            return "一致性抽检"
+        return "其他"
+
+    def d0_d1_item_route_action_bucket(value):
+        text = str(value or "").strip()
+        if "PDF" in text and "湖北官方" in text:
+            return "PDF原页和湖北官方侧双核"
+        if "PDF" in text:
+            return "PDF原页优先核验"
+        if "湖北官方" in text:
+            return "湖北官方侧优先核验"
+        if "高校源" in text or "官网" in text:
+            return "高校源辅证复核"
+        return "人工复核"
+
+    def d0_d1_item_route_coverage_bucket(value):
+        text = str(value or "").strip()
+        if "OCR缺口" in text or "OCR漏识" in text:
+            return "高校源可补PDF_OCR缺口"
+        if "疑似" in text:
+            return "高校源疑似匹配待人工确认"
+        if "计划数" in text and "仍需" in text:
+            return "高校源覆盖但计划字段待复核"
+        if "计划数" in text:
+            return "高校源覆盖计划待三方复核"
+        return "高校源覆盖情况待复核"
+
+    d0_d1_item_route_conflict_bucket_by_priority = {
+        "R0-计划数冲突优先核PDF原页": "C0-计划数冲突",
+        "R1-OCR计划数缺失但高校源可补": "C1-OCR计划缺失可补",
+        "R2-疑似匹配专业名人工确认": "C2-名称疑似匹配",
+        "R3-计划数一致候选抽检": "C3-计划一致抽检",
+    }
+    d0_d1_item_route_join_ok = True
+    d0_d1_item_route_failures = []
+    for row in school_adapter_d0_d1_item_route_rows:
+        item_id = row.get("高校源AdapterD0D1人工核验项ID", "")
+        private_item = d0_d1_private_item_by_id.get(item_id, {})
+        key = (private_item.get("来源页码", ""), private_item.get("版面列", ""))
+        page_row = d0_d1_page_by_key_for_item_route.get(key, {})
+        packet_id = page_row.get("高校源AdapterD0D1页列核验包ID", "")
+        progress_row = d0_d1_progress_by_packet_for_item_route.get(packet_id, {})
+        visual_row = d0_d1_visual_by_packet_for_item_route.get(packet_id, {})
+        priority = private_item.get("人工核验优先级", "")
+        double_review_expected = priority in {
+            "R0-计划数冲突优先核PDF原页",
+            "R2-疑似匹配专业名人工确认",
+        }
+        row_checks = [
+            ("private_item", bool(private_item)),
+            ("page_row", bool(page_row)),
+            ("progress_row", bool(progress_row)),
+            ("visual_row", bool(visual_row)),
+            (
+                "stable_id",
+                row.get("高校源AdapterD0D1逐项证据路由ID")
+                == school_adapter_diff_stable_id(
+                    "SSITEMROUTE",
+                    [issue19_source["source"]["sha256"], item_id, packet_id],
+                ),
+            ),
+            (
+                "source_private",
+                row.get("来源D0D1私有核验项")
+                == "local_d0_d1_private_review_items_sha_recorded_not_public",
+            ),
+            (
+                "source_page",
+                row.get("来源D0D1页列包公开账本")
+                == "data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv",
+            ),
+            (
+                "source_progress",
+                row.get("来源D0D1页列进度公开账本")
+                == "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv",
+            ),
+            (
+                "source_visual",
+                row.get("来源D0D1页列PDF视觉审计")
+                == "data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv",
+            ),
+            ("source_sha", row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]),
+            (
+                "stage",
+                row.get("数据阶段") == "issue19_school_source_adapter_d0_d1_item_evidence_route_v1",
+            ),
+            (
+                "false_gates",
+                all(row.get(field) == "false" for field in school_adapter_d0_d1_item_route_false_fields),
+            ),
+            ("page", row.get("来源页码") == private_item.get("来源页码")),
+            ("side", row.get("版面列") == private_item.get("版面列")),
+            ("page_side_hash", row.get("页码版面键SHA16") == page_row.get("页码版面键SHA16")),
+            (
+                "review_packet",
+                row.get("高校源AdapterD0D1人工核验包ID")
+                == private_item.get("高校源AdapterD0D1人工核验包ID"),
+            ),
+            ("page_packet", row.get("高校源AdapterD0D1页列核验包ID") == packet_id),
+            (
+                "progress_id",
+                row.get("高校源AdapterD0D1页列进度公开账本ID")
+                == progress_row.get("高校源AdapterD0D1页列进度公开账本ID"),
+            ),
+            (
+                "visual_id",
+                row.get("高校源AdapterD0D1页列PDF视觉核验审计ID")
+                == visual_row.get("高校源AdapterD0D1页列PDF视觉核验审计ID"),
+            ),
+            ("priority", row.get("人工核验优先级") == priority),
+            (
+                "reason_bucket",
+                row.get("人工核验原因桶")
+                == d0_d1_item_route_reason_bucket(private_item.get("人工核验原因")),
+            ),
+            (
+                "action_bucket",
+                row.get("建议核验动作桶")
+                == d0_d1_item_route_action_bucket(private_item.get("建议核验动作")),
+            ),
+            (
+                "pdf_plan",
+                row.get("PDF_OCR计划状态")
+                == d0_d1_item_route_status(
+                    private_item.get("OCR专业计划数候选"),
+                    "PDF_OCR计划有线索",
+                    "PDF_OCR计划缺线索",
+                ),
+            ),
+            (
+                "pdf_fee",
+                row.get("PDF_OCR费用状态")
+                == d0_d1_item_route_status(
+                    private_item.get("OCR学费候选"),
+                    "PDF_OCR费用有线索",
+                    "PDF_OCR费用缺线索",
+                ),
+            ),
+            (
+                "pdf_subject",
+                row.get("PDF_OCR选科状态")
+                == d0_d1_item_route_status(
+                    private_item.get("OCR再选科目候选"),
+                    "PDF_OCR选科有线索",
+                    "PDF_OCR选科缺线索",
+                ),
+            ),
+            (
+                "school_plan",
+                row.get("高校源计划状态")
+                == d0_d1_item_route_status(
+                    private_item.get("最佳高校源计划数"),
+                    "高校源计划有线索",
+                    "高校源计划缺线索",
+                ),
+            ),
+            (
+                "school_fee",
+                row.get("高校源费用状态")
+                == d0_d1_item_route_status(
+                    private_item.get("最佳高校源学费"),
+                    "高校源费用有线索",
+                    "高校源费用缺线索",
+                ),
+            ),
+            (
+                "school_subject",
+                row.get("高校源选科状态")
+                == d0_d1_item_route_status(
+                    private_item.get("最佳高校源选科"),
+                    "高校源选科有线索",
+                    "高校源选科缺线索",
+                ),
+            ),
+            (
+                "match_status",
+                row.get("高校源匹配状态") == private_item.get("本轮高校源匹配状态"),
+            ),
+            (
+                "match_method",
+                row.get("名称匹配方式") == private_item.get("本轮专业名称匹配方式"),
+            ),
+            (
+                "match_score_band",
+                row.get("名称匹配分层")
+                == d0_d1_item_route_score_band(private_item.get("本轮专业名称匹配分")),
+            ),
+            (
+                "plan_review",
+                row.get("计划数核验状态") == private_item.get("本轮计划数核验状态"),
+            ),
+            (
+                "coverage_bucket",
+                row.get("高校源覆盖结论")
+                == d0_d1_item_route_coverage_bucket(private_item.get("本轮高校源覆盖结论")),
+            ),
+            (
+                "conflict_bucket",
+                row.get("冲突核验桶")
+                == d0_d1_item_route_conflict_bucket_by_priority.get(priority, "C9-其他"),
+            ),
+            (
+                "double_review",
+                row.get("是否建议双人复核") == ("true" if double_review_expected else "false"),
+            ),
+            (
+                "visual_status",
+                row.get("PDF视觉素材状态") == "local_pdf_visual_ready_sha_recorded",
+            ),
+            ("page_image_id", row.get("私有页图证据编号") == visual_row.get("私有页图证据编号")),
+            ("page_image_sha", row.get("私有页图SHA256") == visual_row.get("私有页图SHA256")),
+            ("crop_id", row.get("私有栏图证据编号") == visual_row.get("私有栏图证据编号")),
+            ("crop_sha", row.get("私有栏图SHA256") == visual_row.get("私有栏图SHA256")),
+            (
+                "review_html_id",
+                row.get("私有审阅HTML证据编号") == visual_row.get("私有审阅HTML证据编号"),
+            ),
+            (
+                "review_html_sha",
+                row.get("私有审阅HTML_SHA256") == visual_row.get("私有审阅HTML_SHA256"),
+            ),
+            (
+                "packet_csv_id",
+                row.get("私有页列CSV证据编号") == progress_row.get("私有页列CSV证据编号"),
+            ),
+            (
+                "packet_csv_sha",
+                row.get("私有页列CSV_SHA256") == progress_row.get("私有页列CSV_SHA256"),
+            ),
+            (
+                "packet_html_id",
+                row.get("私有页列HTML证据编号") == progress_row.get("私有页列HTML证据编号"),
+            ),
+            (
+                "packet_html_sha",
+                row.get("私有页列HTML_SHA256") == progress_row.get("私有页列HTML_SHA256"),
+            ),
+            (
+                "pdf_status",
+                row.get("PDF原页核页状态") == private_item.get("PDF原页核页状态"),
+            ),
+            (
+                "hubei_status",
+                row.get("湖北官方系统或省招办计划核验状态")
+                == private_item.get("湖北官方系统或省招办计划核验状态"),
+            ),
+            (
+                "school_status",
+                row.get("高校官网结构化源状态") == private_item.get("高校官网结构化源状态"),
+            ),
+            (
+                "writeback_status",
+                row.get("字段事实写回状态") == private_item.get("字段事实写回状态"),
+            ),
+        ]
+        if any(not value for _, value in row_checks):
+            d0_d1_item_route_failures.append(
+                row.get("高校源AdapterD0D1逐项证据路由ID", "")
+                + ":"
+                + ",".join(label for label, value in row_checks if not value)
+            )
+        d0_d1_item_route_join_ok = d0_d1_item_route_join_ok and all(
+            value for _, value in row_checks
+        )
+    checks.append(ok(
+        "第 19 期高校源 Adapter D0/D1 逐项证据路由摘要、规模和门禁正确",
+        school_adapter_d0_d1_item_route_summary.get("status")
+        == "issue19_school_source_adapter_d0_d1_item_evidence_route_v1_not_final"
+        and school_adapter_d0_d1_item_route_summary.get("generated_by")
+        == "build_issue19_school_source_adapter_d0_d1_item_evidence_route_v1.py"
+        and school_adapter_d0_d1_item_route_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and school_adapter_d0_d1_item_route_summary.get("source_private_review_items_sha256")
+        == sha256(school_adapter_d0_d1_private_items_csv)
+        and school_adapter_d0_d1_item_route_summary.get("source_page_side_packets_public")
+        == "data/working/issue19-school-source-adapter-d0-d1-page-side-packets-v1-public-ledger.csv"
+        and school_adapter_d0_d1_item_route_summary.get("source_page_side_progress_public")
+        == "data/working/issue19-school-source-adapter-d0-d1-page-side-progress-v1-public-ledger.csv"
+        and school_adapter_d0_d1_item_route_summary.get("source_page_side_visual_public")
+        == "data/working/issue19-school-source-adapter-d0-d1-page-side-pdf-visual-audit-v1-public-ledger.csv"
+        and school_adapter_d0_d1_item_route_summary.get("source_page_side_private_index_sha256")
+        == sha256(school_adapter_d0_d1_page_private_index_csv)
+        and school_adapter_d0_d1_item_route_summary.get("output_public_table")
+        == "data/working/issue19-school-source-adapter-d0-d1-item-evidence-route-v1-public-ledger.csv"
+        and school_adapter_d0_d1_item_route_summary.get("row_count")
+        == len(school_adapter_d0_d1_item_route_rows)
+        == 146
+        and school_adapter_d0_d1_item_route_summary.get("unique_review_item_count") == 146
+        and school_adapter_d0_d1_item_route_summary.get("unique_page_side_count") == 18
+        and school_adapter_d0_d1_item_route_summary.get("unique_pdf_page_count") == 14
+        and school_adapter_d0_d1_item_route_summary.get("page_priority_counts") == {
+            "R0-计划数冲突优先核PDF原页": 27,
+            "R1-OCR计划数缺失但高校源可补": 102,
+            "R2-疑似匹配专业名人工确认": 2,
+            "R3-计划数一致候选抽检": 15,
+        }
+        and school_adapter_d0_d1_item_route_summary.get("conflict_bucket_counts") == {
+            "C0-计划数冲突": 27,
+            "C1-OCR计划缺失可补": 102,
+            "C2-名称疑似匹配": 2,
+            "C3-计划一致抽检": 15,
+        }
+        and school_adapter_d0_d1_item_route_summary.get("pdf_visual_ready_count") == 146
+        and school_adapter_d0_d1_item_route_summary.get("double_review_suggested_count") == 29
+        and school_adapter_d0_d1_item_route_summary.get("pdf_manual_review_pending_count") == 146
+        and school_adapter_d0_d1_item_route_summary.get("hubei_official_review_pending_count") == 146
+        and school_adapter_d0_d1_item_route_summary.get("field_writeback_ready_count") == 0
+        and school_adapter_d0_d1_item_route_summary.get("final_available_count") == 0
+        and school_adapter_d0_d1_item_route_summary.get("recommendation_basis_allowed_count") == 0
+        and school_adapter_d0_d1_item_route_summary.get("school_major_suggestion_allowed_count") == 0,
+    ))
+    d0_d1_item_route_field_check_items = [
+        (
+            "fields",
+            school_adapter_d0_d1_item_route_fields
+            == script_runtime_constant(school_adapter_d0_d1_item_route_script, "PUBLIC_FIELDS"),
+        ),
+        (
+            "unique_route_ids",
+            len({
+                row.get("高校源AdapterD0D1逐项证据路由ID", "")
+                for row in school_adapter_d0_d1_item_route_rows
+            })
+            == 146,
+        ),
+        (
+            "item_id_set",
+            set(d0_d1_item_route_by_item_id) == set(d0_d1_private_item_by_id),
+        ),
+        (
+            "sequence",
+            [csv_int(row, "执行序号") for row in school_adapter_d0_d1_item_route_rows]
+            == list(range(1, 147)),
+        ),
+        (
+            "false_gates",
+            all(
+                {row.get(field, "") for row in school_adapter_d0_d1_item_route_rows}
+                == {"false"}
+                for field in school_adapter_d0_d1_item_route_false_fields
+            ),
+        ),
+        ("join", d0_d1_item_route_join_ok),
+        (
+            "route_page_side_count",
+            len({(row.get("来源页码", ""), row.get("版面列", "")) for row in school_adapter_d0_d1_item_route_rows})
+            == 18,
+        ),
+        (
+            "route_page_count",
+            len({row.get("来源页码", "") for row in school_adapter_d0_d1_item_route_rows}) == 14,
+        ),
+        (
+            "route_priority_counts",
+            Counter(row.get("人工核验优先级", "") for row in school_adapter_d0_d1_item_route_rows)
+            == Counter({
+                "R0-计划数冲突优先核PDF原页": 27,
+                "R1-OCR计划数缺失但高校源可补": 102,
+                "R2-疑似匹配专业名人工确认": 2,
+                "R3-计划数一致候选抽检": 15,
+            }),
+        ),
+        (
+            "route_conflict_counts",
+            Counter(row.get("冲突核验桶", "") for row in school_adapter_d0_d1_item_route_rows)
+            == Counter({
+                "C0-计划数冲突": 27,
+                "C1-OCR计划缺失可补": 102,
+                "C2-名称疑似匹配": 2,
+                "C3-计划一致抽检": 15,
+            }),
+        ),
+        (
+            "double_review",
+            Counter(row.get("是否建议双人复核", "") for row in school_adapter_d0_d1_item_route_rows)
+            == Counter({"true": 29, "false": 117}),
+        ),
+        (
+            "visual_ready",
+            {row.get("PDF视觉素材状态", "") for row in school_adapter_d0_d1_item_route_rows}
+            == {"local_pdf_visual_ready_sha_recorded"},
+        ),
+        (
+            "pdf_pending",
+            {row.get("PDF原页核页状态", "") for row in school_adapter_d0_d1_item_route_rows}
+            == {"pending_manual_pdf_review"},
+        ),
+        (
+            "hubei_pending",
+            {row.get("湖北官方系统或省招办计划核验状态", "") for row in school_adapter_d0_d1_item_route_rows}
+            == {"pending_hubei_official_plan_review"},
+        ),
+        (
+            "school_pending",
+            {row.get("高校官网结构化源状态", "") for row in school_adapter_d0_d1_item_route_rows}
+            == {"structured_school_source_candidate_not_verified"},
+        ),
+        (
+            "writeback_blocked",
+            {row.get("字段事实写回状态", "") for row in school_adapter_d0_d1_item_route_rows}
+            == {"blocked_until_pdf_hubei_official_review"},
+        ),
+        ("no_school_public", "院校名称公开" not in school_adapter_d0_d1_item_route_fields),
+        ("no_school_ocr", "院校名称OCR" not in school_adapter_d0_d1_item_route_fields),
+        ("no_school_name", "学校名称" not in school_adapter_d0_d1_item_route_fields),
+        ("no_major_name", "专业名称" not in school_adapter_d0_d1_item_route_fields),
+        ("no_major_ocr", "专业名称及备注OCR" not in school_adapter_d0_d1_item_route_fields),
+        ("no_major_code", "专业代号" not in school_adapter_d0_d1_item_route_fields),
+        ("no_group_code", "院校专业组代码" not in school_adapter_d0_d1_item_route_fields),
+        (
+            "forbidden_tokens",
+            not any(
+                token in d0_d1_item_route_public_text
+                for token in school_adapter_d0_d1_item_route_forbidden_tokens
+            ),
+        ),
+        ("no_final_reco", "最终推荐" not in d0_d1_item_route_public_text),
+        ("no_fillable", "可填报" not in d0_d1_item_route_public_text),
+    ]
+    checks.append(ok(
+        "第 19 期高校源 Adapter D0/D1 逐项证据路由字段、回链和公开安全正确",
+        all(value for _, value in d0_d1_item_route_field_check_items),
+        ",".join(label for label, value in d0_d1_item_route_field_check_items if not value)
+        + (";" + "；".join(d0_d1_item_route_failures[:3]) if d0_d1_item_route_failures else ""),
     ))
 
     family_major_decision_group_ids = {
