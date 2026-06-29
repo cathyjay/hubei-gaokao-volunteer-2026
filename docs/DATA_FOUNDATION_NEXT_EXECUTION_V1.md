@@ -142,6 +142,14 @@
 
 这张表只用于排下一步最小核验动作，不确认计划数、学费、选科、专业名或专业组边界，不写回主表，也不生成学校/专业建议或志愿推荐。公开层不保存学校名、专业名、字段值、OCR 原文、图片路径、人工记录或登录态。`同校高校源*` 字段是随事实行重复的同校上下文，不能跨行求和。
 
+新增事实动作包执行视图：
+
+- 生成脚本：`scripts/build_issue19_first_closure_fact_action_packets_v1.py`
+- 公开工作台：`data/working/issue19-first-closure-fact-action-packets-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-first-closure-fact-action-packets-v1-summary.json`
+
+这张表把事实证据通道工作台压成 79 个 `页列×事实核验动作组` 包，避免直接在 439 条事实行里安排执行。每个包保留事实数、字段事实数、专业名归属、专业组边界、证据通道分布、缺口计数、集合 SHA 和下一步最小动作；`同校高校源*` 字段按高校源进度看板 ID 去重后只作同校上下文。它仍不确认任何招生字段，不写回主表，也不生成学校专业建议。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

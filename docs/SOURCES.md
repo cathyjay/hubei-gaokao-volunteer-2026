@@ -775,6 +775,7 @@
 - `scripts/build_issue19_priority55_family_major_decision_workbook.py`：生成 `data/exports/issue19-priority55-family-major-decision-workbook.xlsx`、55 行组汇总和 458 行逐专业家庭标注表；用于家庭先标“可接受/勉强接受/不能接受/待了解”和服从调剂态度，不确认招生计划字段。
 - `scripts/build_issue19_school_source_structured_ingestion_candidates.py`：生成 `data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv`、summary 和 Excel；优先列出兰州大学、武汉轻工大学、湖北师范大学、西安建筑科技大学、北京语言大学、天津外国语大学、忻州师范学院、西安航空学院、江汉大学、喀什大学、山东工商学院、杭州电子科技大学 12 所已有公开结构化/半结构化源的下一步接入动作。
 - `scripts/build_issue19_first_closure_fact_evidence_channel_workbench_v1.py`：生成 `data/working/issue19-first-closure-fact-evidence-channel-workbench-v1-public-ledger.csv` 和 summary，将 439 个事实范围按事实级证据通道展开；公开层不保存学校名、专业名、字段值、OCR 原文、图片路径、人工记录或登录态，`同校高校源*` 仅是同校上下文计数，不能跨事实行求和。
+- `scripts/build_issue19_first_closure_fact_action_packets_v1.py`：生成 `data/working/issue19-first-closure-fact-action-packets-v1-public-ledger.csv` 和 summary，将 439 个事实范围压成 79 个 `页列×事实核验动作组` 执行包；公开层只保存状态、计数、集合 SHA 和下一步动作，不保存学校名、专业名、字段值、OCR 原文、图片路径、人工记录或登录态。
 - 上述产物均继承第 19 期 PDF SHA `ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d`，并保持字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用门禁为 `false` 或 0。
 
 ## 使用优先级
