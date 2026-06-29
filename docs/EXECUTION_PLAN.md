@@ -68,6 +68,8 @@
 
 新增 C4/C6 结构化候选 diff：`data/working/issue19-c4-c6-structured-candidate-diff-public-ledger.csv` 已把北京语言大学、西安建筑科技大学新增 API 源接入综合结构化高校源，对 601 条 C4/C6 私有逐专业明细自动匹配。结果显示 232 条专业名匹配、97 条计划数一致候选、113 条 OCR 计划数缺失但官网可补、25 条计划数冲突；其中新增高校源命中 27 条、计划数一致 12 条、计划数冲突 6 条。下一步不是人工全量核 601 条，而是优先核冲突、OCR 缺失、疑似匹配和新增源命中抽检；若湖北官方侧继续不可自动取得，则继续按高校官网源自动 double check 加少量 PDF 原页人工核验闭环。
 
+新增高校源 Adapter/Diff 执行工作台：`data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv` 把 12 个结构化接入候选压成统一执行层，明确每个来源要新建还是复用 adapter、parser 处于哪类状态、normalized bridge 是否需新建、diff 先做冲突/高明细还是补缺/常规。下一步优先处理 API/JSON 和 next20 JSON，再处理 XLSX 与 PDF 抽取 CSV；所有输出仍只作 double check，不能写回字段事实。
+
 新增 C4/C6 高校官网补源尝试账本：`data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv` 把 D4/D5/D6 剩余补源缺口中的 12 所学校单独列成学校级自动探针和人工最小核验动作，覆盖 312 条相关私有明细。当前 4 所学校有入口但尚未结构化，1 所需要补 parser 或匹配规则，7 所仍需继续找学校官方计划源；它用于自动推进高校官网 double check 和缩小人工核验范围，仍不能替代第 19 期原页、湖北官方系统或省招办计划。
 
 新增官方公开入口活体复查：`data/working/issue19-official-public-entry-live-recheck.json` 让“湖北官方是否可得”从一次性判断变成可复跑证据。当前招生计划页、索引页和数智平台首页 SHA 均与留存副本一致，招生计划页仍含“持续更新中/敬请期待”，5 个无登录接口探针仍返回 401；所以当前仍不能自动取得可逐字段定稿的湖北官方结构化计划。

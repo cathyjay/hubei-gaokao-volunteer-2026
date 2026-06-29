@@ -150,6 +150,14 @@
 
 这张表把事实证据通道工作台压成 79 个 `页列×事实核验动作组` 包，避免直接在 439 条事实行里安排执行。每个包保留事实数、字段事实数、专业名归属、专业组边界、证据通道分布、缺口计数、集合 SHA 和下一步最小动作；`同校高校源*` 字段按高校源进度看板 ID 去重后只作同校上下文。它仍不确认任何招生字段，不写回主表，也不生成学校专业建议。
 
+新增高校源 Adapter/Diff 执行视图：
+
+- 生成脚本：`scripts/build_issue19_school_source_adapter_diff_execution_workbench_v1.py`
+- 公开工作台：`data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-school-source-adapter-diff-execution-workbench-v1-summary.json`
+
+这张表把 12 个高校官网结构化接入候选推进到 adapter、parser、normalized bridge 和候选 diff 的执行层。当前 4 行需要新建 adapter 或 bridge，8 行已有结构化线索需统一 normalized 输出；8 行属于优先生成冲突或高明细 diff，3 行生成补缺或常规 diff，1 行先做来源边界防串校验。它只服务高校源 double check 和人工核验压缩，不替代 PDF 原页、湖北官方计划或家庭决策。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

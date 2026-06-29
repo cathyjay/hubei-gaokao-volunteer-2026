@@ -726,6 +726,7 @@
 - `scripts/build_issue19_school_source_latest_reconciliation.py`：读取高校官网辅证自动执行批次、next20 探测、live 补源、C4/C6 复用审计、结构化候选 diff 和补源尝试账本，生成 80 行高校官网最新证据对齐账本；用于识别哪些高校侧任务已经推进、哪些仍需补源或解析，不确认字段事实。
 - `scripts/build_issue19_school_source_gap_priority_ledger.py`：读取高校官网最新证据对齐账本、状态快照、自动执行批次、C4/C6 结构化候选 diff 和补源尝试账本，生成 80 行高校源缺口优先级清单；用于固定下一步人工回页、自动补结构化、继续补源和章程规则核验顺序，不确认字段事实。
 - `scripts/build_issue19_school_source_e0_manual_page_review_queue.py`：读取高校源缺口优先级清单和第一闭环下一步动作矩阵，生成 37 行 E0 人工回页桥接队列；用于固定人工先核任务和同校页列提示，不确认字段事实。
+- `scripts/build_issue19_school_source_adapter_diff_execution_workbench_v1.py`：读取高校官网结构化接入候选、进度看板、最新对齐账本和自动执行批次，生成 12 行 Adapter/Diff 执行工作台；用于安排 adapter、parser、normalized bridge 和候选 diff，不公开学校名、专业名、字段明细或证据路径。
 - `scripts/build_issue19_first_closure_verification_result_board.py`：读取第一闭环下一步动作矩阵、页列下一步汇总、证据状态账本、字段事实核验任务和 E0 人工回页队列，生成 206 行任务级核验结果看板和 37 行页列汇总；用于统一展示 PDF/OCR/机器坐标/高校官网/湖北官方/冲突状态，不确认字段事实。
 - `scripts/build_issue19_first_closure_field_verification_status.py`：读取第一闭环下一步动作矩阵、字段事实核验任务和 E0 人工回页队列，把 206 条组合任务拆成 354 个字段级公开状态；只保存状态、ID、计数和动作，不保存字段读数或候选文本。
 - `scripts/build_issue19_school_source_progress_board.py`：读取高校官网辅证自动执行批次、高校源最新对齐账本和 C4/C6 执行包，生成 80 行高校官网辅证进度看板；用于按 L3/L1/L0、来源形态、留存状态和下一批动作继续推进 double check。

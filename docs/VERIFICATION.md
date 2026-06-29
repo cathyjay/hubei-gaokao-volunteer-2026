@@ -620,6 +620,15 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 每行列出的本地公开证据文件必须存在，且所有行必须保持 `是否允许官网证据替代湖北官方计划=false`、`是否允许自动写回主表=false`、字段事实写回 blocked。
 - 该账本只定义 parser、adapter 和 candidate diff 的下一步工作，不产生字段事实、不替代湖北官方计划。
 
+高校源 Adapter/Diff 执行工作台的校验方式：
+
+- `data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv` 必须由 `scripts/build_issue19_school_source_adapter_diff_execution_workbench_v1.py` 生成。
+- 工作台必须保持 12 行、12 个唯一院校代码，并与结构化接入候选账本的候选 ID 集合完全一致；来源类型分布必须保持 API/JSON 6、API/JSON+章程HTML 1、PDF 抽取 CSV 3、XLSX 2。
+- 工作台必须回链高校源进度看板、最新对齐账本和自动执行批次：关联进度任务、最新对齐任务、自动批次都必须合计 28；候选涉及招生明细数和进度看板涉及招生明细数都必须为 344。
+- Adapter 阶段必须保持新建 adapter/bridge 4、复用 JSON 5、复用 PDF_CSV 2、复用 XLSX 1；diff 桶必须保持 D0 8、D1 3、D2 1。
+- 所有行必须仍待 PDF 原页和湖北官方侧核验；字段写回、推荐依据、官网替代湖北官方计划、学校专业建议、进入下一阶段和最终可用门禁必须为 false 或 0。
+- 公开文件不得出现学校名、专业名、字段明细、OCR 正文、人工读数、候选值、私有路径、证据文件路径、登录态、身份信息或最终推荐/可填报等误导词。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。

@@ -131,6 +131,8 @@
 
 新增的 `data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv` 是高校官网结构化接入候选账本。它从 36 所学校、80 个高校侧辅证任务中先挑出 12 所已有公开结构化或半结构化源的学校，安排下一步 JSON/PDF/XLSX/HTML adapter 和 candidate diff 工作；它让“继续自动找高校官网数据”从盲搜转为按证据源类型推进。
 
+新增的 `data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv` 是高校源 Adapter/Diff 执行工作台。它把 12 所结构化接入候选拆成 adapter、parser、normalized bridge 和候选 diff 执行动作，并按院校代码回链 28 条高校源进度任务、28 条最新对齐任务和 28 条自动执行批次。来源类型为 API/JSON 6、API/JSON+章程HTML 1、PDF 抽取 CSV 3、XLSX 2；当前候选 diff 线索 446、计划数冲突线索 35、官网补缺线索 221，但所有行仍待 PDF 原页和湖北官方侧核验，不确认字段事实。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。

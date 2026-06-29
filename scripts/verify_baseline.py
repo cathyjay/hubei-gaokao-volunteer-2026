@@ -31154,6 +31154,13 @@ def main():
     school_ingestion_summary_path = ROOT / "data/working/issue19-school-source-structured-ingestion-candidates-summary.json"
     school_ingestion_csv = ROOT / "data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv"
     school_ingestion_workbook = ROOT / "data/exports/issue19-school-source-structured-ingestion-candidates.xlsx"
+    school_adapter_diff_script = ROOT / "scripts/build_issue19_school_source_adapter_diff_execution_workbench_v1.py"
+    school_adapter_diff_summary_path = (
+        ROOT / "data/working/issue19-school-source-adapter-diff-execution-workbench-v1-summary.json"
+    )
+    school_adapter_diff_csv = (
+        ROOT / "data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv"
+    )
     family_major_decision_script = ROOT / "scripts/build_issue19_priority55_family_major_decision_workbook.py"
     family_major_decision_summary_path = ROOT / "data/exports/issue19-priority55-family-major-decision-workbook-summary.json"
     family_major_decision_group_csv = ROOT / "data/exports/issue19-priority55-family-major-decision-group-summary.csv"
@@ -31210,6 +31217,7 @@ def main():
     round4_family_summary = json.loads(round4_family_summary_path.read_text())
     first_manual_summary = json.loads(first_manual_summary_path.read_text())
     school_ingestion_summary = json.loads(school_ingestion_summary_path.read_text())
+    school_adapter_diff_summary = json.loads(school_adapter_diff_summary_path.read_text())
     family_major_decision_summary = json.loads(family_major_decision_summary_path.read_text())
     first_fact_progress_summary = json.loads(first_fact_progress_summary_path.read_text())
     first_fact_gate_summary = json.loads(first_fact_gate_summary_path.read_text())
@@ -31259,6 +31267,10 @@ def main():
         school_ingestion_reader = csv.DictReader(f)
         school_ingestion_rows = list(school_ingestion_reader)
         school_ingestion_fields = school_ingestion_reader.fieldnames or []
+    with school_adapter_diff_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_adapter_diff_reader = csv.DictReader(f)
+        school_adapter_diff_rows = list(school_adapter_diff_reader)
+        school_adapter_diff_fields = school_adapter_diff_reader.fieldnames or []
     with family_major_decision_group_csv.open(newline="", encoding="utf-8-sig") as f:
         family_major_decision_group_reader = csv.DictReader(f)
         family_major_decision_group_rows = list(family_major_decision_group_reader)
@@ -31355,6 +31367,10 @@ def main():
     school_ingestion_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
         for path in [school_ingestion_summary_path, school_ingestion_csv]
+    )
+    school_adapter_diff_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_adapter_diff_summary_path, school_adapter_diff_csv]
     )
     family_major_decision_public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -31696,6 +31712,263 @@ def main():
         and not any(token in school_ingestion_public_text for token in shared_forbidden_tokens)
         and "候选值" not in school_ingestion_public_text
         and "字段确认值" not in school_ingestion_public_text,
+    ))
+
+    school_adapter_diff_false_fields = script_runtime_constant(school_adapter_diff_script, "FALSE_FIELDS")
+    school_adapter_diff_forbidden_tokens = set(shared_forbidden_tokens)
+    school_adapter_diff_forbidden_tokens.update(
+        script_runtime_constant(school_adapter_diff_script, "FORBIDDEN_PUBLIC_TOKENS")
+    )
+    school_adapter_diff_forbidden_tokens.update([
+        "院校名称公开",
+        "本地公开证据文件集合",
+        "data/external/",
+        "字段值",
+        "候选值",
+        "字段确认值",
+        "人工读数",
+        "OCR正文",
+        "最终推荐",
+        "最终方案",
+        "可填报",
+        "可排序",
+    ])
+
+    def school_adapter_diff_stable_id(prefix, parts):
+        normalized = "|".join(str(part).strip() for part in parts)
+        return f"{prefix}-{hashlib.sha1(normalized.encode('utf-8')).hexdigest()[:16]}"
+
+    def school_adapter_diff_sha16(values):
+        normalized = sorted({str(value).strip() for value in values if str(value).strip()})
+        if not normalized:
+            return ""
+        return hashlib.sha256("\n".join(normalized).encode("utf-8")).hexdigest()[:16]
+
+    school_ingestion_by_id = {
+        row.get("高校源结构化接入候选ID", ""): row for row in school_ingestion_rows
+    }
+    school_progress_for_adapter_by_code = defaultdict(list)
+    for row in school_progress_rows:
+        school_progress_for_adapter_by_code[row.get("院校代码", "")].append(row)
+    school_latest_for_adapter_by_code = defaultdict(list)
+    for row in school_source_reconcile_rows:
+        school_latest_for_adapter_by_code[row.get("院校代码", "")].append(row)
+    school_auto_for_adapter_by_code = defaultdict(list)
+    for row in school_source_exec_rows:
+        school_auto_for_adapter_by_code[row.get("院校代码", "")].append(row)
+
+    school_adapter_diff_join_ok = True
+    for row in school_adapter_diff_rows:
+        source = school_ingestion_by_id.get(row.get("高校源结构化接入候选ID", ""), {})
+        code = row.get("院校代码", "")
+        progress = school_progress_for_adapter_by_code.get(code, [])
+        latest = school_latest_for_adapter_by_code.get(code, [])
+        auto = school_auto_for_adapter_by_code.get(code, [])
+        school_adapter_diff_join_ok = (
+            school_adapter_diff_join_ok
+            and bool(source)
+            and row.get("高校源AdapterDiff执行ID")
+            == school_adapter_diff_stable_id(
+                "SSAD",
+                [
+                    issue19_source["source"]["sha256"],
+                    code,
+                    row.get("高校源结构化接入候选ID", ""),
+                ],
+            )
+            and row.get("来源高校源结构化接入候选账本")
+            == "data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv"
+            and row.get("来源高校源进度看板")
+            == "data/working/issue19-school-source-progress-board-public-ledger.csv"
+            and row.get("来源高校源最新对齐账本")
+            == "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv"
+            and row.get("来源高校官网辅证自动执行批次")
+            == "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_school_source_adapter_diff_execution_workbench_v1"
+            and row.get("主表粒度") == "高校官网结构化源AdapterDiff执行候选"
+            and row.get("任务粒度") == "院校代码×结构化源类型×AdapterDiff动作"
+            and all(row.get(field) == "false" for field in school_adapter_diff_false_fields)
+            and row.get("学校键SHA16") == source.get("学校键SHA16")
+            and row.get("接入批次") == source.get("接入批次")
+            and row.get("来源文件类型") == source.get("来源文件类型")
+            and row.get("来源族") == source.get("来源族")
+            and row.get("公开证据集合SHA16") == source.get("本地公开证据文件集合SHA16")
+            and csv_int(row, "公开URL线索数量") == csv_int(source, "公开URL线索数量")
+            and row.get("结构化适配器状态") == source.get("结构化适配器状态")
+            and row.get("匹配规则状态") == source.get("匹配规则状态")
+            and row.get("Diff优先级") == source.get("候选diff优先级")
+            and csv_int(row, "关联进度看板任务数") == len(progress)
+            and csv_int(row, "关联最新对齐任务数") == len(latest)
+            and csv_int(row, "关联自动批次数") == len(auto)
+            and row.get("关联进度看板ID集合SHA16")
+            == school_adapter_diff_sha16(progress_row.get("高校源进度看板ID", "") for progress_row in progress)
+            and row.get("关联最新对齐ID集合SHA16")
+            == school_adapter_diff_sha16(latest_row.get("高校源最新对齐ID", "") for latest_row in latest)
+            and row.get("关联自动批次ID集合SHA16")
+            == school_adapter_diff_sha16(auto_row.get("高校官网辅证自动执行批次ID", "") for auto_row in auto)
+            and csv_int(row, "候选涉及招生明细数") == csv_int(source, "涉及招生明细数合计")
+            and csv_int(row, "候选涉及专业组数最大值") == csv_int(source, "涉及专业组数最大值")
+            and csv_int(row, "进度看板涉及招生明细数合计")
+            == sum(csv_int(progress_row, "涉及招生明细数") for progress_row in progress)
+            and csv_int(row, "进度看板涉及专业组数合计")
+            == sum(csv_int(progress_row, "涉及专业组数") for progress_row in progress)
+            and csv_int(row, "Next20结构化湖北物理行数合计")
+            == sum(csv_int(progress_row, "next20结构化湖北物理行数合计") for progress_row in progress)
+            and csv_int(row, "C4C6综合结构化官网证据行数")
+            == sum(csv_int(progress_row, "C4C6综合结构化官网证据行数") for progress_row in progress)
+            and csv_int(row, "C4C6可生成候选diff明细数")
+            == sum(csv_int(progress_row, "C4C6可生成候选diff明细数") for progress_row in progress)
+            and csv_int(row, "候选diff线索数") == csv_int(row, "C4C6可生成候选diff明细数")
+            and csv_int(row, "计划数冲突线索数")
+            == sum(
+                csv_int(progress_row, "C4C6计划数冲突候选数") + csv_int(progress_row, "计划数冲突行数")
+                for progress_row in progress
+            )
+            and csv_int(row, "官网补缺线索数")
+            == sum(
+                csv_int(progress_row, "C4C6官网可补OCR计划数候选数") + csv_int(progress_row, "官网补缺候选行数")
+                for progress_row in progress
+            )
+            and csv_int(row, "官网未匹配线索数")
+            == sum(csv_int(progress_row, "官网未匹配行数") for progress_row in progress)
+            and csv_int(row, "需补结构化明细数")
+            == sum(csv_int(progress_row, "需补结构化明细数") for progress_row in progress)
+            and csv_int(row, "需继续补源明细数")
+            == sum(csv_int(progress_row, "需继续补源明细数") for progress_row in progress)
+            and row.get("章程规则是否另表承接") == ("true" if "章程" in row.get("来源文件类型", "") else "false")
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and row.get("下一步自动动作")
+            and row.get("最小人工核验动作")
+            and row.get("完成条件")
+        )
+
+    checks.append(ok(
+        "第 19 期高校源 Adapter/Diff 执行工作台摘要、规模和分布正确",
+        school_adapter_diff_summary.get("status")
+        == "issue19_school_source_adapter_diff_execution_workbench_v1_not_final"
+        and school_adapter_diff_summary.get("generated_by")
+        == "build_issue19_school_source_adapter_diff_execution_workbench_v1.py"
+        and school_adapter_diff_summary.get("source_pdf_sha256") == issue19_source["source"]["sha256"]
+        and school_adapter_diff_summary.get("source_structured_ingestion")
+        == "data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv"
+        and school_adapter_diff_summary.get("source_progress_board")
+        == "data/working/issue19-school-source-progress-board-public-ledger.csv"
+        and school_adapter_diff_summary.get("source_latest_reconciliation")
+        == "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv"
+        and school_adapter_diff_summary.get("source_auto_batches")
+        == "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv"
+        and school_adapter_diff_summary.get("output_table")
+        == "data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv"
+        and school_adapter_diff_summary.get("row_count") == len(school_adapter_diff_rows) == 12
+        and school_adapter_diff_summary.get("unique_school_count") == 12
+        and school_adapter_diff_summary.get("source_ingestion_row_count") == len(school_ingestion_rows) == 12
+        and school_adapter_diff_summary.get("source_progress_row_count") == len(school_progress_rows) == 80
+        and school_adapter_diff_summary.get("source_latest_row_count") == len(school_source_reconcile_rows) == 80
+        and school_adapter_diff_summary.get("source_auto_row_count") == len(school_source_exec_rows) == 80
+        and Counter(school_adapter_diff_summary.get("source_type_counts", {})) == Counter({
+            "API/JSON": 6,
+            "API/JSON；章程HTML": 1,
+            "PDF抽取CSV": 3,
+            "XLSX": 2,
+        })
+        and Counter(school_adapter_diff_summary.get("adapter_stage_counts", {})) == Counter({
+            "A0-新建adapter或bridge": 4,
+            "A1-复用JSON并补schema或匹配规则": 5,
+            "A2-复用PDF_CSV并补Parser规则": 2,
+            "A3-复用XLSX并补列规则": 1,
+        })
+        and Counter(school_adapter_diff_summary.get("parser_bucket_counts", {})) == Counter({
+            "P0-JSON结构可解析待schema统一": 6,
+            "P1-JSON计划源与章程规则分流": 1,
+            "P2-PDF抽取CSV待网格抽检": 3,
+            "P3-XLSX待省份科类批次列校验": 2,
+        })
+        and Counter(school_adapter_diff_summary.get("normalized_state_counts", {})) == Counter({
+            "N0-需新建normalized桥接": 4,
+            "N1-已有结构化线索需统一normalized输出": 8,
+        })
+        and Counter(school_adapter_diff_summary.get("diff_bucket_counts", {})) == Counter({
+            "D0-优先生成冲突或高明细diff": 8,
+            "D1-生成补缺或常规diff": 3,
+            "D2-先做来源边界防串校验再diff": 1,
+        })
+        and Counter(school_adapter_diff_summary.get("batch_counts", {})) == Counter({
+            "B0B1_API_JSON": 3,
+            "NEXT20_API_JSON": 2,
+            "C4C6_API_JSON": 2,
+            "B0B1_PDF_CSV": 2,
+            "LIVE_PDF_CSV": 1,
+            "B0B1_XLSX": 2,
+        })
+        and school_adapter_diff_summary.get("rule_sidecar_count") == 1
+        and school_adapter_diff_summary.get("attached_progress_task_count") == 28
+        and school_adapter_diff_summary.get("attached_latest_task_count") == 28
+        and school_adapter_diff_summary.get("attached_auto_batch_count") == 28
+        and school_adapter_diff_summary.get("candidate_major_detail_count") == 344
+        and school_adapter_diff_summary.get("progress_major_detail_count") == 344
+        and school_adapter_diff_summary.get("candidate_diff_hint_count") == 446
+        and school_adapter_diff_summary.get("conflict_hint_count") == 35
+        and school_adapter_diff_summary.get("fill_hint_count") == 221
+        and school_adapter_diff_summary.get("unmatched_hint_count") == 17
+        and school_adapter_diff_summary.get("need_structure_count") == 568
+        and school_adapter_diff_summary.get("need_source_count") == 87
+        and school_adapter_diff_summary.get("pdf_pending_count") == 12
+        and school_adapter_diff_summary.get("hubei_official_pending_count") == 12
+        and school_adapter_diff_summary.get("field_writeback_allowed_count") == 0
+        and school_adapter_diff_summary.get("recommendation_basis_allowed_count") == 0
+        and school_adapter_diff_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_adapter_diff_summary.get("school_major_suggestion_allowed_count") == 0
+        and school_adapter_diff_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期高校源 Adapter/Diff 执行工作台字段、回链和公开安全正确",
+        school_adapter_diff_fields == script_runtime_constant(school_adapter_diff_script, "FIELDS")
+        and [as_int(row.get("执行序号")) for row in school_adapter_diff_rows] == list(range(1, 13))
+        and {row.get("院校代码", "") for row in school_adapter_diff_rows} == expected_school_ingestion_codes
+        and len({row.get("高校源AdapterDiff执行ID", "") for row in school_adapter_diff_rows}) == 12
+        and len({
+            (
+                row.get("来源PDF_SHA256", ""),
+                row.get("院校代码", ""),
+                row.get("接入批次", ""),
+                row.get("来源文件类型", ""),
+            )
+            for row in school_adapter_diff_rows
+        }) == 12
+        and set(school_ingestion_by_id) == {
+            row.get("高校源结构化接入候选ID", "") for row in school_adapter_diff_rows
+        }
+        and {row.get("PDF原页核页状态", "") for row in school_adapter_diff_rows} == {"pending_pdf_page_review"}
+        and {row.get("湖北官方系统或省招办计划核验状态", "") for row in school_adapter_diff_rows} == {
+            "pending_hubei_official_plan_review"
+        }
+        and {row.get("高校官网源状态", "") for row in school_adapter_diff_rows} == {
+            "for_double_check_only_not_official_plan_replacement"
+        }
+        and {row.get("字段事实写回状态", "") for row in school_adapter_diff_rows} == {
+            "blocked_until_pdf_hubei_school_three_way_closure"
+        }
+        and all(
+            {row.get(field, "") for row in school_adapter_diff_rows} == {"false"}
+            for field in school_adapter_diff_false_fields
+        )
+        and school_adapter_diff_join_ok
+        and sum(csv_int(row, "关联进度看板任务数") for row in school_adapter_diff_rows) == 28
+        and sum(csv_int(row, "候选涉及招生明细数") for row in school_adapter_diff_rows) == 344
+        and sum(csv_int(row, "候选diff线索数") for row in school_adapter_diff_rows) == 446
+        and sum(csv_int(row, "计划数冲突线索数") for row in school_adapter_diff_rows) == 35
+        and sum(csv_int(row, "官网补缺线索数") for row in school_adapter_diff_rows) == 221
+        and "院校名称公开" not in school_adapter_diff_fields
+        and "本地公开证据文件集合" not in school_adapter_diff_fields
+        and not any(token in school_adapter_diff_public_text for token in school_adapter_diff_forbidden_tokens)
+        and "最终推荐" not in school_adapter_diff_public_text
+        and "可填报" not in school_adapter_diff_public_text,
     ))
 
     family_major_decision_group_ids = {

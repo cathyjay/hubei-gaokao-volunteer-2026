@@ -1,0 +1,73 @@
+{
+  "status": "issue19_school_source_adapter_diff_execution_workbench_v1_not_final",
+  "generated_by": "build_issue19_school_source_adapter_diff_execution_workbench_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_structured_ingestion": "data/working/issue19-school-source-structured-ingestion-candidates-public-ledger.csv",
+  "source_progress_board": "data/working/issue19-school-source-progress-board-public-ledger.csv",
+  "source_latest_reconciliation": "data/working/issue19-school-source-latest-reconciliation-public-ledger.csv",
+  "source_auto_batches": "data/working/issue19-school-source-auto-execution-batches-public-ledger.csv",
+  "output_table": "data/working/issue19-school-source-adapter-diff-execution-workbench-v1-public-ledger.csv",
+  "row_count": 12,
+  "unique_school_count": 12,
+  "source_ingestion_row_count": 12,
+  "source_progress_row_count": 80,
+  "source_latest_row_count": 80,
+  "source_auto_row_count": 80,
+  "source_type_counts": {
+    "API/JSON": 6,
+    "API/JSON；章程HTML": 1,
+    "PDF抽取CSV": 3,
+    "XLSX": 2
+  },
+  "adapter_stage_counts": {
+    "A0-新建adapter或bridge": 4,
+    "A1-复用JSON并补schema或匹配规则": 5,
+    "A2-复用PDF_CSV并补Parser规则": 2,
+    "A3-复用XLSX并补列规则": 1
+  },
+  "parser_bucket_counts": {
+    "P0-JSON结构可解析待schema统一": 6,
+    "P1-JSON计划源与章程规则分流": 1,
+    "P2-PDF抽取CSV待网格抽检": 3,
+    "P3-XLSX待省份科类批次列校验": 2
+  },
+  "normalized_state_counts": {
+    "N0-需新建normalized桥接": 4,
+    "N1-已有结构化线索需统一normalized输出": 8
+  },
+  "diff_bucket_counts": {
+    "D0-优先生成冲突或高明细diff": 8,
+    "D1-生成补缺或常规diff": 3,
+    "D2-先做来源边界防串校验再diff": 1
+  },
+  "batch_counts": {
+    "B0B1_API_JSON": 3,
+    "B0B1_PDF_CSV": 2,
+    "B0B1_XLSX": 2,
+    "C4C6_API_JSON": 2,
+    "LIVE_PDF_CSV": 1,
+    "NEXT20_API_JSON": 2
+  },
+  "rule_sidecar_count": 1,
+  "attached_progress_task_count": 28,
+  "attached_latest_task_count": 28,
+  "attached_auto_batch_count": 28,
+  "candidate_major_detail_count": 344,
+  "progress_major_detail_count": 344,
+  "candidate_diff_hint_count": 446,
+  "conflict_hint_count": 35,
+  "fill_hint_count": 221,
+  "unmatched_hint_count": 17,
+  "need_structure_count": 568,
+  "need_source_count": 87,
+  "pdf_pending_count": 12,
+  "hubei_official_pending_count": 12,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "final_available_count": 0,
+  "public_boundary": "本表只安排高校公开源adapter、parser、normalized bridge和候选diff执行，不保存学校名、专业名、字段明细或证据路径，不替代第19期PDF原页和湖北官方计划。"
+}
