@@ -646,6 +646,13 @@ Priority55 家庭逐专业决策工作簿的校验方式：
 - 公开层必须只保留院校代码级计数、学校键 SHA、私有 CSV SHA 和非最终门禁，不得出现学校名、专业名、OCR 字段、高校源字段、来源文件路径、冲突正文、人工记录或最终误导结论。
 - 所有行必须仍待 PDF 原页和湖北官方侧核验；写回、推荐、官网替代、学校专业建议、下一阶段和最终门禁必须为 false 或 0。
 
+高校源 Adapter D0/D1 人工核验包的校验方式：
+
+- `data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-public-ledger.csv` 必须由 `scripts/build_issue19_school_source_adapter_d0_d1_manual_review_packets_v1.py` 生成，输入来自 Adapter 候选 diff 公开账本和私有 diff 明细。
+- 公开账本必须保持 12 行、12 个唯一院校代码；私有核验项必须保持 146 行，私有 index 必须保持 12 行，且私有 CSV SHA 与公开表和 summary 一致。
+- 私有核验项优先级必须保持：R0 计划数冲突 27、R1 OCR 计划数缺失但高校源可补 102、R2 疑似匹配 2、R3 计划数一致候选抽检 15。
+- 公开层不得出现学校名、专业名、OCR 字段、高校源字段、来源文件路径、人工备注或最终误导结论；所有行仍待 PDF 原页和湖北官方侧核验，写回、推荐、官网替代、学校专业建议、下一阶段和最终门禁必须为 false 或 0。
+
 下一轮闭环与家庭讨论 V1 的校验方式：
 
 - `data/exports/issue19-next-closure-family-review-v1.xlsx` 必须由 `scripts/build_issue19_next_closure_family_review_v1.py` 生成。

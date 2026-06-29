@@ -1,0 +1,36 @@
+{
+  "status": "issue19_school_source_adapter_d0_d1_manual_review_packets_v1_not_final",
+  "generated_by": "build_issue19_school_source_adapter_d0_d1_manual_review_packets_v1.py",
+  "source_issue": "湖北招生考试2026年19期·本科普通批（下）",
+  "source_pdf_sha256": "ee61fc69389f24a9a7830167113cf0ddc0447f8fa4b2743cd3241be60a9bd86d",
+  "generated_at": "2026-06-29",
+  "source_candidate_diff_public": "data/working/issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv",
+  "source_candidate_diff_summary": "data/working/issue19-school-source-adapter-candidate-diff-v1-summary.json",
+  "output_public_table": "data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-public-ledger.csv",
+  "row_count": 12,
+  "unique_school_count": 12,
+  "private_review_item_count": 146,
+  "private_index_row_count": 12,
+  "candidate_priority_counts": {
+    "D0-存在计划数冲突需优先核PDF原页": 8,
+    "D1-高校源可补OCR计划数缺口需核页": 4
+  },
+  "review_priority_counts": {
+    "R0-计划数冲突优先核PDF原页": 27,
+    "R1-OCR计划数缺失但高校源可补": 102,
+    "R2-疑似匹配专业名人工确认": 2,
+    "R3-计划数一致候选抽检": 15
+  },
+  "plan_conflict_review_item_count": 27,
+  "ocr_plan_missing_review_item_count": 102,
+  "possible_match_review_item_count": 2,
+  "plan_match_sample_review_item_count": 15,
+  "field_writeback_allowed_count": 0,
+  "recommendation_basis_allowed_count": 0,
+  "official_plan_replacement_allowed_count": 0,
+  "school_major_suggestion_allowed_count": 0,
+  "final_available_count": 0,
+  "private_review_items_csv_sha256": "ef5fd869fee056b91fcaa5254dd465bc4db8bae92e3cba68b5392f20ec963eca",
+  "private_index_csv_sha256": "83ee5a275e7858968a45180b04ddb1804b3b4d6faacde90d8bdd1241506e6939",
+  "public_boundary": "公开表只保存包级计数、私有CSV SHA和非最终门禁；逐专业核验项留在Git忽略私有目录。"
+}

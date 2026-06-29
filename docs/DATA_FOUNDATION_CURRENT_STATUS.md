@@ -137,6 +137,8 @@
 
 新增的 `data/working/issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv` 是高校源 Adapter 候选 diff 公开账本。它把 326 行私有 normalized 高校源同第 19 期同校 344 条逐专业招生明细做自动匹配，只公开 12 行包级计数：专业名匹配 280、疑似匹配 4、未匹配 60；计划数一致候选 155、OCR 计划数可补 102、计划数冲突 27。逐专业 OCR、高校源字段、最佳匹配和冲突正文全部留在 Git 忽略私有 CSV；公开层仍不确认字段事实。
 
+新增的 `data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-public-ledger.csv` 是上述候选 diff 的最小人工核验入口。它不要求人工核 344 条全量明细，而是把私有工作台压到 146 条：R0 计划数冲突 27、R1 OCR 计划数缺失但高校源可补 102、R2 疑似匹配 2、R3 计划数一致候选抽检 15。所有项仍只安排回看 PDF 原页和湖北官方侧，不确认字段事实。
+
 旧的 `issue19-closure-and-shortlist-v1.xlsx` 仍是来源汇总入口，把以下内容放到一起：
 
 - 第一闭环 37 个页列。

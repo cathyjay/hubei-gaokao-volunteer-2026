@@ -53,6 +53,8 @@
 
 新增的 `data/working/issue19-school-source-adapter-candidate-diff-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-candidate-diff-v1-summary.json` 是高校源 Adapter 候选 diff 层：它把 326 条私有 normalized 高校源和 344 条同校招生明细做自动匹配，公开层只保留计数、SHA 和非最终门禁。它的价值是压缩人工核验范围，尤其是计划数冲突、OCR 缺失但高校源可补、疑似匹配和一致候选抽检；它不能替代第 19 期 PDF 原页、湖北官方侧或家庭调剂判断。
 
+新增的 `data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-public-ledger.csv` 和 `data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-summary.json` 是高校源 Adapter 的最小人工核验入口：它把 344 条私有 diff 明细压缩成 146 条需要优先人工看的私有核验项，公开层只保留包级计数和 SHA。这个入口用于“少量人工换较高保真”，不是最终志愿建议。
+
 新增的 `data/working/issue19-school-source-auto-execution-batches-public-ledger.csv` 是该状态快照的执行层：它不新增字段事实，只把 80 条任务拆成冲突回页、官网补缺回页、专业名归属、补结构化、继续补源、章程规则和留存观察 7 条泳道。当前它用于继续落实基础数据基座，把“我可以自动推进什么”和“哪些必须人工/官方闭环”分清楚。
 
 新增的 `data/working/issue19-stable-foundation-first-closure-detail-packet.csv` 和 `data/working/issue19-stable-foundation-first-closure-page-side-packet.csv` 是第一批执行入口：把最高优先级的 206 条明细任务集中到 37 个页列，先核冲突、补缺、官网未匹配和高校辅证字段线索。它只压缩人工工作量和安排核验顺序，不改变“湖北官方计划和 PDF 原页闭环前不得定案”的原则。

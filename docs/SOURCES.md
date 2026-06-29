@@ -729,6 +729,7 @@
 - `scripts/build_issue19_school_source_adapter_diff_execution_workbench_v1.py`：读取高校官网结构化接入候选、进度看板、最新对齐账本和自动执行批次，生成 12 行 Adapter/Diff 执行工作台；用于安排 adapter、parser、normalized bridge 和候选 diff，不公开学校名、专业名、字段明细或证据路径。
 - `scripts/build_issue19_school_source_adapter_parse_audit_v1.py`：读取高校源 Adapter/Diff 执行工作台、结构化接入候选账本和既有 parser，对 12 个高校侧来源实际跑 JSON/PDF_CSV/XLSX 解析审计；公开层只保存解析计数、字段覆盖、证据 SHA、非计划规则侧证计数和非最终门禁，不公开学校名、专业名、字段明细或证据路径。
 - `scripts/build_issue19_school_source_adapter_candidate_diff_v1.py`：读取 Adapter 解析审计账本、结构化接入候选、单一逐专业招生明细总工作台和既有匹配函数，生成 12 行公开候选 diff 账本，并在 Git 忽略私有目录写出 326 行 normalized 高校源和 344 行逐专业 diff 明细；公开层只保存计数、SHA 和非最终门禁。
+- `scripts/build_issue19_school_source_adapter_d0_d1_manual_review_packets_v1.py`：读取 Adapter 候选 diff 公开账本和私有 diff 明细，生成 12 行 D0/D1 人工核验包，并在 Git 忽略私有目录写出 146 条优先核验项；公开层只保存包级计数、私有 CSV SHA 和非最终门禁。
 - `scripts/build_issue19_first_closure_verification_result_board.py`：读取第一闭环下一步动作矩阵、页列下一步汇总、证据状态账本、字段事实核验任务和 E0 人工回页队列，生成 206 行任务级核验结果看板和 37 行页列汇总；用于统一展示 PDF/OCR/机器坐标/高校官网/湖北官方/冲突状态，不确认字段事实。
 - `scripts/build_issue19_first_closure_field_verification_status.py`：读取第一闭环下一步动作矩阵、字段事实核验任务和 E0 人工回页队列，把 206 条组合任务拆成 354 个字段级公开状态；只保存状态、ID、计数和动作，不保存字段读数或候选文本。
 - `scripts/build_issue19_school_source_progress_board.py`：读取高校官网辅证自动执行批次、高校源最新对齐账本和 C4/C6 执行包，生成 80 行高校官网辅证进度看板；用于按 L3/L1/L0、来源形态、留存状态和下一批动作继续推进 double check。

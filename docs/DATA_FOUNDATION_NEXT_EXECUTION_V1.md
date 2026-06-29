@@ -174,6 +174,14 @@
 
 这张表把上述 12 个 parser 输出进一步接到第 19 期逐专业招生明细：私有 normalized 行 326、私有 diff 明细 344，公开层只保留 12 行院校代码级计数和私有 CSV SHA。当前专业名匹配 280、疑似匹配 4、计划数一致候选 155、OCR 计划数可补 102、计划数冲突 27；D0 冲突优先 8 包、D1 可补缺口 4 包。下一步人工只优先核冲突、OCR 缺失但高校源可补、疑似匹配和一致候选抽检，不需要逐行打开 344 条。
 
+新增高校源 Adapter D0/D1 人工核验包：
+
+- 生成脚本：`scripts/build_issue19_school_source_adapter_d0_d1_manual_review_packets_v1.py`
+- 公开工作台：`data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-public-ledger.csv`
+- 公开摘要：`data/working/issue19-school-source-adapter-d0-d1-manual-review-packets-v1-summary.json`
+
+这张表把 344 条私有 diff 明细继续压缩到 146 条私有人工核验项：计划数冲突 27、OCR 计划数可补 102、疑似匹配 2、计划数一致抽检 15。它是下一步人工核 PDF 原页和湖北官方侧的入口，不是字段写回表。
+
 ## 高校官网 next20
 
 下一批官网辅证任务按高风险和高收益混排：

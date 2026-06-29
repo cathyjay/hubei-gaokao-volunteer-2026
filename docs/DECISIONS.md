@@ -223,3 +223,5 @@
 - 新增高校源 Adapter 解析审计：`scripts/build_issue19_school_source_adapter_parse_audit_v1.py` 对 12 个结构化来源实际跑 parser，全部解析出湖北物理类计划行，合计 326 行、计划数合计 6725；公开层只保留计数、覆盖桶和 SHA。该审计说明这些高校侧来源可以进入后续 normalized rows 和候选 diff 生成，但仍不能越过第 19 期 PDF 原页、湖北官方侧和人工复核门禁。
 
 - 新增高校源 Adapter 候选 diff：`scripts/build_issue19_school_source_adapter_candidate_diff_v1.py` 把 326 行私有 normalized 高校源同 344 条第 19 期同校招生明细做自动匹配，公开层只输出 12 行计数和 SHA。当前专业名匹配 280、疑似匹配 4、计划数一致 155、OCR 计划数可补 102、计划数冲突 27；下一步按 D0 冲突和 D1 可补缺口优先核 PDF 原页与湖北官方侧，不逐行全量人工核验。
+
+- 新增高校源 Adapter D0/D1 人工核验包：`scripts/build_issue19_school_source_adapter_d0_d1_manual_review_packets_v1.py` 将 344 条私有 diff 明细压缩成 146 条私有人工核验项，其中 R0 计划数冲突 27、R1 OCR 计划数缺失但高校源可补 102、R2 疑似匹配 2、R3 计划数一致候选抽检 15。该包用于安排人工核页，不确认字段事实。
