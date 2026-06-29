@@ -135,6 +135,8 @@
 
 新增的 `data/working/issue19-first-closure-g0-field-closure-progress-v1-public-ledger.csv` 是第一闭环 G0 字段闭环进度表，并配套 10 行页列汇总和 summary。它把 68 个冲突字段逐字段收束到进度层：专业计划数 26、学费 26、再选科目 16；候选分层为 30 个冲突、10 个一致但仍待核、22 个仅高校辅证、6 个仅 PDFOCR；PDF 原页、湖北官方侧、高校辅证、冲突处理、三方闭环、字段确认和写回评审仍各待 68，双人复核仍待 47。下一步应优先解析和回接已经保留的公开/高校来源，再用第 19 期原页与湖北官方侧做三方闭环，不能用高校源替代湖北官方计划。
 
+新增的 `data/working/issue19-first-closure-g0-field-w0-w1-action-items-v1-public-ledger.csv` 是第一闭环 G0 字段 W0/W1 可执行通道项，并配套 37 行页列通道汇总和 summary。它不再停留在 68 个字段的进度描述，而是从 523 条缺口任务中抽出当前能并行补证的 251 条执行项：PDF 原页、湖北官方侧、高校辅证各 68 条，双人复核 47 条；W0 204 条、W1 47 条。该表用于给私有证据补录分工和解除阻断，不确认字段事实、不写回主表、不进入志愿推荐。
+
 新增的 `data/working/issue19-stable-foundation-first-closure-fact-verification-packets-public-ledger.csv` 是第一闭环事实核验包。它把 439 个事实范围继续压缩成 37 个页列包，并生成 `data/working/issue19-stable-foundation-first-closure-fact-verification-items-public-ledger.csv` 作为 439 个包内事实项。当前波次为 B0 冲突优先 10 包、专业名归属优先 9 包、缺候选人工看图 2 包、机器坐标辅助 16 包；37 包全部仍待 PDF 原页和湖北官方侧核验，字段写回、推荐依据和最终可用仍为 0。它是后续人工抽样、双人复核和并行处理的执行入口，不是字段事实表。
 
 新增的 `data/working/issue19-stable-foundation-first-closure-w0-b0-minimal-manual-packets-public-ledger.csv` 是 W0/B0 最小人工复核包。它把 B0 冲突优先的 275 个同页待核事实先压成 87 个核心事实、10 个页列和 35 个任务：专业组边界 10、明确冲突字段 68、专业名归属 9；剩余 188 个同页伴生事实继续待闭环。它的作用是先处理最容易影响底座结构的串组、字段冲突和专业归属问题，仍不确认字段事实、不写回主表、不进入志愿推荐。
