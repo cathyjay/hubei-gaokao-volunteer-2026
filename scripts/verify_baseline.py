@@ -22999,6 +22999,317 @@ def main():
         and not any(token in school_source_gap_priority_public_text for token in shared_forbidden_tokens),
     ))
 
+    school_source_e0_manual_summary_path = (
+        ROOT / "data/working/issue19-school-source-e0-manual-page-review-queue-summary.json"
+    )
+    school_source_e0_manual_csv = (
+        ROOT / "data/working/issue19-school-source-e0-manual-page-review-queue-public-ledger.csv"
+    )
+    first_closure_next_action_csv_for_e0_manual = (
+        ROOT / "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv"
+    )
+    school_source_e0_manual_summary = json.loads(
+        school_source_e0_manual_summary_path.read_text()
+    )
+    with school_source_e0_manual_csv.open(newline="", encoding="utf-8-sig") as f:
+        school_source_e0_manual_reader = csv.DictReader(f)
+        school_source_e0_manual_rows = list(school_source_e0_manual_reader)
+        school_source_e0_manual_fields = school_source_e0_manual_reader.fieldnames or []
+    with first_closure_next_action_csv_for_e0_manual.open(newline="", encoding="utf-8-sig") as f:
+        first_closure_next_action_for_e0_manual_rows = list(csv.DictReader(f))
+    expected_school_source_e0_manual_fields = script_runtime_constant(
+        ROOT / "scripts/build_issue19_school_source_e0_manual_page_review_queue.py",
+        "FIELDS",
+    )
+    school_source_e0_gap_rows = [
+        row for row in school_source_gap_priority_rows
+        if row.get("执行优先级") == "E0-人工先核回页"
+    ]
+    school_source_e0_gap_by_id = {
+        row.get("高校源缺口优先级ID", ""): row for row in school_source_e0_gap_rows
+    }
+    first_closure_next_action_by_school_for_e0 = defaultdict(list)
+    for row in first_closure_next_action_for_e0_manual_rows:
+        first_closure_next_action_by_school_for_e0[row.get("院校代码", "")].append(row)
+    e0_manual_school_codes = {row.get("院校代码", "") for row in school_source_e0_manual_rows}
+    e0_manual_linked_first_closure_rows = [
+        row
+        for row in first_closure_next_action_for_e0_manual_rows
+        if row.get("院校代码", "") in e0_manual_school_codes
+    ]
+
+    def e0_manual_sha16(values):
+        text = "|".join(str(value or "").strip() for value in sorted(values))
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+
+    def e0_manual_count_contains(rows, field, needle):
+        return sum(1 for row in rows if needle in row.get(field, ""))
+
+    e0_manual_join_ok = True
+    for row in school_source_e0_manual_rows:
+        gap = school_source_e0_gap_by_id.get(row.get("高校源缺口优先级ID", ""), {})
+        school_rows = first_closure_next_action_by_school_for_e0.get(row.get("院校代码", ""), [])
+        action_counter = Counter(r.get("核验动作层级", "") for r in school_rows if r.get("核验动作层级"))
+        lane_counter = Counter(r.get("执行泳道", "") for r in school_rows if r.get("执行泳道"))
+        if row.get("缺口主类") == "G0-冲突差异回页核验":
+            risk_bucket = "M0-计划数冲突或高校侧差异先核"
+            risk_score = 300
+        elif row.get("缺口主类") == "G1-OCR补缺线索回页核验":
+            risk_bucket = "M1-OCR补缺线索先核"
+            risk_score = 200
+        elif row.get("缺口主类") == "G2-专业名归属或匹配规则":
+            risk_bucket = "M2-专业名归属或匹配规则先核"
+            risk_score = 100
+        else:
+            risk_bucket = "M9-其他人工回页任务"
+            risk_score = 0
+        task_ids = [r.get("第一闭环下一步动作ID", "") for r in school_rows]
+        page_side_keys = [r.get("页码版面键", "") for r in school_rows]
+        e0_manual_join_ok = (
+            e0_manual_join_ok
+            and bool(gap)
+            and row.get("高校源E0人工回页队列ID") == stable_id_sha256(
+                "SCHOOLSRCMANUAL",
+                [
+                    row.get("高校源缺口优先级ID", ""),
+                    row.get("高校源最新对齐ID", ""),
+                    row.get("院校代码", ""),
+                ],
+            )
+            and row.get("来源高校源缺口优先级清单")
+            == "data/working/issue19-school-source-gap-priority-public-ledger.csv"
+            and row.get("来源第一闭环下一步动作矩阵")
+            == "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv"
+            and row.get("来源PDF_SHA256") == issue19_source["source"]["sha256"]
+            and row.get("数据阶段") == "issue19_school_source_e0_manual_page_review_queue"
+            and row.get("高校源最新对齐ID") == gap.get("高校源最新对齐ID")
+            and row.get("高校官网辅证状态快照ID") == gap.get("高校官网辅证状态快照ID")
+            and row.get("高校官网辅证自动执行批次ID")
+            == gap.get("高校官网辅证自动执行批次ID")
+            and row.get("院校代码") == gap.get("院校代码")
+            and row.get("任务学校键SHA16") == gap.get("任务学校键SHA16")
+            and row.get("缺口主类") == gap.get("缺口主类")
+            and row.get("缺口子类") == gap.get("缺口子类")
+            and row.get("原自动执行泳道") == gap.get("原自动执行泳道")
+            and row.get("人工回页风险桶") == risk_bucket
+            and as_int(row.get("人工回页优先级分"))
+            == as_int(gap.get("执行优先级分")) + risk_score
+            and row.get("最小人工动作") == gap.get("最小人工动作")
+            and row.get("完成条件") == gap.get("完成条件")
+            and row.get("涉及招生明细数") == gap.get("涉及招生明细数")
+            and row.get("涉及专业组数") == gap.get("涉及专业组数")
+            and row.get("C4C6计划数冲突候选数") == gap.get("C4C6计划数冲突候选数")
+            and row.get("C4C6官网可补OCR计划数候选数")
+            == gap.get("C4C6官网可补OCR计划数候选数")
+            and row.get("同校第一闭环页列提示状态")
+            == (
+                "H1-有同校第一闭环页列提示"
+                if school_rows
+                else "H0-暂无同校第一闭环页列提示"
+            )
+            and as_int(row.get("同校第一闭环任务数")) == len(school_rows)
+            and as_int(row.get("同校第一闭环页列数"))
+            == len({r.get("页码版面键", "") for r in school_rows})
+            and as_int(row.get("同校第一闭环PDF页数"))
+            == len({r.get("来源页码", "") for r in school_rows})
+            and as_int(row.get("同校N0冲突双人核页任务数"))
+            == action_counter.get("N0-先双人核PDF原页冲突", 0)
+            and as_int(row.get("同校N1高校补缺回页任务数"))
+            == action_counter.get("N1-高校补缺线索回PDF原页", 0)
+            and as_int(row.get("同校N2机器坐标辅助核页任务数"))
+            == action_counter.get("N2-机器坐标辅助核PDF原页", 0)
+            and as_int(row.get("同校N3人工看图任务数"))
+            == action_counter.get("N3-无稳定候选人工看图", 0)
+            and as_int(row.get("同校N4PDFOCR确认任务数"))
+            == action_counter.get("N4-PDFOCR候选人工确认", 0)
+            and as_int(row.get("同校N5待湖北官方侧任务数"))
+            == action_counter.get("N5-多源一致仍待湖北官方侧", 0)
+            and as_int(row.get("同校E0冲突异常页列任务数"))
+            == lane_counter.get("E0-冲突异常双人优先核验", 0)
+            and as_int(row.get("同校E1计划数补缺页列任务数"))
+            == lane_counter.get("E1-计划数补缺或偏大优先核验", 0)
+            and as_int(row.get("同校E2专业名归属页列任务数"))
+            == lane_counter.get("E2-官网未匹配专业名归属核验", 0)
+            and as_int(row.get("同校自动官网辅证任务数"))
+            == e0_manual_count_contains(school_rows, "任务来源类型", "自动官网辅证任务")
+            and as_int(row.get("同校P0人工字段任务数"))
+            == e0_manual_count_contains(school_rows, "任务来源类型", "P0人工字段任务")
+            and as_int(row.get("同校专业计划数字段任务数"))
+            == e0_manual_count_contains(school_rows, "字段名", "专业计划数")
+            and as_int(row.get("同校学费字段任务数"))
+            == e0_manual_count_contains(school_rows, "字段名", "学费")
+            and as_int(row.get("同校再选科目字段任务数"))
+            == e0_manual_count_contains(school_rows, "字段名", "再选科目")
+            and as_int(row.get("同校需要双人复核任务数"))
+            == sum(1 for r in school_rows if r.get("是否需要双人复核") == "true")
+            and as_int(row.get("同校需要人工直接看图任务数"))
+            == sum(1 for r in school_rows if r.get("是否需要人工直接看图") == "true")
+            and as_int(row.get("同校PDFOCR与高校冲突任务数"))
+            == sum(1 for r in school_rows if r.get("是否存在PDFOCR与高校冲突") == "true")
+            and as_int(row.get("同校高校辅证线索任务数"))
+            == sum(1 for r in school_rows if r.get("是否有高校辅证线索") == "true")
+            and row.get("同校第一闭环任务集合SHA16") == e0_manual_sha16(task_ids)
+            and row.get("同校页列集合SHA16") == e0_manual_sha16(page_side_keys)
+            and row.get("PDF原页核页状态") == "pending_pdf_page_review"
+            and row.get("湖北官方系统或省招办计划核验状态")
+            == "pending_hubei_official_plan_review"
+            and row.get("高校官网源状态") == "for_double_check_only_not_official_plan_replacement"
+            and row.get("字段事实写回状态")
+            == "blocked_until_pdf_hubei_school_three_way_closure"
+            and all(row.get(field) == "false" for field in school_source_opportunity_false_fields)
+        )
+    school_source_e0_manual_public_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in [school_source_e0_manual_summary_path, school_source_e0_manual_csv]
+    )
+    checks.append(ok(
+        "第 19 期高校源 E0 人工回页队列摘要、规模和桥接分布正确",
+        school_source_e0_manual_summary.get("status")
+        == "issue19_school_source_e0_manual_page_review_queue_not_final"
+        and school_source_e0_manual_summary.get("generated_by")
+        == "build_issue19_school_source_e0_manual_page_review_queue.py"
+        and school_source_e0_manual_summary.get("source_pdf_sha256")
+        == issue19_source["source"]["sha256"]
+        and school_source_e0_manual_summary.get("source_gap_priority")
+        == "data/working/issue19-school-source-gap-priority-public-ledger.csv"
+        and school_source_e0_manual_summary.get("source_first_closure_next_action_matrix")
+        == "data/working/issue19-stable-foundation-first-closure-next-action-matrix.csv"
+        and school_source_e0_manual_summary.get("output_table")
+        == "data/working/issue19-school-source-e0-manual-page-review-queue-public-ledger.csv"
+        and school_source_e0_manual_summary.get("row_count")
+        == len(school_source_e0_manual_rows)
+        == len(school_source_e0_gap_rows)
+        == 37
+        and school_source_e0_manual_summary.get("unique_school_code_count") == 20
+        and school_source_e0_manual_summary.get("risk_bucket_counts")
+        == {
+            "M0-计划数冲突或高校侧差异先核": 17,
+            "M1-OCR补缺线索先核": 8,
+            "M2-专业名归属或匹配规则先核": 12,
+        }
+        and school_source_e0_manual_summary.get("gap_category_counts")
+        == {
+            "G0-冲突差异回页核验": 17,
+            "G1-OCR补缺线索回页核验": 8,
+            "G2-专业名归属或匹配规则": 12,
+        }
+        and school_source_e0_manual_summary.get("linked_hint_status_counts")
+        == {"H1-有同校第一闭环页列提示": 35, "H0-暂无同校第一闭环页列提示": 2}
+        and school_source_e0_manual_summary.get("linked_unique_first_closure_task_count") == 182
+        and school_source_e0_manual_summary.get("linked_unique_school_count") == 18
+        and school_source_e0_manual_summary.get("linked_unique_pdf_page_count") == 17
+        and school_source_e0_manual_summary.get("linked_unique_page_side_count") == 22
+        and Counter(school_source_e0_manual_summary.get("linked_action_level_counts", {}))
+        == Counter(row.get("核验动作层级") for row in e0_manual_linked_first_closure_rows)
+        and Counter(school_source_e0_manual_summary.get("linked_execution_lane_counts", {}))
+        == Counter(row.get("执行泳道") for row in e0_manual_linked_first_closure_rows)
+        and Counter(school_source_e0_manual_summary.get("linked_source_type_counts", {}))
+        == Counter(row.get("任务来源类型") for row in e0_manual_linked_first_closure_rows)
+        and school_source_e0_manual_summary.get("linked_double_review_task_count") == 67
+        and school_source_e0_manual_summary.get("linked_direct_image_review_task_count") == 80
+        and school_source_e0_manual_summary.get("linked_pdfocr_school_conflict_task_count") == 26
+        and school_source_e0_manual_summary.get("linked_school_source_hint_task_count") == 74
+        and school_source_e0_manual_summary.get("pdf_page_review_required_count") == 37
+        and school_source_e0_manual_summary.get("hubei_official_review_required_count") == 37
+        and school_source_e0_manual_summary.get("field_writeback_ready_count") == 0
+        and school_source_e0_manual_summary.get("recommendation_basis_allowed_count") == 0
+        and school_source_e0_manual_summary.get("school_major_suggestion_allowed_count") == 0
+        and school_source_e0_manual_summary.get("official_plan_replacement_allowed_count") == 0
+        and school_source_e0_manual_summary.get("final_available_count") == 0,
+    ))
+    checks.append(ok(
+        "第 19 期高校源 E0 人工回页队列字段、排序、回链和门禁正确",
+        school_source_e0_manual_fields == expected_school_source_e0_manual_fields
+        and len({row.get("高校源E0人工回页队列ID") for row in school_source_e0_manual_rows}) == 37
+        and {row.get("高校源缺口优先级ID") for row in school_source_e0_manual_rows}
+        == {row.get("高校源缺口优先级ID") for row in school_source_e0_gap_rows}
+        and [as_int(row.get("人工回页队列序号")) for row in school_source_e0_manual_rows]
+        == list(range(1, 38))
+        and [
+            as_int(row.get("人工回页优先级分"))
+            for row in school_source_e0_manual_rows
+        ]
+        == sorted(
+            [
+                as_int(row.get("人工回页优先级分"))
+                for row in school_source_e0_manual_rows
+            ],
+            reverse=True,
+        )
+        and Counter(row.get("缺口主类") for row in school_source_e0_manual_rows)
+        == Counter(school_source_e0_manual_summary.get("gap_category_counts", {}))
+        and Counter(row.get("人工回页风险桶") for row in school_source_e0_manual_rows)
+        == Counter(school_source_e0_manual_summary.get("risk_bucket_counts", {}))
+        and sum(row.get("同校第一闭环页列提示状态") == "H1-有同校第一闭环页列提示" for row in school_source_e0_manual_rows) == 35
+        and sum(row.get("同校第一闭环页列提示状态") == "H0-暂无同校第一闭环页列提示" for row in school_source_e0_manual_rows) == 2
+        and all(row.get("PDF原页核页状态") == "pending_pdf_page_review" for row in school_source_e0_manual_rows)
+        and all(row.get("湖北官方系统或省招办计划核验状态") == "pending_hubei_official_plan_review" for row in school_source_e0_manual_rows)
+        and e0_manual_join_ok
+        and all(
+            row.get("是否允许官网证据替代湖北官方计划") == "false"
+            and row.get("是否允许作为志愿推荐依据") == "false"
+            and row.get("是否允许写回字段事实") == "false"
+            and row.get("是否允许生成学校专业建议") == "false"
+            and row.get("最终可用") == "false"
+            and row.get("可进入下一阶段") == "false"
+            for row in school_source_e0_manual_rows
+        ),
+    ))
+    checks.append(ok(
+        "第 19 期高校源 E0 人工回页队列公开文件不含学校专业明细、私有路径、字段记录、登录态和最终误导结论",
+        "/Users/" not in school_source_e0_manual_public_text
+        and "/home/" not in school_source_e0_manual_public_text
+        and "/var/folders/" not in school_source_e0_manual_public_text
+        and "/private/" not in school_source_e0_manual_public_text
+        and "private/" not in school_source_e0_manual_public_text
+        and "private\\" not in school_source_e0_manual_public_text
+        and "ocr-runs" not in school_source_e0_manual_public_text
+        and "rendered-pages" not in school_source_e0_manual_public_text
+        and "file://" not in school_source_e0_manual_public_text
+        and ".png" not in school_source_e0_manual_public_text
+        and ".jpg" not in school_source_e0_manual_public_text
+        and ".jpeg" not in school_source_e0_manual_public_text
+        and ".webp" not in school_source_e0_manual_public_text
+        and ".tif" not in school_source_e0_manual_public_text
+        and ".tiff" not in school_source_e0_manual_public_text
+        and ".heic" not in school_source_e0_manual_public_text
+        and "Authorization" not in school_source_e0_manual_public_text
+        and "Bearer " not in school_source_e0_manual_public_text
+        and "Cookie" not in school_source_e0_manual_public_text
+        and "Set-Cookie" not in school_source_e0_manual_public_text
+        and "access_token" not in school_source_e0_manual_public_text
+        and "refresh_token" not in school_source_e0_manual_public_text
+        and "password" not in school_source_e0_manual_public_text
+        and "secret" not in school_source_e0_manual_public_text
+        and "api_key" not in school_source_e0_manual_public_text
+        and "身份证" not in school_source_e0_manual_public_text
+        and "准考证" not in school_source_e0_manual_public_text
+        and "报名号" not in school_source_e0_manual_public_text
+        and "序列号" not in school_source_e0_manual_public_text
+        and "手机号" not in school_source_e0_manual_public_text
+        and "院校名称" not in school_source_e0_manual_public_text
+        and "专业名称" not in school_source_e0_manual_public_text
+        and "专业代号" not in school_source_e0_manual_public_text
+        and "院校专业组" not in school_source_e0_manual_public_text
+        and "OCR行文本" not in school_source_e0_manual_public_text
+        and "OCR原文" not in school_source_e0_manual_public_text
+        and "候选值" not in school_source_e0_manual_public_text
+        and "人工读数" not in school_source_e0_manual_public_text
+        and "字段确认值" not in school_source_e0_manual_public_text
+        and "PDF原页人工读数" not in school_source_e0_manual_public_text
+        and "湖北官方字段值" not in school_source_e0_manual_public_text
+        and "高校官网或招生章程字段值" not in school_source_e0_manual_public_text
+        and "复核备注" not in school_source_e0_manual_public_text
+        and "已确认" not in school_source_e0_manual_public_text
+        and "已核准" not in school_source_e0_manual_public_text
+        and "最终推荐" not in school_source_e0_manual_public_text
+        and "最终方案" not in school_source_e0_manual_public_text
+        and "可填报" not in school_source_e0_manual_public_text
+        and "可排序" not in school_source_e0_manual_public_text
+        and "K48704" not in school_source_e0_manual_public_text
+        and not any(token in school_source_e0_manual_public_text for token in shared_forbidden_tokens),
+    ))
+
     c4_c6_packets_summary_path = (
         ROOT / "data/working/issue19-c4-c6-school-source-refresh-execution-packets-summary.json"
     )

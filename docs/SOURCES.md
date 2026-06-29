@@ -242,7 +242,15 @@
    - 当前结论：覆盖 80 条任务、36 所学校；按任务泳道分为冲突回页 17、OCR 补缺回页 8、专业名归属 12、补结构化 18、继续补源 8、章程规则 16、留存观察 1；执行优先级为先人工回页 37、自动补结构化或补源 26、规则抽检或留存 17。
    - 限制：该清单只排补源、结构化、核页和规则核验顺序；所有行仍需第 19 期 PDF 原页和湖北官方侧核验，不确认字段事实，不允许字段写回，不作为志愿推荐依据。
 
-17. Round4 重点核验55组独立入口
+17. 高校源 E0 人工回页桥接队列
+   - 生成脚本：`scripts/build_issue19_school_source_e0_manual_page_review_queue.py`
+   - 公开账本：`data/working/issue19-school-source-e0-manual-page-review-queue-public-ledger.csv`
+   - 公开摘要：`data/working/issue19-school-source-e0-manual-page-review-queue-summary.json`
+   - 输入来源：高校源缺口优先级清单、第一闭环下一步动作矩阵。
+   - 当前结论：覆盖 37 条 E0 人工先核回页任务、20 个院校代码；其中 35 条有同校第一闭环页列提示，2 条暂无同校页列提示；同校桥接提示合计关联 182 条第一闭环任务、17 个 PDF 页、22 个页列。
+   - 限制：该队列只把 E0 高校侧任务接到同校页列提示，不能据此确认计划数、学费、选科、专业归属或专业组边界；所有行仍需第 19 期 PDF 原页和湖北官方侧核验。
+
+18. Round4 重点核验55组独立入口
    - 生成脚本：`scripts/build_issue19_round4_priority_focus55.py`
    - 工作簿：`data/exports/issue19-round4-priority-focus55.xlsx`
    - 摘要：`data/exports/issue19-round4-priority-focus55-summary.json`
@@ -253,7 +261,7 @@
    - 当前结论：从 Round4 优先 120 组压缩出 55 个重点核验组，另 65 组暂缓；55 组覆盖 48 所学校、458 条完整组内专业。
    - 限制：该入口只说明优先核验顺序、压缩理由、核验成本和调剂风险；不确认字段事实，不允许字段写回，不作为志愿推荐依据。
 
-18. P0 top3 私有复核包公开台账
+19. P0 top3 私有复核包公开台账
    - 生成脚本：`scripts/build_issue19_p0_top3_review_packet.py`
    - 公开台账：`data/working/issue19-p0-top3-review-packet-public-ledger.csv`
    - 逐字段公开台账：`data/working/issue19-p0-top3-field-review-public-ledger.csv`
@@ -480,6 +488,8 @@
 - `data/working/issue19-school-source-latest-reconciliation-summary.json`：高校官网最新证据对齐摘要；记录 36 所学校、80 条任务、60 条已有湖北物理结构化或候选 diff 线索、12 条只有入口或探针记录、8 条暂无可复用高校侧计划源，以及 A4 继续补源任务中 4 条已推进、4 条仍需补源。字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数全部为 0。
 - `data/working/issue19-school-source-gap-priority-public-ledger.csv`：高校源缺口优先级公开清单，80 行；一行对应一条高校侧辅证自动执行任务，把冲突回页、OCR 补缺、专业名归属、补结构化、继续补源、章程规则和留存观察统一排成下一步执行顺序。
 - `data/working/issue19-school-source-gap-priority-summary.json`：高校源缺口优先级摘要；记录 37 条人工先核回页、26 条自动补结构化或补源、17 条规则抽检或留存，以及 PDF 原页和湖北官方侧仍均需核验的非最终门禁。
+- `data/working/issue19-school-source-e0-manual-page-review-queue-public-ledger.csv`：高校源 E0 人工回页桥接队列，37 行；从高校源缺口优先级清单筛出 E0 人工先核任务，并按院校代码旁挂同校第一闭环页列提示计数。
+- `data/working/issue19-school-source-e0-manual-page-review-queue-summary.json`：上述 E0 队列摘要；记录 37 条 E0 任务、20 个院校代码、35 条有同校页列提示、2 条暂无同校页列提示、182 条同校第一闭环任务提示，以及全部非最终门禁。
 - `data/working/issue19-c4-c6-school-source-acquisition-attempts-public-ledger.csv`：C4/C6 高校官网补源尝试公开账本，12 行；覆盖 12 所 C4/C6 D4/D5/D6 剩余补源缺口学校和 312 条相关私有明细。公开层只保存学校级 URL、既有入口证据、自动探针状态、补源建议、人工最小核验动作和非最终门禁，不保存逐专业候选值或登录态。
 - `data/working/issue19-c4-c6-school-source-acquisition-attempts-summary.json`：C4/C6 高校官网补源尝试摘要；记录 12 所学校中 4 所有入口但尚未结构化、1 所需补 parser/匹配规则、7 所仍需继续找官方招生计划源，全部字段写回、推荐依据、学校专业建议、官网替代湖北官方计划和最终可用计数为 0。
 - `data/working/issue19-stable-foundation-first-closure-detail-packet.csv`：稳定基座第一闭环明细包，206 行；只纳入 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务，用于先核最高风险冲突、补缺、未匹配和高校辅证线索。
@@ -649,6 +659,7 @@
 - `scripts/build_issue19_c4_c6_school_source_acquisition_attempts.py`：读取 C4/C6 结构化候选 diff、C4/C6 执行包和高校官网补源种子表，生成学校级补源尝试公开账本；记录自动探针状态、既有入口证据、自动补源建议和人工最小核验动作，不确认逐专业字段事实。
 - `scripts/build_issue19_school_source_latest_reconciliation.py`：读取高校官网辅证自动执行批次、next20 探测、live 补源、C4/C6 复用审计、结构化候选 diff 和补源尝试账本，生成 80 行高校官网最新证据对齐账本；用于识别哪些高校侧任务已经推进、哪些仍需补源或解析，不确认字段事实。
 - `scripts/build_issue19_school_source_gap_priority_ledger.py`：读取高校官网最新证据对齐账本、状态快照、自动执行批次、C4/C6 结构化候选 diff 和补源尝试账本，生成 80 行高校源缺口优先级清单；用于固定下一步人工回页、自动补结构化、继续补源和章程规则核验顺序，不确认字段事实。
+- `scripts/build_issue19_school_source_e0_manual_page_review_queue.py`：读取高校源缺口优先级清单和第一闭环下一步动作矩阵，生成 37 行 E0 人工回页桥接队列；用于固定人工先核任务和同校页列提示，不确认字段事实。
 - `scripts/build_issue19_stable_foundation_first_closure_packet.py`：读取稳定基座下一步闭环工作台，把最高优先级 C0/C1/C7 官网辅证任务和 EXEC-01/02/03 P0 字段任务合并成 206 条明细任务和 37 个页列执行包。
 - `scripts/build_issue19_first_closure_review_materials.py`：读取第一闭环明细包、页列包、页列底座公开进度账本、字段线索审计、人工复核 Overlay、官方入口状态和私有 OCR 证据，生成第一闭环公开复核账本，并在 Git 忽略的 `private/` 目录生成 37 份页列 HTML/CSV 核页材料。
 - `scripts/build_issue19_first_closure_task_review_ledger.py`：读取第一闭环明细包、页列包、第一闭环复核公开账本和官方入口状态，生成 206 行任务级公开复核账本；公共高校来源文件只公开相对路径和 SHA，字段读数、OCR 原文、页图路径和人工记录继续留在私有复核材料。
